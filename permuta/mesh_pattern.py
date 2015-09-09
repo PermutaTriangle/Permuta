@@ -77,33 +77,25 @@ class MeshPattern(object):
         if pos1[1] < pos2[1]:
             pos1, pos2 = pos2, pos1
         if pos1[0] == 0 or self.perm[pos1[0]-1] != pos1[1]:
-            # print('a')
             return False
         if pos1[0] != pos2[0] or pos1[1]-1 != pos2[1]:
-            # print('b')
             return False
 
         if pos1 in self.mesh:
-            # print('c')
             return False
         if pos2 in self.mesh:
-            # print('d')
             return False
         if (pos1[0]-1,pos1[1]) in self.mesh:
-            # print('e')
             return False
         if (pos2[0]-1,pos2[1]) in self.mesh:
-            # print('f')
             return False
         for y in range(len(self.perm) + 1):
             if y == pos1[1] or y == pos1[1] - 1: continue
             if (pos1[0] - 1, y) in self.mesh and (pos1[0], y) not in self.mesh:
-                # print('f', y)
                 return False
         for x in range(len(self.perm) + 1):
             if x == pos1[0] or x == pos1[0] - 1: continue
             if ((x,pos1[1]) in self.mesh) != ((x,pos2[1]) in self.mesh):
-                # print('g', x)
                 return False
         return (pos1[0]-1, pos1[1]-1)
 
