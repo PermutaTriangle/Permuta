@@ -119,6 +119,9 @@ class MeshPattern(object):
             pos = set([pos])
         return MeshPattern(self.perm, self.mesh | pos)
 
+    def __len__(self):
+        return len(self.perm)
+
     def __eq__(self, other):
         return self.perm == other.perm and self.mesh == other.mesh
 
@@ -127,4 +130,9 @@ class MeshPattern(object):
 
     def __repr__(self):
         return 'MeshPattern(%s, %s)' % (repr(self.perm), repr(self.mesh))
+
+    def __str__(self):
+        n = len(self.perm)
+        arr = [ [ ((str(n-(i-1)//2) if n < 10 else 'o') if self.perm[(j-1)/2] == n-(i-1)//2 else '+') if j % 2 != 0 and i % 2 != 0 else '|' if j % 2 != 0 else '-' if i % 2 != 0 else ('#' if ((j-1)/2+1, n-(i-1)/2-1) in self.mesh else ' ') for j in range(2*n+1) ] for i in range(2*n+1) ]
+        return '\n'.join( ''.join(line) for line in arr )
 
