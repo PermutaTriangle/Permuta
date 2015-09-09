@@ -1,5 +1,6 @@
-from permutations import Permutations
-from mesh_pattern import MeshPattern
+from .permutations import Permutations
+from .mesh_pattern import MeshPattern
+import random
 
 class MeshPatterns(object):
     def __init__(self, n):
@@ -21,6 +22,15 @@ class MeshPatterns(object):
         for p in Permutations(self.n):
             for r in gen(p, 0, 0, []):
                 yield r
+
+    def random_element(self):
+        perm = Permutations(self.n).random_element()
+        mesh = set()
+        for i in range(self.n+1):
+            for j in range(self.n+1):
+                if random.randint(0,1) == 1:
+                    mesh.add((i,j))
+        return MeshPattern(perm, mesh)
 
     def __str__(self):
         return 'The set of MeshPatterns of length %d' % self.n

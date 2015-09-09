@@ -1,5 +1,6 @@
 from .misc import DancingLinks
 from .permutation import Permutation
+import random
 
 class Permutations(object):
     def __init__(self, n):
@@ -25,6 +26,13 @@ class Permutations(object):
                     cur = cur.next
 
         return gen()
+
+    def random_element(self):
+        p = [ i+1 for i in range(self.n) ]
+        for i in range(self.n-1, -1, -1):
+            j = random.randint(0, i)
+            p[i],p[j] = p[j],p[i]
+        return Permutation(p)
 
     def __str__(self):
         return 'The set of Permutations of length %d' % self.n
