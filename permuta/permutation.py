@@ -16,6 +16,8 @@ class Permutation(object):
         self.perm = list(perm)
 
     def contains(self, pattern):
+        if type(pattern) is list:
+            pattern = Permutation(pattern)
         return pattern.contained_in(self)
 
     def avoids(self, pattern):
