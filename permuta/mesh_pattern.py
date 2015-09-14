@@ -63,15 +63,16 @@ class MeshPattern(object):
 
     def can_shade(self, pos):
         mp = self
+        poss = []
         for i in range(4):
             ans = mp._can_shade(pos)
             if ans:
                 for j in range((-i)%4):
                     ans = _rot_right(len(self.perm)-1, ans)
-                return ans[1]+1
+                poss.append(ans[1]+1)
             mp = mp.rotate_right()
             pos = _rot_right(len(self.perm), pos)
-        return False
+        return poss
 
     def _can_shade2(self, pos1, pos2):
         if pos1[1] < pos2[1]:
@@ -101,16 +102,17 @@ class MeshPattern(object):
 
     def can_shade2(self, pos1, pos2):
         mp = self
+        poss = []
         for i in range(4):
             ans = mp._can_shade2(pos1, pos2)
             if ans:
                 for j in range((-i)%4):
                     ans = _rot_right(len(self.perm)-1, ans)
-                return ans[1]+1
+                poss.append(ans[1]+1)
             mp = mp.rotate_right()
             pos1 = _rot_right(len(self.perm), pos1)
             pos2 = _rot_right(len(self.perm), pos2)
-        return False
+        return poss
 
     def shade(self, pos):
         if type(pos) is list:
