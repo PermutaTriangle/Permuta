@@ -1,5 +1,5 @@
 from .union_find import UnionFind
-from .misc import flatten, binary_search, choose
+from .misc import flatten, binary_search, choose, subsets
 from .dancing_links import DancingLinks
 from .algorithm_x import AlgorithmX
 from .exact_cover import exact_cover
