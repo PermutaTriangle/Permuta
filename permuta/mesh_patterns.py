@@ -3,8 +3,11 @@ from .mesh_pattern import MeshPattern
 import random
 
 class MeshPatterns(object):
-    def __init__(self, n):
+    def __init__(self, n, patt=None):
         self.n = n
+        self.patt = patt
+        if patt is not None:
+            assert len(patt) == n
 
     def __iter__(self):
         def gen(p, x, y, s):
@@ -19,12 +22,16 @@ class MeshPatterns(object):
                 for r in gen(p, x+1, y, s + [(x,y)]):
                     yield r
 
-        for p in Permutations(self.n):
-            for r in gen(p, 0, 0, []):
+        if self.patt is None:
+            for p in Permutations(self.n):
+                for r in gen(p, 0, 0, []):
+                    yield r
+        else:
+            for r in gen(self.patt, 0, 0, []):
                 yield r
 
     def random_element(self):
-        perm = Permutations(self.n).random_element()
+        perm = Permutations(self.n).random_element() if self.patt is None else self.patt
         mesh = set()
         for i in range(self.n+1):
             for j in range(self.n+1):
@@ -33,8 +40,11 @@ class MeshPatterns(object):
         return MeshPattern(perm, mesh)
 
     def __str__(self):
-        return 'The set of MeshPatterns of length %d' % self.n
+        if self.patt is not None:
+            return 'The set of MeshPatterns with underlying classical pattern %s' % self.patt
+        else:
+            return 'The set of MeshPatterns of length %d' % self.n
 
     def __repr__(self):
-        return 'MeshPatterns(%d)' % self.n
+        return 'MeshPatterns(%d%s)' % (self.n, ', %s' % self.patt if self.patt is not None else '')
 
