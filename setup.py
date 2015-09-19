@@ -13,7 +13,7 @@ setup(
     license = "BSD-3",
     keywords = "permutations patterns",
     url = "https://github.com/PermutaTriangle/Permuta",
-    packages=['permuta'],
+    packages=['permuta', 'permuta.math', 'permuta.misc'],
     long_description=read('README.md'),
     test_suite = 'tests'
 )
