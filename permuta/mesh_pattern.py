@@ -121,28 +121,78 @@ class MeshPattern(object):
             pos = set([pos])
         return MeshPattern(self.perm, self.mesh | pos)
 
-
-
     def sub_mesh(self, positions):
+        """
+            positions: 1-based indices of points
+        """
         positions = sorted(positions)
+        perm = self.perm
+        assert(set(positions) <= set(self.perm.perm))
         def is_shaded(left, right, lower, upper):
             shades = [ m for m in self.mesh if left <= m[0] < right and lower <= m[1] < upper ]
-            points = [ i for i in range(len(self.perm.perm)) if left < i+1 < right and lower < self.perm.perm[i] < upper]
+            points = [ i for i in range(len(perm)) if left < i+1 < right and lower < perm[i] < upper]
             return len(shades) == (right-left)*(upper-lower) and points == []
-        new_perm = Permutation.to_standard([self.perm.perm[i-1] for i in positions])
-        hor_lines = sorted([0] + [ self.perm.perm[i-1] for i in positions ] + [len(self.perm.perm) + 1])
-        ver_lines = sorted([0] + positions + [len(self.perm.perm) + 1])
+        nperm = Permutation.to_standard([perm[i-1] for i in positions])
+        hor_lines = sorted([0] + [ perm[i-1] for i in positions ] + [len(perm) + 1])
+        ver_lines = sorted([0] + positions + [len(perm) + 1])
 
-        mesh = set()
+        nmesh = set()
         for i in range(len(ver_lines)-1):
             for j in range(len(hor_lines)-1):
                 if is_shaded(ver_lines[i], ver_lines[i+1], hor_lines[j], hor_lines[j+1]):
-                    mesh.add((i,j))
+                    nmesh.add((i,j))
 
-        return MeshPattern(new_perm, mesh)
+        return MeshPattern(nperm, nmesh)
 
+    def add_point(self, x, y, shade_dir=-1, safe=True):
+        """
+            shade_dir:
+                -1: don't shade
+                0: shade east
+                1: shade north
+                2: shade west
+                3: shade south
+        """
 
+        if safe:
+            assert (x,y) not in self.mesh
 
+        perm = [ v if v < y+1 else v+1 for v in self.perm ]
+        nperm = perm[:x] + [y+1] + perm[x:]
+        nmesh = set()
+        for (a,b) in self.mesh:
+            if a < x:
+                nx = [a]
+            elif a == x:
+                nx = [a,a+1]
+            else:
+                nx = [a+1]
+
+            if b < y:
+                ny = [b]
+            elif b == y:
+                ny = [b,b+1]
+            else:
+                ny = [b+1]
+
+            for na in nx:
+                for nb in ny:
+                    nmesh.add((na,nb))
+
+        if shade_dir == 0:
+            nmesh.add((x+1,y))
+            nmesh.add((x+1,y+1))
+        elif shade_dir == 1:
+            nmesh.add((x,y+1))
+            nmesh.add((x+1,y+1))
+        elif shade_dir == 2:
+            nmesh.add((x,y))
+            nmesh.add((x,y+1))
+        elif shade_dir == 3:
+            nmesh.add((x,y))
+            nmesh.add((x+1,y))
+
+        return MeshPattern(Permutation(nperm), nmesh)
 
     def __len__(self):
         return len(self.perm)
