@@ -27,8 +27,8 @@ class ProgressBar(object):
         ProgressBar.last = curt
         sys.stderr.write('\033[1F')
         width = 50
-        prog = float(prg - ProgressBar.mn) / (ProgressBar.mx - ProgressBar.mn)
-        bars = width if ProgressBar.mn == ProgressBar.mx else int(round(prog * width))
+        prog = 1 if ProgressBar.mn == ProgressBar.mx else float(prg - ProgressBar.mn) / (ProgressBar.mx - ProgressBar.mn)
+        bars = int(round(prog * width))
         bars = max(0, min(width, bars))
         sys.stderr.write('%3d%% [%s%s]' % (round(prog * 100), '#' * bars, '-' * (width - bars)))
         elapsed = curt - ProgressBar.start
