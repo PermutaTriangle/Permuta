@@ -9,8 +9,8 @@ def _rot_right(n,pos):
 
 class MeshPattern(object):
     def __init__(self, perm, mesh):
-       self.perm = perm
-       self.mesh = set(mesh)
+        self.perm = perm
+        self.mesh = set(mesh)
 
     def contained_in(self, perm):
 
@@ -120,6 +120,29 @@ class MeshPattern(object):
         elif type(pos) is not set:
             pos = set([pos])
         return MeshPattern(self.perm, self.mesh | pos)
+
+
+
+    def sub_mesh(self, positions):
+        positions = sorted(positions)
+        def is_shaded(left, right, lower, upper):
+            shades = [ m for m in self.mesh if left <= m[0] < right and lower <= m[1] < upper ]
+            points = [ i for i in range(len(self.perm.perm)) if left < i+1 < right and lower < self.perm.perm[i] < upper]
+            return len(shades) == (right-left)*(upper-lower) and points == []
+        new_perm = Permutation.to_standard([self.perm.perm[i-1] for i in positions])
+        hor_lines = sorted([0] + [ self.perm.perm[i-1] for i in positions ] + [len(self.perm.perm) + 1])
+        ver_lines = sorted([0] + positions + [len(self.perm.perm) + 1])
+
+        mesh = set()
+        for i in range(len(ver_lines)-1):
+            for j in range(len(hor_lines)-1):
+                if is_shaded(ver_lines[i], ver_lines[i+1], hor_lines[j], hor_lines[j+1]):
+                    mesh.add((i,j))
+
+        return MeshPattern(new_perm, mesh)
+
+
+
 
     def __len__(self):
         return len(self.perm)
