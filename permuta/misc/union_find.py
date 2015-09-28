@@ -26,12 +26,13 @@ class UnionFind(object):
         x = self.find(x)
         y = self.find(y)
         if x == y:
-            return
+            return False
         if self.size(x) > self.size(y):
             x,y = y,x
         self.p[y] += self.p[x]
         self.p[x] = y
         self.leaders.remove(x)
+        return True
 
     def add(self):
         """Add a unit set containing a new element to the collection, and
