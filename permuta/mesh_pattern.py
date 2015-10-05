@@ -144,7 +144,7 @@ class MeshPattern(object):
 
         return MeshPattern(nperm, nmesh)
 
-    def add_point(self, x, y, shade_dir=-1, safe=True):
+    def add_point(self, b, shade_dir=-1, safe=True):
         """
             shade_dir:
                 -1: don't shade
@@ -154,6 +154,7 @@ class MeshPattern(object):
                 3: shade south
         """
 
+        x,y = b
         if safe:
             assert (x,y) not in self.mesh
 
@@ -192,7 +193,7 @@ class MeshPattern(object):
             nmesh.add((x,y))
             nmesh.add((x+1,y))
 
-        return MeshPattern(Permutation(nperm), nmesh)
+        return MeshPattern(Permutation(list(nperm)), nmesh)
 
     def __len__(self):
         return len(self.perm)
