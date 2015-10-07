@@ -144,7 +144,7 @@ class MeshPattern(object):
 
         return MeshPattern(nperm, nmesh)
 
-    def add_point(self, x, y, shade_dir=-1, safe=True):
+    def add_point(self, (x, y), shade_dir=-1, safe=True):
         """
             shade_dir:
                 -1: don't shade
