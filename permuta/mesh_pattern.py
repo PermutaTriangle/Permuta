@@ -42,6 +42,13 @@ class MeshPattern(object):
     def rotate_right(self):
         return MeshPattern(self.perm.rotate_right(), set([ _rot_right(len(self.perm), pos) for pos in self.mesh ]))
 
+    def non_pointless_boxes(self):
+        res = []
+        L = self.perm.perm
+        for i in range(len(L)):
+            res.extend([(i+1,L[i]), (i,L[i]), (i,L[i]-1), (i+1,L[i]-1)])
+        return set(res)
+
     def _can_shade(self, pos):
         i,j = pos
         if (i,j) in self.mesh: return False
@@ -210,4 +217,3 @@ class MeshPattern(object):
         n = len(self.perm)
         arr = [ [ ((str(n-(i-1)//2) if n < 10 else 'o') if self.perm[(j-1)/2] == n-(i-1)//2 else '+') if j % 2 != 0 and i % 2 != 0 else '|' if j % 2 != 0 else '-' if i % 2 != 0 else ('#' if ((j-1)/2+1, n-(i-1)/2-1) in self.mesh else ' ') for j in range(2*n+1) ] for i in range(2*n+1) ]
         return '\n'.join( ''.join(line) for line in arr )
-
