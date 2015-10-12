@@ -137,16 +137,24 @@ class MeshPattern(object):
         assert(set(positions) <= set(self.perm.perm))
         def is_shaded(left, right, lower, upper):
             for i in range(len(perm)):
-                if left < i + 1 and lower < perm[i] < upper:
+                if left < i+1 < right and lower < perm[i] < upper:
                     return False
-            shades = 0
-            for m in self.mesh:
-                if left <= m[0] < right and lower <= m[1] < upper:
-                    shades += 1
-            return shades == (right - left)*(upper - lower)
-            # shades = [ m for m in self.mesh if left <= m[0] < right and lower <= m[1] < upper ]
-            # points = [ i for i in range(len(perm)) if left < i+1 < right and lower < perm[i] < upper]
-            # return len(shades) == (right-left)*(upper-lower) and points == []
+                if i+1 >= right:
+                    break
+            for h in range(left, right):
+                for v in range(lower, upper):
+                    if (h,v) not in self.mesh:
+                        return False
+            return True
+
+            #shades = 0
+            #for m in self.mesh:
+                #if left <= m[0] < right and lower <= m[1] < upper:
+                    #shades += 1
+            #return shades == (right - left)*(upper - lower)
+            #shades = [ m for m in self.mesh if left <= m[0] < right and lower <= m[1] < upper ]
+            #points = [ i for i in range(len(perm)) if left < i+1 < right and lower < perm[i] < upper]
+            #return len(shades) == (right-left)*(upper-lower) and points == []
 
         nperm = Permutation.to_standard([perm[i-1] for i in positions])
         hor_lines = sorted([0] + [ perm[i-1] for i in positions ] + [len(perm) + 1])
