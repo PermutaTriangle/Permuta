@@ -1,5 +1,6 @@
 import bisect
 from .permutation import Permutation
+from .misc import DIR_EAST, DIR_NORTH, DIR_WEST, DIR_SOUTH, DIR_NONE
 
 def _rot_right(n,pos):
     x,y = pos
@@ -168,16 +169,7 @@ class MeshPattern(object):
 
         return MeshPattern(nperm, nmesh)
 
-    def add_point(self, (x, y), shade_dir=-1, safe=True):
-        """
-            shade_dir:
-                -1: don't shade
-                0: shade east
-                1: shade north
-                2: shade west
-                3: shade south
-        """
-
+    def add_point(self, (x, y), shade_dir=DIR_NONE, safe=True):
         if safe:
             assert (x,y) not in self.mesh
 
@@ -203,16 +195,16 @@ class MeshPattern(object):
                 for nb in ny:
                     nmesh.add((na,nb))
 
-        if shade_dir == 0:
+        if shade_dir == DIR_EAST:
             nmesh.add((x+1,y))
             nmesh.add((x+1,y+1))
-        elif shade_dir == 1:
+        elif shade_dir == DIR_NORTH:
             nmesh.add((x,y+1))
             nmesh.add((x+1,y+1))
-        elif shade_dir == 2:
+        elif shade_dir == DIR_WEST:
             nmesh.add((x,y))
             nmesh.add((x,y+1))
-        elif shade_dir == 3:
+        elif shade_dir == DIR_SOUTH:
             nmesh.add((x,y))
             nmesh.add((x+1,y))
 
