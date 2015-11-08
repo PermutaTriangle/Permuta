@@ -210,6 +210,21 @@ class MeshPattern(object):
 
         return MeshPattern(Permutation(list(nperm)), nmesh)
 
+    def rank(self):
+        res = 0
+        for (x,y) in self.mesh:
+            res |= 1<<(x * (len(self.perm)+1) + y)
+        return res
+
+    @staticmethod
+    def unrank(perm, x):
+        mesh = set()
+        for i in range(len(perm)+1):
+            for j in range(len(perm)+1):
+                if (x&(1<<(i*(len(perm)+1)+j))) != 0:
+                    mesh.add((i,j))
+        return MeshPattern(perm, mesh)
+
     def __len__(self):
         return len(self.perm)
 
