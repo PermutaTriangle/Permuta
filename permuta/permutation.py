@@ -60,6 +60,18 @@ class Permutation(object):
             res.append(len(self) - idx[i])
         return Permutation(res)
 
+    def flip_horizontal(self):
+        return Permutation([ len(self.perm) - x + 1 for x in self.perm ])
+
+    def flip_vertical(self):
+        return Permutation(self.perm[::-1])
+
+    def flip_diagonal(self):
+        return Permutation([ x for _,x in sorted([ (y,x+1) for x,y in enumerate(self.perm) ]) ])
+
+    def flip_antidiagonal(self):
+        return Permutation([ x for _,x in sorted([ (-y,len(self.perm)-x) for x,y in enumerate(self.perm) ]) ])
+
     @staticmethod
     def to_standard(lst):
         n = len(lst)

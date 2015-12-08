@@ -210,6 +210,18 @@ class MeshPattern(object):
 
         return MeshPattern(Permutation(list(nperm)), nmesh)
 
+    def flip_horizontal(self):
+        return MeshPattern(self.perm.flip_horizontal(), [ (x,len(self.perm)-y) for (x,y) in self.mesh ])
+
+    def flip_vertical(self):
+        return MeshPattern(self.perm.flip_vertical(), [ (len(self.perm)-x,y) for (x,y) in self.mesh ])
+
+    def flip_diagonal(self):
+        return MeshPattern(self.perm.flip_diagonal(), [ (y,x) for (x,y) in self.mesh ])
+
+    def flip_antidiagonal(self):
+        return MeshPattern(self.perm.flip_antidiagonal(), [ (len(self.perm)-y,len(self.perm)-x) for (x,y) in self.mesh ])
+
     def rank(self):
         res = 0
         for (x,y) in self.mesh:
