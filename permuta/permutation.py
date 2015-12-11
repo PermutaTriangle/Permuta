@@ -1,7 +1,9 @@
 
 class Permutation(object):
+    """Base Permutation object"""
     def __init__(self, perm, check=False):
-
+        """Create a new Permutation from the given list.
+        If check, then check that the permutation is of the correct form"""
         if check:
             assert type(perm) is list
             n = len(perm)
@@ -16,15 +18,19 @@ class Permutation(object):
         self.perm = list(perm)
 
     def contains(self, pattern):
+        """Returns true if permutation self contains a given pattern"""
         if type(pattern) is list:
             pattern = Permutation(pattern)
         return pattern.contained_in(self)
 
     def avoids(self, pattern):
+        """Returns True if self contains no occurrence of pattern"""
         return not self.contains(pattern)
 
     def contained_in(self, perm):
-        # self is treated as a pattern
+        """Returns true if the permutation self is contained in the
+        permutation perm.
+        self is treated as a pattern"""
         def con(i, now):
             if len(now) == len(self):
                 return True
@@ -33,8 +39,9 @@ class Permutation(object):
                 return False
 
             nxt = now + [perm[i]]
-            # TODO: make this faster by incrementally building the flattened list
-            if Permutation.to_standard(nxt) == Permutation.to_standard(self[:len(nxt)]):
+            # TODO: make this faster by incrementally building flattened list
+            if (Permutation.to_standard(nxt) ==
+                    Permutation.to_standard(self[:len(nxt)])):
                 if con(i+1, nxt):
                     return True
 
@@ -42,8 +49,8 @@ class Permutation(object):
 
         return con(0, [])
 
-
     def inverse(self):
+        """Return the inverse of the permutation self"""
         n = len(self)
         res = [None]*n
         for i in range(n):
@@ -53,7 +60,7 @@ class Permutation(object):
     def rotate_right(self):
         # TODO: is there a nicer name for this?
         idx = [-1] * len(self)
-        for i,v in enumerate(self.perm):
+        for i, v in enumerate(self.perm):
             idx[v-1] = i
         res = []
         for i in range(len(self)):
@@ -61,27 +68,39 @@ class Permutation(object):
         return Permutation(res)
 
     def flip_horizontal(self):
-        return Permutation([ len(self.perm) - x + 1 for x in self.perm ])
+        """Returns the permutation self flipped horizontally"""
+        return Permutation([len(self.perm) - x + 1 for x in self.perm])
 
     def flip_vertical(self):
+        """Returns the permutation self flipped vertically"""
         return Permutation(self.perm[::-1])
 
     def flip_diagonal(self):
-        return Permutation([ x for _,x in sorted([ (y,x+1) for x,y in enumerate(self.perm) ]) ])
+        """Returns the permutation self flipped along the diagonal, y=x"""
+        return Permutation([x for _, x in
+                            sorted([(y, x) for x, y in
+                                    enumerate(self.perm, 1)])])
 
     def flip_antidiagonal(self):
-        return Permutation([ x for _,x in sorted([ (-y,len(self.perm)-x) for x,y in enumerate(self.perm) ]) ])
+        """Returns the permutation self flipped along the
+        antidiagonal, y=len(perm)-x"""
+        return Permutation([x for _, x in
+                            sorted([(-y, len(self.perm)-x) for x, y in
+                                    enumerate(self.perm)])])
 
     @staticmethod
     def to_standard(lst):
+        """Returns the permutation given by mapping every element in lst
+        to the lowest possible value that preserves order of the elements"""
         n = len(lst)
         res = [None]*n
-        for j, (x, i) in enumerate(sorted( (lst[i], i) for i in range(n) )):
+        for j, (x, i) in enumerate(sorted((lst[i], i) for i in range(n))):
             res[i] = j+1
 
         return Permutation(res)
 
     def __call__(self, lst):
+        """Returns the result of applying self to lst"""
         assert len(lst) == len(self)
 
         n = len(self)
@@ -117,4 +136,3 @@ class Permutation(object):
 
     def __hash__(self):
         return hash(tuple(self.perm))
-
