@@ -1,0 +1,71 @@
+Undocumented Python objects
+===========================
+permuta.math.counting
+---------------------
+Functions:
+ * binomial
+ * factorial
+
+permuta.mesh_pattern
+--------------------
+Classes:
+ * MeshPattern -- missing methods:
+
+   - non_pointless_boxes
+   - rank
+   - rotate_right
+   - shade
+   - unrank
+
+permuta.misc.algorithm_x
+------------------------
+Functions:
+ * cover
+ * uncover
+
+Classes:
+ * AlgorithmX
+ * Node
+
+permuta.misc.dancing_links
+--------------------------
+Classes:
+ * DancingLinks
+ * Node
+
+permuta.misc.exact_cover
+------------------------
+Functions:
+ * exact_cover
+
+permuta.misc.misc
+-----------------
+Functions:
+ * binary_search
+ * choose
+ * flatten
+ * subsets
+
+permuta.misc.ordered_set_partitions
+-----------------------------------
+Functions:
+ * ordered_set_partitions
+
+permuta.misc.progressbar
+------------------------
+Classes:
+ * ProgressBar
+
+permuta.misc.triemap
+--------------------
+Classes:
+ * TrieMap
+ * TrieNode
+
+permuta.permutation
+-------------------
+Classes:
+ * Permutation -- missing methods:
+
+   - rotate_right
+
