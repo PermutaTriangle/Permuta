@@ -1,0 +1,322 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>permuta package &mdash; Permuta 0.1 documentation</title>
+    
+    <link rel="stylesheet" href="_static/classic.css" type="text/css" />
+    <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+    
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    './',
+        VERSION:     '0.1',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true
+      };
+    </script>
+    <script type="text/javascript" src="_static/jquery.js"></script>
+    <script type="text/javascript" src="_static/underscore.js"></script>
+    <script type="text/javascript" src="_static/doctools.js"></script>
+    <script type="text/javascript" src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    <link rel="top" title="Permuta 0.1 documentation" href="index.html" />
+    <link rel="next" title="permuta.math package" href="permuta.math.html" />
+    <link rel="prev" title="Welcome to Permuta’s documentation!" href="index.html" /> 
+  </head>
+  <body role="document">
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="right" >
+          <a href="permuta.math.html" title="permuta.math package"
+             accesskey="N">next</a> |</li>
+        <li class="right" >
+          <a href="index.html" title="Welcome to Permuta’s documentation!"
+             accesskey="P">previous</a> |</li>
+        <li class="nav-item nav-item-0"><a href="index.html">Permuta 0.1 documentation</a> &raquo;</li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <div class="section" id="permuta-package">
+<h1>permuta package<a class="headerlink" href="#permuta-package" title="Permalink to this headline">¶</a></h1>
+<div class="section" id="subpackages">
+<h2>Subpackages<a class="headerlink" href="#subpackages" title="Permalink to this headline">¶</a></h2>
+<div class="toctree-wrapper compound">
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="permuta.math.html">permuta.math package</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="permuta.math.html#module-permuta.math.counting">permuta.math.counting module</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="permuta.misc.html">permuta.misc package</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="permuta.misc.html#module-permuta.misc.algorithm_x">permuta.misc.algorithm_x module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="permuta.misc.html#module-permuta.misc.dancing_links">permuta.misc.dancing_links module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="permuta.misc.html#module-permuta.misc.exact_cover">permuta.misc.exact_cover module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="permuta.misc.html#module-permuta.misc.misc">permuta.misc.misc module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="permuta.misc.html#module-permuta.misc.ordered_set_partitions">permuta.misc.ordered_set_partitions module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="permuta.misc.html#module-permuta.misc.progressbar">permuta.misc.progressbar module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="permuta.misc.html#module-permuta.misc.triemap">permuta.misc.triemap module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="permuta.misc.html#module-permuta.misc.union_find">permuta.misc.union_find module</a></li>
+</ul>
+</li>
+</ul>
+</div>
+</div>
+<div class="section" id="module-permuta.mesh_pattern">
+<span id="permuta-mesh-pattern-module"></span><h2>permuta.mesh_pattern module<a class="headerlink" href="#module-permuta.mesh_pattern" title="Permalink to this headline">¶</a></h2>
+<dl class="class">
+<dt id="permuta.mesh_pattern.MeshPattern">
+<em class="property">class </em><code class="descclassname">permuta.mesh_pattern.</code><code class="descname">MeshPattern</code><span class="sig-paren">(</span><em>perm</em>, <em>mesh</em><span class="sig-paren">)</span><a class="headerlink" href="#permuta.mesh_pattern.MeshPattern" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal"><span class="pre">object</span></code></p>
+<p>Class for instances of mesh patterns</p>
+<dl class="method">
+<dt id="permuta.mesh_pattern.MeshPattern.add_point">
+<code class="descname">add_point</code><span class="sig-paren">(</span><em>(x</em>, <em>y)</em>, <em>shade_dir=-1</em>, <em>safe=True</em><span class="sig-paren">)</span><a class="headerlink" href="#permuta.mesh_pattern.MeshPattern.add_point" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns a mesh pattern with a point added in (x,y).
+If shade_dir is specified adds shading in that direction</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="permuta.mesh_pattern.MeshPattern.can_shade">
+<code class="descname">can_shade</code><span class="sig-paren">(</span><em>pos</em><span class="sig-paren">)</span><a class="headerlink" href="#permuta.mesh_pattern.MeshPattern.can_shade" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns whether it is possible to shade the box pos</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="permuta.mesh_pattern.MeshPattern.can_shade2">
+<code class="descname">can_shade2</code><span class="sig-paren">(</span><em>pos1</em>, <em>pos2</em><span class="sig-paren">)</span><a class="headerlink" href="#permuta.mesh_pattern.MeshPattern.can_shade2" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns if it is possible to shade pos1 and pos2</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="permuta.mesh_pattern.MeshPattern.contained_in">
+<code class="descname">contained_in</code><span class="sig-paren">(</span><em>perm</em><span class="sig-paren">)</span><a class="headerlink" href="#permuta.mesh_pattern.MeshPattern.contained_in" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns whether a self is contained in perm</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="permuta.mesh_pattern.MeshPattern.flip_antidiagonal">
+<code class="descname">flip_antidiagonal</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#permuta.mesh_pattern.MeshPattern.flip_antidiagonal" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns the Mesh Pattern self flipped along the
+antidiagonal, y=len(perm)-x</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="permuta.mesh_pattern.MeshPattern.flip_diagonal">
+<code class="descname">flip_diagonal</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#permuta.mesh_pattern.MeshPattern.flip_diagonal" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns the Mesh Pattern self flipped along the diagonal, y=x</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="permuta.mesh_pattern.MeshPattern.flip_horizontal">
+<code class="descname">flip_horizontal</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#permuta.mesh_pattern.MeshPattern.flip_horizontal" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns the Mesh Pattern self flipped horizontally</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="permuta.mesh_pattern.MeshPattern.flip_vertical">
+<code class="descname">flip_vertical</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#permuta.mesh_pattern.MeshPattern.flip_vertical" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns the Mesh Pattern self flipped vertically</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="permuta.mesh_pattern.MeshPattern.sub_mesh">
+<code class="descname">sub_mesh</code><span class="sig-paren">(</span><em>positions</em><span class="sig-paren">)</span><a class="headerlink" href="#permuta.mesh_pattern.MeshPattern.sub_mesh" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns the mesh pattern given by using only points in positions
+from self.
+positions: 1-based indices of points</p>
+</dd></dl>
+
+</dd></dl>
+
+</div>
+<div class="section" id="module-permuta.mesh_patterns">
+<span id="permuta-mesh-patterns-module"></span><h2>permuta.mesh_patterns module<a class="headerlink" href="#module-permuta.mesh_patterns" title="Permalink to this headline">¶</a></h2>
+<dl class="class">
+<dt id="permuta.mesh_patterns.MeshPatterns">
+<em class="property">class </em><code class="descclassname">permuta.mesh_patterns.</code><code class="descname">MeshPatterns</code><span class="sig-paren">(</span><em>n</em>, <em>patt=None</em><span class="sig-paren">)</span><a class="headerlink" href="#permuta.mesh_patterns.MeshPatterns" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal"><span class="pre">object</span></code></p>
+<p>Class to allow for collections of MeshPatterns</p>
+<dl class="method">
+<dt id="permuta.mesh_patterns.MeshPatterns.random_element">
+<code class="descname">random_element</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#permuta.mesh_patterns.MeshPatterns.random_element" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns a random MeshPattern of length n
+if patt with underlying pattern patt</p>
+</dd></dl>
+
+</dd></dl>
+
+</div>
+<div class="section" id="module-permuta.permutation">
+<span id="permuta-permutation-module"></span><h2>permuta.permutation module<a class="headerlink" href="#module-permuta.permutation" title="Permalink to this headline">¶</a></h2>
+<dl class="class">
+<dt id="permuta.permutation.Permutation">
+<em class="property">class </em><code class="descclassname">permuta.permutation.</code><code class="descname">Permutation</code><span class="sig-paren">(</span><em>perm</em>, <em>check=False</em><span class="sig-paren">)</span><a class="headerlink" href="#permuta.permutation.Permutation" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal"><span class="pre">object</span></code></p>
+<p>Base Permutation object</p>
+<dl class="method">
+<dt id="permuta.permutation.Permutation.avoids">
+<code class="descname">avoids</code><span class="sig-paren">(</span><em>pattern</em><span class="sig-paren">)</span><a class="headerlink" href="#permuta.permutation.Permutation.avoids" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns True if self contains no occurrence of pattern</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="permuta.permutation.Permutation.contained_in">
+<code class="descname">contained_in</code><span class="sig-paren">(</span><em>perm</em><span class="sig-paren">)</span><a class="headerlink" href="#permuta.permutation.Permutation.contained_in" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns true if the permutation self is contained in the
+permutation perm.
+self is treated as a pattern</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="permuta.permutation.Permutation.contains">
+<code class="descname">contains</code><span class="sig-paren">(</span><em>pattern</em><span class="sig-paren">)</span><a class="headerlink" href="#permuta.permutation.Permutation.contains" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns true if permutation self contains a given pattern</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="permuta.permutation.Permutation.flip_antidiagonal">
+<code class="descname">flip_antidiagonal</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#permuta.permutation.Permutation.flip_antidiagonal" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns the permutation self flipped along the
+antidiagonal, y=len(perm)-x</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="permuta.permutation.Permutation.flip_diagonal">
+<code class="descname">flip_diagonal</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#permuta.permutation.Permutation.flip_diagonal" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns the permutation self flipped along the diagonal, y=x</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="permuta.permutation.Permutation.flip_horizontal">
+<code class="descname">flip_horizontal</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#permuta.permutation.Permutation.flip_horizontal" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns the permutation self flipped horizontally</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="permuta.permutation.Permutation.flip_vertical">
+<code class="descname">flip_vertical</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#permuta.permutation.Permutation.flip_vertical" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns the permutation self flipped vertically</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="permuta.permutation.Permutation.inverse">
+<code class="descname">inverse</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#permuta.permutation.Permutation.inverse" title="Permalink to this definition">¶</a></dt>
+<dd><p>Return the inverse of the permutation self</p>
+</dd></dl>
+
+<dl class="staticmethod">
+<dt id="permuta.permutation.Permutation.to_standard">
+<em class="property">static </em><code class="descname">to_standard</code><span class="sig-paren">(</span><em>lst</em><span class="sig-paren">)</span><a class="headerlink" href="#permuta.permutation.Permutation.to_standard" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns the permutation given by mapping every element in lst
+to the lowest possible value that preserves order of the elements</p>
+</dd></dl>
+
+</dd></dl>
+
+</div>
+<div class="section" id="module-permuta.permutations">
+<span id="permuta-permutations-module"></span><h2>permuta.permutations module<a class="headerlink" href="#module-permuta.permutations" title="Permalink to this headline">¶</a></h2>
+<dl class="class">
+<dt id="permuta.permutations.Permutations">
+<em class="property">class </em><code class="descclassname">permuta.permutations.</code><code class="descname">Permutations</code><span class="sig-paren">(</span><em>n</em><span class="sig-paren">)</span><a class="headerlink" href="#permuta.permutations.Permutations" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal"><span class="pre">object</span></code></p>
+<p>Class for iterating through all Permutations of length n</p>
+<dl class="method">
+<dt id="permuta.permutations.Permutations.random_element">
+<code class="descname">random_element</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#permuta.permutations.Permutations.random_element" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns a random permutation of length n</p>
+</dd></dl>
+
+</dd></dl>
+
+</div>
+</div>
+
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+  <h3><a href="index.html">Table Of Contents</a></h3>
+  <ul>
+<li><a class="reference internal" href="#">permuta package</a><ul>
+<li><a class="reference internal" href="#subpackages">Subpackages</a></li>
+<li><a class="reference internal" href="#module-permuta.mesh_pattern">permuta.mesh_pattern module</a></li>
+<li><a class="reference internal" href="#module-permuta.mesh_patterns">permuta.mesh_patterns module</a></li>
+<li><a class="reference internal" href="#module-permuta.permutation">permuta.permutation module</a></li>
+<li><a class="reference internal" href="#module-permuta.permutations">permuta.permutations module</a></li>
+</ul>
+</li>
+</ul>
+
+  <h4>Previous topic</h4>
+  <p class="topless"><a href="index.html"
+                        title="previous chapter">Welcome to Permuta&#8217;s documentation!</a></p>
+  <h4>Next topic</h4>
+  <p class="topless"><a href="permuta.math.html"
+                        title="next chapter">permuta.math package</a></p>
+  <div role="note" aria-label="source link">
+    <h3>This Page</h3>
+    <ul class="this-page-menu">
+      <li><a href="_sources/permuta.txt"
+            rel="nofollow">Show Source</a></li>
+    </ul>
+   </div>
+<div id="searchbox" style="display: none" role="search">
+  <h3>Quick search</h3>
+    <form class="search" action="search.html" method="get">
+      <input type="text" name="q" />
+      <input type="submit" value="Go" />
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+    <p class="searchtip" style="font-size: 90%">
+    Enter search terms or a module, class or function name.
+    </p>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="right" >
+          <a href="permuta.math.html" title="permuta.math package"
+             >next</a> |</li>
+        <li class="right" >
+          <a href="index.html" title="Welcome to Permuta’s documentation!"
+             >previous</a> |</li>
+        <li class="nav-item nav-item-0"><a href="index.html">Permuta 0.1 documentation</a> &raquo;</li> 
+      </ul>
+    </div>
+    <div class="footer" role="contentinfo">
+        &copy; Copyright 2015, Úlfarsson.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.3.3.
+    </div>
+  </body>
+</html>
