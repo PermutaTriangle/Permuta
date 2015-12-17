@@ -243,20 +243,29 @@ class MeshPattern(object):
 
         return MeshPattern(Permutation(list(nperm)), nmesh)
 
+    def complement(self):
+        return MeshPattern(self.perm.complement(),
+                           [(x, len(self.perm)-y) for (x, y) in self.mesh])
+
+    def reverse(self):
+        return MeshPattern(self.perm.reverse(),
+                           [(len(self.perm)-x, y) for (x, y) in self.mesh])
+
+    def inverse(self):
+        return MeshPattern(self.perm.flip_diagonal(),
+                           [(y, x) for (x, y) in self.mesh])
+
     def flip_horizontal(self):
         """Returns the Mesh Pattern self flipped horizontally"""
-        return MeshPattern(self.perm.flip_horizontal(),
-                           [(x, len(self.perm)-y) for (x, y) in self.mesh])
+        return self.complement()
 
     def flip_vertical(self):
         """Returns the Mesh Pattern self flipped vertically"""
-        return MeshPattern(self.perm.flip_vertical(),
-                           [(len(self.perm)-x, y) for (x, y) in self.mesh])
+        return self.reverse()
 
     def flip_diagonal(self):
         """Returns the Mesh Pattern self flipped along the diagonal, y=x"""
-        return MeshPattern(self.perm.flip_diagonal(),
-                           [(y, x) for (x, y) in self.mesh])
+        return self.inverse()
 
     def flip_antidiagonal(self):
         """Returns the Mesh Pattern self flipped along the
