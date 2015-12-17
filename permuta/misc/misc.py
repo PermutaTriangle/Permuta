@@ -13,7 +13,7 @@ def flatten(lst):
             for i in l:
                 dfs(i)
         except:
-            res.append(i)
+            res.append(l)
     dfs(lst)
     return res
 
