@@ -38,6 +38,18 @@ class TestPermutation(unittest.TestCase):
             patt = Permutations(n).random_element()
             self.assertTrue(patt.contained_in(generate_contained(random.randint(n, 8), patt.perm)))
 
+        self.assertFalse(Permutation([1]).contained_in(Permutation([])))
+        self.assertFalse(Permutation([1,2]).contained_in(Permutation([])))
+        self.assertFalse(Permutation([1,2]).contained_in(Permutation([1])))
+        self.assertFalse(Permutation([2, 1]).contained_in(Permutation([1, 2])))
+        self.assertFalse(Permutation([1,2,3]).contained_in(Permutation([1,2])))
+        self.assertFalse(Permutation([2, 1, 3]).contained_in(Permutation([1, 2, 4, 5, 3])))
+        self.assertFalse(Permutation([1, 2, 3]).contained_in(Permutation([3, 2, 4, 1])))
+        self.assertFalse(Permutation([3, 2, 4, 1]).contained_in(Permutation([3, 1, 4, 2])))
+        self.assertFalse(Permutation([1, 3, 2]).contained_in(Permutation([3, 1, 2, 4])))
+        self.assertFalse(Permutation([3, 1, 2, 4]).contained_in(Permutation([6, 4, 3, 8, 2, 1, 7, 5])))
+        self.assertFalse(Permutation([1, 2, 3, 4]).contained_in(Permutation([5, 8, 6, 2, 7, 3, 4, 1])))
+
     def test_inverse(self):
         for i in range(10):
             self.assertEqual(Permutation(range(1,i)), Permutation(range(1,i)).inverse())
