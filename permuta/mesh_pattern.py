@@ -200,9 +200,10 @@ class MeshPattern(object):
 
         return MeshPattern(nperm, nmesh)
 
-    def add_point(self, (x, y), shade_dir=DIR_NONE, safe=True):
-        """Returns a mesh pattern with a point added in (x,y).
+    def add_point(self, pt, shade_dir=DIR_NONE, safe=True):
+        """Returns a mesh pattern with a point added in pt.
         If shade_dir is specified adds shading in that direction"""
+        x,y = pt
         if safe:
             assert (x, y) not in self.mesh
 

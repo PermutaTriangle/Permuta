@@ -9,11 +9,11 @@ def binary_search(a, x):
 def flatten(lst):
     res = []
     def dfs(l):
-        for i in l:
-            if type(i) in {list,tuple}:
+        try:
+            for i in l:
                 dfs(i)
-            else:
-                res.append(i)
+        except:
+            res.append(l)
     dfs(lst)
     return res
 
