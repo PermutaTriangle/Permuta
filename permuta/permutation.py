@@ -57,8 +57,13 @@ class Permutation(object):
             res[self.perm[i]-1] = i+1
         return Permutation(res)
 
+    def reverse(self):
+        return Permutation(self.perm[::-1])
+
+    def complement(self):
+        return Permutation([len(self.perm) - x + 1 for x in self.perm])
+
     def rotate_right(self):
-        # TODO: is there a nicer name for this?
         idx = [-1] * len(self)
         for i, v in enumerate(self.perm):
             idx[v-1] = i
@@ -69,21 +74,20 @@ class Permutation(object):
 
     def flip_horizontal(self):
         """Returns the permutation self flipped horizontally"""
-        return Permutation([len(self.perm) - x + 1 for x in self.perm])
+        return self.complement()
 
     def flip_vertical(self):
         """Returns the permutation self flipped vertically"""
-        return Permutation(self.perm[::-1])
+        return self.reverse()
 
     def flip_diagonal(self):
         """Returns the permutation self flipped along the diagonal, y=x"""
-        return Permutation([x for _, x in
-                            sorted([(y, x) for x, y in
-                                    enumerate(self.perm, 1)])])
+        return self.inverse()
 
     def flip_antidiagonal(self):
         """Returns the permutation self flipped along the
         antidiagonal, y=len(perm)-x"""
+        # TODO: implement linear algorithm
         return Permutation([x for _, x in
                             sorted([(-y, len(self.perm)-x) for x, y in
                                     enumerate(self.perm)])])
@@ -136,3 +140,4 @@ class Permutation(object):
 
     def __hash__(self):
         return hash(tuple(self.perm))
+
