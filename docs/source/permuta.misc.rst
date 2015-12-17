@@ -1,8 +1,8 @@
 permuta.misc package
 ====================
 
-..  Submodules
-..  ----------
+Submodules
+----------
 
 permuta.misc.algorithm_x module
 -------------------------------
@@ -59,12 +59,3 @@ permuta.misc.union_find module
 .. automodule:: permuta.misc.union_find
     :members:
     :show-inheritance:
-
-
-..  Module contents
-..  ---------------
-..  
-..  .. automodule:: permuta.misc
-..      :members:
-..      :undoc-members:
-..      :show-inheritance:

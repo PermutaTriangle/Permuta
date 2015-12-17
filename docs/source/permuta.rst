@@ -9,8 +9,8 @@ Subpackages
     permuta.math
     permuta.misc
 
-..  Submodules
-..  ----------
+Submodules
+----------
 
 permuta.mesh_pattern module
 ---------------------------
@@ -40,11 +40,3 @@ permuta.permutations module
     :members:
     :show-inheritance:
 
-
-..    Module contents
-    ---------------
-
-..    .. automodule:: permuta
-        :members:
-        :undoc-members:
-        :show-inheritance:

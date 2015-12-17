@@ -1,8 +1,8 @@
 permuta.math package
 ====================
 
-..  Submodules
-..  ----------
+Submodules
+----------
 
 permuta.math.counting module
 ----------------------------
@@ -11,11 +11,3 @@ permuta.math.counting module
     :members:
     :show-inheritance:
 
-
-..  Module contents
-..  ---------------
-
-..  .. automodule:: permuta.math
-..      :members:
-..      :undoc-members:
-..      :show-inheritance:
