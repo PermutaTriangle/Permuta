@@ -118,3 +118,28 @@ class TestPermutation(unittest.TestCase):
             self.assertTrue(b == a)
             self.assertTrue(c != a)
 
+    def test_avoids_2(self):
+        bound = 6
+        def do_test(patts, expected):
+            for i in range(min(len(expected), bound)):
+                l = i+1
+                cnt = 0
+                for p in Permutations(l):
+                    ok = True
+                    for patt in patts:
+                        if not p.avoids(patt):
+                            ok = False
+                            break
+                    if ok:
+                        cnt += 1
+                self.assertEqual(expected[i], cnt)
+
+        do_test([[1,2,3]], [1, 2, 5, 14, 42, 132, 429, 1430])
+        do_test([[2,3,1]], [1, 2, 5, 14, 42, 132, 429, 1430])
+        do_test([[1,3,4,2]], [1, 2, 6, 23, 103, 512, 2740, 15485])
+        do_test([[2,4,1,3]], [1, 2, 6, 23, 103, 512, 2740, 15485])
+        do_test([[1,2,3,4]], [1, 2, 6, 23, 103, 513, 2761, 15767])
+        do_test([[1,4,3,2]], [1, 2, 6, 23, 103, 513, 2761, 15767])
+        do_test([[2,1,4,3]], [1, 2, 6, 23, 103, 513, 2761, 15767])
+        do_test([[1,3,2,4]], [1, 2, 6, 23, 103, 513, 2762, 15793])
+
