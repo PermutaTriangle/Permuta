@@ -3,23 +3,21 @@
    You can adapt this file completely to your liking, but it should at least
    contain the root `toctree` directive.
 
-Welcome to Permuta's documentation!
+Permuta's documentation!
 ===================================
+Permuta is a Python library for working with permutations and mesh patterns.
+
 .. image:: https://badges.gitter.im/PermutaTriangle/Permuta.svg
     :target: https://gitter.im/PermutaTriangle/Permuta?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge
 
-Contents:
+Table of contents:
 
 .. toctree::
    :maxdepth: 2
 
+   install
+   license
    permuta
-
-
-License
-=======
-
-.. include:: ../../LICENSE
 
 Indices and tables
 ==================
