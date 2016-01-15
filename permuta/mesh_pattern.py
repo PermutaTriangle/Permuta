@@ -16,6 +16,8 @@ class MeshPattern(object):
         """Construct a new instance of a mesh pattern with
         - underlying classical permutation perm
         - Shadings in the boxes defined in mesh"""
+        if type(perm) is list:
+            perm = Permutation(perm)
         self.perm = perm
         self.mesh = set(mesh)
 
@@ -294,6 +296,8 @@ class MeshPattern(object):
         return len(self.perm)
 
     def __eq__(self, other):
+        if type(other) is not MeshPattern:
+            return False
         return self.perm == other.perm and self.mesh == other.mesh
 
     def __hash__(self):
@@ -306,3 +310,4 @@ class MeshPattern(object):
         n = len(self.perm)
         arr = [[((str(n-(i-1)//2) if n < 10 else 'o') if self.perm[(j-1)/2] == n-(i-1)//2 else '+') if j % 2 != 0 and i % 2 != 0 else '|' if j % 2 != 0 else '-' if i % 2 != 0 else ('#' if ((j-1)/2+1, n-(i-1)/2-1) in self.mesh else ' ') for j in range(2*n+1)] for i in range(2*n+1)]
         return '\n'.join(''.join(line) for line in arr)
+
