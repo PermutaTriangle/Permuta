@@ -7,8 +7,8 @@ Permuta's documentation!
 ===================================
 Permuta is a Python library for working with permutations and mesh patterns.
 
-.. image:: https://badges.gitter.im/PermutaTriangle/Permuta.svg
-    :target: https://gitter.im/PermutaTriangle/Permuta?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge
+.. image:: https://travis-ci.org/PermutaTriangle/Permuta.svg?branch=master
+    :target: https://travis-ci.org/PermutaTriangle/Permuta
 
 Table of contents:
 
