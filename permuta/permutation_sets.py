@@ -16,7 +16,7 @@ class PermutationPatternClass(Permutations):
 
     def __len__(self):
         return 1
-        
+
 class PermutationsAvoiding12(PermutationPatternClass):
     """Class for iterating through Permutations avoiding 12 of length n"""
     def __init__(self, n):
@@ -38,10 +38,52 @@ class PermutationsAvoiding21(PermutationPatternClass):
 
 class CatalanAvoidingClass(PermutationPatternClass):
     def __init__(self, n, pattern):
-        super(PermutationPatternClass, self).__init__(n,pattern)
+        super(CatalanAvoidingClass, self).__init__(n,pattern)
 
     def __len__(self):
         return catalan(n)
+
+class PermutationsAvoiding123(CatalanAvoidingClass):
+    def __init__(self,n):
+        super(PermutationsAvoiding123, self).__init__(n,[1,3,2])
+
+    def __iter__(self):
+
+        if self.n == 0:
+            yield Permutation([])
+            return
+        elif self.n <3:
+            for p in Permutations(self.n):
+                yield p
+            return
+        elif self.n ==3:
+            for p in Permutations(self.n):
+                if p!= Permutation([1,2,3]):
+                    yield p
+            return
+
+        for p in PermutationsAvoiding132(self.n):
+            # use simion-schmidt bijection
+            m = self.n + 1
+            minima = []
+            minima_positions = []
+            for index, value in enumerate(p):
+                if value < m:
+                    minima_positions.append(index)
+                    minima.append(value)
+                    m = value
+            new_perm = []
+            non_minima = [x for x in range(self.n, 0, -1) if x not in minima]
+            a = 0
+            b = 0
+            for i in range(self.n):
+                if i in minima_positions:
+                    new_perm.append( minima[a] )
+                    a += 1
+                else:
+                    new_perm.append( non_minima[b] )
+                    b += 1
+            yield Permutation(new_perm)
 
 class PermutationsAvoiding132(CatalanAvoidingClass):
     """Class for iterating through Permutations avoiding 132 of length n"""
@@ -77,7 +119,7 @@ class PermutationsAvoiding132(CatalanAvoidingClass):
 class PermutationsAvoiding213(CatalanAvoidingClass):
     """Class for iterating through Permutations avoiding 213 of length n"""
     def __init__(self, n):
-        super(PermutationsAvoiding213, self).__init__(n)
+        super(PermutationsAvoiding213, self).__init__(n,[2,1,3])
 
     def __iter__(self):
         for p in PermutationsAvoiding132(self.n):
@@ -87,7 +129,7 @@ class PermutationsAvoiding213(CatalanAvoidingClass):
 class PermutationsAvoiding231(CatalanAvoidingClass):
     """Class for iterating through Permutations avoiding 231 of length n"""
     def __init__(self, n):
-        super(PermutationsAvoiding231, self).__init__(n)
+        super(PermutationsAvoiding231, self).__init__(n,[2,3,1])
 
     def __iter__(self):
         for p in PermutationsAvoiding132(self.n):
@@ -97,9 +139,16 @@ class PermutationsAvoiding231(CatalanAvoidingClass):
 class PermutationsAvoiding312(CatalanAvoidingClass):
     """Class for iterating through Permutations avoiding 312 of length n"""
     def __init__(self, n):
-        assert 0 <= n
-        super(PermutationsAvoiding312, self).__init__(n)
+        super(PermutationsAvoiding312, self).__init__(n,[3,1,2])
 
     def __iter__(self):
         for p in PermutationsAvoiding132(self.n):
             yield p.complement()
+
+class PermutationsAvoiding321(CatalanAvoidingClass):
+    def __init__(self,n):
+        super(PermutationsAvoiding321, self).__init__(n,[3,2,1])
+
+    def __iter__(self):
+        for p in PermutationsAvoiding123(self.n):
+            yield p.reverse()
