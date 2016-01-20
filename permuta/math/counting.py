@@ -15,3 +15,5 @@ def binomial(n,k):
         res = res * (n - (k - i)) // i
     return res
 
+def catalan(n):
+    return binomial(2*n,n)//(n+1)
