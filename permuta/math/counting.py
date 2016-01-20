@@ -16,4 +16,4 @@ def binomial(n,k):
     return res
 
 def catalan(n):
-    return binomial(2*n,n)//n+1
+    return binomial(2*n,n)//(n+1)
