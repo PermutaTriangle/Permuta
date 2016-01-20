@@ -2,9 +2,9 @@ from .permutation import Permutation
 from .permutations import Permutations
 from .math import catalan
 
-class PermutationPatternClass(Permutations):
+class PermutationPatternClass(object):
     def __init__(self, n, pattern):
-        super(PermutationPatternClass,self).__init__(n)
+        self.n = n
         self.patt = pattern
         self.pattstr = "".join(map(str,self.patt))
 
