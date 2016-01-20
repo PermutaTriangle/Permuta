@@ -28,10 +28,10 @@ class PermutationsAvoiding12(PermutationPatternClass):
 class PermutationsAvoiding21(PermutationPatternClass):
     """Class for iterating through Permutations avoiding 21 of length n"""
     def __init__(self, n):
-        super(PermutationsAvoiding12, self).__init__(n,[2,1])
+        super(PermutationsAvoiding21, self).__init__(n,[2,1])
 
     def __iter__(self):
-        yield Permutation(range(1,n+1))
+        yield Permutation(range(1,self.n+1))
 
     def __len__(self):
         return 1
@@ -41,7 +41,7 @@ class CatalanAvoidingClass(PermutationPatternClass):
         super(CatalanAvoidingClass, self).__init__(n,pattern)
 
     def __len__(self):
-        return catalan(n)
+        return catalan(self.n)
 
 class PermutationsAvoiding123(CatalanAvoidingClass):
     def __init__(self,n):
@@ -152,3 +152,4 @@ class PermutationsAvoiding321(CatalanAvoidingClass):
     def __iter__(self):
         for p in PermutationsAvoiding123(self.n):
             yield p.reverse()
+
