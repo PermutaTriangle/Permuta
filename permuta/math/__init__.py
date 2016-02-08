@@ -1,1 +1,1 @@
-from .counting import factorial, binomial
+from .counting import factorial, binomial, catalan

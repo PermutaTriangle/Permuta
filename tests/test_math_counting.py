@@ -1,5 +1,5 @@
 import unittest
-from permuta.math import factorial, binomial
+from permuta.math import factorial, binomial, catalan
 
 class TestMathCounting(unittest.TestCase):
 
@@ -19,4 +19,22 @@ class TestMathCounting(unittest.TestCase):
         self.assertEqual(binomial(10, 1), 10)
         self.assertEqual(binomial(1243, 10), 2339835883576802918726133)
         self.assertEqual(binomial(1243, 20), 27325212682042866855639367404897873973276230)
+
+    def test_catalan(self):
+        ts = [
+            (0,1),
+            (1,1),
+            (2,2),
+            (3,5),
+            (4,14),
+            (5,42),
+            (6,132),
+            (7,429),
+            (8,1430),
+            (9,4862),
+            (9,4862),
+            (20,6564120420),
+        ]
+        for n,v in ts:
+            self.assertEqual(catalan(n), v)
 

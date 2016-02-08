@@ -283,6 +283,23 @@ class MeshPattern(object):
             res |= 1 << (x * (len(self.perm)+1) + y)
         return res
 
+    def latex(self,scale=0.3):
+        """Returns the LaTeX code for the TikZ figure of the mesh pattern. The
+        LaTeX code requires the TikZ library 'patterns'.
+        """
+
+        return ("\\raisebox{{0.6ex}}{{\n"
+        "\\begin{{tikzpicture}}[baseline=(current bounding box.center),scale={0}]\n"
+        "\\useasboundingbox (0.0,-0.1) rectangle ({1}+1.4,{1}+1.1);\n"
+        "\\foreach \\x/\\y in {{{3}}}\n"
+        "  \\fill[pattern color = black!65, pattern=north east lines] (\\x,\\y) rectangle +(1,1);\n"
+        "\\draw (0.01,0.01) grid ({1}+0.99,{1}+0.99);\n"
+        "\\foreach [count=\\x] \\y in {{{2}}}\n"
+        "  \\filldraw (\\x,\\y) circle (6pt);\n"
+        "\\end{{tikzpicture}}}}").format(
+                scale, len(self.perm), ','.join(map(str, self.perm)),
+                ','.join(["{}/{}".format(p[0],p[1]) for p in self.mesh]))
+
     @staticmethod
     def unrank(perm, x):
         mesh = set()
