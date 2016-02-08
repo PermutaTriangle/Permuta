@@ -45,6 +45,7 @@ class AlgorithmX:
         self.arr = [ [ False for c in range(self.cols) ] for r in range(self.rows) ]
         self.sol = [ 0 for i in range(self.rows) ]
         self.solution_callback = solution_callback
+        self.can_continue = False
 
     def set_value(self, row, col, val = True):
         self.arr[row][col] = val
@@ -100,6 +101,7 @@ class AlgorithmX:
             return self.solution_callback(res)
 
         if at_most is not None and k >= at_most:
+            self.can_continue = True
             return
 
         c = self.head.r

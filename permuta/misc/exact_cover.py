@@ -46,3 +46,28 @@ def exact_cover(bss, validcnt, max_cnt, ignore_first, allow_overlap_in_first):
 
     return sols2
 
+def exact_cover_smallest(bss, validcnt, max_cnt, ignore_first, allow_overlap_in_first):
+
+    sols = []
+    def handle_solution(sol):
+        sols.append(sol)
+        return False
+
+    ec = AlgorithmX(len(bss), validcnt - ignore_first, handle_solution)
+    for i in range(len(bss)):
+        bs = bss[i] >> ignore_first
+        for j in range(validcnt - ignore_first):
+            if (bs & (1 << j)) != 0:
+                ec.set_value(i, j, True)
+
+    ec.setup()
+    d = 1
+    while max_cnt is None or d <= max_cnt:
+        ec.can_continue = False
+        ec.search(at_most=d)
+        if sols or not ec.can_continue:
+            break
+        d += 1
+
+    return sols
+
