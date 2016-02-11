@@ -38,7 +38,7 @@ class AvoidanceClass(object):
             elif p == [3,2,1]:
                 return PermutationsAvoiding321(n)
             else:
-                return PermutationsAvoidingGeneric(n,patt)
+                return PermutationsAvoidingGeneric(n,avoiding)
 
 
 class PermutationsAvoidingGeneric(PermutationPatternClass):
