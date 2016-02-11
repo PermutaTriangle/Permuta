@@ -276,6 +276,16 @@ class MeshPattern(object):
 
         return MeshPattern(Permutation(list(nperm)), nmesh)
 
+    def add_increase(self,box):
+        x,y = box
+        s1 = self.add_point(box)
+        return s1.add_point((x+1,y+1))
+
+    def add_decrease(self,box):
+        x,y = box
+        s1 = self.add_point(box)
+        return s1.add_point((x+1,y))
+
     def complement(self):
         return MeshPattern(self.perm.complement(),
                            [(x, len(self.perm)-y) for (x, y) in self.mesh])
