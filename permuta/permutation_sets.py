@@ -27,16 +27,16 @@ class AvoidanceClass(object):
                 return PermutationsAvoiding12(n)
             elif p == [1,2,3]:
                 return PermutationsAvoiding123(n)
-            elif p == [1,2,3]:
-                return PermutationsAvoiding123(n)
-            elif p == [1,2,3]:
-                return PermutationsAvoiding123(n)
-            elif p == [1,2,3]:
-                return PermutationsAvoiding123(n)
-            elif p == [1,2,3]:
-                return PermutationsAvoiding123(n)
-            elif p == [1,2,3]:
-                return PermutationsAvoiding123(n)
+            elif p == [1,3,2]:
+                return PermutationsAvoiding132(n)
+            elif p == [2,1,3]:
+                return PermutationsAvoiding213(n)
+            elif p == [2,3,1]:
+                return PermutationsAvoiding231(n)
+            elif p == [3,1,2]:
+                return PermutationsAvoiding312(n)
+            elif p == [3,2,1]:
+                return PermutationsAvoiding321(n)
             else:
                 return PermutationsAvoidingGeneric(n,patt)
 
