@@ -17,6 +17,37 @@ class PermutationPatternClass(object):
     def __len__(self):
         return 1
 
+class AvoidanceClass(object):
+    def __new__(cls, n, avoiding=None):
+        if isinstance(avoiding, Permutation):
+            p = avoiding.perm
+            if p == [1,2]:
+                return PermutationsAvoiding12(n)
+            elif p== [2,1]:
+                return PermutationsAvoiding12(n)
+            elif p == [1,2,3]:
+                return PermutationsAvoiding123(n)
+            elif p == [1,2,3]:
+                return PermutationsAvoiding123(n)
+            elif p == [1,2,3]:
+                return PermutationsAvoiding123(n)
+            elif p == [1,2,3]:
+                return PermutationsAvoiding123(n)
+            elif p == [1,2,3]:
+                return PermutationsAvoiding123(n)
+            elif p == [1,2,3]:
+                return PermutationsAvoiding123(n)
+            else:
+                return PermutationsAvoidingGeneric(n,patt)
+
+
+class PermutationsAvoidingGeneric(PermutationPatternClass):
+    def __init__(self,n, pattern):
+        super(PermutationsAvoidingGeneric, self).__init__(n,pattern)
+
+    def __iter__(self):
+        raise NotImplementedError("Iteration not defined for" + self)
+
 class PermutationsAvoiding12(PermutationPatternClass):
     """Class for iterating through Permutations avoiding 12 of length n"""
     def __init__(self, n):
@@ -45,7 +76,7 @@ class CatalanAvoidingClass(PermutationPatternClass):
 
 class PermutationsAvoiding123(CatalanAvoidingClass):
     def __init__(self,n):
-        super(PermutationsAvoiding123, self).__init__(n,[1,3,2])
+        super(PermutationsAvoiding123, self).__init__(n,[1,2,3])
 
     def __iter__(self):
 
@@ -152,4 +183,3 @@ class PermutationsAvoiding321(CatalanAvoidingClass):
     def __iter__(self):
         for p in PermutationsAvoiding123(self.n):
             yield p.reverse()
-
