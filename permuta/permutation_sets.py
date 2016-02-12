@@ -41,6 +41,8 @@ class AvoidanceClass(object):
         elif (isinstance(avoiding, collections.Iterable) and
                 all(isinstance(x, Permutation) for x in avoiding)):
             return PermutationsAvoidingGeneric(n,avoiding)
+        else:
+            raise RuntimeError("Cannot avoid " + avoiding)
 
 
 class PermutationsAvoidingGeneric(PermutationPatternClass):
