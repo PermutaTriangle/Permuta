@@ -49,6 +49,34 @@ class Permutation(object):
 
         return con(0, [])
 
+    def count_occurrences_in(self, perm):
+        """Returns the number of occurrences of the pattern perm in the permutation self
+        """
+        def con(i, now):
+            if len(now) == len(self):
+                return 1
+
+            if i == len(perm):
+                return 0
+
+            c = 0
+            nxt = now + [perm[i]]
+            # TODO: make this faster by incrementally building flattened list
+            if (Permutation.to_standard(nxt) ==
+                    Permutation.to_standard(self[:len(nxt)])):
+                c += con(i+1, nxt)
+
+            c += con(i+1, now)
+
+            return c
+
+        return con(0, [])
+
+    def count_occurrences_of(self, patt):
+        """Returns the number of occurrences of the pattern patt in the permutation self
+        """
+        return patt.count_occurrences_in(self)
+
     def inverse(self):
         """Return the inverse of the permutation self"""
         n = len(self)
@@ -140,4 +168,3 @@ class Permutation(object):
 
     def __hash__(self):
         return hash(tuple(self.perm))
-

@@ -50,6 +50,36 @@ class MeshPattern(object):
 
         return contains(0, [])
 
+    def count_occurrences_in(self, perm):
+        """Returns the number of occurrences of self in perm"""
+
+        def contains(i, now):
+            if len(now) == len(self.perm):
+                st = sorted(now)
+                x = 0
+                for k in perm:
+                    if x < len(now) and k == now[x]:
+                        x += 1
+                    else:
+                        y = bisect.bisect_left(st, k)
+                        if (x, y) in self.mesh:
+                            return 0
+                return 1
+
+            if i == len(perm):
+                return 0
+
+            c = 0
+            nxt = now + [perm[i]]
+            if (Permutation.to_standard(nxt) ==
+                    Permutation.to_standard(self.perm[:len(nxt)])):
+                c += contains(i+1, nxt)
+
+            c += contains(i+1, now)
+            return c
+
+        return contains(0, [])
+
     def rotate_right(self):
         return MeshPattern(self.perm.rotate_right(),
                            set([_rot_right(len(self.perm), pos) for pos in
@@ -327,4 +357,3 @@ class MeshPattern(object):
         n = len(self.perm)
         arr = [[((str(n-(i-1)//2) if n < 10 else 'o') if self.perm[(j-1)/2] == n-(i-1)//2 else '+') if j % 2 != 0 and i % 2 != 0 else '|' if j % 2 != 0 else '-' if i % 2 != 0 else ('#' if ((j-1)/2+1, n-(i-1)/2-1) in self.mesh else ' ') for j in range(2*n+1)] for i in range(2*n+1)]
         return '\n'.join(''.join(line) for line in arr)
-
