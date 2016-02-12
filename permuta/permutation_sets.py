@@ -1,3 +1,4 @@
+import collections
 from .permutation import Permutation
 from .permutations import Permutations
 from .math import catalan
@@ -14,8 +15,6 @@ class PermutationPatternClass(object):
     def __repr__(self):
         return "PermutationPatternClass(%d,%s)" % (self.n, self.patt)
 
-    def __len__(self):
-        return 1
 
 class AvoidanceClass(object):
     def __new__(cls, n, avoiding=None):
@@ -24,7 +23,7 @@ class AvoidanceClass(object):
             if p == [1,2]:
                 return PermutationsAvoiding12(n)
             elif p== [2,1]:
-                return PermutationsAvoiding12(n)
+                return PermutationsAvoiding21(n)
             elif p == [1,2,3]:
                 return PermutationsAvoiding123(n)
             elif p == [1,3,2]:
@@ -38,12 +37,18 @@ class AvoidanceClass(object):
             elif p == [3,2,1]:
                 return PermutationsAvoiding321(n)
             else:
-                return PermutationsAvoidingGeneric(n,avoiding)
+                return PermutationsAvoidingGeneric(n,(avoiding,))
+        elif (isinstance(avoiding, collections.Iterable) and
+                all(isinstance(x, Permutation) for x in avoiding)):
+            return PermutationsAvoidingGeneric(n,avoiding)
 
 
 class PermutationsAvoidingGeneric(PermutationPatternClass):
-    def __init__(self,n, pattern):
-        super(PermutationsAvoidingGeneric, self).__init__(n,pattern)
+    def __init__(self, n, patterns):
+        super(PermutationsAvoidingGeneric, self).__init__(n,tuple(patterns))
+        self.n = n
+        self.pattstr = "("+",".join(["".join(map(str,x)) for x in patterns])+")"
+
 
     def __iter__(self):
         raise NotImplementedError("Iteration not defined for" + self)
@@ -55,6 +60,9 @@ class PermutationsAvoiding12(PermutationPatternClass):
 
     def __iter__(self):
         yield Permutation(range(self.n,0,-1))
+
+    def __len__(self):
+        return 1
 
 class PermutationsAvoiding21(PermutationPatternClass):
     """Class for iterating through Permutations avoiding 21 of length n"""
