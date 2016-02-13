@@ -41,3 +41,25 @@ class TestPermutationSets(unittest.TestCase):
         res = AvoidanceClass(5, avoiding=(Permutation([1,2,3,4]), Permutation([2,1])))
         self.assertTrue(type(res) is PermutationsAvoidingGeneric)
 
+        ts = [
+            ([[1,2]], [1,1,1,1,1,1,1,1,1,1]),
+            ([[2,1]], [1,1,1,1,1,1,1,1,1,1]),
+            ([[1,2,3]], [ catalan(i) for i in range(8) ]),
+            ([[1,3,2]], [ catalan(i) for i in range(8) ]),
+            ([[2,1,3]], [ catalan(i) for i in range(8) ]),
+            ([[2,3,1]], [ catalan(i) for i in range(8) ]),
+            ([[3,1,2]], [ catalan(i) for i in range(8) ]),
+            ([[3,2,1]], [ catalan(i) for i in range(8) ]),
+            ([[1,2,3], [1,4,3,2]], [1, 1, 2, 5, 13, 34, 89, 233, 610]),
+        ]
+
+        for (patts, enum) in ts:
+            patts = [ Permutation(patt) for patt in patts ]
+            for (n,cnt) in enumerate(enum):
+                inst = AvoidanceClass(n, avoiding=patts)
+                gen = list(inst)
+                self.assertEqual(len(gen), cnt)
+                self.assertEqual(len(gen), len(set(gen)))
+                for p in gen:
+                    self.assertTrue(p.avoids(patts))
+

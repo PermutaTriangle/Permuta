@@ -51,9 +51,25 @@ class PermutationsAvoidingGeneric(PermutationPatternClass):
         self.n = n
         self.pattstr = "("+",".join(["".join(map(str,x)) for x in patterns])+")"
 
-
     def __iter__(self):
-        raise NotImplementedError("Iteration not defined for " + self)
+        # TODO: make this lazy, i.e. use yield inside the generation (if possible)
+        cur = set([ Permutation([]) ])
+        for l in range(1,self.n+1):
+            nxt = set()
+            for prev in cur:
+                for i in range(len(prev)+1):
+                    maybe = Permutation(prev.perm[:i] + [len(prev)+1] + prev.perm[i:])
+                    ok = True
+                    for p in self.patt:
+                        if maybe.contains(p): # TODO: only check for occurrences that contain the new len(prev)+1 element
+                            ok = False
+                            break
+                    if ok:
+                        nxt.add(maybe)
+            cur = nxt
+        for p in cur:
+            yield p
+
 
 class PermutationsAvoiding12(PermutationPatternClass):
     """Class for iterating through Permutations avoiding 12 of length n"""

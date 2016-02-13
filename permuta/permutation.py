@@ -25,6 +25,12 @@ class Permutation(object):
 
     def avoids(self, pattern):
         """Returns True if self contains no occurrence of pattern"""
+        if type(pattern) is list and all( type(patt) is list or type(patt) is Permutation for patt in pattern ):
+            for patt in pattern:
+                if self.contains(patt):
+                    return False
+            return True
+
         return not self.contains(pattern)
 
     def contained_in(self, perm):
