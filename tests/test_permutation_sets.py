@@ -17,6 +17,9 @@ class TestPermutationSets(unittest.TestCase):
         ]
 
         for (cl, patt, enum) in ts:
+            ginst = AvoidanceClass(5, avoiding=Permutation(patt))
+            self.assertTrue(type(ginst) is cl)
+
             for (n,cnt) in enumerate(enum):
                 inst = cl(n)
                 gen = list(inst)
@@ -24,4 +27,17 @@ class TestPermutationSets(unittest.TestCase):
                 self.assertEqual(len(gen), len(set(gen)))
                 for p in gen:
                     self.assertTrue(p.avoids(patt))
+
+    def test_avoiders_generic(self):
+        try:
+            AvoidanceClass(5, avoiding="your mom")
+            self.assertTrue(False)
+        except RuntimeError:
+            pass
+
+        res = AvoidanceClass(5, avoiding=[Permutation([1,2,3,4]), Permutation([2,1])])
+        self.assertTrue(type(res) is PermutationsAvoidingGeneric)
+
+        res = AvoidanceClass(5, avoiding=(Permutation([1,2,3,4]), Permutation([2,1])))
+        self.assertTrue(type(res) is PermutationsAvoidingGeneric)
 
