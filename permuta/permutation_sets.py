@@ -17,7 +17,7 @@ class PermutationPatternClass(object):
 
 
 class AvoidanceClass(object):
-    def __new__(cls, n, avoiding=None):
+    def __new__(cls, n, avoiding):
         if isinstance(avoiding, Permutation):
             p = avoiding.perm
             if p == [1,2]:
@@ -42,7 +42,7 @@ class AvoidanceClass(object):
                 all(isinstance(x, Permutation) for x in avoiding)):
             return PermutationsAvoidingGeneric(n,avoiding)
         else:
-            raise RuntimeError("Cannot avoid " + avoiding)
+            raise RuntimeError("Cannot avoid " + repr(avoiding))
 
 
 class PermutationsAvoidingGeneric(PermutationPatternClass):
@@ -53,7 +53,7 @@ class PermutationsAvoidingGeneric(PermutationPatternClass):
 
 
     def __iter__(self):
-        raise NotImplementedError("Iteration not defined for" + self)
+        raise NotImplementedError("Iteration not defined for " + self)
 
 class PermutationsAvoiding12(PermutationPatternClass):
     """Class for iterating through Permutations avoiding 12 of length n"""
