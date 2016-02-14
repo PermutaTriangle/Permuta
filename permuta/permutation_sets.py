@@ -17,7 +17,7 @@ class PermutationPatternClass(object):
 
 
 class AvoidanceClass(object):
-    def __new__(cls, n, avoiding):
+    def __new__(cls, n, avoiding, **kwargs):
         if isinstance(avoiding, Permutation):
             p = avoiding.perm
             if p == [1,2]:
@@ -40,20 +40,24 @@ class AvoidanceClass(object):
                 return PermutationsAvoidingGeneric(n,(avoiding,))
         elif (isinstance(avoiding, collections.Iterable) and
                 all(isinstance(x, Permutation) for x in avoiding)):
-            return PermutationsAvoidingGeneric(n,avoiding)
+            return PermutationsAvoidingGeneric(n,avoiding, **kwargs)
         else:
             raise RuntimeError("Cannot avoid " + repr(avoiding))
 
 
 class PermutationsAvoidingGeneric(PermutationPatternClass):
-    def __init__(self, n, patterns):
+    def __init__(self, n, patterns, upto=False):
         super(PermutationsAvoidingGeneric, self).__init__(n,tuple(patterns))
         self.n = n
         self.pattstr = "("+",".join(["".join(map(str,x)) for x in patterns])+")"
+        self.upto = upto
 
     def __iter__(self):
         # TODO: make this lazy, i.e. use yield inside the generation (if possible)
         cur = set([ Permutation([]) ])
+        if self.upto or self.n == 0:
+            yield Permutation([])
+
         for l in range(1,self.n+1):
             nxt = set()
             for prev in cur:
@@ -67,9 +71,9 @@ class PermutationsAvoidingGeneric(PermutationPatternClass):
                     if ok:
                         nxt.add(maybe)
             cur = nxt
-        for p in cur:
-            yield p
-
+            if self.upto or l == self.n:
+                for p in cur:
+                    yield p
 
 class PermutationsAvoiding12(PermutationPatternClass):
     """Class for iterating through Permutations avoiding 12 of length n"""
