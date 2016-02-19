@@ -3,3 +3,5 @@
 *.log
 docs/build/*
 *.DS_Store
+/build
+/dist
