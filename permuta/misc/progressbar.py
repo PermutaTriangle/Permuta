@@ -11,7 +11,7 @@ class ProgressBar(object):
         ProgressBar.at = mn
         ProgressBar.start = time.time()
         ProgressBar.last = 0
-        sys.stderr.write('\n')
+        # sys.stderr.write('\n')
         ProgressBar.progress(mn)
 
     @staticmethod

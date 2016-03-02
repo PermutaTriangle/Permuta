@@ -10,6 +10,9 @@ class TrieNode(object):
             self.down[k] = TrieNode()
         return self.down[k]
 
+    def height(self):
+        return 1 + max([ n.height() for n in self.down.values() ] + [ 0 ])
+
 class TrieMap(object):
 
     def __init__(self):
@@ -42,6 +45,9 @@ class TrieMap(object):
         if not cur.end:
             raise KeyError()
         return cur.value
+
+    def height(self):
+        return self.root.height()
 
     def __len__(self):
         return self.cnt
