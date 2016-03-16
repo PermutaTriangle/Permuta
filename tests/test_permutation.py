@@ -143,3 +143,13 @@ class TestPermutation(unittest.TestCase):
         do_test([[2,1,4,3]], [1, 2, 6, 23, 103, 513, 2761, 15767])
         do_test([[1,3,2,4]], [1, 2, 6, 23, 103, 513, 2762, 15793])
 
+    def test_incr_decr(self):
+        for i in range(100):
+            self.assertTrue(Permutation(list(range(1,i+1))).is_increasing())
+            self.assertTrue(Permutation(list(range(i,0,-1))).is_decreasing())
+
+        self.assertFalse(Permutation([1,3,2]).is_increasing())
+        self.assertFalse(Permutation([1,3,2]).is_decreasing())
+        self.assertFalse(Permutation([2,1,3]).is_increasing())
+        self.assertFalse(Permutation([2,1,3]).is_decreasing())
+

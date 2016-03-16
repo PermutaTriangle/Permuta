@@ -126,6 +126,20 @@ class Permutation(object):
                             sorted([(-y, len(self.perm)-x) for x, y in
                                     enumerate(self.perm)])])
 
+    def is_increasing(self):
+        """Returns true if the permutation is increasing, and false otherwise."""
+        for i in range(1,len(self.perm)):
+            if self.perm[i-1] > self.perm[i]:
+                return False
+        return True
+
+    def is_decreasing(self):
+        """Returns true if the permutation is decreasing, and false otherwise."""
+        for i in range(1,len(self.perm)):
+            if self.perm[i-1] < self.perm[i]:
+                return False
+        return True
+
     @staticmethod
     def to_standard(lst):
         """Returns the permutation given by mapping every element in lst
