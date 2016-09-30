@@ -55,13 +55,13 @@ class TestPermutation(unittest.TestCase):
         self.assertEqual(Permutation([1]).count_occurrences_in(Permutation([5,2,3,4,1])), 5)
         self.assertEqual(Permutation([1,2]).count_occurrences_in(Permutation([5,2,3,4,1])), 3)
         self.assertEqual(Permutation([2,1]).count_occurrences_in(Permutation([5,2,3,4,1])), 7)
-        self.assertEqual(Permutation([5,2,3,4,1]).count_occurrences_in(Permutation([])), 1)
+        self.assertEqual(Permutation([5,2,3,4,1]).count_occurrences_in(Permutation([])), 0)
         self.assertEqual(Permutation([5,2,3,4,1]).count_occurrences_in(Permutation([2,1])), 0)
 
     def test_occurrences_in(self):
         self.assertEqual(
                           sorted(Permutation([]).occurrences_in(Permutation([5,2,3,4,1])))
-                        , sorted([[]])
+                        , [[]]
                         )
         self.assertEqual( 
                           sorted(Permutation([1]).occurrences_in(Permutation([5,2,3,4,1])))
@@ -75,8 +75,8 @@ class TestPermutation(unittest.TestCase):
                           sorted(Permutation([2,1]).occurrences_in(Permutation([5,2,3,4,1])))
                         , sorted([[0,1],[0,2],[0,3],[0,4],[1,4],[2,4],[3,4]])
                         )
-        self.assertEqual(sorted(Permutation([5,2,3,4,1]).occurrences_in(Permutation([]))), sorted([]))
-        self.assertEqual(sorted(Permutation([5,2,3,4,1]).occurrences_in(Permutation([2,1]))), sorted([]))
+        self.assertEqual(sorted(Permutation([5,2,3,4,1]).occurrences_in(Permutation([]))), [])
+        self.assertEqual(sorted(Permutation([5,2,3,4,1]).occurrences_in(Permutation([2,1]))), [])
 
     def test_inverse(self):
         for i in range(10):
