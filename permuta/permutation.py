@@ -85,25 +85,28 @@ class Permutation(object):
 
     def occurrences_in(self, perm):
         """Returns the occurrences of the pattern self in the permutation perm."""
-        def con(i, now, indexes):
-            if len(now) == len(self):
-                return [indexes]
+        def con(i, now, indices, k):
+            # Length of the occurrence has reached length of pattern
+            if k == len(self):
+                yield indices
 
+            # Reached end of permutation and occurrence is not long enough
             if i == len(perm):
-                return []
+                return
 
-            occurrences = []
-            nxt = now + [perm[i]]
+            now[k] = perm[i]
+            k += 1
             # TODO: make this faster by incrementally building flattened list
-            if (Permutation.to_standard(nxt) ==
-                    Permutation.to_standard(self[:len(nxt)])):
-                occurrences += con(i+1, nxt, indexes +[i])
+            if (Permutation.to_standard(now[:k]) == Permutation.to_standard(self[:k])):
+                indices[k-1] = i
+                for o in con(i+1, now, indices, k):
+                    yield o
 
-            occurrences += con(i+1, now, indexes)
+            for o in con(i+1, now, indices, k):
+                yield o
 
-            return occurrences
-
-        return con(0, [], [])
+        for o in con(0, []*len(self), []*len(self), 0):
+            yield o
 
     def occurrences_of(self, patt):
         """Returns the occurrences of the pattern patt in the permutation self."""
