@@ -85,25 +85,65 @@ class Permutation(object):
 
     def occurrences_in(self, perm):
         """Returns the occurrences of the pattern self in the permutation perm."""
-        def con(i, now, indexes):
-            if len(now) == len(self):
-                return [indexes]
 
-            if i == len(perm):
-                return []
+        # Calculate all prefix flattenings of the pattern self
+        k_standard_patt = [Permutation.to_standard(self[:k]) for k in range(0, len(self))]
+        k_standard_patt.append(self)
 
-            occurrences = []
-            nxt = now + [perm[i]]
-            # TODO: make this faster by incrementally building flattened list
-            if (Permutation.to_standard(nxt) ==
-                    Permutation.to_standard(self[:len(nxt)])):
-                occurrences += con(i+1, nxt, indexes +[i])
+        # These two lists define a pattern in the permutation perm
+        # occurrence is the actual elements and indices is their indices in perm
+        occurrence = [None]*len(self)
+        indices = occurrence[:]
 
-            occurrences += con(i+1, now, indexes)
+        # Define function that works with the above defined variables
+        # i is the index of the element in perm that is to be considered
+        # k is how many elements of the permutation have already been added to occurrence
+        # flattened is the flattened occurrence so far
+        def con(i, k, flattened):
 
-            return occurrences
+            # Length of the occurrence has reached length of pattern
+            if k == len(self):
+                yield indices[:]
+                return
 
-        return con(0, [], [])
+            # Not enough elements left to make occurrence
+            elements_left = len(perm) - i
+            elements_needed = len(self) - k
+            if elements_left < elements_needed:
+                return
+
+            # TODO: Optimize if elements_left == elements_needed?
+
+            # Incrementally build flattened occurrence
+            new_element = perm[i]
+            new_flattened = [
+                              flattened[n]
+                              if occurrence[n] < new_element
+                              else
+                              flattened[n]+1
+                              for n in range(k)
+                            ]
+            new_element_flattened = 1 + len([
+                                              n for n in range(k)
+                                              if flattened[n] == new_flattened[n]
+                                            ])
+            new_flattened.append(new_element_flattened)
+            new_flattened = Permutation(new_flattened)
+
+            # Yield occurrences where the ith element is chosen
+            if new_flattened == k_standard_patt[k+1]:
+                # Still conforms to pattern, so add index and look further
+                occurrence[k] = new_element
+                indices[k] = i
+                for o in con(i+1, k+1, new_flattened):
+                    yield o
+
+            # Yield occurrences where the ith element is not chosen
+            for o in con(i+1, k, flattened):
+                yield o
+
+        for o in con(0, 0, []):
+            yield o
 
     def occurrences_of(self, patt):
         """Returns the occurrences of the pattern patt in the permutation self."""
