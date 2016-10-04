@@ -160,7 +160,7 @@ class Permutation(object):
     def occurrences_of(self, patt):
         """Find all indices of occurrences of patt in self.
 
-        A swapped argument version of permuta.Permutation.occurrences_in.
+        This method is complementary to permuta.Permutation.occurrences_in
         It just calls patt.occurrences_in(self) internally.
         See permuta.Permutation.occurrences_in for documentation.
         """
