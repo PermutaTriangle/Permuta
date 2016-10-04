@@ -84,7 +84,19 @@ class Permutation(object):
         return patt.count_occurrences_in(self)
 
     def occurrences_in(self, perm):
-        """Returns the occurrences of the pattern self in the permutation perm."""
+        """Find all indices of occurrences of self in perm.
+        
+        Args:
+            self:
+                The classical pattern whose occurrences are to be found.
+            perm: permuta.Permutation
+                The permutation to search for occurrences in.
+
+        Yields: [int]
+            Each yielded element l is a list of integer indices of the
+            permutation perm such that:
+            self == permuta.Permutation.to_standard([perm[i] for i in l])
+        """
 
         # Calculate all prefix flattenings of the pattern self
         k_standard_patt = [Permutation.to_standard(self[:k]).perm for k in range(0, len(self))]
