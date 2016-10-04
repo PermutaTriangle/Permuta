@@ -87,8 +87,8 @@ class Permutation(object):
         """Returns the occurrences of the pattern self in the permutation perm."""
 
         # Calculate all prefix flattenings of the pattern self
-        k_standard_patt = [Permutation.to_standard(self[:k]) for k in range(0, len(self))]
-        k_standard_patt.append(self)
+        k_standard_patt = [Permutation.to_standard(self[:k]).perm for k in range(0, len(self))]
+        k_standard_patt.append(self.perm)
 
         # These two lists define a pattern in the permutation perm
         # occurrence is the actual elements and indices is their indices in perm
@@ -129,7 +129,6 @@ class Permutation(object):
                                              if flattened[n] == new_flattened[n]
                                            )
             new_flattened.append(new_element_flattened)
-            new_flattened = Permutation(new_flattened)
 
             # Yield occurrences where the ith element is chosen
             if new_flattened == k_standard_patt[k+1]:
