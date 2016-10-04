@@ -158,7 +158,12 @@ class Permutation(object):
             yield o
 
     def occurrences_of(self, patt):
-        """Returns the occurrences of the pattern patt in the permutation self."""
+        """Find all indices of occurrences of patt in self.
+
+        A swapped argument version of permuta.Permutation.occurrences_in.
+        It just calls patt.occurrences_in(self) internally.
+        See permuta.Permutation.occurrences_in for documentation.
+        """
         return patt.occurrences_in(self)
 
     def inverse(self):
