@@ -123,10 +123,11 @@ class Permutation(object):
                               flattened[n]+1
                               for n in range(k)
                             ]
-            new_element_flattened = 1 + len([
-                                              n for n in range(k)
-                                              if flattened[n] == new_flattened[n]
-                                            ])
+            new_element_flattened = 1 + sum(
+                                             1
+                                             for n in range(k)
+                                             if flattened[n] == new_flattened[n]
+                                           )
             new_flattened.append(new_element_flattened)
             new_flattened = Permutation(new_flattened)
 
