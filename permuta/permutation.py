@@ -37,46 +37,12 @@ class Permutation(object):
         """Returns true if the permutation self is contained in the
         permutation perm.
         self is treated as a pattern"""
-        def con(i, now):
-            if len(now) == len(self):
-                return True
-
-            if i == len(perm):
-                return False
-
-            nxt = now + [perm[i]]
-            # TODO: make this faster by incrementally building flattened list
-            if (Permutation.to_standard(nxt) ==
-                    Permutation.to_standard(self[:len(nxt)])):
-                if con(i+1, nxt):
-                    return True
-
-            return con(i+1, now)
-
-        return con(0, [])
+        return any( True for _ in self.occurrences_in(perm) )
 
     def count_occurrences_in(self, perm):
         """Returns the number of occurrences of the pattern perm in the permutation self
         """
-        def con(i, now):
-            if len(now) == len(self):
-                return 1
-
-            if i == len(perm):
-                return 0
-
-            c = 0
-            nxt = now + [perm[i]]
-            # TODO: make this faster by incrementally building flattened list
-            if (Permutation.to_standard(nxt) ==
-                    Permutation.to_standard(self[:len(nxt)])):
-                c += con(i+1, nxt)
-
-            c += con(i+1, now)
-
-            return c
-
-        return con(0, [])
+        return sum( 1 for _ in self.occurrences_in(perm) )
 
     def count_occurrences_of(self, patt):
         """Returns the number of occurrences of the pattern patt in the permutation self

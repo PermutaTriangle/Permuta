@@ -36,7 +36,8 @@ class TestPermutation(unittest.TestCase):
         for i in range(100):
             n = random.randint(0, 4)
             patt = Permutations(n).random_element()
-            self.assertTrue(patt.contained_in(generate_contained(random.randint(n, 8), patt.perm)))
+            perm = generate_contained(random.randint(n, 8), list(patt.perm))
+            self.assertTrue(patt.contained_in(perm))
 
         self.assertFalse(Permutation([1]).contained_in(Permutation([])))
         self.assertFalse(Permutation([1,2]).contained_in(Permutation([])))
