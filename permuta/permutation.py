@@ -40,21 +40,31 @@ class Permutation(object):
         return any( True for _ in self.occurrences_in(perm) )
 
     def count_occurrences_in(self, perm):
-        """Returns the number of occurrences of the pattern perm in the permutation self
-        """
-        return sum( 1 for _ in self.occurrences_in(perm) )
+        """Count the number of occurrences of the pattern self in the permutation perm."""
+        return sum(1 for _ in self.occurrences_in(perm))
 
     def count_occurrences_of(self, patt):
-        """Returns the number of occurrences of the pattern patt in the permutation self
-        """
+        """Count the number of occurrences of the pattern patt in the permutation self."""
         return patt.count_occurrences_in(self)
 
     def occurrences_in(self, perm):
-        """Returns the occurrences of the pattern self in the permutation perm."""
+        """Find all indices of occurrences of self in perm.
+        
+        Args:
+            self:
+                The classical pattern whose occurrences are to be found.
+            perm: permuta.Permutation
+                The permutation to search for occurrences in.
+
+        Yields: [int]
+            Each yielded element l is a list of integer indices of the
+            permutation perm such that:
+            self == permuta.Permutation.to_standard([perm[i] for i in l])
+        """
 
         # Calculate all prefix flattenings of the pattern self
-        k_standard_patt = [Permutation.to_standard(self[:k]) for k in range(0, len(self))]
-        k_standard_patt.append(self)
+        k_standard_patt = [Permutation.to_standard(self[:k]).perm for k in range(0, len(self))]
+        k_standard_patt.append(self.perm)
 
         # These two lists define a pattern in the permutation perm
         # occurrence is the actual elements and indices is their indices in perm
@@ -89,12 +99,12 @@ class Permutation(object):
                               flattened[n]+1
                               for n in range(k)
                             ]
-            new_element_flattened = 1 + len([
-                                              n for n in range(k)
-                                              if flattened[n] == new_flattened[n]
-                                            ])
+            new_element_flattened = 1 + sum(
+                                             1
+                                             for n in range(k)
+                                             if flattened[n] == new_flattened[n]
+                                           )
             new_flattened.append(new_element_flattened)
-            new_flattened = Permutation(new_flattened)
 
             # Yield occurrences where the ith element is chosen
             if new_flattened == k_standard_patt[k+1]:
@@ -112,7 +122,12 @@ class Permutation(object):
             yield o
 
     def occurrences_of(self, patt):
-        """Returns the occurrences of the pattern patt in the permutation self."""
+        """Find all indices of occurrences of patt in self.
+
+        This method is complementary to permuta.Permutation.occurrences_in
+        It just calls patt.occurrences_in(self) internally.
+        See permuta.Permutation.occurrences_in for documentation.
+        """
         return patt.occurrences_in(self)
 
     def inverse(self):

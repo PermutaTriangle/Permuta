@@ -61,23 +61,23 @@ class TestPermutation(unittest.TestCase):
 
     def test_occurrences_in(self):
         self.assertEqual(
-                          sorted(Permutation([]).occurrences_in(Permutation([5,2,3,4,1])))
+                          list(Permutation([]).occurrences_in(Permutation([5,2,3,4,1])))
                         , [[]]
                         )
         self.assertEqual( 
                           sorted(Permutation([1]).occurrences_in(Permutation([5,2,3,4,1])))
-                        , sorted([[0],[1],[2],[3],[4]])
+                        , [[0],[1],[2],[3],[4]]
                         )
         self.assertEqual(
                           sorted(Permutation([1,2]).occurrences_in(Permutation([5,2,3,4,1])))
-                        , sorted([[1,2],[1,3],[2,3]])
+                        , [[1,2],[1,3],[2,3]]
                         )
         self.assertEqual(
                           sorted(Permutation([2,1]).occurrences_in(Permutation([5,2,3,4,1])))
-                        , sorted([[0,1],[0,2],[0,3],[0,4],[1,4],[2,4],[3,4]])
+                        , [[0,1],[0,2],[0,3],[0,4],[1,4],[2,4],[3,4]]
                         )
-        self.assertEqual(sorted(Permutation([5,2,3,4,1]).occurrences_in(Permutation([]))), [])
-        self.assertEqual(sorted(Permutation([5,2,3,4,1]).occurrences_in(Permutation([2,1]))), [])
+        self.assertEqual(list(Permutation([5,2,3,4,1]).occurrences_in(Permutation([]))), [])
+        self.assertEqual(list(Permutation([5,2,3,4,1]).occurrences_in(Permutation([2,1]))), [])
 
     def test_inverse(self):
         for i in range(10):
