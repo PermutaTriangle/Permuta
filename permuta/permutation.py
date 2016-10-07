@@ -82,34 +82,33 @@ class Permutation(object):
                 yield indices[:]
                 return
 
-            # Not enough elements left to make occurrence
             elements_left = len(perm) - i
             elements_needed = len(self) - k
             if elements_left < elements_needed:
+                # Not enough elements left to make occurrence
+                return
+            elif elements_left == elements_needed:
+                # Enough elements left to make a single occurrence
+                # Add them all
+                while i < len(perm):
+                    Permutation._add_to_flattened(perm, flattened, indices, i)
+                    #occurrence[k] = perm[i]  # Unnecessary
+                    indices[k] = i
+                    k += 1
+                    i += 1
+                if flattened == self.perm:
+                    yield indices[:]
                 return
 
-            # TODO: Optimize if elements_left == elements_needed?
-
             # Incrementally build flattened occurrence
-            new_element = perm[i]
-            new_flattened = [
-                              flattened[n]
-                              if occurrence[n] < new_element
-                              else
-                              flattened[n]+1
-                              for n in range(k)
-                            ]
-            new_element_flattened = 1 + sum(
-                                             1
-                                             for n in range(k)
-                                             if flattened[n] == new_flattened[n]
-                                           )
-            new_flattened.append(new_element_flattened)
+            new_flattened = flattened[:]
+            Permutation._add_to_flattened(perm, new_flattened, indices, i)
 
             # Yield occurrences where the ith element is chosen
             if new_flattened == k_standard_patt[k+1]:
-                # Still conforms to pattern, so add index and look further
-                occurrence[k] = new_element
+                # Still conforms to pattern,
+                # so add index and element and look further
+                occurrence[k] = perm[i]
                 indices[k] = i
                 for o in con(i+1, k+1, new_flattened):
                     yield o
@@ -129,6 +128,35 @@ class Permutation(object):
         See permuta.Permutation.occurrences_in for documentation.
         """
         return patt.occurrences_in(self)
+
+    @staticmethod
+    def _add_to_flattened(perm, flattened, indices, index_of_new):
+        """Single step of online flattening of permutation.
+
+        Args:
+            perm: permuta.Permutation
+                The permutation the rest of the arguments refer to.
+            flattened: [int]
+                The flattened list of [perm[i] for i in indices[:len(flattened)]].
+                The function modifies this list.
+            indices: [int]
+                The indices of the elements in perm that have been flattened.
+                Only the first len(flattened) are legitimate.
+            index_of_new: int
+                The index of the perm element to be added to the flattened list.
+        Returns: None
+            The flattened argument is modified and nothing is returned.
+        """
+        not_incremented_counter = 0
+        new_element = perm[index_of_new]
+        for i in range(len(flattened)):
+            if perm[indices[i]] > new_element:
+                flattened[i] += 1
+            else:
+                not_incremented_counter += 1
+        new_element_flattened = 1 + not_incremented_counter
+        flattened.append(new_element_flattened)
+        return
 
     def inverse(self):
         """Return the inverse of the permutation self"""
