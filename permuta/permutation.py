@@ -105,6 +105,20 @@ class Permutation(object):
             k_inc = k+1  # May need to use this lots, so pre-compute
             # Loop over remaining elements of perm (actually i, the index)
             while 1:
+                if elements_left == elements_needed:
+                    # Try to form occurrence with remaining elements
+                    # Avoid making function calls
+                    while i < len(perm):
+                        if predicates[k](perm[i]):
+                            indices[k] = i
+                            k += 1
+                            i += 1
+                        else:
+                            # Failed to form occurrence
+                            return
+                    # Managed to form occurrence
+                    yield indices[:]
+                    return
                 if elements_left < elements_needed:
                     # Can't form an occurrence with remaining elements
                     return
