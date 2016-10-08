@@ -62,65 +62,61 @@ class Permutation(object):
             self == permuta.Permutation.to_standard([perm[i] for i in l])
         """
 
-        # Calculate all prefix flattenings of the pattern self
-        k_standard_patt = [[]]  # First prefix is empty prefix
-        patt_indices = range(len(self))  # Indices for online flattening
-        i = 1  # Prefix flattenings already calculated
-        while i < len(self):
-            new = k_standard_patt[-1][:]
-            Permutation._online_flattening_step(self.perm, new, patt_indices, i-1)
-            k_standard_patt.append(new)
-            i += 1
-        if len(self) != 0:
-            k_standard_patt.append(self.perm)
-
         # The indices of the occurrence in perm
         indices = [None]*len(self)
 
+        # Calculate occurrence appending predicates
+        # Assume e is an element in the permutation perm.
+        # Assume the i-th element of the occurrence is to be assigned.
+        # (Having already legally assigned the first i-1 elements.)
+        # Then e can be added to the occurrence iff predicates[i](e) holds.
+        prefix_pattern = []  # First prefix flattening of self is empty prefix
+        pattern_indices = range(len(self))  # Indices for online flattening
+        predicates = []  # Must hold to append an i-th element to occurrence
+        i = 1  # Prefix flattenings already calculated
+        while i <= len(self):
+            a, b = Permutation._online_flattening_step( self.perm
+                                                      , prefix_pattern
+                                                      , pattern_indices
+                                                      , i-1
+                                                      )
+            if a is None:
+                if b is None:
+                    predicate = lambda x: True
+                else:
+                    predicate = lambda x, b=b: x < perm[indices[b]]
+            else:  # a is not None
+                if b is None:
+                    predicate = lambda x, a=a: perm[indices[a]] < x
+                else:
+                    predicate = lambda x, a=a, b=b: perm[indices[a]] < x and x < perm[indices[b]]
+            predicates.append(predicate)
+            i += 1
+
         # Define function that works with the above defined variables
+        # (It works with the predicates and indices lists)
         # i is the index of the element in perm that is to be considered
         # k is how many elements of the permutation have already been added to occurrence
-        # flattened is the flattened occurrence so far
-        def con(i, k, flattened):
+        def con(i, k):
 
             # Length of the occurrence has reached length of pattern
             if k == len(self):
                 yield indices[:]
                 return
 
-            elements_left = len(perm) - i
-            elements_needed = len(self) - k
-            if elements_left < elements_needed:
-                # Not enough elements left to make occurrence
-                return
-            elif elements_left == elements_needed:
-                # Enough elements left to make a single occurrence
-                # Add them all
-                while i < len(perm):
-                    Permutation._online_flattening_step(perm, flattened, indices, i)
+            while 1:
+                elements_left = len(perm) - i
+                elements_needed = len(self) - k
+                if elements_left < elements_needed:
+                    break
+                if predicates[k](perm[i]):
+                    # Yield occurrences where the ith element is chosen
                     indices[k] = i
-                    k += 1
-                    i += 1
-                if flattened == self.perm:
-                    yield indices[:]
-                return
+                    for o in con(i+1, k+1):
+                        yield o
+                i += 1
 
-            # Incrementally build flattened occurrence
-            new_flattened = flattened[:]
-            Permutation._online_flattening_step(perm, new_flattened, indices, i)
-
-            # Yield occurrences where the ith element is chosen
-            if new_flattened == k_standard_patt[k+1]:
-                # Still conforms to pattern so add index and look further
-                indices[k] = i
-                for o in con(i+1, k+1, new_flattened):
-                    yield o
-
-            # Yield occurrences where the ith element is not chosen
-            for o in con(i+1, k, flattened):
-                yield o
-
-        for o in con(0, 0, []):
+        for o in con(0, 0):
             yield o
 
     def occurrences_of(self, patt):
