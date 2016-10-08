@@ -49,7 +49,7 @@ class Permutation(object):
 
     def occurrences_in(self, perm):
         """Find all indices of occurrences of self in perm.
-        
+
         Args:
             self:
                 The classical pattern whose occurrences are to be found.
@@ -65,11 +65,10 @@ class Permutation(object):
         # The indices of the occurrence in perm
         indices = [None]*len(self)
 
-        # Calculate occurrence appending predicates
-        # Assume e is an element in the permutation perm.
-        # Assume the i-th element of the occurrence is to be assigned.
-        # (Having already legally assigned the first i-1 elements.)
-        # Then e can be added to the occurrence iff predicates[i](e) holds.
+        # Pre-compute occurrence appending predicates
+        # Assume e is an element in the permutation perm
+        # Assume some i-1 preceding elements have been added to the occurrence
+        # Then e can be added to the occurrence if predicates[i](e) holds
         prefix_pattern = []  # First prefix flattening of self is empty prefix
         pattern_indices = range(len(self))  # Indices for online flattening
         predicates = []  # Must hold to append an i-th element to occurrence
@@ -98,23 +97,26 @@ class Permutation(object):
         # i is the index of the element in perm that is to be considered
         # k is how many elements of the permutation have already been added to occurrence
         def con(i, k):
-
-            # Length of the occurrence has reached length of pattern
-            if k == len(self):
+            elements_needed = len(self) - k
+            if elements_needed == 0:
                 yield indices[:]
                 return
-
+            elements_left = len(perm) - i
+            k_inc = k+1  # May need to use this lots, so pre-compute
+            # Loop over remaining elements of perm (actually i, the index)
             while 1:
-                elements_left = len(perm) - i
-                elements_needed = len(self) - k
                 if elements_left < elements_needed:
-                    break
+                    # Can't form an occurrence with remaining elements
+                    return
                 if predicates[k](perm[i]):
-                    # Yield occurrences where the ith element is chosen
+                    # The element perm[i] could be used to form an occurrence
                     indices[k] = i
-                    for o in con(i+1, k+1):
+                    # Yield occurrences where the i-th element is chosen
+                    for o in con(i+1, k_inc):
                         yield o
+                # Increment i, that also means elements_left should decrement
                 i += 1
+                elements_left -= 1
 
         for o in con(0, 0):
             yield o
@@ -122,7 +124,7 @@ class Permutation(object):
     def occurrences_of(self, patt):
         """Find all indices of occurrences of patt in self.
 
-        This method is complementary to permuta.Permutation.occurrences_in
+        This method is complementary to permuta.Permutation.occurrences_in.
         It just calls patt.occurrences_in(self) internally.
         See permuta.Permutation.occurrences_in for documentation.
         """
