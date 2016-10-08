@@ -147,19 +147,36 @@ class Permutation(object):
                 Only the first len(flattened) are legitimate.
             index_of_new: int
                 The index of the perm element to be added to the flattened list.
-        Returns: None
-            The flattened argument is modified and nothing is returned.
+        Returns: (int, int)
+            The main result is that the flattened argument is modified.
+            However, a tuple of indices is also returned.
+            These are the indices of the next smaller/bigger element in flattened.
+            They are None if they do not exist.
         """
-        not_incremented_counter = 0
         new_element = perm[index_of_new]
+        index_smaller = None  # Index in flattened: One greater in flattened
+        index_bigger = None  # Index in flattened: One lesser in flattened
+        smaller = 0  # Value of smaller in perm
+        bigger = len(perm) + 1  # Value of greater in perm
+        not_incremented_counter = 0  # Number of flattened elements not incremented
         for i in range(len(flattened)):
-            if perm[indices[i]] > new_element:
+            element = perm[indices[i]]  # Original value of flattened[i]
+            if element > new_element:
+                # Must increment when new element is added
                 flattened[i] += 1
+                # If element is closer to new element than last one
+                if element < bigger:
+                    bigger = element
+                    index_bigger = i
             else:
+                # Stays the same when new element is added
                 not_incremented_counter += 1
+                if element > smaller:
+                    smaller = element
+                    index_smaller = i
         new_element_flattened = 1 + not_incremented_counter
         flattened.append(new_element_flattened)
-        return
+        return index_smaller, index_bigger
 
     def inverse(self):
         """Return the inverse of the permutation self"""
