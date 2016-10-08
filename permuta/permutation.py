@@ -74,9 +74,7 @@ class Permutation(object):
         if len(self) != 0:
             k_standard_patt.append(self.perm)
 
-        # These two lists define a pattern in the permutation perm
-        # occurrence is the actual elements and indices is their indices in perm
-        #occurrence = [None]*len(self)  # Unnecessary
+        # The indices of the occurrence in perm
         indices = [None]*len(self)
 
         # Define function that works with the above defined variables
@@ -100,7 +98,6 @@ class Permutation(object):
                 # Add them all
                 while i < len(perm):
                     Permutation._online_flattening_step(perm, flattened, indices, i)
-                    #occurrence[k] = perm[i]  # Unnecessary
                     indices[k] = i
                     k += 1
                     i += 1
@@ -114,9 +111,7 @@ class Permutation(object):
 
             # Yield occurrences where the ith element is chosen
             if new_flattened == k_standard_patt[k+1]:
-                # Still conforms to pattern,
-                # so add index and element and look further
-                #occurrence[k] = perm[i]  # Unnecessary
+                # Still conforms to pattern so add index and look further
                 indices[k] = i
                 for o in con(i+1, k+1, new_flattened):
                     yield o
