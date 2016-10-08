@@ -63,13 +63,21 @@ class Permutation(object):
         """
 
         # Calculate all prefix flattenings of the pattern self
-        k_standard_patt = [Permutation.to_standard(self[:k]).perm for k in range(0, len(self))]
-        k_standard_patt.append(self.perm)
+        k_standard_patt = [[]]  # First prefix is empty prefix
+        patt_indices = range(len(self))  # Indices for online flattening
+        i = 1  # Prefix flattenings already calculated
+        while i < len(self):
+            new = k_standard_patt[-1][:]
+            Permutation._online_flattening_step(self.perm, new, patt_indices, i-1)
+            k_standard_patt.append(new)
+            i += 1
+        if len(self) != 0:
+            k_standard_patt.append(self.perm)
 
         # These two lists define a pattern in the permutation perm
         # occurrence is the actual elements and indices is their indices in perm
-        occurrence = [None]*len(self)
-        indices = occurrence[:]
+        #occurrence = [None]*len(self)  # Unnecessary
+        indices = [None]*len(self)
 
         # Define function that works with the above defined variables
         # i is the index of the element in perm that is to be considered
@@ -91,7 +99,7 @@ class Permutation(object):
                 # Enough elements left to make a single occurrence
                 # Add them all
                 while i < len(perm):
-                    Permutation._add_to_flattened(perm, flattened, indices, i)
+                    Permutation._online_flattening_step(perm, flattened, indices, i)
                     #occurrence[k] = perm[i]  # Unnecessary
                     indices[k] = i
                     k += 1
@@ -102,13 +110,13 @@ class Permutation(object):
 
             # Incrementally build flattened occurrence
             new_flattened = flattened[:]
-            Permutation._add_to_flattened(perm, new_flattened, indices, i)
+            Permutation._online_flattening_step(perm, new_flattened, indices, i)
 
             # Yield occurrences where the ith element is chosen
             if new_flattened == k_standard_patt[k+1]:
                 # Still conforms to pattern,
                 # so add index and element and look further
-                occurrence[k] = perm[i]
+                #occurrence[k] = perm[i]  # Unnecessary
                 indices[k] = i
                 for o in con(i+1, k+1, new_flattened):
                     yield o
@@ -130,7 +138,7 @@ class Permutation(object):
         return patt.occurrences_in(self)
 
     @staticmethod
-    def _add_to_flattened(perm, flattened, indices, index_of_new):
+    def _online_flattening_step(perm, flattened, indices, index_of_new):
         """Single step of online flattening of permutation.
 
         Args:
