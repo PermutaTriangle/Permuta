@@ -62,6 +62,13 @@ class Permutation(object):
             self == permuta.Permutation.to_standard([perm[i] for i in l])
         """
 
+        # Special cases
+        if len(self) == 0:
+            # Pattern is empty, occurs in all permutations
+            # This is needed for the con function to work correctly
+            yield []
+            return
+
         # The indices of the occurrence in perm
         indices = [None]*len(self)
 
@@ -97,11 +104,8 @@ class Permutation(object):
         # i is the index of the element in perm that is to be considered
         # k is how many elements of the permutation have already been added to occurrence
         def con(i, k):
-            elements_needed = len(self) - k
-            if elements_needed == 0:
-                yield indices[:]
-                return
             elements_left = len(perm) - i
+            elements_needed = len(self) - k
             k_inc = k+1  # May need to use this lots, so pre-compute
             # Loop over remaining elements of perm (actually i, the index)
             while 1:
@@ -111,9 +115,13 @@ class Permutation(object):
                 if predicates[k](perm[i]):
                     # The element perm[i] could be used to form an occurrence
                     indices[k] = i
+                    # Yield occurrence
+                    if elements_needed == 1:
+                        yield indices[:]
                     # Yield occurrences where the i-th element is chosen
-                    for o in con(i+1, k_inc):
-                        yield o
+                    else:
+                        for o in con(i+1, k_inc):
+                            yield o
                 # Increment i, that also means elements_left should decrement
                 i += 1
                 elements_left -= 1
