@@ -62,6 +62,24 @@ class Permutation(object):
             self == permuta.Permutation.to_standard([perm[i] for i in l])
         """
 
+        # Special cases
+        if len(perm) < len(self):
+            # Pattern is longer than permutation, no occurrences
+            return
+        elif len(self) == 0:
+            # Pattern is empty, occurs in all permutations
+            yield []
+            return
+        elif len(self) == 1:
+            # Pattern is single element
+            i = 0
+            while i < len(perm):
+                yield [i]
+                i += 1
+            return
+
+        # TODO: Have more/less special cases?
+
         # The indices of the occurrence in perm
         indices = [None]*len(self)
 
