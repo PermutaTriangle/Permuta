@@ -139,17 +139,16 @@ class Permutation(object):
                 The permutation the rest of the arguments refer to.
             flattened: [int]
                 The flattened list of [perm[i] for i in indices[:len(flattened)]].
-                The function modifies this list.
+                This list is modified by correctly appending perm[index_of_new].
             indices: [int]
                 The indices of the elements in perm that have been flattened.
                 Only the first len(flattened) are legitimate.
             index_of_new: int
                 The index of the perm element to be added to the flattened list.
         Returns: (int, int)
-            The main result is that the flattened argument is modified.
-            However, a tuple of indices is also returned.
             These are the indices of the next smaller/bigger element in flattened.
             They are None if they do not exist.
+            The flattened argument is also modified.
         """
         new_element = perm[index_of_new]
         index_smaller = None  # Index in flattened: One greater in flattened
