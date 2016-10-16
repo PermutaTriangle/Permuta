@@ -1,43 +1,42 @@
 
 class Permutation(object):
-    """Base Permutation object"""
-    def __init__(self, perm, check=False):
-        """Create a new Permutation from the given list.
-        If check, then check that the permutation is of the correct form"""
-        if check:
-            assert type(perm) is list
-            n = len(perm)
-            used = [False]*n
+    """Base Permutation object."""
 
-            for x in perm:
-                assert type(x) is int
-                assert 1 <= x <= n
-                assert not used[x-1]
-                used[x-1] = True
-
+    def __init__(self, perm):
+        """Create a new Permutation from the given list."""
         self.perm = list(perm)
 
-    def contains(self, pattern):
-        """Returns true if permutation self contains a given pattern"""
-        if type(pattern) is list:
-            pattern = Permutation(pattern)
-        return pattern.contained_in(self)
-
-    def avoids(self, pattern):
-        """Returns True if self contains no occurrence of pattern"""
-        if type(pattern) is list and all( type(patt) is list or type(patt) is Permutation for patt in pattern ):
-            for patt in pattern:
-                if self.contains(patt):
-                    return False
-            return True
-
-        return not self.contains(pattern)
-
     def contained_in(self, perm):
-        """Returns true if the permutation self is contained in the
-        permutation perm.
-        self is treated as a pattern"""
-        return any( True for _ in self.occurrences_in(perm) )
+        """Check if self is a pattern of perm.
+
+        Returns: bool
+            True iff self is a pattern of perm.
+        """
+        return self in perm
+
+    def contains(self, perm):
+        """Check if perm is a pattern of self.
+
+        Returns: bool
+            True iff perm is a pattern of self.
+        """
+        return perm in self
+
+    def avoids(self, *perms):
+        """Check if self avoids perms.
+
+        Returns: bool
+            True iff self avoids all permutations in perms.
+        """
+        return all(perm not in self for perm in perms)
+
+    def avoided_by(self, *perms):
+        """Check if self is avoided by perms.
+
+        Returns: bool
+            True iff every permutation in perms avoids self.
+        """
+        return all(self not in perm for perm in perms)
 
     def count_occurrences_in(self, perm):
         """Count the number of occurrences of the pattern self in the permutation perm."""
@@ -288,3 +287,9 @@ class Permutation(object):
 
     def __hash__(self):
         return hash(tuple(self.perm))
+
+    def __contains__(self, perm):
+        if type(perm) is Permutation:
+            return any(True for _ in perm.occurrences_in(self))
+        #elif type(perm) is MeshPattern:
+        #    return self.contained_in(perm)
