@@ -15,7 +15,6 @@ class Permutation(object):
                 used[x-1] = True
 
         self.perm = list(perm)
-        self._element_indices_result = None
         self._left_to_right_details_result = None
 
     def contains(self, pattern):
@@ -70,9 +69,6 @@ class Permutation(object):
             yield []
             return
 
-        # Element indices list of perm
-        element_indices = perm._element_indices()
-
         # The indices of the occurrence in perm
         occurrence_indices = [None]*len(self)
 
@@ -80,14 +76,11 @@ class Permutation(object):
         details = self._left_to_right_details()
 
         # Define function that works with the above defined variables
-        # i is the minimum index of the element in perm that is to be considered
+        # i is the index of the element in perm that is to be considered
         # k is how many elements of the permutation have already been added to occurrence
         def con(i, k):
             elements_left = len(perm) - i
             elements_needed = len(self) - k
-            if elements_left < elements_needed:
-                # Can't form an occurrence with remaining elements
-                return
             left_floor_index, left_ceiling_index, left_floor_diff, left_ceiling_diff = details[k]
             # Set the bounds for the new element
             lower_bound = left_floor_diff
@@ -100,18 +93,26 @@ class Permutation(object):
                 upper_bound += len(perm)
             else:
                 upper_bound += perm[occurrence_indices[left_ceiling_index]]
-
-            element = lower_bound
-            while element <= upper_bound:
-                element_index = element_indices[element]
-                if element_index >= i:
-                    occurrence_indices[k] = element_index
+                          
+            # Loop over remaining elements of perm (actually i, the index)
+            while 1:
+                if elements_left < elements_needed:
+                    # Can't form an occurrence with remaining elements
+                    return
+                element = perm[i]
+                if lower_bound <= element <= upper_bound:
+                    occurrence_indices[k] = i
+                    # Yield occurrence
+                    # TODO: will bringing this conditional out of loop speed things up?
                     if elements_needed == 1:
                         yield occurrence_indices[:]
+                    # Yield occurrences where the i-th element is chosen
                     else:
-                        for o in con(element_index+1, k+1):
+                        for o in con(i+1, k+1):
                             yield o
-                element += 1
+                # Increment i, that also means elements_left should decrement
+                i += 1
+                elements_left -= 1
 
         for o in con(0, 0):
             yield o
@@ -124,18 +125,6 @@ class Permutation(object):
         See permuta.Permutation.occurrences_in for documentation.
         """
         return patt.occurrences_in(self)
-
-    def _element_indices(self):
-        # TODO: Make betterer comment
-        if self._element_indices_result is not None:
-            return self._element_indices_result
-        element_indices = [None]*(len(self) + 1)
-        index = 0
-        for e in self:
-            element_indices[e] = index
-            index += 1
-        self._element_indices_result = element_indices
-        return element_indices
 
     def _left_to_right_details(self):
         # TODO: Make comment better
@@ -184,51 +173,6 @@ class Permutation(object):
             result.append(compiled)
         self._left_to_right_details_result = result
         return result
-
-    @staticmethod
-    def _online_flattening_step(perm, flattened, indices, index_of_new):
-        """Single step of online flattening of permutation.
-
-        Args:
-            perm: permuta.Permutation
-                The permutation the rest of the arguments refer to.
-            flattened: [int]
-                The flattened list of [perm[i] for i in indices[:len(flattened)]].
-                This list is modified by correctly appending perm[index_of_new].
-            indices: [int]
-                The indices of the elements in perm that have been flattened.
-                Only the first len(flattened) are legitimate.
-            index_of_new: int
-                The index of the perm element to be added to the flattened list.
-        Returns: (int, int)
-            These are the indices of the next smaller/bigger element in flattened.
-            They are None if they do not exist.
-            The flattened argument is also modified.
-        """
-        new_element = perm[index_of_new]
-        index_smaller = None  # Index in flattened: One greater in flattened
-        index_bigger = None  # Index in flattened: One lesser in flattened
-        smaller = 0  # Value of smaller in perm
-        bigger = len(perm) + 1  # Value of greater in perm
-        not_incremented_counter = 0  # Number of flattened elements not incremented
-        for i in range(len(flattened)):
-            element = perm[indices[i]]  # Original value of flattened[i]
-            if element > new_element:
-                # Must increment when new element is added
-                flattened[i] += 1
-                # If element is closer to new element than last one
-                if element < bigger:
-                    bigger = element
-                    index_bigger = i
-            else:
-                # Stays the same when new element is added
-                not_incremented_counter += 1
-                if element > smaller:
-                    smaller = element
-                    index_smaller = i
-        new_element_flattened = 1 + not_incremented_counter
-        flattened.append(new_element_flattened)
-        return index_smaller, index_bigger
 
     def inverse(self):
         """Return the inverse of the permutation self"""
