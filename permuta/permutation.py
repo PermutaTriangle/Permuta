@@ -1,19 +1,3 @@
-#from collections import namedtuple
-#
-## TODO: Is this nice at all?
-## Class to make occurrence method cleaner
-#LTRDAttr = [
-#             "left_floor_index"
-#           , "left_ceiling_index"
-#           , "minimum_elements_below"
-#           , "minimum_elements_above"
-#           ]
-#class LeftToRightDetail(namedtuple("LeftToRightDetail", LTRDAttr)):
-#    __slots__ = ()
-#    def __new__(cls, *args, **kwargs):
-#        actual = {attr: kwargs[attr] for attr in LTRDAttr}
-#        return super(LeftToRightDetail, cls).__new__(cls, **actual)
-
 class Permutation(object):
     """Base Permutation object"""
     def __init__(self, perm, check=False):
@@ -86,6 +70,9 @@ class Permutation(object):
             yield []
             return
 
+        # Element indices list of perm
+        element_indices = perm._element_indices()
+
         # The indices of the occurrence in perm
         occurrence_indices = [None]*len(self)
 
@@ -93,11 +80,14 @@ class Permutation(object):
         details = self._left_to_right_details()
 
         # Define function that works with the above defined variables
-        # i is the index of the element in perm that is to be considered
+        # i is the minimum index of the element in perm that is to be considered
         # k is how many elements of the permutation have already been added to occurrence
         def con(i, k):
             elements_left = len(perm) - i
             elements_needed = len(self) - k
+            if elements_left < elements_needed:
+                # Can't form an occurrence with remaining elements
+                return
             left_floor_index, left_ceiling_index, left_floor_diff, left_ceiling_diff = details[k]
             # Set the bounds for the new element
             lower_bound = left_floor_diff
@@ -110,25 +100,18 @@ class Permutation(object):
                 upper_bound += len(perm)
             else:
                 upper_bound += perm[occurrence_indices[left_ceiling_index]]
-                          
-            # Loop over remaining elements of perm (actually i, the index)
-            while 1:
-                if elements_left < elements_needed:
-                    # Can't form an occurrence with remaining elements
-                    return
-                element = perm[i]
-                if lower_bound <= element <= upper_bound:
-                    occurrence_indices[k] = i
-                    # Yield occurrence
+
+            element = lower_bound
+            while element <= upper_bound:
+                element_index = element_indices[element]
+                if element_index >= i:
+                    occurrence_indices[k] = element_index
                     if elements_needed == 1:
                         yield occurrence_indices[:]
-                    # Yield occurrences where the i-th element is chosen
                     else:
-                        for o in con(i+1, k+1):
+                        for o in con(element_index+1, k+1):
                             yield o
-                # Increment i, that also means elements_left should decrement
-                i += 1
-                elements_left -= 1
+                element += 1
 
         for o in con(0, 0):
             yield o
@@ -141,6 +124,18 @@ class Permutation(object):
         See permuta.Permutation.occurrences_in for documentation.
         """
         return patt.occurrences_in(self)
+
+    def _element_indices(self):
+        # TODO: Make betterer comment
+        if self._element_indices_result is not None:
+            return self._element_indices_result
+        element_indices = [None]*(len(self) + 1)
+        index = 0
+        for e in self:
+            element_indices[e] = index
+            index += 1
+        self._element_indices_result = element_indices
+        return element_indices
 
     def _left_to_right_details(self):
         # TODO: Make comment better
