@@ -1,4 +1,3 @@
-
 class Permutation(object):
     """Base Permutation object"""
     def __init__(self, perm, check=False):
@@ -16,6 +15,7 @@ class Permutation(object):
                 used[x-1] = True
 
         self.perm = list(perm)
+        self._left_to_right_details_result = None
 
     def contains(self, pattern):
         """Returns true if permutation self contains a given pattern"""
@@ -70,57 +70,45 @@ class Permutation(object):
             return
 
         # The indices of the occurrence in perm
-        indices = [None]*len(self)
+        occurrence_indices = [None]*len(self)
 
-        # Pre-compute occurrence appending predicates
-        # Assume e is an element in the permutation perm
-        # Assume some i-1 preceding elements have been added to the occurrence
-        # Then e can be added to the occurrence if predicates[i](e) holds
-        prefix_pattern = []  # First prefix flattening of self is empty prefix
-        pattern_indices = range(len(self))  # Indices for online flattening
-        predicates = []  # Must hold to append an i-th element to occurrence
-        i = 1  # Prefix flattenings already calculated
-        while i <= len(self):
-            a, b = Permutation._online_flattening_step( self.perm
-                                                      , prefix_pattern
-                                                      , pattern_indices
-                                                      , i-1
-                                                      )
-            if a is None:
-                if b is None:
-                    predicate = lambda x: True
-                else:
-                    predicate = lambda x, b=b: x < perm[indices[b]]
-            else:  # a is not None
-                if b is None:
-                    predicate = lambda x, a=a: perm[indices[a]] < x
-                else:
-                    predicate = lambda x, a=a, b=b: perm[indices[a]] < x and x < perm[indices[b]]
-            predicates.append(predicate)
-            i += 1
+        # Get left to right scan details
+        details = self._left_to_right_details()
 
         # Define function that works with the above defined variables
-        # (It works with the predicates and indices lists)
         # i is the index of the element in perm that is to be considered
         # k is how many elements of the permutation have already been added to occurrence
         def con(i, k):
             elements_left = len(perm) - i
             elements_needed = len(self) - k
-            k_inc = k+1  # May need to use this lots, so pre-compute
+            left_floor_index, left_ceiling_index, left_floor_diff, left_ceiling_diff = details[k]
+            # Set the bounds for the new element
+            lower_bound = left_floor_diff
+            if left_floor_index is None:
+                lower_bound += 1
+            else:
+                lower_bound += perm[occurrence_indices[left_floor_index]]
+            upper_bound = -left_ceiling_diff
+            if left_ceiling_index is None:
+                upper_bound += len(perm)
+            else:
+                upper_bound += perm[occurrence_indices[left_ceiling_index]]
+                          
             # Loop over remaining elements of perm (actually i, the index)
             while 1:
                 if elements_left < elements_needed:
                     # Can't form an occurrence with remaining elements
                     return
-                if predicates[k](perm[i]):
-                    # The element perm[i] could be used to form an occurrence
-                    indices[k] = i
+                element = perm[i]
+                if lower_bound <= element <= upper_bound:
+                    occurrence_indices[k] = i
                     # Yield occurrence
+                    # TODO: will bringing this conditional out of loop speed things up?
                     if elements_needed == 1:
-                        yield indices[:]
+                        yield occurrence_indices[:]
                     # Yield occurrences where the i-th element is chosen
                     else:
-                        for o in con(i+1, k_inc):
+                        for o in con(i+1, k+1):
                             yield o
                 # Increment i, that also means elements_left should decrement
                 i += 1
@@ -138,50 +126,53 @@ class Permutation(object):
         """
         return patt.occurrences_in(self)
 
-    @staticmethod
-    def _online_flattening_step(perm, flattened, indices, index_of_new):
-        """Single step of online flattening of permutation.
+    def _left_to_right_details(self):
+        # TODO: Make comment better
+        """What is known when scanning self from left to right.
 
-        Args:
-            perm: permuta.Permutation
-                The permutation the rest of the arguments refer to.
-            flattened: [int]
-                The flattened list of [perm[i] for i in indices[:len(flattened)]].
-                This list is modified by correctly appending perm[index_of_new].
-            indices: [int]
-                The indices of the elements in perm that have been flattened.
-                Only the first len(flattened) are legitimate.
-            index_of_new: int
-                The index of the perm element to be added to the flattened list.
-        Returns: (int, int)
-            These are the indices of the next smaller/bigger element in flattened.
-            They are None if they do not exist.
-            The flattened argument is also modified.
+        TODO: Make comments nice and make betterer
+
+        Return: [(int, int, int, int)]
         """
-        new_element = perm[index_of_new]
-        index_smaller = None  # Index in flattened: One greater in flattened
-        index_bigger = None  # Index in flattened: One lesser in flattened
-        smaller = 0  # Value of smaller in perm
-        bigger = len(perm) + 1  # Value of greater in perm
-        not_incremented_counter = 0  # Number of flattened elements not incremented
-        for i in range(len(flattened)):
-            element = perm[indices[i]]  # Original value of flattened[i]
-            if element > new_element:
-                # Must increment when new element is added
-                flattened[i] += 1
-                # If element is closer to new element than last one
-                if element < bigger:
-                    bigger = element
-                    index_bigger = i
-            else:
-                # Stays the same when new element is added
-                not_incremented_counter += 1
-                if element > smaller:
-                    smaller = element
-                    index_smaller = i
-        new_element_flattened = 1 + not_incremented_counter
-        flattened.append(new_element_flattened)
-        return index_smaller, index_bigger
+        # If details have been calculated before, return cached result
+        if self._left_to_right_details_result is not None:
+            return self._left_to_right_details_result
+        result = []
+        for base_index in range(len(self)):
+            left_floor_index = None
+            left_ceiling_index = None
+            left_floor = 1
+            left_ceiling = len(self)
+            base_element = self[base_index]
+            for index in range(base_index):
+                element = self[index]
+                if element > base_element:
+                    if element <= left_ceiling:
+                        left_ceiling_index = index
+                        left_ceiling = element
+                else:
+                    if element >= left_floor:
+                        left_floor_index = index
+                        left_floor = element
+            # left_floor_difference:
+            # How much greater than the left floor the element must be,
+            # or how much greater than 1 it must be if left floor does not exist
+            left_floor_difference = base_element - left_floor
+            # left_ceiling_difference:
+            # Subtract this number from the length of the permutation an
+            # occurrence is being searched for in to get an upper bound for the
+            # allowed value. Tighten the bound by subtracting from the left
+            # ceiling value if its index is not None.
+            left_ceiling_difference = left_ceiling - base_element
+            compiled = (
+                         left_floor_index
+                       , left_ceiling_index
+                       , left_floor_difference
+                       , left_ceiling_difference
+                       )
+            result.append(compiled)
+        self._left_to_right_details_result = result
+        return result
 
     def inverse(self):
         """Return the inverse of the permutation self"""
