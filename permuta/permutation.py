@@ -17,6 +17,7 @@ class Permutation(object):
                 A list corresponding to a legal permutation.
         """
         self.perm = l
+        self._hash = None
 
     def contained_in(self, *perms):
         """Check if self is a pattern of perms.
@@ -318,7 +319,9 @@ class Permutation(object):
         return (len(self), self.perm) < (len(other), other.perm)
 
     def __hash__(self):
-        return hash(tuple(self.perm))
+        if self._hash is None:
+            self._hash = hash(tuple(self.perm))
+        return self._hash
 
     def __contains__(self, patt):
         """Check if self contains patt.
