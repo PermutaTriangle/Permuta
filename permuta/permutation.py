@@ -4,7 +4,7 @@ class Permutation(object):
 
     def __init__(self, perm):
         """Create a new Permutation from the given list."""
-        self.perm = list(perm)
+        self.perm = perm
 
     def contained_in(self, perm):
         """Check if self is a pattern of perm.
