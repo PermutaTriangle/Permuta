@@ -1,5 +1,5 @@
 class Permutation(object):
-    """Unsigned permutations.
+    """A permutation class.
 
     This class is immutable by agreement.
     """
