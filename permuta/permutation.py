@@ -1,10 +1,13 @@
-
 class Permutation(object):
-    """Base Permutation object."""
 
-    def __init__(self, perm):
-        """Create a new Permutation from the given list."""
-        self.perm = perm
+    def __init__(self, l):
+        """Create a new Permutation with the given list.
+        
+        Does not create a copy of the given list.
+        Supply a copy of the list if you plan on mutating the original.
+        This class is immutable by agreement.
+        """
+        self.perm = l
 
     def contained_in(self, perm):
         """Check if self is a pattern of perm.
