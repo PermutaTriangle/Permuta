@@ -9,6 +9,9 @@ def _rot_right(n, pos):
     assert 0 <= y < n+1
     return (y, n-x)
 
+def _G(seq):
+    return zip(range(1, len(seq)+1), seq)
+
 
 class MeshPattern(object):
     """Class for instances of mesh patterns"""
@@ -22,33 +25,56 @@ class MeshPattern(object):
         self.mesh = set(mesh)
 
     def contained_in(self, perm):
-        """Returns whether a self is contained in perm"""
-
-        def contains(i, now):
-            if len(now) == len(self.perm):
-                st = sorted(now)
-                x = 0
-                for k in perm:
-                    if x < len(now) and k == now[x]:
-                        x += 1
-                    else:
-                        y = bisect.bisect_left(st, k)
-                        if (x, y) in self.mesh:
-                            return False
+        # TODO: Make occurrence function like for classical patterns
+        #       and call that function
+        clpatt = self.perm
+        R = self.mesh
+        k = len(clpatt)
+        n = len(perm)
+    
+        perm_cart = set(_G(perm))
+    
+        for H in clpatt.occurrences_in(perm):
+            X = dict(_G(sorted(i+1 for i in H)))
+            Y = dict(_G(sorted(perm[i] for i in H)))
+            X[0], X[k+1] = 0, n+1
+            Y[0], Y[k+1] = 0, n+1
+            shady = ( X[i] < x < X[i+1] and Y[j] < y < Y[j+1]
+                      for (i,j) in R
+                      for (x,y) in perm_cart
+                      )
+            if not any(shady):
                 return True
+        return False
 
-            if i == len(perm):
-                return False
-
-            nxt = now + [perm[i]]
-            if (Permutation.to_standard(nxt) ==
-                    Permutation.to_standard(self.perm[:len(nxt)])):
-                if contains(i+1, nxt):
-                    return True
-
-            return contains(i+1, now)
-
-        return contains(0, [])
+#    def contained_in(self, perm):
+#        """Returns whether a self is contained in perm"""
+#
+#        def contains(i, now):
+#            if len(now) == len(self.perm):
+#                st = sorted(now)
+#                x = 0
+#                for k in perm:
+#                    if x < len(now) and k == now[x]:
+#                        x += 1
+#                    else:
+#                        y = bisect.bisect_left(st, k)
+#                        if (x, y) in self.mesh:
+#                            return False
+#                return True
+#
+#            if i == len(perm):
+#                return False
+#
+#            nxt = now + [perm[i]]
+#            if (Permutation.to_standard(nxt) ==
+#                    Permutation.to_standard(self.perm[:len(nxt)])):
+#                if contains(i+1, nxt):
+#                    return True
+#
+#            return contains(i+1, now)
+#
+#        return contains(0, [])
 
     def count_occurrences_in(self, perm):
         """Returns the number of occurrences of self in perm"""
@@ -367,3 +393,24 @@ class MeshPattern(object):
         n = len(self.perm)
         arr = [[((str(n-(i-1)//2) if n < 10 else 'o') if self.perm[(j-1)/2] == n-(i-1)//2 else '+') if j % 2 != 0 and i % 2 != 0 else '|' if j % 2 != 0 else '-' if i % 2 != 0 else ('#' if ((j-1)/2+1, n-(i-1)/2-1) in self.mesh else ' ') for j in range(2*n+1)] for i in range(2*n+1)]
         return '\n'.join(''.join(line) for line in arr)
+
+def contained_in_many_shadings(clpatt, Rs, perm):
+    R = self.mesh
+    k = len(clpatt)
+    n = len(perm)
+
+    perm_cart = set(_G(perm))
+
+    for H in clpatt.occurrences_in(perm):
+        X = dict(_G(sorted(i+1 for i in H)))
+        Y = dict(_G(sorted(perm[i] for i in H)))
+        X[0], X[k+1] = 0, n+1
+        Y[0], Y[k+1] = 0, n+1
+        for R in Rs:
+            shady = ( X[i] < x < X[i+1] and Y[j] < y < Y[j+1]
+                      for (i,j) in R
+                      for (x,y) in perm_cart
+                      )
+            if not any(shady):
+                return True
+    return False
