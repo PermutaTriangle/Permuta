@@ -2,40 +2,60 @@ class Permutation(object):
 
     def __init__(self, l):
         """Create a new Permutation with the given list.
-        
+
+        This class is immutable by agreement.
         Does not create a copy of the given list.
         Supply a copy of the list if you plan on mutating the original.
-        This class is immutable by agreement.
         """
         self.perm = l
 
-    def contained_in(self, perm):
-        """Check if self is a pattern of perm.
+    def contained_in(self, *perms):
+        """Check if self is a pattern of perms.
 
+        Args:
+            self:
+                A classical pattern.
+            perms: [permuta.Permutation]
+                A list of permutations.
         Returns: bool
-            True iff self is a pattern of perm.
+            True iff self is a pattern of all permutations in perms.
         """
-        return self in perm
+        return all(self in perm for perm in perms)
 
-    def contains(self, perm):
-        """Check if perm is a pattern of self.
+    def contains(self, *patts):
+        """Check if self contains all patterns in patts.
 
+        Args:
+            self:
+                A permutation.
+            patts: [permuta.Permutation|permuta.MeshPattern]
+                A list of classical/mesh patterns.
         Returns: bool
-            True iff perm is a pattern of self.
+            True iff all patterns in patt are contained in self.
         """
-        return perm in self
+        return all(patt in self for patt in patts)
 
-    def avoids(self, *perms):
-        """Check if self avoids perms.
+    def avoids(self, *patts):
+        """Check if the permutation self avoids patts.
 
+        Args:
+            self:
+                A permutation.
+            patts: [permuta.Permutation|permuta.MeshPattern]
+                A list of classical/mesh patterns.
         Returns: bool
-            True iff self avoids all permutations in perms.
+            True iff self avoids all classical/mesh patterns in patts.
         """
-        return all(perm not in self for perm in perms)
+        return all(patt not in self for patt in patts)
 
     def avoided_by(self, *perms):
-        """Check if self is avoided by perms.
+        """Check if the pattern self is avoided by perms.
 
+        Args:
+            self:
+                A classical pattern.
+            perms: [permuta.Permutation]
+                A list of permutations.
         Returns: bool
             True iff every permutation in perms avoids self.
         """
