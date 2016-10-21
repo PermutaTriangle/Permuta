@@ -1,11 +1,20 @@
 class Permutation(object):
+    """Unsigned permutations.
+
+    This class is immutable by agreement.
+    """
 
     def __init__(self, l):
         """Create a new Permutation with the given list.
 
-        This class is immutable by agreement.
-        Does not create a copy of the given list.
+        This not create a copy of the given list.
         Supply a copy of the list if you plan on mutating the original.
+
+        Args:
+            self:
+                A permutation.
+            l: [int]
+                A list corresponding to a legal permutation.
         """
         self.perm = l
 
@@ -311,8 +320,15 @@ class Permutation(object):
     def __hash__(self):
         return hash(tuple(self.perm))
 
-    def __contains__(self, perm):
-        if type(perm) is Permutation:
-            return any(True for _ in perm.occurrences_in(self))
-        #elif type(perm) is MeshPattern:
-        #    return self.contained_in(perm)
+    def __contains__(self, patt):
+        """Check if self contains patt.
+
+        Args:
+            self:
+                A permutation.
+            patts: permuta.Permutation|permuta.MeshPattern
+                A classical/mesh pattern.
+        Returns: bool
+            True iff the pattern patt is contained in self.
+        """
+        return any(True for _ in patt.occurrences_in(self))
