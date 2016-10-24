@@ -4,6 +4,8 @@ class Permutation(object):
     This class is immutable by agreement.
     """
 
+    __slots__ = "perm", "_hash"
+
     def __init__(self, l):
         """Create a new Permutation with the given list.
 
