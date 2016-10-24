@@ -1,7 +1,7 @@
 import bisect
 from .permutation import Permutation
 from .misc import DIR_EAST, DIR_NORTH, DIR_WEST, DIR_SOUTH, DIR_NONE
-
+import itertools
 
 def _rot_right(n, pos):
     x, y = pos
@@ -107,7 +107,12 @@ class MeshPattern(object):
         return contains(0, [])
 
     def occurrences_in(self, perm):
+        # TODO: Implement all nice
         raise NotImplementedError
+
+    def contained_in(self, perm):
+        # TODO: Use occurrences_of
+        return self.count_occurrences_in(perm) > 0
 
     def rotate_right(self):
         return MeshPattern(self.perm.rotate_right(),
