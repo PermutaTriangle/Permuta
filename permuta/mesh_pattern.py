@@ -108,10 +108,26 @@ class MeshPattern(object):
 
     def occurrences_in(self, perm):
         # TODO: Implement all nice
-        raise NotImplementedError
+        indices = list(range(len(perm)))
+        for candidate_indices in itertools.combinations(indices, len(self)):
+            candidate = [perm[i] for i in candidate_indices]
+            if Permutation.to_standard(candidate) != self.perm:
+                continue
+            x = 0
+            for i in range(len(perm)):
+                e = perm[i]
+                if e in candidate:
+                    x += 1
+                    continue
+                y = sum(1 for c in candidate if c < e)
+                if (x, y) in self.mesh:
+                    break
+            else:
+                # No unused point fell within shading
+                yield list(candidate_indices)
 
     def contained_in(self, perm):
-        # TODO: Use occurrences_of
+        # TODO: Use occurrences_in
         return self.count_occurrences_in(perm) > 0
 
     def rotate_right(self):
