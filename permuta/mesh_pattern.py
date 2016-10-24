@@ -106,6 +106,9 @@ class MeshPattern(object):
 
         return contains(0, [])
 
+    def occurrences_in(self, perm):
+        raise NotImplementedError
+
     def rotate_right(self):
         return MeshPattern(self.perm.rotate_right(),
                            set([_rot_right(len(self.perm), pos) for pos in

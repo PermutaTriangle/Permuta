@@ -1,50 +1,122 @@
-class Permutation(object):
-    """Base Permutation object"""
-    def __init__(self, perm, check=False):
-        """Create a new Permutation from the given list.
-        If check, then check that the permutation is of the correct form"""
-        if check:
-            assert type(perm) is list
-            n = len(perm)
-            used = [False]*n
+import collections
 
+class Permutation(object):
+    """A permutation class.
+
+    This class is immutable by agreement.
+    """
+
+    __slots__ = (
+                  "perm"
+                , "_hash_result"
+                , "_left_to_right_details_result"
+                )
+
+    def __init__(self, l, check=False):
+        """Create a new Permutation with the given list.
+
+        This does not create a copy of the given list.
+        Supply a copy of the list if you plan on mutating the original.
+
+        Args:
+            self:
+                A permutation.
+            l: [int]
+                A list corresponding to a legal permutation.
+            check: bool
+                If True, l will be confirmed to be a legal permutation.
+        """
+        if check:
+            assert isinstance(l, collections.Iterable)
+            try:
+                n = len(perm)
+            except TypeError:
+                n = sum(1 for _ in l)
+            used = [False]*n
             for x in perm:
                 assert type(x) is int
                 assert 1 <= x <= n
                 assert not used[x-1]
                 used[x-1] = True
-
-        self.perm = list(perm)
+        self.perm = l if type(l) is list else list(l)
+        self._hash_result = None
         self._left_to_right_details_result = None
 
-    def contains(self, pattern):
-        """Returns true if permutation self contains a given pattern"""
-        if type(pattern) is list:
-            pattern = Permutation(pattern)
-        return pattern.contained_in(self)
+    def contained_in(self, *perms):
+        """Check if self is a pattern of perms.
 
-    def avoids(self, pattern):
-        """Returns True if self contains no occurrence of pattern"""
-        if type(pattern) is list and all( type(patt) is list or type(patt) is Permutation for patt in pattern ):
-            for patt in pattern:
-                if self.contains(patt):
-                    return False
-            return True
+        Args:
+            self:
+                A classical pattern.
+            perms: [permuta.Permutation]
+                A list of permutations.
+        Returns: bool
+            True iff self is a pattern of all permutations in perms.
+        """
+        return all(self in perm for perm in perms)
 
-        return not self.contains(pattern)
+    def contains(self, *patts):
+        """Check if self contains patts.
 
-    def contained_in(self, perm):
-        """Returns true if the permutation self is contained in the
-        permutation perm.
-        self is treated as a pattern"""
-        return any( True for _ in self.occurrences_in(perm) )
+        Args:
+            self:
+                A permutation.
+            patts: [permuta.Permutation|permuta.MeshPattern]
+                A list of classical/mesh patterns.
+        Returns: bool
+            True iff all patterns in patt are contained in self.
+        """
+        return all(patt in self for patt in patts)
+
+    def avoids(self, *patts):
+        """Check if self avoids patts.
+
+        Args:
+            self:
+                A permutation.
+            patts: [permuta.Permutation|permuta.MeshPattern]
+                A list of classical/mesh patterns.
+        Returns: bool
+            True iff self avoids all patterns in patts.
+        """
+        return all(patt not in self for patt in patts)
+
+    def avoided_by(self, *perms):
+        """Check if self is avoided by perms.
+
+        Args:
+            self:
+                A classical pattern.
+            perms: [permuta.Permutation]
+                A list of permutations.
+        Returns: bool
+            True iff every permutation in perms avoids self.
+        """
+        return all(self not in perm for perm in perms)
 
     def count_occurrences_in(self, perm):
-        """Count the number of occurrences of the pattern self in the permutation perm."""
+        """Count the number of occurrences of self in perm.
+        
+        Args:
+            self:
+                A classical pattern.
+            perm: permuta.Permutation
+                A permutation.
+        Returns: int
+            The number of times self occurs in perm.
+        """
         return sum(1 for _ in self.occurrences_in(perm))
 
     def count_occurrences_of(self, patt):
-        """Count the number of occurrences of the pattern patt in the permutation self."""
+        """Count the number of occurrences of patt in self.
+        Args:
+            self:
+                A permutation.
+            patt: permuta.Permutation|permuta.MeshPattern
+                A classical/mesh pattern.
+        Returns: int
+            The number of times patt occurs in self.
+        """
         return patt.count_occurrences_in(self)
 
     def occurrences_in(self, perm):
@@ -57,11 +129,11 @@ class Permutation(object):
                 The permutation to search for occurrences in.
 
         Yields: [int]
+            The indices of the occurrences of self in perm.
             Each yielded element l is a list of integer indices of the
             permutation perm such that:
             self == permuta.Permutation.to_standard([perm[i] for i in l])
         """
-
         # Special cases
         if len(self) == 0:
             # Pattern is empty, occurs in all permutations
@@ -198,34 +270,33 @@ class Permutation(object):
         return Permutation(res)
 
     def flip_horizontal(self):
-        """Returns the permutation self flipped horizontally"""
+        """Return self flipped horizontally."""
         return self.complement()
 
     def flip_vertical(self):
-        """Returns the permutation self flipped vertically"""
+        """Return self flipped vertically."""
         return self.reverse()
 
     def flip_diagonal(self):
-        """Returns the permutation self flipped along the diagonal, y=x"""
+        """Return self flipped along the diagonal, y=x."""
         return self.inverse()
 
     def flip_antidiagonal(self):
-        """Returns the permutation self flipped along the
-        antidiagonal, y=len(perm)-x"""
+        """Return self flipped along the antidiagonal, y=len(perm)-x."""
         # TODO: implement linear algorithm
         return Permutation([x for _, x in
                             sorted([(-y, len(self.perm)-x) for x, y in
                                     enumerate(self.perm)])])
 
     def is_increasing(self):
-        """Returns true if the permutation is increasing, and false otherwise."""
+        """Return True if the permutation is increasing, and False otherwise."""
         for i in range(1,len(self.perm)):
             if self.perm[i-1] > self.perm[i]:
                 return False
         return True
 
     def is_decreasing(self):
-        """Returns true if the permutation is decreasing, and false otherwise."""
+        """Return True if the permutation is decreasing, and False otherwise."""
         for i in range(1,len(self.perm)):
             if self.perm[i-1] < self.perm[i]:
                 return False
@@ -233,24 +304,21 @@ class Permutation(object):
 
     @staticmethod
     def to_standard(lst):
-        """Returns the permutation given by mapping every element in lst
+        """Return the permutation given by mapping every element in lst
         to the lowest possible value that preserves order of the elements"""
         n = len(lst)
         res = [None]*n
         for j, (x, i) in enumerate(sorted((lst[i], i) for i in range(n))):
             res[i] = j+1
-
         return Permutation(res)
 
     def __call__(self, lst):
-        """Returns the result of applying self to lst"""
+        """Return the result of applying self to lst"""
         assert len(lst) == len(self)
-
         n = len(self)
         res = [None]*n
         for i in range(n):
             res[i] = lst[self.perm[i] - 1]
-
         return res
 
     def __getitem__(self, i):
@@ -278,4 +346,19 @@ class Permutation(object):
         return (len(self), self.perm) < (len(other), other.perm)
 
     def __hash__(self):
-        return hash(tuple(self.perm))
+        if self._hash_result is None:
+            self._hash_result = hash(tuple(self.perm))
+        return self._hash_result
+
+    def __contains__(self, patt):
+        """Check if self contains patt.
+
+        Args:
+            self:
+                A permutation.
+            patt: permuta.Permutation|permuta.MeshPattern
+                A classical/mesh pattern.
+        Returns: bool
+            True iff the pattern patt is contained in self.
+        """
+        return any(True for _ in patt.occurrences_in(self))
