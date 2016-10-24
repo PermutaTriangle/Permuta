@@ -329,7 +329,7 @@ class Permutation(object):
         Args:
             self:
                 A permutation.
-            patts: permuta.Permutation|permuta.MeshPattern
+            patt: permuta.Permutation|permuta.MeshPattern
                 A classical/mesh pattern.
         Returns: bool
             True iff the pattern patt is contained in self.
