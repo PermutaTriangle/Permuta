@@ -395,7 +395,6 @@ class MeshPattern(object):
         return '\n'.join(''.join(line) for line in arr)
 
 def contained_in_many_shadings(clpatt, Rs, perm):
-    R = self.mesh
     k = len(clpatt)
     n = len(perm)
 
