@@ -1,7 +1,7 @@
 import bisect
 from .permutation import Permutation
 from .misc import DIR_EAST, DIR_NORTH, DIR_WEST, DIR_SOUTH, DIR_NONE
-
+import itertools
 
 def _rot_right(n, pos):
     x, y = pos
@@ -105,6 +105,30 @@ class MeshPattern(object):
             return c
 
         return contains(0, [])
+
+    def occurrences_in(self, perm):
+        # TODO: Implement all nice
+        indices = list(range(len(perm)))
+        for candidate_indices in itertools.combinations(indices, len(self)):
+            candidate = [perm[i] for i in candidate_indices]
+            if Permutation.to_standard(candidate) != self.perm:
+                continue
+            x = 0
+            for i in range(len(perm)):
+                e = perm[i]
+                if e in candidate:
+                    x += 1
+                    continue
+                y = sum(1 for c in candidate if c < e)
+                if (x, y) in self.mesh:
+                    break
+            else:
+                # No unused point fell within shading
+                yield list(candidate_indices)
+
+    def contained_in(self, perm):
+        # TODO: Use occurrences_in
+        return self.count_occurrences_in(perm) > 0
 
     def rotate_right(self):
         return MeshPattern(self.perm.rotate_right(),
@@ -395,7 +419,6 @@ class MeshPattern(object):
         return '\n'.join(''.join(line) for line in arr)
 
 def contained_in_many_shadings(clpatt, Rs, perm):
-    R = self.mesh
     k = len(clpatt)
     n = len(perm)
 
