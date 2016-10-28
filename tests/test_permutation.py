@@ -9,12 +9,12 @@ class TestPermutation(unittest.TestCase):
         with self.assertRaises(AssertionError): Permutation([2,1,2], check=True)
         with self.assertRaises(AssertionError): Permutation([1,1], check=True)
         with self.assertRaises(AssertionError): Permutation([2], check=True)
-        with self.assertRaises(AssertionError): Permutation(set([1,2,3]), check=True)
         with self.assertRaises(AssertionError): Permutation(5, check=True)
         with self.assertRaises(AssertionError): Permutation(None, check=True)
         Permutation([], check=True)
         Permutation([1], check=True)
         Permutation([4,1,3,2], check=True)
+        Permutation(set([1,2,3]), check=True)
 
     def test_contained_in(self):
         def generate_contained(n,perm):

@@ -23,17 +23,18 @@ class Permutation(object):
                 A permutation.
             l: [int]
                 A list corresponding to a legal permutation.
+                Can also be an iterable.
             check: bool
                 If True, l will be confirmed to be a legal permutation.
         """
         if check:
             assert isinstance(l, collections.Iterable)
             try:
-                n = len(perm)
+                n = len(l)
             except TypeError:
                 n = sum(1 for _ in l)
             used = [False]*n
-            for x in perm:
+            for x in l:
                 assert type(x) is int
                 assert 1 <= x <= n
                 assert not used[x-1]
