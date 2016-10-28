@@ -28,16 +28,16 @@ class Permutation(object):
                 If True, l will be confirmed to be a legal permutation.
         """
         if check:
-            assert isinstance(l, collections.Iterable)
+            assert isinstance(l, collections.Iterable), "Non-iterable argument: {}".format(l)
             try:
                 n = len(l)
             except TypeError:
                 n = sum(1 for _ in l)
             used = [False]*n
             for x in l:
-                assert type(x) is int
-                assert 1 <= x <= n
-                assert not used[x-1]
+                assert isinstance(x, int) or isinstance(x, long), "Non-integer type: {}".format(repr(x))
+                assert 1 <= x <= n, "Out of range: {}".format(x)
+                assert not used[x-1], "Duplicate element: {}".format(x)
                 used[x-1] = True
         self.perm = l if type(l) is list else list(l)
         self._hash_result = None
@@ -51,6 +51,7 @@ class Permutation(object):
                 A classical pattern.
             perms: [permuta.Permutation]
                 A list of permutations.
+
         Returns: bool
             True iff self is a pattern of all permutations in perms.
         """
@@ -64,6 +65,7 @@ class Permutation(object):
                 A permutation.
             patts: [permuta.Permutation|permuta.MeshPattern]
                 A list of classical/mesh patterns.
+
         Returns: bool
             True iff all patterns in patt are contained in self.
         """
@@ -77,6 +79,7 @@ class Permutation(object):
                 A permutation.
             patts: [permuta.Permutation|permuta.MeshPattern]
                 A list of classical/mesh patterns.
+
         Returns: bool
             True iff self avoids all patterns in patts.
         """
@@ -90,6 +93,7 @@ class Permutation(object):
                 A classical pattern.
             perms: [permuta.Permutation]
                 A list of permutations.
+
         Returns: bool
             True iff every permutation in perms avoids self.
         """
@@ -97,12 +101,13 @@ class Permutation(object):
 
     def count_occurrences_in(self, perm):
         """Count the number of occurrences of self in perm.
-        
+
         Args:
             self:
                 A classical pattern.
             perm: permuta.Permutation
                 A permutation.
+
         Returns: int
             The number of times self occurs in perm.
         """
@@ -110,11 +115,13 @@ class Permutation(object):
 
     def count_occurrences_of(self, patt):
         """Count the number of occurrences of patt in self.
+
         Args:
             self:
                 A permutation.
             patt: permuta.Permutation|permuta.MeshPattern
                 A classical/mesh pattern.
+
         Returns: int
             The number of times patt occurs in self.
         """
@@ -152,7 +159,7 @@ class Permutation(object):
         # i is the index of the element in perm that is to be considered
         # k is how many elements of the permutation have already been added to occurrence
         def con(i, k):
-            elements_left = len(perm) - i
+            elements_remaining = len(perm) - i
             elements_needed = len(self) - k
             left_floor_index, left_ceiling_index, left_floor_diff, left_ceiling_diff = details[k]
             # Set the bounds for the new element
@@ -166,10 +173,10 @@ class Permutation(object):
                 upper_bound += len(perm)
             else:
                 upper_bound += perm[occurrence_indices[left_ceiling_index]]
-                          
+
             # Loop over remaining elements of perm (actually i, the index)
             while 1:
-                if elements_left < elements_needed:
+                if elements_remaining < elements_needed:
                     # Can't form an occurrence with remaining elements
                     return
                 element = perm[i]
@@ -183,9 +190,9 @@ class Permutation(object):
                     else:
                         for o in con(i+1, k+1):
                             yield o
-                # Increment i, that also means elements_left should decrement
+                # Increment i, that also means elements_remaining should decrement
                 i += 1
-                elements_left -= 1
+                elements_remaining -= 1
 
         for o in con(0, 0):
             yield o
@@ -196,6 +203,15 @@ class Permutation(object):
         This method is complementary to permuta.Permutation.occurrences_in.
         It just calls patt.occurrences_in(self) internally.
         See permuta.Permutation.occurrences_in for documentation.
+
+        Args:
+            self:
+                A permutation.
+            perm: permuta.Permutation
+                A classical pattern.
+
+        Yields: [int]
+            The indices of the occurrences of self in perm.
         """
         return patt.occurrences_in(self)
 
@@ -222,6 +238,7 @@ class Permutation(object):
                 if element > base_element:
                     if element <= left_ceiling:
                         left_ceiling_index = index
+
                         left_ceiling = element
                 else:
                     if element >= left_floor:
@@ -359,6 +376,7 @@ class Permutation(object):
                 A permutation.
             patt: permuta.Permutation|permuta.MeshPattern
                 A classical/mesh pattern.
+
         Returns: bool
             True iff the pattern patt is contained in self.
         """
