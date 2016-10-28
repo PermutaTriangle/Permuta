@@ -6,6 +6,7 @@ from .exact_cover import exact_cover, exact_cover_smallest
 from .ordered_set_partitions import ordered_set_partitions
 from .progressbar import ProgressBar
 from .triemap import TrieMap
+from .left_floor_and_ceiling import left_floor_and_ceiling
 
 DIR_EAST = 0
 DIR_NORTH = 1
