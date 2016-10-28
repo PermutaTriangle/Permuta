@@ -40,3 +40,7 @@ def left_floor_and_ceiling(iterable, default_floor=None, default_ceiling=None):
         # ceiling value if its index is not None.
         left_ceiling_difference = left_ceiling - base_element
         yield FloorAndCeiling(left_floor_index, left_ceiling_index)
+
+def right_floor_and_ceiling(iterable, default_floor=None, default_ceiling=None):
+    for fac in left_floor_and_ceiling(reversed(iterable), default_floor, default_ceiling):
+        yield fac
