@@ -1,4 +1,5 @@
 import collections
+import numbers
 
 class Permutation(object):
     """A permutation class.
@@ -35,7 +36,7 @@ class Permutation(object):
                 n = sum(1 for _ in l)
             used = [False]*n
             for x in l:
-                assert isinstance(x, int) or isinstance(x, long), "Non-integer type: {}".format(repr(x))
+                assert isinstance(x, numbers.Integral), "Non-integer type: {}".format(repr(x))
                 assert 1 <= x <= n, "Out of range: {}".format(x)
                 assert not used[x-1], "Duplicate element: {}".format(x)
                 used[x-1] = True
