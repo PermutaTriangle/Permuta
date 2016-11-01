@@ -1,6 +1,9 @@
 import collections
 import numbers
 from permuta.misc import left_floor_and_ceiling
+import sys
+if sys.version_info.major is 2:
+    range = xrange
 
 class Permutation(object):
     """A permutation class.
@@ -306,22 +309,19 @@ class Permutation(object):
 
     @staticmethod
     def to_standard(lst):
-        """Return the permutation given by mapping every element in lst
-        to the lowest possible value that preserves order of the elements"""
+        """Return the permutation corresponding to lst."""
         n = len(lst)
         res = [None]*n
         for j, (x, i) in enumerate(sorted((lst[i], i) for i in range(n))):
             res[i] = j+1
         return Permutation(res)
 
+    flatten = to_standard
+
     def __call__(self, lst):
-        """Return the result of applying self to lst"""
+        """Return the result of applying self to lst."""
         assert len(lst) == len(self)
-        n = len(self)
-        res = [None]*n
-        for i in range(n):
-            res[i] = lst[self.perm[i] - 1]
-        return res
+        return [lst[i-1] for i in self]
 
     def __getitem__(self, i):
         return self.perm[i]
