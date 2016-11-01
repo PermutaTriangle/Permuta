@@ -1,5 +1,6 @@
 import collections
 import numbers
+from permuta.misc import left_floor_and_ceiling
 
 class Permutation(object):
     """A permutation class.

@@ -3,45 +3,57 @@ import collections
 FloorAndCeiling = collections.namedtuple("FloorAndCeiling", ["floor", "ceiling"])
 
 def left_floor_and_ceiling(iterable, default_floor=None, default_ceiling=None):
-    # TODO: Make comment better
-    """What is known when scanning self from left to right.
+    """Find the left floor and ceiling indices of iterable.
 
-    TODO: Make comments nice and make betterer
+    Define left_floor of an element in a sequence to be the index of the
+    greatest smaller element to the left of said element, or default_floor
+    if there is none. Similarly define default_ceiling. This function yields
+    a tuple (left_floor, left_ceiling) for each element of iterable.
 
+    Args:
+        iterable: <iterable>
+            An iterable of totally ordered unique elements.
+        default_floor: <object>
+        default_ceiling: <object>
     Yields: (int, int)
-        The i-th yielded tuple is the left floor and ceiling (respectively) of
-        the i-th element of the iterable.
+        The i-th yielded tuple is the left floor and ceiling indices of
+        the i-th element of the iterable. The tuples are named tuples
+        with floor and ceiling attributes.
     """
-    for base_index in range(len(iterable)):
-        left_floor_index = None
-        left_ceiling_index = None
-        left_floor = 1
-        left_ceiling = len(iterable)
-        base_element = iterable[base_index]
-        for index in range(base_index):
-            element = iterable[index]
-            if element > base_element:
-                if element <= left_ceiling:
-                    left_ceiling_index = index
-
-                    left_ceiling = element
+    dq = collections.deque()
+    smallest = None
+    biggest = None
+    index = 0
+    for element in iterable:
+        if index is 0:
+            dq.append((element, index))
+            smallest = element
+            biggest = element
+            yield FloorAndCeiling(default_floor, default_ceiling)
+        else:
+            if element <= smallest:
+                # Rotate until smallest element is at front
+                while dq[0][0] != smallest:
+                    dq.rotate(-1)
+                yield FloorAndCeiling(default_floor, dq[0][1])
+                dq.appendleft((element, index))
+                smallest = element
+            elif element >= biggest:
+                # Rotate until biggest element is at end
+                while dq[-1][0] != biggest:
+                    dq.rotate(-1)
+                yield FloorAndCeiling(dq[-1][1], default_ceiling)
+                dq.append((element, index))
+                biggest = element
             else:
-                if element >= left_floor:
-                    left_floor_index = index
-                    left_floor = element
-        # left_floor_difference:
-        # How much greater than the left floor the element must be,
-        # or how much greater than 1 it must be if left floor does not exist
-        left_floor_difference = base_element - left_floor
-        # left_ceiling_difference:
-        # Subtract this number from the length of the permutation an
-        # occurrence is being searched for in to get an upper bound for the
-        # allowed value. Tighten the bound by subtracting from the left
-        # ceiling value if its index is not None.
-        left_ceiling_difference = left_ceiling - base_element
-        yield FloorAndCeiling(left_floor_index, left_ceiling_index)
+                while not dq[-1][0] <= element <= dq[0][0]:
+                    dq.rotate()
+                yield FloorAndCeiling(dq[-1][1], dq[0][1])
+                dq.appendleft((element, index))
+        index += 1
 
 def right_floor_and_ceiling(iterable, default_floor=None, default_ceiling=None):
-    result = left_floor_and_ceiling(reversed(iterable), default_floor, default_ceiling)
-    for fac in reversed(result):
+    """The right counterpart of left_floor_and_ceiling."""
+    result = left_floor_and_ceiling(reversed(list(iterable)), default_floor, default_ceiling)
+    for fac in reversed(list(result)):
         yield fac

@@ -54,4 +54,18 @@ class TestIterableFloorAndCeiling(unittest.TestCase):
             index += 1
 
     def test_right_floor_and_ceiling(self):
-        pass
+        iterable = [4,5,1,2,3,6]
+        expected = [
+                     (None, "on")  # 4
+                   , (0   , "on")  # 5
+                   , (None, 0   )  # 1
+                   , (2   , 0   )  # 2
+                   , (3   , 0   )  # 3
+                   , (1   , "on")  # 6
+                   ]
+        iterable = reversed(iterable)
+        expected = list(reversed(expected))
+        index = 0
+        for fac in right_floor_and_ceiling(iterable, default_ceiling="on"):
+            self.assertEqual(fac, expected[index])
+            index += 1
