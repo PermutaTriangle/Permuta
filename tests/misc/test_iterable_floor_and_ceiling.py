@@ -1,7 +1,7 @@
 import unittest
-from permuta.misc import left_floor_and_ceiling
+from permuta.misc import left_floor_and_ceiling, right_floor_and_ceiling
 
-class TestLeftFloorAndCeiling(unittest.TestCase):
+class TestIterableFloorAndCeiling(unittest.TestCase):
 
     def test_left_floor_and_ceiling(self):
         iterable = [4,5,1,2,3,6]
@@ -52,3 +52,6 @@ class TestLeftFloorAndCeiling(unittest.TestCase):
         for fac in left_floor_and_ceiling(iterable):
             self.assertEqual(fac, expected[index])
             index += 1
+
+    def test_right_floor_and_ceiling(self):
+        pass

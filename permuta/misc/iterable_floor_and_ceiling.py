@@ -42,5 +42,6 @@ def left_floor_and_ceiling(iterable, default_floor=None, default_ceiling=None):
         yield FloorAndCeiling(left_floor_index, left_ceiling_index)
 
 def right_floor_and_ceiling(iterable, default_floor=None, default_ceiling=None):
-    for fac in left_floor_and_ceiling(reversed(iterable), default_floor, default_ceiling):
+    result = left_floor_and_ceiling(reversed(iterable), default_floor, default_ceiling)
+    for fac in reversed(result):
         yield fac
