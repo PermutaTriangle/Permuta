@@ -218,34 +218,15 @@ class Permutation(object):
         return patt.occurrences_in(self)
 
     def _left_to_right_details(self):
-        # TODO: Make comment better
-        """What is known when scanning self from left to right.
-
-        TODO: Make comments nice and make betterer
-
-        Return: [(int, int, int, int)]
-        """
         # If details have been calculated before, return cached result
         if self._left_to_right_details_result is not None:
             return self._left_to_right_details_result
         result = []
-        for base_index in range(len(self)):
-            left_floor_index = None
-            left_ceiling_index = None
-            left_floor = 1
-            left_ceiling = len(self)
-            base_element = self[base_index]
-            for index in range(base_index):
-                element = self[index]
-                if element > base_element:
-                    if element <= left_ceiling:
-                        left_ceiling_index = index
-
-                        left_ceiling = element
-                else:
-                    if element >= left_floor:
-                        left_floor_index = index
-                        left_floor = element
+        index = 0
+        for fac in left_floor_and_ceiling(self):
+            base_element = self[index]
+            left_floor = 1 if fac.floor is None else self[fac.floor]
+            left_ceiling = len(self) if fac.ceiling is None else self[fac.ceiling]
             # left_floor_difference:
             # How much greater than the left floor the element must be,
             # or how much greater than 1 it must be if left floor does not exist
@@ -257,12 +238,13 @@ class Permutation(object):
             # ceiling value if its index is not None.
             left_ceiling_difference = left_ceiling - base_element
             compiled = (
-                         left_floor_index
-                       , left_ceiling_index
+                         fac.floor
+                       , fac.ceiling
                        , left_floor_difference
                        , left_ceiling_difference
                        )
             result.append(compiled)
+            index += 1
         self._left_to_right_details_result = result
         return result
 
