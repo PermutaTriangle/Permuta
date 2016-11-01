@@ -42,6 +42,7 @@ class TestPermutationSets(unittest.TestCase):
         self.assertTrue(type(res) is PermutationsAvoidingGeneric)
 
         ts = [
+            ([[]], [0,0,0,0,0,0,0,0,0,0]),
             ([[1,2]], [1,1,1,1,1,1,1,1,1,1]),
             ([[2,1]], [1,1,1,1,1,1,1,1,1,1]),
             ([[1,2,3]], [ catalan(i) for i in range(8) ]),

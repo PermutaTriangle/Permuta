@@ -56,7 +56,14 @@ class PermutationsAvoidingGeneric(PermutationPatternClass):
         # TODO: make this lazy, i.e. use yield inside the generation (if possible)
         cur = set([ Permutation([]) ])
         if self.upto or self.n == 0:
-            yield Permutation([])
+            maybe = Permutation([])
+            ok = True
+            for p in self.patt:
+                if maybe.contains(p):
+                    ok = False
+                    break
+            if ok:
+                yield maybe
 
         for l in range(1,self.n+1):
             nxt = set()
