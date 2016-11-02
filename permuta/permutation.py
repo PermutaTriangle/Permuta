@@ -306,8 +306,16 @@ class Permutation(object):
 
     def flip_antidiagonal(self):
         """Return self flipped along the antidiagonal, y=len(perm)-x."""
-        # TODO: implement linear algorithm
-        return self.reverse().inverse().reverse()
+        # TODO: Determine whether a linear time algorithm is better
+        return Permutation(
+                            x
+                            for _, x in
+                            sorted(
+                                    (-y, len(self.perm)-x)
+                                    for x, y in
+                                    enumerate(self.perm)
+                                  )
+                          )
 
     def tilt_right(self):
         # TODO: Name correctly (see rotate)
