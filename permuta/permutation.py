@@ -149,14 +149,14 @@ class Permutation(object):
             self == permuta.Permutation.to_standard([perm[i] for i in l])
         """
         # Special cases
-        if len(self) == 0:
+        if len(self._perm) == 0:
             # Pattern is empty, occurs in all permutations
             # This is needed for the con function to work correctly
             yield []
             return
 
         # The indices of the occurrence in perm
-        occurrence_indices = [None]*len(self)
+        occurrence_indices = [None]*len(self._perm)
 
         # Get left to right scan details
         details = self._left_to_right_details()
@@ -166,7 +166,7 @@ class Permutation(object):
         # k is how many elements of the permutation have already been added to occurrence
         def con(i, k):
             elements_remaining = len(perm) - i
-            elements_needed = len(self) - k
+            elements_needed = len(self._perm) - k
             left_floor_index, left_ceiling_index, left_floor_diff, left_ceiling_diff = details[k]
             # Set the bounds for the new element
             lower_bound = left_floor_diff
@@ -227,10 +227,10 @@ class Permutation(object):
             return self._left_to_right_details_result
         result = []
         index = 0
-        for fac in left_floor_and_ceiling(self):
-            base_element = self[index]
-            left_floor = 1 if fac.floor is None else self[fac.floor]
-            left_ceiling = len(self) if fac.ceiling is None else self[fac.ceiling]
+        for fac in left_floor_and_ceiling(self._perm):
+            base_element = self._perm[index]
+            left_floor = 1 if fac.floor is None else self._perm[fac.floor]
+            left_ceiling = len(self._perm) if fac.ceiling is None else self._perm[fac.ceiling]
             # left_floor_difference:
             # How much greater than the left floor the element must be,
             # or how much greater than 1 it must be if left floor does not exist
@@ -254,19 +254,19 @@ class Permutation(object):
 
     def inverse(self):
         """Return the inverse of the permutation self."""
-        n = len(self)
+        n = len(self._perm)
         result = [None]*n
         for i in range(n):
-            result[self[i]-1] = i+1
+            result[self._perm[i]-1] = i+1
         return Permutation(result)
 
     def reverse(self):
         """Return the reverse of the permutation self."""
-        return Permutation(self[::-1])
+        return Permutation(self._perm[::-1])
 
     def complement(self):
         """Return the complement of the permutation self."""
-        return Permutation(len(self) - e + 1 for e in self)
+        return Permutation(len(self._perm) - e + 1 for e in self._perm)
 
     def shift(self, n=1):
         """Return self shifted n steps to the right.
@@ -275,12 +275,12 @@ class Permutation(object):
         """
         if len(self) is 0:
             return self
-        n = n % len(self)
+        n = n % len(self._perm)
         if n is 0:
             return self
-        i = len(self) - n
-        slice_1 = itertools.islice(self, i)
-        slice_2 = itertools.islice(self, i, len(self))
+        i = len(self._perm) - n
+        slice_1 = itertools.islice(self._perm, i)
+        slice_2 = itertools.islice(self._perm, i, len(self._perm))
         return Permutation(itertools.chain(slice_2, slice_1))
 
     shift_right = shift
@@ -324,25 +324,25 @@ class Permutation(object):
     def rotate_right(self):
         """Docstring"""
         # TODO: Write docstring and make generic version
-        index = [-1] * len(self)
-        for i, v in enumerate(self):
+        index = [-1] * len(self._perm)
+        for i, v in enumerate(self._perm):
             index[v-1] = i
         result = []
-        for i in range(len(self)):
-            result.append(len(self) - index[i])
+        for i in range(len(self._perm)):
+            result.append(len(self._perm) - index[i])
         return Permutation(result)
 
     def is_increasing(self):
         """Return True if the permutation is increasing, and False otherwise."""
-        for i in range(1,len(self)):
-            if self[i-1] > self[i]:
+        for i in range(1,len(self._perm)):
+            if self._perm[i-1] > self._perm[i]:
                 return False
         return True
 
     def is_decreasing(self):
         """Return True if the permutation is decreasing, and False otherwise."""
-        for i in range(1,len(self)):
-            if self[i-1] < self[i]:
+        for i in range(1,len(self._perm)):
+            if self._perm[i-1] < self._perm[i]:
                 return False
         return True
 
@@ -357,8 +357,8 @@ class Permutation(object):
 
     def __call__(self, lst):
         """Return the result of applying self to lst."""
-        assert len(lst) == len(self)
-        return [lst[i-1] for i in self]
+        assert len(lst) == len(self._perm)
+        return [lst[i-1] for i in self._perm]
 
     def __getitem__(self, i):
         return self._perm[i]
