@@ -85,12 +85,12 @@ class TestPermutation(unittest.TestCase):
         self.assertEqual(Permutation([3,2,4,1]), Permutation([4,2,1,3]).inverse())
         self.assertEqual(Permutation([5,4,2,7,6,8,9,1,3]), Permutation([8,3,9,2,1,5,4,6,7]).inverse())
 
-    def test_tilt_right(self):
+    def test_rotate_right(self):
         for i in range(10):
-            self.assertEqual(Permutation(list(range(i-1,0,-1))), Permutation(list(range(1,i))).tilt_right())
-        self.assertEqual(Permutation([3,2,4,5,1,6,7]), Permutation([7,6,4,3,1,2,5]).tilt_right())
-        self.assertEqual(Permutation([5,6,4,2,8,1,3,7]), Permutation([5,8,2,1,3,7,4,6]).tilt_right())
-        self.assertEqual(Permutation([1,2,3]), Permutation([3,2,1]).tilt_right())
+            self.assertEqual(Permutation(list(range(i-1,0,-1))), Permutation(list(range(1,i))).rotate_right())
+        self.assertEqual(Permutation([3,2,4,5,1,6,7]), Permutation([7,6,4,3,1,2,5]).rotate_right())
+        self.assertEqual(Permutation([5,6,4,2,8,1,3,7]), Permutation([5,8,2,1,3,7,4,6]).rotate_right())
+        self.assertEqual(Permutation([1,2,3]), Permutation([3,2,1]).rotate_right())
 
     def test_rotate_left(self):
         self.assertEqual(Permutation([]), Permutation([]).rotate_left())

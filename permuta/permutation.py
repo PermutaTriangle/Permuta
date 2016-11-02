@@ -317,14 +317,15 @@ class Permutation(object):
                                   )
                           )
 
-    def tilt_right(self):
-        # TODO: Name correctly (see rotate)
-        idx = [-1] * len(self)
+    def rotate_right(self):
+        """Docstring"""
+        # TODO: Write docstring and make generic version
+        index = [-1] * len(self)
         for i, v in enumerate(self):
-            idx[v-1] = i
+            index[v-1] = i
         result = []
         for i in range(len(self)):
-            result.append(len(self) - idx[i])
+            result.append(len(self) - index[i])
         return Permutation(result)
 
     def is_increasing(self):
