@@ -1,6 +1,7 @@
-import collections
-import numbers
 from permuta.misc import left_floor_and_ceiling
+import collections
+import itertools
+import numbers
 import sys
 if sys.version_info.major is 2:
     range = xrange
@@ -265,14 +266,29 @@ class Permutation(object):
     def complement(self):
         return Permutation([len(self.perm) - x + 1 for x in self.perm])
 
-    def rotate_right(self):
-        idx = [-1] * len(self)
-        for i, v in enumerate(self.perm):
-            idx[v-1] = i
-        res = []
-        for i in range(len(self)):
-            res.append(len(self) - idx[i])
-        return Permutation(res)
+    def rotate(self, n=1):
+        """Return self rotated n steps to the right.
+
+        If n is negative, rotate to the left.
+        """
+        if len(self) is 0:
+            return self
+        n = n % len(self)
+        if n is 0:
+            return self
+        i = len(self) - n
+        slice_1 = itertools.islice(self, i)
+        slice_2 = itertools.islice(self, i, len(self))
+        return Permutation(itertools.chain(slice_2, slice_1))
+
+    rotate_right = rotate
+
+    def rotate_left(self, n=1):
+        """Return self rotated n steps to the left.
+
+        If n is negative, rotate to the right.
+        """
+        return self.rotate(-n)
 
     def flip_horizontal(self):
         """Return self flipped horizontally."""
@@ -289,9 +305,17 @@ class Permutation(object):
     def flip_antidiagonal(self):
         """Return self flipped along the antidiagonal, y=len(perm)-x."""
         # TODO: implement linear algorithm
-        return Permutation([x for _, x in
-                            sorted([(-y, len(self.perm)-x) for x, y in
-                                    enumerate(self.perm)])])
+        return self.reverse().inverse().reverse()
+
+    def tilt_right(self):
+        # TODO: Name correctly (see rotate)
+        idx = [-1] * len(self)
+        for i, v in enumerate(self.perm):
+            idx[v-1] = i
+        res = []
+        for i in range(len(self)):
+            res.append(len(self) - idx[i])
+        return Permutation(res)
 
     def is_increasing(self):
         """Return True if the permutation is increasing, and False otherwise."""
