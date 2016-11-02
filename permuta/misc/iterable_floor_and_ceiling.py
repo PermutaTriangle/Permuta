@@ -15,11 +15,13 @@ def left_floor_and_ceiling(iterable, default_floor=None, default_ceiling=None):
             An iterable of totally ordered unique elements.
         default_floor: <object>
         default_ceiling: <object>
+
     Yields: (int, int)
         The i-th yielded tuple is the left floor and ceiling indices of
         the i-th element of the iterable. The tuples are named tuples
         with floor and ceiling attributes.
     """
+    # TODO: Define behaviour for duplicate elements
     dq = collections.deque()
     smallest = None
     biggest = None
@@ -54,6 +56,7 @@ def left_floor_and_ceiling(iterable, default_floor=None, default_ceiling=None):
 
 def right_floor_and_ceiling(iterable, default_floor=None, default_ceiling=None):
     """The right counterpart of left_floor_and_ceiling."""
+    # TODO: Implement nicely
     result = left_floor_and_ceiling(reversed(list(iterable)), default_floor, default_ceiling)
     for fac in reversed(list(result)):
         yield fac
