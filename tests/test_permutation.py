@@ -92,15 +92,15 @@ class TestPermutation(unittest.TestCase):
         self.assertEqual(Permutation([5,6,4,2,8,1,3,7]), Permutation([5,8,2,1,3,7,4,6]).rotate_right())
         self.assertEqual(Permutation([1,2,3]), Permutation([3,2,1]).rotate_right())
 
-    def test_rotate_left(self):
-        self.assertEqual(Permutation([]), Permutation([]).rotate_left())
-        self.assertEqual(Permutation([1]), Permutation([1]).rotate_left())
-        self.assertEqual(Permutation([1,2,3,4,5,6,7,8]), Permutation([1,2,3,4,5,6,7,8]).rotate_left(0))
-        self.assertEqual(Permutation([1,2,3,4,5,6,7,8]), Permutation([6,7,8,1,2,3,4,5]).rotate_left(3))
-        self.assertEqual(Permutation([1,2,3,4,5,6,7,8]), Permutation([1,2,3,4,5,6,7,8]).rotate_left(800))
-        self.assertEqual(Permutation([1,2,3,4,5,6,7,8]), Permutation([6,7,8,1,2,3,4,5]).rotate_left(403))
-        self.assertEqual(Permutation([1,2,3,4,5,6,7,8]), Permutation([1,2,3,4,5,6,7,8]).rotate_left(-8))
-        self.assertEqual(Permutation([1,2,3,4,5,6,7,8]), Permutation([6,7,8,1,2,3,4,5]).rotate_left(-5))
+    def test_shift_left(self):
+        self.assertEqual(Permutation([]), Permutation([]).shift_left())
+        self.assertEqual(Permutation([1]), Permutation([1]).shift_left())
+        self.assertEqual(Permutation([1,2,3,4,5,6,7,8]), Permutation([1,2,3,4,5,6,7,8]).shift_left(0))
+        self.assertEqual(Permutation([1,2,3,4,5,6,7,8]), Permutation([6,7,8,1,2,3,4,5]).shift_left(3))
+        self.assertEqual(Permutation([1,2,3,4,5,6,7,8]), Permutation([1,2,3,4,5,6,7,8]).shift_left(800))
+        self.assertEqual(Permutation([1,2,3,4,5,6,7,8]), Permutation([6,7,8,1,2,3,4,5]).shift_left(403))
+        self.assertEqual(Permutation([1,2,3,4,5,6,7,8]), Permutation([1,2,3,4,5,6,7,8]).shift_left(-8))
+        self.assertEqual(Permutation([1,2,3,4,5,6,7,8]), Permutation([6,7,8,1,2,3,4,5]).shift_left(-5))
 
     def test_reverse(self):
         self.assertEqual(Permutation([6,3,4,1,5,7,2]), Permutation([2,7,5,1,4,3,6]).reverse())

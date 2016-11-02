@@ -268,7 +268,7 @@ class Permutation(object):
         """Return the complement of the permutation self."""
         return Permutation(len(self) - e + 1 for e in self)
 
-    def rotate(self, n=1):
+    def shift(self, n=1):
         """Return self rotated n steps to the right.
 
         If n is negative, rotate to the left.
@@ -283,14 +283,14 @@ class Permutation(object):
         slice_2 = itertools.islice(self, i, len(self))
         return Permutation(itertools.chain(slice_2, slice_1))
 
-    rotate_right = rotate
+    shift_right = shift
 
-    def rotate_left(self, n=1):
+    def shift_left(self, n=1):
         """Return self rotated n steps to the left.
 
         If n is negative, rotate to the right.
         """
-        return self.rotate(-n)
+        return self.shift_right(-n)
 
     def flip_horizontal(self):
         """Return self flipped horizontally."""
