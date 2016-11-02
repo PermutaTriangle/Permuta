@@ -255,16 +255,16 @@ class Permutation(object):
     def inverse(self):
         """Return the inverse of the permutation self"""
         n = len(self)
-        res = [None]*n
+        result = [None]*n
         for i in range(n):
-            res[self.perm[i]-1] = i+1
-        return Permutation(res)
+            result[self[i]-1] = i+1
+        return Permutation(result)
 
     def reverse(self):
-        return Permutation(self.perm[::-1])
+        return Permutation(self[::-1])
 
     def complement(self):
-        return Permutation([len(self.perm) - x + 1 for x in self.perm])
+        return Permutation([len(self) - x + 1 for x in self])
 
     def rotate(self, n=1):
         """Return self rotated n steps to the right.
@@ -310,7 +310,7 @@ class Permutation(object):
     def tilt_right(self):
         # TODO: Name correctly (see rotate)
         idx = [-1] * len(self)
-        for i, v in enumerate(self.perm):
+        for i, v in enumerate(self):
             idx[v-1] = i
         res = []
         for i in range(len(self)):
@@ -319,15 +319,15 @@ class Permutation(object):
 
     def is_increasing(self):
         """Return True if the permutation is increasing, and False otherwise."""
-        for i in range(1,len(self.perm)):
-            if self.perm[i-1] > self.perm[i]:
+        for i in range(1,len(self)):
+            if self[i-1] > self[i]:
                 return False
         return True
 
     def is_decreasing(self):
         """Return True if the permutation is decreasing, and False otherwise."""
-        for i in range(1,len(self.perm)):
-            if self.perm[i-1] < self.perm[i]:
+        for i in range(1,len(self)):
+            if self[i-1] < self[i]:
                 return False
         return True
 
@@ -360,7 +360,7 @@ class Permutation(object):
         return str(self.perm)
 
     def __repr__(self):
-        return 'Permutation(%s)' % repr(self.perm)
+        return "Permutation(%s)" % repr(self.perm)
 
     def __eq__(self, other):
         return type(other) is Permutation and self.perm == other.perm
