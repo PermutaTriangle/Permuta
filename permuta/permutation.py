@@ -15,7 +15,7 @@ class Permutation(object):
     __slots__ = (
                   "_perm"
                 , "_hash_result"
-                , "_left_to_right_details_result"
+                , "_pattern_details_result"
                 )
 
     def __init__(self, l, check=False):
@@ -47,7 +47,7 @@ class Permutation(object):
                 used[x-1] = True
         self._perm = l if type(l) is list else list(l)
         self._hash_result = None
-        self._left_to_right_details_result = None
+        self._pattern_details_result = None
 
     def contained_in(self, *perms):
         """Check if self is a pattern of perms.
@@ -159,7 +159,7 @@ class Permutation(object):
         occurrence_indices = [None]*len(self._perm)
 
         # Get left to right scan details
-        details = self._left_to_right_details()
+        pattern_details = self._pattern_details()
 
         # Define function that works with the above defined variables
         # i is the index of the element in perm that is to be considered
@@ -167,7 +167,7 @@ class Permutation(object):
         def con(i, k):
             elements_remaining = len(perm) - i
             elements_needed = len(self._perm) - k
-            left_floor_index, left_ceiling_index, left_floor_diff, left_ceiling_diff = details[k]
+            left_floor_index, left_ceiling_index, left_floor_diff, left_ceiling_diff = pattern_details[k]
             # Set the bounds for the new element
             lower_bound = left_floor_diff
             if left_floor_index is None:
@@ -221,10 +221,10 @@ class Permutation(object):
         """
         return patt.occurrences_in(self)
 
-    def _left_to_right_details(self):
+    def _pattern_details(self):
         # If details have been calculated before, return cached result
-        if self._left_to_right_details_result is not None:
-            return self._left_to_right_details_result
+        if self._pattern_details_result is not None:
+            return self._pattern_details_result
         result = []
         index = 0
         for fac in left_floor_and_ceiling(self._perm):
@@ -249,7 +249,7 @@ class Permutation(object):
                        )
             result.append(compiled)
             index += 1
-        self._left_to_right_details_result = result
+        self._pattern_details_result = result
         return result
 
     def inverse(self):
@@ -310,16 +310,11 @@ class Permutation(object):
 
     def flip_antidiagonal(self):
         """Return self flipped along the antidiagonal, y=len(perm)-x."""
-        # TODO: Determine whether a linear time algorithm is better
-        return Permutation(
-                            x
-                            for _, x in
-                            sorted(
-                                    (-y, len(self._perm)-x)
-                                    for x, y in
-                                    enumerate(self._perm)
-                                  )
-                          )
+        n = len(self._perm)
+        result = [None]*n
+        for i, e in ((n-e, n-i) for i, e in enumerate(self._perm)):
+            result[i] = e
+        return Permutation(result)
 
     def rotate_right(self):
         """Docstring"""
