@@ -342,8 +342,6 @@ class Permutation(object):
             result[i] = j+1
         return cls(result)
 
-    flatten = to_standard
-
     def __call__(self, lst):
         """Return the result of applying self to lst."""
         assert len(lst) == len(self)
