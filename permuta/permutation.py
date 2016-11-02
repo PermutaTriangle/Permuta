@@ -331,14 +331,14 @@ class Permutation(object):
                 return False
         return True
 
-    @staticmethod
-    def to_standard(lst):
+    @classmethod
+    def to_standard(cls, lst):
         """Return the permutation corresponding to lst."""
         n = len(lst)
-        res = [None]*n
+        result = [None]*n
         for j, (x, i) in enumerate(sorted((lst[i], i) for i in range(n))):
-            res[i] = j+1
-        return Permutation(res)
+            result[i] = j+1
+        return cls(result)
 
     flatten = to_standard
 
