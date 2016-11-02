@@ -269,9 +269,9 @@ class Permutation(object):
         return Permutation(len(self) - e + 1 for e in self)
 
     def shift(self, n=1):
-        """Return self rotated n steps to the right.
+        """Return self shifted n steps to the right.
 
-        If n is negative, rotate to the left.
+        If n is negative, shifted to the left.
         """
         if len(self) is 0:
             return self
@@ -284,13 +284,17 @@ class Permutation(object):
         return Permutation(itertools.chain(slice_2, slice_1))
 
     shift_right = shift
+    cyclic_shift = shift
+    cyclic_shift_right = shift
 
     def shift_left(self, n=1):
-        """Return self rotated n steps to the left.
+        """Return self shifted n steps to the left.
 
-        If n is negative, rotate to the right.
+        If n is negative, shifted to the right.
         """
         return self.shift_right(-n)
+
+    cyclic_shift_left = shift_left
 
     def flip_horizontal(self):
         """Return self flipped horizontally."""
