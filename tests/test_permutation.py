@@ -36,7 +36,7 @@ class TestPermutation(unittest.TestCase):
         for i in range(100):
             n = random.randint(0, 4)
             patt = Permutations(n).random_element()
-            perm = generate_contained(random.randint(n, 8), list(patt.perm))
+            perm = generate_contained(random.randint(n, 8), list(patt))
             self.assertTrue(patt.contained_in(perm))
 
         self.assertFalse(Permutation([1]).contained_in(Permutation([])))
@@ -117,7 +117,7 @@ class TestPermutation(unittest.TestCase):
 
     def test_to_standard(self):
         def gen(perm):
-            res = list(perm.perm)
+            res = list(perm)
             add = 0
             for i in perm.inverse():
                 add += random.randint(0,10)
@@ -149,9 +149,9 @@ class TestPermutation(unittest.TestCase):
         self.assertFalse(Permutation([1]) == Permutation([]))
         for i in range(100):
             a = Permutations(random.randint(0,10)).random_element()
-            b = Permutation(list(a.perm))
+            b = Permutation(a)
             c = Permutations(random.randint(0,10)).random_element()
-            if a.perm == c.perm:
+            if a._perm == c._perm:
                 continue
             self.assertTrue(a == b)
             self.assertTrue(a != c)

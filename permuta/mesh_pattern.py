@@ -137,7 +137,7 @@ class MeshPattern(object):
 
     def non_pointless_boxes(self):
         res = []
-        L = self.perm.perm
+        L = self.perm
         for i,v in enumerate(L):
             res.extend([(i+1, v), (i, v), (i, v-1), (i+1, v-1)])
         return set(res)

@@ -13,7 +13,7 @@ class Permutation(object):
     """
 
     __slots__ = (
-                  "perm"
+                  "_perm"
                 , "_hash_result"
                 , "_left_to_right_details_result"
                 )
@@ -45,7 +45,7 @@ class Permutation(object):
                 assert 1 <= x <= n, "Out of range: {}".format(x)
                 assert not used[x-1], "Duplicate element: {}".format(x)
                 used[x-1] = True
-        self.perm = l if type(l) is list else list(l)
+        self._perm = l if type(l) is list else list(l)
         self._hash_result = None
         self._left_to_right_details_result = None
 
@@ -315,9 +315,9 @@ class Permutation(object):
                             x
                             for _, x in
                             sorted(
-                                    (-y, len(self.perm)-x)
+                                    (-y, len(self._perm)-x)
                                     for x, y in
-                                    enumerate(self.perm)
+                                    enumerate(self._perm)
                                   )
                           )
 
@@ -361,32 +361,32 @@ class Permutation(object):
         return [lst[i-1] for i in self]
 
     def __getitem__(self, i):
-        return self.perm[i]
+        return self._perm[i]
 
     def __len__(self):
-        return len(self.perm)
+        return len(self._perm)
 
     def __iter__(self):
-        return iter(self.perm)
+        return iter(self._perm)
 
     def __str__(self):
-        return str(self.perm)
+        return str(self._perm)
 
     def __repr__(self):
-        return "Permutation(%s)" % repr(self.perm)
+        return "Permutation(%s)" % repr(self._perm)
 
     def __eq__(self, other):
-        return type(other) is Permutation and self.perm == other.perm
+        return type(other) is Permutation and self._perm == other._perm
 
     def __ne__(self, other):
         return not (self == other)
 
     def __lt__(self, other):
-        return (len(self), self.perm) < (len(other), other.perm)
+        return (len(self), self._perm) < (len(other), other._perm)
 
     def __hash__(self):
         if self._hash_result is None:
-            self._hash_result = hash(tuple(self.perm))
+            self._hash_result = hash(tuple(self._perm))
         return self._hash_result
 
     def __contains__(self, patt):

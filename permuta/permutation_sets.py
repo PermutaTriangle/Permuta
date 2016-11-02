@@ -19,23 +19,28 @@ class PermutationPatternClass(object):
 class AvoidanceClass(object):
     def __new__(cls, n, avoiding, **kwargs):
         if isinstance(avoiding, Permutation):
-            p = avoiding.perm
-            if p == [1,2]:
-                return PermutationsAvoiding12(n)
-            elif p== [2,1]:
-                return PermutationsAvoiding21(n)
-            elif p == [1,2,3]:
-                return PermutationsAvoiding123(n)
-            elif p == [1,3,2]:
-                return PermutationsAvoiding132(n)
-            elif p == [2,1,3]:
-                return PermutationsAvoiding213(n)
-            elif p == [2,3,1]:
-                return PermutationsAvoiding231(n)
-            elif p == [3,1,2]:
-                return PermutationsAvoiding312(n)
-            elif p == [3,2,1]:
-                return PermutationsAvoiding321(n)
+            p = avoiding
+            if len(p) == 2:
+                if p[0] == 1:
+                    return PermutationsAvoiding12(n)
+                else:
+                    return PermutationsAvoiding21(n)
+            if len(p) == 3:
+                if p[0] == 1:
+                    if p[1] == 2:
+                        return PermutationsAvoiding123(n)
+                    else:
+                        return PermutationsAvoiding132(n)
+                elif p[0] == 2:
+                    if p[1] == 1:
+                        return PermutationsAvoiding213(n)
+                    else:
+                        return PermutationsAvoiding231(n)
+                else:
+                    if p[1] == 1:
+                        return PermutationsAvoiding312(n)
+                    else:
+                        return PermutationsAvoiding321(n)
             else:
                 return PermutationsAvoidingGeneric(n,(avoiding,))
         elif (isinstance(avoiding, collections.Iterable) and
@@ -62,7 +67,7 @@ class PermutationsAvoidingGeneric(PermutationPatternClass):
             nxt = set()
             for prev in cur:
                 for i in range(len(prev)+1):
-                    maybe = Permutation(prev.perm[:i] + [len(prev)+1] + prev.perm[i:])
+                    maybe = Permutation(prev[:i] + [len(prev)+1] + prev[i:])
                     ok = True
                     for p in self.patt:
                         if maybe.contains(p): # TODO: only check for occurrences that contain the new len(prev)+1 element
