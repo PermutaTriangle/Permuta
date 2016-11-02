@@ -253,7 +253,7 @@ class Permutation(object):
         return result
 
     def inverse(self):
-        """Return the inverse of the permutation self"""
+        """Return the inverse of the permutation self."""
         n = len(self)
         result = [None]*n
         for i in range(n):
@@ -261,10 +261,12 @@ class Permutation(object):
         return Permutation(result)
 
     def reverse(self):
+        """Return the reverse of the permutation self."""
         return Permutation(self[::-1])
 
     def complement(self):
-        return Permutation([len(self) - x + 1 for x in self])
+        """Return the complement of the permutation self."""
+        return Permutation(len(self) - e + 1 for e in self)
 
     def rotate(self, n=1):
         """Return self rotated n steps to the right.
@@ -312,10 +314,10 @@ class Permutation(object):
         idx = [-1] * len(self)
         for i, v in enumerate(self):
             idx[v-1] = i
-        res = []
+        result = []
         for i in range(len(self)):
-            res.append(len(self) - idx[i])
-        return Permutation(res)
+            result.append(len(self) - idx[i])
+        return Permutation(result)
 
     def is_increasing(self):
         """Return True if the permutation is increasing, and False otherwise."""
