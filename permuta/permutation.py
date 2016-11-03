@@ -260,7 +260,7 @@ class Permutation(object):
         n = len(self._perm)
         result = [None]*n
         for i in range(n):
-            result[self._perm[i]-1] = i+1
+            result[self._perm[i]-1] = i + 1
         return Permutation(result)
 
     def reverse(self):
@@ -329,11 +329,11 @@ class Permutation(object):
         return self.reverse()
 
     def flip_diagonal(self):
-        """Return self flipped along the diagonal, y=x."""
+        """Return self flipped along the diagonal, y = x."""
         return self.inverse()
 
     def flip_antidiagonal(self):
-        """Return self flipped along the antidiagonal, y=len(perm)-x."""
+        """Return self flipped along the antidiagonal, y = len(perm) - x."""
         n = len(self._perm)
         result = [None]*n
         for i, e in ((n-e, n-i) for i, e in enumerate(self._perm)):
@@ -371,7 +371,7 @@ class Permutation(object):
         n = len(lst)
         result = [None]*n
         for j, (x, i) in enumerate(sorted((lst[i], i) for i in range(n))):
-            result[i] = j+1
+            result[i] = j + 1
         return cls(result)
 
     def __call__(self, lst):
