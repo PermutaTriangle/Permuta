@@ -249,14 +249,6 @@ def types(perm):
             if is_decr(part2):
                 interset.add(4)
 
-        # if is_incr(part1) and is_incr(part2):
-        #     interset.add(1)
-        # if is_incr(part1) and is_decr(part2):
-        #     interset.add(2)
-        # if is_decr(part1) and is_incr(part2):
-        #     interset.add(3)
-        # if is_decr(part1) and is_decr(part2):
-        #     interset.add(4)
     flipperm = perm.inverse()
     for i in range(len(perm)+1):
         part1 = flipperm[0:i]
@@ -273,15 +265,6 @@ def types(perm):
                 interset.add(7)
             if is_decr(part2):
                 interset.add(8)
-
-        # if is_incr(part1) and is_incr(part2):
-        #     interset.add(5)
-        # if is_incr(part1) and is_decr(part2):
-        #     interset.add(6)
-        # if is_decr(part1) and is_incr(part2):
-        #     interset.add(7)
-        # if is_decr(part1) and is_decr(part2):
-        #     interset.add(8)
     if in_L2(perm):
         interset.add(9)
     if in_L2([perm[i] for i in range(len(perm)-1,-1,-1)]):
