@@ -269,6 +269,14 @@ class Permutation(object):
         base = len(self._perm) + 1
         return Permutation(base - e for e in self._perm)
 
+    def reverse_complement(self):
+        """Return the reverse complement of self.
+
+        Equivalent to two left or right rotations.
+        """
+        base = len(self._perm) + 1
+        return Permutation(base - e for e in reversed(self._perm))
+
     def shift(self, n=1):
         """Return self shifted n steps to the right.
 
@@ -337,14 +345,43 @@ class Permutation(object):
             result[i] = e
         return Permutation(result)
 
-    def rotate_right(self):
-        """Docstring"""
-        # TODO: Write docstring and make generic version
+    def rotate(self, n=1):
+        "Return self rotated 90 degrees to the right."""
+        return self._rotate(n)
+
+    rotate_right = rotate
+
+    def rotate_left(self, n=1):
+        "Return self rotated 90 degrees to the left."""
+        return self._rotate(-n)
+
+    def _rotate(self, n=1):
+        "Return self rotated 90 times n degrees to the right."""
+        n = n % 4
+        if n is 0:
+            return self
+        elif n is 1:
+            return self._rotate_right()
+        elif n is 2:
+            return self.reverse_complement()
+        else:
+            return self._rotate_left()
+
+    def _rotate_right(self):
+        "Return self rotated 90 degrees to the right."""
         len_perm = len(self._perm)
         index = [None]*len_perm
         for i, v in enumerate(self._perm):
             index[v-1] = i
         return Permutation(len_perm - index[i] for i in range(len_perm))
+
+    def _rotate_left(self):
+        "Return self rotated 90 degrees to the left."""
+        len_perm = len(self._perm)
+        result = [None]*len_perm
+        for i, v in enumerate(self._perm):
+            result[len_perm - v] = i + 1
+        return Permutation(result)
 
     def is_increasing(self):
         """Return True if the permutation is increasing, and False otherwise."""
