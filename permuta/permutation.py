@@ -6,6 +6,9 @@ import sys
 if sys.version_info.major is 2:
     range = xrange
 
+def cyclic_range(start, end, restart):
+    return itertools.chain(range(start, end), range(restart, start))
+
 class Permutation(object):
     """A permutation class.
 
@@ -273,7 +276,7 @@ class Permutation(object):
 
         If n is negative, shifted to the left.
         """
-        if len(self) is 0:
+        if len(self._perm) is 0:
             return self
         n = n % len(self._perm)
         if n is 0:
@@ -295,6 +298,27 @@ class Permutation(object):
         return self.shift_right(-n)
 
     cyclic_shift_left = shift_left
+
+    def shift_up(self, n=1):
+        """Return self shifted n steps up.
+
+        If n is negative, shifted down.
+        """
+        len_perm = len(self._perm)
+        if len_perm < 2:
+            return self
+        n = n % len_perm
+        if n is 0:
+            return self
+        bound = len_perm - n
+        return Permutation(e - bound if e > bound else e + n for e in self._perm)
+
+    def shift_down(self, n=1):
+        """Return self shifted n steps down.
+
+        If n is negative, shifted up.
+        """
+        return self.shift_up(-n)
 
     def flip_horizontal(self):
         """Return self flipped horizontally."""

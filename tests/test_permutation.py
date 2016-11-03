@@ -102,6 +102,14 @@ class TestPermutation(unittest.TestCase):
         self.assertEqual(Permutation([1,2,3,4,5,6,7,8]), Permutation([1,2,3,4,5,6,7,8]).shift_left(-8))
         self.assertEqual(Permutation([1,2,3,4,5,6,7,8]), Permutation([6,7,8,1,2,3,4,5]).shift_left(-5))
 
+    def test_shift_down(self):
+        self.assertEqual(Permutation([]), Permutation([]).shift_down(1000))
+        self.assertEqual(Permutation([1]), Permutation([1]).shift_down(10))
+        self.assertEqual(Permutation([2,1,5,3,4,6]), Permutation([3,2,6,4,5,1]).shift_down())
+        self.assertEqual(Permutation([2,1,5,3,4,6]), Permutation([3,2,6,4,5,1]).shift_down(13))
+        self.assertEqual(Permutation([2,1,5,3,4,6]), Permutation([6,5,3,1,2,4]).shift_down(-2))
+        self.assertEqual(Permutation([2,1,5,3,4,6]), Permutation([6,5,3,1,2,4]).shift_down(-8))
+
     def test_reverse(self):
         self.assertEqual(Permutation([6,3,4,1,5,7,2]), Permutation([2,7,5,1,4,3,6]).reverse())
         self.assertEqual(Permutation([8,2,1,3,5,7,4,6]), Permutation([6,4,7,5,3,1,2,8]).reverse())
