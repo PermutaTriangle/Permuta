@@ -1,4 +1,5 @@
 from permuta.misc import left_floor_and_ceiling
+#from permuta.misc import cyclic_range
 import collections
 import itertools
 import numbers
@@ -7,7 +8,12 @@ if sys.version_info.major is 2:
     range = xrange
 
 def cyclic_range(start, end, restart):
+    """Yields start,...,end-1,restart,...,start-1."""
     return itertools.chain(range(start, end), range(restart, start))
+
+def modulo_range(start, modulo):
+    """Yields start,...,modulo-1,0,...,start-1."""
+    return cyclic_range(start, modulo, 0)
 
 class Permutation(object):
     """A permutation class.
@@ -269,7 +275,8 @@ class Permutation(object):
 
     def complement(self):
         """Return the complement of the permutation self."""
-        return Permutation(len(self._perm) - e + 1 for e in self._perm)
+        base = len(self._perm) + 1
+        return Permutation(base - e for e in self._perm)
 
     def shift(self, n=1):
         """Return self shifted n steps to the right.
@@ -281,9 +288,9 @@ class Permutation(object):
         n = n % len(self._perm)
         if n is 0:
             return self
-        i = len(self._perm) - n
-        slice_1 = itertools.islice(self._perm, i)
-        slice_2 = itertools.islice(self._perm, i, len(self._perm))
+        index = len(self._perm) - n
+        slice_1 = itertools.islice(self._perm, index)
+        slice_2 = itertools.islice(self._perm, index, len(self._perm))
         return Permutation(itertools.chain(slice_2, slice_1))
 
     shift_right = shift
@@ -304,13 +311,12 @@ class Permutation(object):
 
         If n is negative, shifted down.
         """
-        len_perm = len(self._perm)
-        if len_perm < 2:
+        if len(self._perm) < 2:
             return self
-        n = n % len_perm
+        n = n % len(self._perm)
         if n is 0:
             return self
-        bound = len_perm - n
+        bound = len(self._perm) - n
         return Permutation(e - bound if e > bound else e + n for e in self._perm)
 
     def shift_down(self, n=1):
@@ -343,25 +349,24 @@ class Permutation(object):
     def rotate_right(self):
         """Docstring"""
         # TODO: Write docstring and make generic version
-        index = [-1] * len(self._perm)
+        len_perm = len(self._perm)
+        index = [None]*len_perm
         for i, v in enumerate(self._perm):
             index[v-1] = i
-        result = []
-        for i in range(len(self._perm)):
-            result.append(len(self._perm) - index[i])
-        return Permutation(result)
+        return Permutation(len_perm - index[i] for i in range(len_perm))
 
     def is_increasing(self):
         """Return True if the permutation is increasing, and False otherwise."""
-        for i in range(1,len(self._perm)):
-            if self._perm[i-1] > self._perm[i]:
+        for i in range(len(self._perm)):
+            if self._perm[i] is not i+1:
                 return False
         return True
 
     def is_decreasing(self):
         """Return True if the permutation is decreasing, and False otherwise."""
-        for i in range(1,len(self._perm)):
-            if self._perm[i-1] < self._perm[i]:
+        len_perm = len(self._perm)
+        for i in range(len_perm):
+            if self._perm[i] is not len_perm - i:
                 return False
         return True
 
