@@ -370,10 +370,10 @@ class Permutation(object):
     def _rotate_right(self):
         "Return self rotated 90 degrees to the right."""
         len_perm = len(self._perm)
-        index = [None]*len_perm
+        result = [None]*len_perm
         for i, v in enumerate(self._perm):
-            index[v-1] = i
-        return Permutation(len_perm - index[i] for i in range(len_perm))
+            result[v-1] = len_perm - i
+        return Permutation(result)
 
     def _rotate_left(self):
         "Return self rotated 90 degrees to the left."""
