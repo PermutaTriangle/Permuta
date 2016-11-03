@@ -74,3 +74,13 @@ class TestPermutationSets(unittest.TestCase):
 
             self.assertEqual(enum, cnt)
 
+    def test_is_polynomial(self):
+        self.assertEqual(AvoidanceClass(8, [Permutation([])]).is_polynomial(), True)
+        self.assertEqual(AvoidanceClass(8, [Permutation([1])]).is_polynomial(),True)
+        self.assertEqual(AvoidanceClass(8, [Permutation([1,2])]).is_polynomial(),True)
+        self.assertEqual(AvoidanceClass(8, [Permutation([1,3,2,4])]).is_polynomial(),False)
+        self.assertEqual(AvoidanceClass(8, [Permutation([3,2,1]), Permutation([1,2,3])]).is_polynomial(),True)
+        self.assertEqual(AvoidanceClass(8, [Permutation([1,2,3]), Permutation([2,3,1])]).is_polynomial(), True)
+        self.assertEqual(AvoidanceClass(8, [Permutation([1,2,3]), Permutation([1,3,2])]).is_polynomial(), False)
+        self.assertEqual(AvoidanceClass(8, [Permutation([1,3,2]), Permutation([3,1,2])]).is_polynomial(), False)
+        self.assertEqual(AvoidanceClass(8, [Permutation([2,3,1]), Permutation([3,1,2])]).is_polynomial(), False)
