@@ -151,8 +151,11 @@ class Permutation(object):
         # Special cases
         if len(self._perm) == 0:
             # Pattern is empty, occurs in all permutations
-            # This is needed for the con function to work correctly
+            # This is needed for the occurrences function to work correctly
             yield []
+            return
+        if len(self._perm) > len(perm._perm):
+            # Pattern is too long to occur in permutation
             return
 
         # The indices of the occurrence in perm
@@ -161,24 +164,43 @@ class Permutation(object):
         # Get left to right scan details
         pattern_details = self._pattern_details()
 
+        # Upper and lower bound declarations
+        upper_bound = None
+        lower_bound = None
+
         # Define function that works with the above defined variables
         # i is the index of the element in perm that is to be considered
         # k is how many elements of the permutation have already been added to occurrence
-        def con(i, k):
+        def occurrences(i, k):
             elements_remaining = len(perm) - i
             elements_needed = len(self._perm) - k
-            left_floor_index, left_ceiling_index, left_floor_diff, left_ceiling_diff = pattern_details[k]
+
+            # Get the following variables:
+            #   - lfi: Left Floor Index
+            #   - lci: Left Ceiling Index
+            #   - lbp: Lower Bound Pre-computation
+            #   - ubp: Upper Bound pre-computation
+            lfi, lci, lbp, ubp = pattern_details[k]
+
             # Set the bounds for the new element
-            lower_bound = left_floor_diff
-            if left_floor_index is None:
-                lower_bound += 1
+            if lfi is None:
+                # The new element of the occurrence must be at least self[k];
+                # i.e., the k-th element of the pattern
+                # lbp = self[k]
+                lower_bound = lbp
             else:
-                lower_bound += perm[occurrence_indices[left_floor_index]]
-            upper_bound = -left_ceiling_diff
-            if left_ceiling_index is None:
-                upper_bound += len(perm)
+                # The new element of the occurrence must be at least as far
+                # from its left floor as self[k] is from its left floor
+                # lbp = self[k] - self[lfi]
+                occurrence_left_floor = perm[occurrence_indices[lfi]]
+                lower_bound = occurrence_left_floor + lbp
+            if lci is None:
+                # The new element of the occurrence must be at most 
+                # ubp = len(self) - self[k]
+                upper_bound = len(perm._perm) - ubp
             else:
-                upper_bound += perm[occurrence_indices[left_ceiling_index]]
+                # ubp = diff
+                upper_bound = perm[occurrence_indices[lci]] - ubp
 
             # Loop over remaining elements of perm (actually i, the index)
             while 1:
@@ -188,19 +210,18 @@ class Permutation(object):
                 element = perm[i]
                 if lower_bound <= element <= upper_bound:
                     occurrence_indices[k] = i
-                    # Yield occurrence
-                    # TODO: will bringing this conditional out of loop speed things up?
                     if elements_needed == 1:
+                        # Yield occurrence
                         yield occurrence_indices[:]
-                    # Yield occurrences where the i-th element is chosen
                     else:
-                        for o in con(i+1, k+1):
+                        # Yield occurrences where the i-th element is chosen
+                        for o in occurrences(i+1, k+1):
                             yield o
                 # Increment i, that also means elements_remaining should decrement
                 i += 1
                 elements_remaining -= 1
 
-        for o in con(0, 0):
+        for o in occurrences(0, 0):
             yield o
 
     def occurrences_of(self, patt):
@@ -222,6 +243,7 @@ class Permutation(object):
         return patt.occurrences_in(self)
 
     def _pattern_details(self):
+        """Subroutine of occurrences_in method."""
         # If details have been calculated before, return cached result
         if self._pattern_details_result is not None:
             return self._pattern_details_result
@@ -231,21 +253,13 @@ class Permutation(object):
             base_element = self._perm[index]
             left_floor = 1 if fac.floor is None else self._perm[fac.floor]
             left_ceiling = len(self._perm) if fac.ceiling is None else self._perm[fac.ceiling]
-            # left_floor_difference:
-            # How much greater than the left floor the element must be,
-            # or how much greater than 1 it must be if left floor does not exist
             left_floor_difference = base_element - left_floor
-            # left_ceiling_difference:
-            # Subtract this number from the length of the permutation an
-            # occurrence is being searched for in to get an upper bound for the
-            # allowed value. Tighten the bound by subtracting from the left
-            # ceiling value if its index is not None.
             left_ceiling_difference = left_ceiling - base_element
             compiled = (
                          fac.floor
                        , fac.ceiling
-                       , left_floor_difference
-                       , left_ceiling_difference
+                       , self._perm[index] if fac.floor is None else left_floor_difference
+                       , len(self._perm) - self._perm[index] if fac.ceiling is None else left_ceiling_difference
                        )
             result.append(compiled)
             index += 1
