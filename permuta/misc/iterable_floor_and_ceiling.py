@@ -27,7 +27,7 @@ def left_floor_and_ceiling(iterable, default_floor=None, default_ceiling=None):
     biggest = None
     index = 0
     for element in iterable:
-        if index is 0:
+        if index == 0:
             dq.append((element, index))
             smallest = element
             biggest = element

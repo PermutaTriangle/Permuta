@@ -6,7 +6,7 @@ import sys
 
 from permuta.misc import left_floor_and_ceiling
 
-if sys.version_info.major is 2:
+if sys.version_info.major == 2:
     range = xrange
 
 
@@ -306,10 +306,10 @@ class Permutation(object):
 
         If shift is negative, shifted to the left.
         """
-        if len(self._perm) is 0:
+        if len(self._perm) == 0:
             return self
         times = times % len(self._perm)
-        if times is 0:
+        if times == 0:
             return self
         index = len(self._perm) - times
         slice_1 = itertools.islice(self._perm, index)
@@ -337,7 +337,7 @@ class Permutation(object):
         if len(self._perm) < 2:
             return self
         times = times % len(self._perm)
-        if times is 0:
+        if times == 0:
             return self
         bound = len(self._perm) - times
         return Permutation(element - bound
@@ -389,11 +389,11 @@ class Permutation(object):
     def _rotate(self, times=1):
         """Return self rotated 90 times times degrees to the right."""
         times = times % 4
-        if times is 0:
+        if times == 0:
             return self
-        elif times is 1:
+        elif times == 1:
             return self._rotate_right()
-        elif times is 2:
+        elif times == 2:
             return self.reverse_complement()
         else:
             return self._rotate_left()
@@ -417,7 +417,7 @@ class Permutation(object):
     def is_increasing(self):
         """Return True if the permutation is increasing, and False otherwise."""
         for index in range(len(self._perm)):
-            if self._perm[index] is not index+1:
+            if self._perm[index] != index+1:
                 return False
         return True
 
@@ -425,7 +425,7 @@ class Permutation(object):
         """Return True if the permutation is decreasing, and False otherwise."""
         len_perm = len(self._perm)
         for index in range(len_perm):
-            if self._perm[index] is not len_perm - index:
+            if self._perm[index] != len_perm - index:
                 return False
         return True
 
