@@ -127,6 +127,11 @@ class TestPermutation(unittest.TestCase):
         self.assertEqual(Permutation([7,5,3,4,2,1,6]), Permutation([1,3,5,4,6,7,2]).complement())
         self.assertEqual(Permutation([3,6,7,4,8,5,1,2]), Permutation([6,3,2,5,1,4,8,7]).complement())
 
+    def test_reverse_complement(self):
+        for i in range(100):
+            perm = Permutations(random.randint(0,20)).random_element()
+            self.assertEqual(perm.reverse_complement(), perm.rotate().rotate())
+
     def test_flip_antidiagonal(self):
         for i in range(100):
             perm = Permutations(random.randint(0,20)).random_element()
