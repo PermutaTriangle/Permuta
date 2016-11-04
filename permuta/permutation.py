@@ -195,10 +195,14 @@ class Permutation(object):
                 occurrence_left_floor = perm[occurrence_indices[lfi]]
                 lower_bound = occurrence_left_floor + lbp
             if lci is None:
-                # The new element of the occurrence must be at most 
+                # The new element of the occurrence must be at least as less
+                # than its maximum possible element---i.e., len(perm)---as
+                # self[k] is to its maximum possible element---i.e., len(self)
                 # ubp = len(self) - self[k]
                 upper_bound = len(perm._perm) - ubp
             else:
+                # The new element of the occurrence must be at least as less
+                # than its left ceiling as self[k] is to its left ceiling
                 # ubp = diff
                 upper_bound = perm[occurrence_indices[lci]] - ubp
 
@@ -251,15 +255,16 @@ class Permutation(object):
         index = 0
         for fac in left_floor_and_ceiling(self._perm):
             base_element = self._perm[index]
-            left_floor = 1 if fac.floor is None else self._perm[fac.floor]
-            left_ceiling = len(self._perm) if fac.ceiling is None else self._perm[fac.ceiling]
-            left_floor_difference = base_element - left_floor
-            left_ceiling_difference = left_ceiling - base_element
             compiled = (
                          fac.floor
                        , fac.ceiling
-                       , self._perm[index] if fac.floor is None else left_floor_difference
-                       , len(self._perm) - self._perm[index] if fac.ceiling is None else left_ceiling_difference
+                       , self._perm[index]
+                         if fac.floor is None
+                         else
+                         base_element - self._perm[fac.floor]
+                       , len(self._perm) - self._perm[index]
+                         if fac.ceiling is None
+                         else self._perm[fac.ceiling] - base_element
                        )
             result.append(compiled)
             index += 1
