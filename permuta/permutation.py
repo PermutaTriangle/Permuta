@@ -1,7 +1,7 @@
 import collections
-import operator
 import itertools
 import numbers
+import operator
 import sys
 
 from permuta.misc import left_floor_and_ceiling
@@ -10,11 +10,8 @@ if sys.version_info.major == 2:
     range = xrange
 
 
-class Permutation(object):
-    """A permutation class.
-
-    This class is immutable by agreement.
-    """
+class Permutation(tuple):
+    """A permutation class."""
 
     __slots__ = (
                  "_perm",
