@@ -190,24 +190,24 @@ class Permutation(object):
             if lfi is None:
                 # The new element of the occurrence must be at least self[k];
                 # i.e., the k-th element of the pattern
-                # lbp = self[k]
+                # In this case, lbp = self[k]
                 lower_bound = lbp
             else:
                 # The new element of the occurrence must be at least as far
                 # from its left floor as self[k] is from its left floor
-                # lbp = self[k] - self[lfi]
+                # In this case, lbp = self[k] - self[lfi]
                 occurrence_left_floor = perm[occurrence_indices[lfi]]
                 lower_bound = occurrence_left_floor + lbp
             if lci is None:
                 # The new element of the occurrence must be at least as less
                 # than its maximum possible element---i.e., len(perm)---as
                 # self[k] is to its maximum possible element---i.e., len(self)
-                # ubp = len(self) - self[k]
+                # In this case, ubp = len(self) - self[k]
                 upper_bound = len(perm._perm) - ubp
             else:
                 # The new element of the occurrence must be at least as less
                 # than its left ceiling as self[k] is to its left ceiling
-                # ubp = diff
+                # In this case, ubp = self[lci] - self[k]
                 upper_bound = perm[occurrence_indices[lci]] - ubp
 
             # Loop over remaining elements of perm (actually i, the index)
@@ -257,19 +257,19 @@ class Permutation(object):
             return self._pattern_details_result
         result = []
         index = 0
-        for fac in left_floor_and_ceiling(self._perm):
+        for fac_indices in left_floor_and_ceiling(self._perm):
             base_element = self._perm[index]
-            compiled = (fac.floor,
+            compiled = (fac_indices.floor,
 
-                        fac.ceiling,
+                        fac_indices.ceiling,
 
                         self._perm[index]
-                        if fac.floor is None
-                        else base_element - self._perm[fac.floor],
+                        if fac_indices.floor is None
+                        else base_element - self._perm[fac_indices.floor],
 
                         len(self._perm) - self._perm[index]
-                        if fac.ceiling is None
-                        else self._perm[fac.ceiling] - base_element,
+                        if fac_indices.ceiling is None
+                        else self._perm[fac_indices.ceiling] - base_element,
                         )
             result.append(compiled)
             index += 1
