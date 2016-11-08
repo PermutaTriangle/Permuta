@@ -35,7 +35,6 @@ class Permutation(tuple):
                 assert 1 <= value <= len(self), "Out of range: {}".format(value)
                 assert not used[value-1], "Duplicate element: {}".format(value)
                 used[value-1] = True
-        self._cached_hash = None
         self._cached_pattern_details = None
 
     def contained_in(self, *perms):
@@ -433,28 +432,20 @@ class Permutation(tuple):
         assert len(lst) == len(self)
         return [lst[index-1] for index in self]
 
-#    def __getitem__(self, i):
-#        return self[i]
-#
-#    def __str__(self):
-#        return str(self)
-#
-#    def __repr__(self):
-#        return "Permutation(%s)" % repr(self)
-#
-#    def __eq__(self, other):
-#        return isinstance(other, Permutation) and self == other
-#
-#    def __ne__(self, other):
-#        return not self == other
-#
-#    def __lt__(self, other):
-#        return (len(self), self) < (len(other), other)
-#
-#    def __hash__(self):
-#        if self._hash_result is None:
-#            self._hash_result = hash(tuple(self))  # TODO
-#        return self._hash_result
+    def __repr__(self):
+        return "Permutation({})".format(super(Permutation, self).__repr__())
+
+    def __lt__(self, other):
+        return (len(self), tuple(self)) < (len(other), tuple(other))
+
+    def __le__(self, other):
+        return (len(self), tuple(self)) <= (len(other), tuple(other))
+
+    def __gt__(self, other):
+        return other < self
+
+    def __ge__(self, other):
+        return other <= self
 
     def __contains__(self, patt):
         """Check if self contains patt.

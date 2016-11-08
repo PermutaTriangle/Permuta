@@ -216,3 +216,13 @@ class TestPermutation(unittest.TestCase):
         self.assertFalse(Permutation([2,1,3]).is_increasing())
         self.assertFalse(Permutation([2,1,3]).is_decreasing())
 
+    def test_lt(self):
+        for _ in range(30):
+            l1 = list(range(1, 10))
+            l2 = list(range(1, 10))
+            if l1 < l2:
+                self.assertTrue(Permutation(l1) < permutation(l2))
+            else:
+                self.assertFalse(Permutation(l1) < Permutation(l2))
+            self.assertFalse(Permutation(l1) < Permutation(l1))
+            self.assertFalse(Permutation(l2) < Permutation(l2))
