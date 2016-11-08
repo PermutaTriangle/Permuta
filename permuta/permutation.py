@@ -22,7 +22,7 @@ class Permutation(tuple):
             iterable: <collections.Iterable>
                 An iterable corresponding to a legal permutation.
             check: bool
-                If True, iterable will be confirmed to be a legal permutation.
+                If True, iterable will be confirmed to correspond to a legal permutation.
         """
         instance = super(Permutation, cls).__new__(cls, iterable)
         return instance
@@ -241,19 +241,19 @@ class Permutation(tuple):
             return self._cached_pattern_details
         result = []
         index = 0
-        for fac in left_floor_and_ceiling(self):
+        for fac_indices in left_floor_and_ceiling(self):
             base_element = self[index]
-            compiled = (fac.floor,
+            compiled = (fac_indices.floor,
 
-                        fac.ceiling,
+                        fac_indices.ceiling,
 
                         self[index]
-                        if fac.floor is None
-                        else base_element - self[fac.floor],
+                        if fac_indices.floor is None
+                        else base_element - self[fac_indices.floor],
 
                         len(self) - self[index]
-                        if fac.ceiling is None
-                        else self[fac.ceiling] - base_element,
+                        if fac_indices.ceiling is None
+                        else self[fac_indices.ceiling] - base_element,
                         )
             result.append(compiled)
             index += 1
