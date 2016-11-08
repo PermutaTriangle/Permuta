@@ -31,7 +31,12 @@ class Permutation(tuple):
         if check:
             used = [False]*len(self)
             for value in self:
-                assert isinstance(value, numbers.Integral), "Non-integer type: {}".format(repr(value))
+                try:
+                    assert isinstance(value, numbers.Integral)
+                except AssertionError as exception:
+                    message = "Non-integer type: {}".format(repr(value))
+                    exception.args = (message,)
+                    raise
                 assert 1 <= value <= len(self), "Out of range: {}".format(value)
                 assert not used[value-1], "Duplicate element: {}".format(value)
                 used[value-1] = True
