@@ -13,42 +13,30 @@ if sys.version_info.major == 2:
 class Permutation(tuple):
     """A permutation class."""
 
-    __slots__ = (
-                 "_perm",
-                 "_hash_result",
-                 "_pattern_details_result",
-                )
-
-    def __init__(self, iterable, check=False):
-        """Create a new Permutation with the given list.
-
-        This does not create a copy of the given list.
-        Supply a copy of the list if you plan on mutating the original.
+    def __new__(cls, iterable=(), check=False):
+        """Return a Permutation instance.
 
         Args:
             self:
-                A permutation.
-            iterable: [int]
-                A list corresponding to a legal permutation.
-                Can also be an iterable.
+                The class of which an instance is requested.
+            iterable: <collections.Iterable>
+                An iterable corresponding to a legal permutation.
             check: bool
                 If True, iterable will be confirmed to be a legal permutation.
         """
+        instance = super(Permutation, cls).__new__(cls, iterable)
+        return instance
+
+    def __init__(self, iterable=(), check=False):
         if check:
-            assert isinstance(iterable, collections.Iterable), "Non-iterable argument: {}".format(iterable)
-            try:
-                len_iterable = len(iterable)
-            except TypeError:
-                len_iterable = sum(1 for _ in iterable)
-            used = [False]*len_iterable
-            for value in iterable:
+            used = [False]*len(self)
+            for value in self:
                 assert isinstance(value, numbers.Integral), "Non-integer type: {}".format(repr(value))
-                assert 1 <= value <= len_iterable, "Out of range: {}".format(value)
+                assert 1 <= value <= len(self), "Out of range: {}".format(value)
                 assert not used[value-1], "Duplicate element: {}".format(value)
                 used[value-1] = True
-        self._perm = iterable if isinstance(iterable, list) else list(iterable)
-        self._hash_result = None
-        self._pattern_details_result = None
+        self._cached_hash = None
+        self._cached_pattern_details = None
 
     def contained_in(self, *perms):
         """Check if self is a pattern of perms.
@@ -150,17 +138,17 @@ class Permutation(tuple):
             self == permuta.Permutation.to_standard([perm[i] for i in l])
         """
         # Special cases
-        if len(self._perm) == 0:
+        if len(self) == 0:
             # Pattern is empty, occurs in all permutations
             # This is needed for the occurrences function to work correctly
             yield []
             return
-        if len(self._perm) > len(perm._perm):
+        if len(self) > len(perm):
             # Pattern is too long to occur in permutation
             return
 
         # The indices of the occurrence in perm
-        occurrence_indices = [None]*len(self._perm)
+        occurrence_indices = [None]*len(self)
 
         # Get left to right scan details
         pattern_details = self._pattern_details()
@@ -174,7 +162,7 @@ class Permutation(tuple):
         # k is how many elements of the permutation have already been added to occurrence
         def occurrences(i, k):
             elements_remaining = len(perm) - i
-            elements_needed = len(self._perm) - k
+            elements_needed = len(self) - k
 
             # Get the following variables:
             #   - lfi: Left Floor Index
@@ -200,7 +188,7 @@ class Permutation(tuple):
                 # than its maximum possible element---i.e., len(perm)---as
                 # self[k] is to its maximum possible element---i.e., len(self)
                 # ubp = len(self) - self[k]
-                upper_bound = len(perm._perm) - ubp
+                upper_bound = len(perm) - ubp
             else:
                 # The new element of the occurrence must be at least as less
                 # than its left ceiling as self[k] is to its left ceiling
@@ -250,67 +238,67 @@ class Permutation(tuple):
     def _pattern_details(self):
         """Subroutine of occurrences_in method."""
         # If details have been calculated before, return cached result
-        if self._pattern_details_result is not None:
-            return self._pattern_details_result
+        if self._cached_pattern_details is not None:
+            return self._cached_pattern_details
         result = []
         index = 0
-        for fac in left_floor_and_ceiling(self._perm):
-            base_element = self._perm[index]
+        for fac in left_floor_and_ceiling(self):
+            base_element = self[index]
             compiled = (fac.floor,
 
                         fac.ceiling,
 
-                        self._perm[index]
+                        self[index]
                         if fac.floor is None
-                        else base_element - self._perm[fac.floor],
+                        else base_element - self[fac.floor],
 
-                        len(self._perm) - self._perm[index]
+                        len(self) - self[index]
                         if fac.ceiling is None
-                        else self._perm[fac.ceiling] - base_element,
+                        else self[fac.ceiling] - base_element,
                         )
             result.append(compiled)
             index += 1
-        self._pattern_details_result = result
+        self._cached_pattern_details = result
         return result
 
     def inverse(self):
         """Return the inverse of the permutation self."""
-        len_perm = len(self._perm)
+        len_perm = len(self)
         result = [None]*len_perm
         for index in range(len_perm):
-            result[self._perm[index]-1] = index + 1
+            result[self[index]-1] = index + 1
         return Permutation(result)
 
     def reverse(self):
         """Return the reverse of the permutation self."""
-        return Permutation(self._perm[::-1])
+        return Permutation(self[::-1])
 
     def complement(self):
         """Return the complement of the permutation self."""
-        base = len(self._perm) + 1
-        return Permutation(base - element for element in self._perm)
+        base = len(self) + 1
+        return Permutation(base - element for element in self)
 
     def reverse_complement(self):
         """Return the reverse complement of self.
 
         Equivalent to two left or right rotations.
         """
-        base = len(self._perm) + 1
-        return Permutation(base - element for element in reversed(self._perm))
+        base = len(self) + 1
+        return Permutation(base - element for element in reversed(self))
 
     def shift(self, times=1):
         """Return self shifted times steps to the right.
 
         If shift is negative, shifted to the left.
         """
-        if len(self._perm) == 0:
+        if len(self) == 0:
             return self
-        times = times % len(self._perm)
+        times = times % len(self)
         if times == 0:
             return self
-        index = len(self._perm) - times
-        slice_1 = itertools.islice(self._perm, index)
-        slice_2 = itertools.islice(self._perm, index, len(self._perm))
+        index = len(self) - times
+        slice_1 = itertools.islice(self, index)
+        slice_2 = itertools.islice(self, index, len(self))
         return Permutation(itertools.chain(slice_2, slice_1))
 
     shift_right = shift
@@ -331,16 +319,16 @@ class Permutation(tuple):
 
         If times is negative, shifted down.
         """
-        if len(self._perm) < 2:
+        if len(self) < 2:
             return self
-        times = times % len(self._perm)
+        times = times % len(self)
         if times == 0:
             return self
-        bound = len(self._perm) - times
+        bound = len(self) - times
         return Permutation(element - bound
                            if element > bound
                            else element + times
-                           for element in self._perm)
+                           for element in self)
 
     def shift_down(self, times=1):
         """Return self shifted times steps down.
@@ -363,11 +351,11 @@ class Permutation(tuple):
 
     def flip_antidiagonal(self):
         """Return self flipped along the antidiagonal, y = len(perm) - x."""
-        len_perm = len(self._perm)
+        len_perm = len(self)
         result = [None]*len_perm
 
         flipped_pairs = ((len_perm-element, len_perm-index)
-                         for index, element in enumerate(self._perm))
+                         for index, element in enumerate(self))
 
         for index, element in flipped_pairs:
             result[index] = element
@@ -397,32 +385,32 @@ class Permutation(tuple):
 
     def _rotate_right(self):
         """Return self rotated 90 degrees to the right."""
-        len_perm = len(self._perm)
+        len_perm = len(self)
         result = [None]*len_perm
-        for index, value in enumerate(self._perm):
+        for index, value in enumerate(self):
             result[value-1] = len_perm - index
         return Permutation(result)
 
     def _rotate_left(self):
         """Return self rotated 90 degrees to the left."""
-        len_perm = len(self._perm)
+        len_perm = len(self)
         result = [None]*len_perm
-        for index, value in enumerate(self._perm):
+        for index, value in enumerate(self):
             result[len_perm - value] = index + 1
         return Permutation(result)
 
     def is_increasing(self):
         """Return True if the permutation is increasing, and False otherwise."""
-        for index in range(len(self._perm)):
-            if self._perm[index] != index+1:
+        for index in range(len(self)):
+            if self[index] != index+1:
                 return False
         return True
 
     def is_decreasing(self):
         """Return True if the permutation is decreasing, and False otherwise."""
-        len_perm = len(self._perm)
+        len_perm = len(self)
         for index in range(len_perm):
-            if self._perm[index] != len_perm - index:
+            if self[index] != len_perm - index:
                 return False
         return True
 
@@ -442,37 +430,31 @@ class Permutation(tuple):
 
     def __call__(self, lst):
         """Return the result of applying self to lst."""
-        assert len(lst) == len(self._perm)
-        return [lst[index-1] for index in self._perm]
+        assert len(lst) == len(self)
+        return [lst[index-1] for index in self]
 
-    def __getitem__(self, i):
-        return self._perm[i]
-
-    def __len__(self):
-        return len(self._perm)
-
-    def __iter__(self):
-        return iter(self._perm)
-
-    def __str__(self):
-        return str(self._perm)
-
-    def __repr__(self):
-        return "Permutation(%s)" % repr(self._perm)
-
-    def __eq__(self, other):
-        return isinstance(other, Permutation) and self._perm == other._perm
-
-    def __ne__(self, other):
-        return not self == other
-
-    def __lt__(self, other):
-        return (len(self), self._perm) < (len(other), other._perm)
-
-    def __hash__(self):
-        if self._hash_result is None:
-            self._hash_result = hash(tuple(self._perm))
-        return self._hash_result
+#    def __getitem__(self, i):
+#        return self[i]
+#
+#    def __str__(self):
+#        return str(self)
+#
+#    def __repr__(self):
+#        return "Permutation(%s)" % repr(self)
+#
+#    def __eq__(self, other):
+#        return isinstance(other, Permutation) and self == other
+#
+#    def __ne__(self, other):
+#        return not self == other
+#
+#    def __lt__(self, other):
+#        return (len(self), self) < (len(other), other)
+#
+#    def __hash__(self):
+#        if self._hash_result is None:
+#            self._hash_result = hash(tuple(self))  # TODO
+#        return self._hash_result
 
     def __contains__(self, patt):
         """Check if self contains patt.

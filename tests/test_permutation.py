@@ -9,8 +9,9 @@ class TestPermutation(unittest.TestCase):
         with self.assertRaises(AssertionError): Permutation([2,1,2], check=True)
         with self.assertRaises(AssertionError): Permutation([1,1], check=True)
         with self.assertRaises(AssertionError): Permutation([2], check=True)
-        with self.assertRaises(AssertionError): Permutation(5, check=True)
-        with self.assertRaises(AssertionError): Permutation(None, check=True)
+        with self.assertRaises(TypeError): Permutation(5, check=True)
+        with self.assertRaises(TypeError): Permutation(None, check=True)
+        Permutation(check=True)
         Permutation([], check=True)
         Permutation([1], check=True)
         Permutation([4,1,3,2], check=True)
@@ -173,7 +174,7 @@ class TestPermutation(unittest.TestCase):
             a = Permutations(random.randint(0,10)).random_element()
             b = Permutation(a)
             c = Permutations(random.randint(0,10)).random_element()
-            if a._perm == c._perm:
+            if a == c:
                 continue
             self.assertTrue(a == b)
             self.assertTrue(a != c)
