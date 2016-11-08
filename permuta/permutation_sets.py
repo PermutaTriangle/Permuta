@@ -67,7 +67,10 @@ class PermutationsAvoidingGeneric(PermutationPatternClass):
             nxt = set()
             for prev in cur:
                 for i in range(len(prev)+1):
-                    maybe = Permutation(prev[:i] + [len(prev)+1] + prev[i:])
+                    maybe_list = list(prev[:i])
+                    maybe_list.append(len(prev)+1)
+                    maybe_list.extend(prev[i:])
+                    maybe = Permutation(maybe_list)
                     ok = True
                     for p in self.patt:
                         if maybe.contains(p): # TODO: only check for occurrences that contain the new len(prev)+1 element
