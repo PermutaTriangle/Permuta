@@ -2,26 +2,30 @@ import itertools
 import random
 
 from math import factorial
-from permutation import Permutation
+from permuta import Permutation
 
 
 class Permutations(itertools.permutations):
     """Class for iterating through all Permutations of a specific length."""
 
-    def __new__(cls, length):
-        domain = tuple(range(1, length+1))
-        instance = super(Permutations, cls).__new__(cls, domain)
-        return instance
+    __slots__ = ("length", "domain")
 
-    def __init__(self, length):
-        self.length = length
+    def __new__(cls, length):
+        domain = list(range(1, length+1))  # TODO: xrange or future
+        instance = super(Permutations, cls).__new__(cls, domain)
+        instance.domain = domain
+        instance.length = length
+        return instance
 
     def next(self):
         return Permutation(super(Permutations, self).next())
 
+    def __iter__(self):
+        return self
+
     def random_element(self):
         """Return a random permutation of the length."""
-        lst = list(range(1, self.length+1))
+        lst = self.domain[:]
         random.shuffle(lst)
         return Permutation(lst)
 
