@@ -1,47 +1,35 @@
-from .misc import DancingLinks
-from .permutation import Permutation
+import itertools
 import random
 
+from math import factorial
+from permutation import Permutation
 
-class Permutations(object):
-    """Class for iterating through all Permutations of length n"""
 
-    def __init__(self, n):
-        """Returns an object giving all permutations of length n"""
-        assert 0 <= n
-        self.n = n
+class Permutations(itertools.permutations):
+    """Class for iterating through all Permutations of a specific length."""
 
-    def __iter__(self):
-        """Iterates through permutations of length n in lexical order"""
-        left = DancingLinks(range(1, self.n+1))
-        res = []
+    def __new__(cls, length):
+        domain = tuple(range(1, length+1))
+        instance = super(Permutations, cls).__new__(cls, domain)
+        return instance
 
-        def gen():
-            if len(left) == 0:
-                yield Permutation(list(res))
-            else:
-                cur = left.front
-                while cur is not None:
-                    left.erase(cur)
-                    res.append(cur.value)
-                    for p in gen():
-                        yield p
-                    res.pop()
-                    left.restore(cur)
-                    cur = cur.next
+    def __init__(self, length):
+        self.length = length
 
-        return gen()
+    def next(self):
+        return Permutation(super(Permutations, self).next())
 
     def random_element(self):
-        """Returns a random permutation of length n"""
-        p = [i+1 for i in range(self.n)]
-        for i in range(self.n-1, -1, -1):
-            j = random.randint(0, i)
-            p[i], p[j] = p[j], p[i]
-        return Permutation(p)
+        """Return a random permutation of the length."""
+        lst = list(range(1, self.length+1))
+        random.shuffle(lst)
+        return Permutation(lst)
+
+    def __len__(self):
+        return factorial(self.length)
 
     def __str__(self):
-        return 'The set of Permutations of length %d' % self.n
+        return "The set of Permutations of length {}".format(self.length)
 
     def __repr__(self):
-        return 'Permutations(%d)' % self.n
+        return "Permutations({})".format(self.length)
