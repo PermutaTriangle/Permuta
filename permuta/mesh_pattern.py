@@ -1,46 +1,36 @@
+import bisect
 import itertools
 import numbers
+import collections
 
-from permuta import Permutation
-
-
-
-
-import bisect
-from .misc import DIR_EAST, DIR_NORTH, DIR_WEST, DIR_SOUTH, DIR_NONE
+from permuta import Permutation, Pattern
+from permuta.misc import DIR_EAST, DIR_NORTH, DIR_WEST, DIR_SOUTH, DIR_NONE
 
 
-def _rot_right(n, pos):
-    x, y = pos
-    assert 0 <= x < n+1
-    assert 0 <= y < n+1
-    return (y, n-x)
-
-def _G(seq):
-    return zip(range(1, len(seq)+1), seq)
-
-
-class MeshPattern(object):
+class MeshPattern(Pattern):
     """A mesh pattern class."""
 
-    def __init__(self, perm=Permutation(), shading=frozenset(), check=False):
-        # TODO: Docstring (and usage of __new__ with pattern inheritance?)
-        if not isinstance(perm, Permutation):
-            perm = Permutation(perm, check=check)
-        if not isinstance(shading, frozenset):
-            shading = frozenset(shading)
+    def __init__(self, pattern=(), shading=frozenset(), check=False):
+        # TODO: Docstring
+        if not isinstance(pattern, Permutation):
+            pattern = Permutation(pattern, check=check)
         if check:
             # TODO: Add exception messages
+            assert isinstance(collections.Set, shading)
             for coordinate in shading:
                 assert isinstance(coordinate, tuple)
                 assert len(coordinate) == 2
                 x, y = coordinate
                 assert isinstance(x, numbers.Integral)
-                assert 0 <= x <= len(perm)
+                assert 0 <= x <= len(pattern)
                 assert isinstance(y, numbers.Integral)
-                assert 0 <= y <= len(perm)
-        self.perm = perm
-        self.shading = set(shading)
+                assert 0 <= y <= len(pattern)
+        self.pattern = pattern
+        self.shading = shading
+
+    #
+    # Occurrence/Avoidance/Containment methods
+    #
 
     def contained_in(self, perm):
         # TODO: Make occurrence function like for classical patterns
@@ -49,9 +39,9 @@ class MeshPattern(object):
         R = self.shading
         k = len(clpatt)
         n = len(perm)
-    
+
         perm_cart = set(_G(perm))
-    
+
         for H in clpatt.occurrences_in(perm):
             X = dict(_G(sorted(i+1 for i in H)))
             Y = dict(_G(sorted(perm[i] for i in H)))
@@ -64,35 +54,6 @@ class MeshPattern(object):
             if not any(shady):
                 return True
         return False
-
-#    def contained_in(self, perm):
-#        """Returns whether a self is contained in perm"""
-#
-#        def contains(i, now):
-#            if len(now) == len(self.perm):
-#                st = sorted(now)
-#                x = 0
-#                for k in perm:
-#                    if x < len(now) and k == now[x]:
-#                        x += 1
-#                    else:
-#                        y = bisect.bisect_left(st, k)
-#                        if (x, y) in self.shading:
-#                            return False
-#                return True
-#
-#            if i == len(perm):
-#                return False
-#
-#            nxt = now + [perm[i]]
-#            if (Permutation.to_standard(nxt) ==
-#                    Permutation.to_standard(self.perm[:len(nxt)])):
-#                if contains(i+1, nxt):
-#                    return True
-#
-#            return contains(i+1, now)
-#
-#        return contains(0, [])
 
     def count_occurrences_in(self, perm):
         """Returns the number of occurrences of self in perm"""
@@ -148,101 +109,14 @@ class MeshPattern(object):
         # TODO: Use occurrences_in
         return self.count_occurrences_in(perm) > 0
 
+    #
+    # Methods returning new permutations
+    #
+
     def rotate_right(self):
         return MeshPattern(self.perm.rotate_right(),
                            set([_rot_right(len(self.perm), pos) for pos in
                                 self.shading]))
-
-    def non_pointless_boxes(self):
-        res = []
-        L = self.perm
-        for i,v in enumerate(L):
-            res.extend([(i+1, v), (i, v), (i, v-1), (i+1, v-1)])
-        return set(res)
-
-    def _can_shade(self, pos):
-        i, j = pos
-        if (i, j) in self.shading:
-            return False
-        if i-1 < 0 or self.perm[i-1] != j:
-            return False
-        if (i-1, j-1) in self.shading:
-            return False
-        c = 0
-        if (i, j-1) in self.shading:
-            c += 1
-        if (i-1, j) in self.shading:
-            c += 1
-        if c == 2:
-            return False
-        for l in range(len(self.perm)+1):
-            if l == i-1 or l == i:
-                continue
-            if (l, j-1) in self.shading and (l, j) not in self.shading:
-                return False
-        for l in range(len(self.perm)+1):
-            if l == j-1 or l == j:
-                continue
-            if (i-1, l) in self.shading and (i, l) not in self.shading:
-                return False
-        return (i-1, j-1)
-
-    def can_shade(self, pos):
-        """Returns whether it is possible to shade the box pos"""
-        mp = self
-        poss = []
-        for i in range(4):
-            ans = mp._can_shade(pos)
-            if ans:
-                for j in range((-i) % 4):
-                    ans = _rot_right(len(self.perm)-1, ans)
-                poss.append(ans[1]+1)
-            mp = mp.rotate_right()
-            pos = _rot_right(len(self.perm), pos)
-        return poss
-
-    def _can_shade2(self, pos1, pos2):
-        if pos1[1] < pos2[1]:
-            pos1, pos2 = pos2, pos1
-        if pos1[0] == 0 or self.perm[pos1[0]-1] != pos1[1]:
-            return False
-        if pos1[0] != pos2[0] or pos1[1]-1 != pos2[1]:
-            return False
-
-        if pos1 in self.shading:
-            return False
-        if pos2 in self.shading:
-            return False
-        if (pos1[0]-1, pos1[1]) in self.shading:
-            return False
-        if (pos2[0]-1, pos2[1]) in self.shading:
-            return False
-        for y in range(len(self.perm) + 1):
-            if y == pos1[1] or y == pos1[1] - 1:
-                continue
-            if (pos1[0] - 1, y) in self.shading and (pos1[0], y) not in self.shading:
-                return False
-        for x in range(len(self.perm) + 1):
-            if x == pos1[0] or x == pos1[0] - 1:
-                continue
-            if ((x, pos1[1]) in self.shading) != ((x, pos2[1]) in self.shading):
-                return False
-        return (pos1[0]-1, pos1[1]-1)
-
-    def can_shade2(self, pos1, pos2):
-        """Returns if it is possible to shade pos1 and pos2"""
-        mp = self
-        poss = []
-        for i in range(4):
-            ans = mp._can_shade2(pos1, pos2)
-            if ans:
-                for j in range((-i) % 4):
-                    ans = _rot_right(len(self.perm)-1, ans)
-                poss.append(ans[1]+1)
-            mp = mp.rotate_right()
-            pos1 = _rot_right(len(self.perm), pos1)
-            pos2 = _rot_right(len(self.perm), pos2)
-        return poss
 
     def shade(self, pos):
         if type(pos) is list:
@@ -385,6 +259,101 @@ class MeshPattern(object):
                            [(len(self.perm)-y, len(self.perm)-x) for (x, y) in
                             self.shading])
 
+    #
+    # Other methods
+    #
+
+    def non_pointless_boxes(self):
+        res = []
+        L = self.perm
+        for i,v in enumerate(L):
+            res.extend([(i+1, v), (i, v), (i, v-1), (i+1, v-1)])
+        return set(res)
+
+    def _can_shade(self, pos):
+        i, j = pos
+        if (i, j) in self.shading:
+            return False
+        if i-1 < 0 or self.perm[i-1] != j:
+            return False
+        if (i-1, j-1) in self.shading:
+            return False
+        c = 0
+        if (i, j-1) in self.shading:
+            c += 1
+        if (i-1, j) in self.shading:
+            c += 1
+        if c == 2:
+            return False
+        for l in range(len(self.perm)+1):
+            if l == i-1 or l == i:
+                continue
+            if (l, j-1) in self.shading and (l, j) not in self.shading:
+                return False
+        for l in range(len(self.perm)+1):
+            if l == j-1 or l == j:
+                continue
+            if (i-1, l) in self.shading and (i, l) not in self.shading:
+                return False
+        return (i-1, j-1)
+
+    def can_shade(self, pos):
+        """Returns whether it is possible to shade the box pos"""
+        mp = self
+        poss = []
+        for i in range(4):
+            ans = mp._can_shade(pos)
+            if ans:
+                for j in range((-i) % 4):
+                    ans = _rot_right(len(self.perm)-1, ans)
+                poss.append(ans[1]+1)
+            mp = mp.rotate_right()
+            pos = _rot_right(len(self.perm), pos)
+        return poss
+
+    def _can_shade2(self, pos1, pos2):
+        if pos1[1] < pos2[1]:
+            pos1, pos2 = pos2, pos1
+        if pos1[0] == 0 or self.perm[pos1[0]-1] != pos1[1]:
+            return False
+        if pos1[0] != pos2[0] or pos1[1]-1 != pos2[1]:
+            return False
+
+        if pos1 in self.shading:
+            return False
+        if pos2 in self.shading:
+            return False
+        if (pos1[0]-1, pos1[1]) in self.shading:
+            return False
+        if (pos2[0]-1, pos2[1]) in self.shading:
+            return False
+        for y in range(len(self.perm) + 1):
+            if y == pos1[1] or y == pos1[1] - 1:
+                continue
+            if (pos1[0] - 1, y) in self.shading and (pos1[0], y) not in self.shading:
+                return False
+        for x in range(len(self.perm) + 1):
+            if x == pos1[0] or x == pos1[0] - 1:
+                continue
+            if ((x, pos1[1]) in self.shading) != ((x, pos2[1]) in self.shading):
+                return False
+        return (pos1[0]-1, pos1[1]-1)
+
+    def can_shade2(self, pos1, pos2):
+        """Returns if it is possible to shade pos1 and pos2"""
+        mp = self
+        poss = []
+        for i in range(4):
+            ans = mp._can_shade2(pos1, pos2)
+            if ans:
+                for j in range((-i) % 4):
+                    ans = _rot_right(len(self.perm)-1, ans)
+                poss.append(ans[1]+1)
+            mp = mp.rotate_right()
+            pos1 = _rot_right(len(self.perm), pos1)
+            pos2 = _rot_right(len(self.perm), pos2)
+        return poss
+
     def rank(self):
         res = 0
         for (x, y) in self.shading:
@@ -408,6 +377,10 @@ class MeshPattern(object):
                 scale, len(self.perm), ','.join(map(str, self.perm)),
                 ','.join(["{}/{}".format(p[0],p[1]) for p in self.shading]))
 
+    #
+    # Static methods
+    #
+
     @staticmethod
     def unrank(perm, x):
         shading = set()
@@ -417,8 +390,9 @@ class MeshPattern(object):
                     shading.add((i, j))
         return MeshPattern(perm, shading)
 
-    def __len__(self):
-        return len(self.perm)
+    #
+    # Dunder methods
+    #
 
     def __eq__(self, other):
         if type(other) is not MeshPattern:
@@ -429,12 +403,30 @@ class MeshPattern(object):
         return hash((self.perm, tuple(sorted(self.shading))))
 
     def __repr__(self):
-        return 'MeshPattern(%s, %s)' % (repr(self.perm), repr(self.shading))
+        representation = ["MeshPattern("]
+        representation.append(super(MeshPattern, self).__repr__())
+        representation.append(", ")
+        representation.append(repr(self.shading))
+        representation.append(")")
+        return "".join(representation)
 
     def __str__(self):
         n = len(self.perm)
         arr = [[((str(n-(i-1)//2) if n < 10 else 'o') if self.perm[(j-1)/2] == n-(i-1)//2 else '+') if j % 2 != 0 and i % 2 != 0 else '|' if j % 2 != 0 else '-' if i % 2 != 0 else ('#' if ((j-1)/2+1, n-(i-1)/2-1) in self.shading else ' ') for j in range(2*n+1)] for i in range(2*n+1)]
         return '\n'.join(''.join(line) for line in arr)
+
+#
+# Orphan functions
+#
+
+def _rot_right(n, pos):
+    x, y = pos
+    assert 0 <= x < n+1
+    assert 0 <= y < n+1
+    return (y, n-x)
+
+def _G(seq):
+    return zip(range(1, len(seq)+1), seq)
 
 def contained_in_many_shadings(clpatt, Rs, perm):
     k = len(clpatt)
