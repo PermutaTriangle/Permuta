@@ -4,13 +4,14 @@ import numbers
 import operator
 import sys
 
+from permuta import Pattern
 from permuta.misc import left_floor_and_ceiling
 
 if sys.version_info.major == 2:
     range = xrange
 
 
-class Permutation(tuple):
+class Permutation(tuple, Pattern):
     """A permutation class."""
 
     def __new__(cls, iterable=(), check=False):
