@@ -1,5 +1,6 @@
 import itertools
 import random
+import sys
 
 from math import factorial
 from permuta import Permutation
@@ -17,8 +18,12 @@ class Permutations(itertools.permutations):
         instance.length = length
         return instance
 
-    def next(self):
-        return Permutation(super(Permutations, self).next())
+    if sys.version_info.major == 2:
+        def next(self):
+            return Permutation(super(Permutations, self).next())
+    else:
+        def __next__(self):
+            return Permutation(super(Permutations, self).__next__())
 
     def __iter__(self):
         return self
