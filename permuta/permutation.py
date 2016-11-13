@@ -43,20 +43,6 @@ class Permutation(tuple, Pattern):
                 used[value-1] = True
         self._cached_pattern_details = None
 
-    def contained_in(self, *perms):
-        """Check if self is a pattern of perms.
-
-        Args:
-            self:
-                A classical pattern.
-            perms: [permuta.Permutation]
-                A list of permutations.
-
-        Returns: bool
-            True if and only if self is a pattern of all permutations in perms.
-        """
-        return super(Permutation, self).contained_in(*perms)
-
     def contains(self, *patts):
         """Check if self contains patts.
 
@@ -84,34 +70,6 @@ class Permutation(tuple, Pattern):
             True if and only if self avoids all patterns in patts.
         """
         return all(patt not in self for patt in patts)
-
-    def avoided_by(self, *perms):
-        """Check if self is avoided by perms.
-
-        Args:
-            self:
-                A classical pattern.
-            perms: [permuta.Permutation]
-                A list of permutations.
-
-        Returns: bool
-            True if and only if every permutation in perms avoids self.
-        """
-        return super(Permutation, self).contained_in(*perms)
-
-    def count_occurrences_in(self, perm):
-        """Count the number of occurrences of self in perm.
-
-        Args:
-            self:
-                A classical pattern.
-            perm: permuta.Permutation
-                A permutation.
-
-        Returns: int
-            The number of times self occurs in perm.
-        """
-        return super(Permutation, self).count_occurrences_in(perm)
 
     def count_occurrences_of(self, patt):
         """Count the number of occurrences of patt in self.
