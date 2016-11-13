@@ -5,17 +5,14 @@ ABC = abc.ABCMeta("ABC", (object,), {})
 
 class Pattern(ABC):
 
-    @abc.abstractmethod
-    def contained_in(self, *perms):
-        pass
-
-    @abc.abstractmethod
     def avoided_by(self, *perms):
-        pass
+        return all(self not in perm for perm in perms)
 
-    @abc.abstractmethod
+    def contained_in(self, *perms):
+        return all(self in perm for perm in perms)
+
     def count_occurrences_in(self, perm):
-        pass
+        return sum(1 for _ in self.occurrences_in(perm))
 
     @abc.abstractmethod
     def occurrences_in(self, perm):

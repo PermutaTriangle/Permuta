@@ -55,7 +55,7 @@ class Permutation(tuple, Pattern):
         Returns: bool
             True if and only if self is a pattern of all permutations in perms.
         """
-        return all(self in perm for perm in perms)
+        return super(Permutation, self).contained_in(*perms)
 
     def contains(self, *patts):
         """Check if self contains patts.
@@ -97,7 +97,7 @@ class Permutation(tuple, Pattern):
         Returns: bool
             True if and only if every permutation in perms avoids self.
         """
-        return all(self not in perm for perm in perms)
+        return super(Permutation, self).contained_in(*perms)
 
     def count_occurrences_in(self, perm):
         """Count the number of occurrences of self in perm.
@@ -111,7 +111,7 @@ class Permutation(tuple, Pattern):
         Returns: int
             The number of times self occurs in perm.
         """
-        return sum(1 for _ in self.occurrences_in(perm))
+        return super(Permutation, self).count_occurrences_in(perm)
 
     def count_occurrences_of(self, patt):
         """Count the number of occurrences of patt in self.

@@ -186,6 +186,8 @@ class TestPermutation(unittest.TestCase):
         self.assertFalse(Permutation([5,1,2,3,4]).avoids(Permutation([1,2,3])))
         self.assertFalse(Permutation([5,1,2,3,4]).avoids(Permutation([2,1])))
         self.assertTrue(Permutation([5,1,2,3,4]).avoids(Permutation([3,2,1])))
+        self.assertFalse(Permutation([5,1,2,3,4]).avoids(Permutation([3,2,1]), Permutation([2,1])))
+        self.assertTrue(Permutation([5,1,2,3,4]).avoids(Permutation([3,2,1]), Permutation([2,3,1])))
 
     def test_avoids_2(self):
         bound = 6
