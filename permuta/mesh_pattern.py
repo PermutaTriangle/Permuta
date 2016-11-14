@@ -2,31 +2,42 @@ import bisect
 import itertools
 import numbers
 import collections
+import sys
 
 from permuta import Permutation, Pattern
 from permuta.misc import DIR_EAST, DIR_NORTH, DIR_WEST, DIR_SOUTH, DIR_NONE
 
+if sys.version_info.major == 2:
+    range = xrange
 
-class MeshPattern(Pattern):
+
+MeshPatternBase = collections.namedtuple("MeshPatternBase",
+                                         ["pattern", "shading"])
+
+
+class MeshPattern(MeshPatternBase, Pattern):
     """A mesh pattern class."""
 
-    def __init__(self, pattern=(), shading=set(), check=False):
-        # TODO: Docstring
+    def __new__(cls, pattern=Permutation(), shading=frozenset(), check=False):
         if not isinstance(pattern, Permutation):
             pattern = Permutation(pattern, check=check)
+        if not isinstance(shading, frozenset):
+            shading = frozenset(shading)
+        return super(MeshPattern, cls).__new__(cls, pattern, shading)
+
+    def __init__(self, pattern=None, shading=None, check=False):
+        # TODO: Docstring
         if check:
             # TODO: Add exception messages
-            assert isinstance(shading, collections.Set)
-            for coordinate in shading:
+            assert isinstance(self.shading, collections.Set)
+            for coordinate in self.shading:
                 assert isinstance(coordinate, tuple)
                 assert len(coordinate) == 2
                 x, y = coordinate
                 assert isinstance(x, numbers.Integral)
-                assert 0 <= x <= len(pattern)
+                assert 0 <= x <= len(self.pattern)
                 assert isinstance(y, numbers.Integral)
-                assert 0 <= y <= len(pattern)
-        self.pattern = pattern
-        self.shading = shading
+                assert 0 <= y <= len(self.pattern)
 
     #
     # Occurrence/Avoidance/Containment methods
@@ -340,21 +351,8 @@ class MeshPattern(Pattern):
     def __len__(self):
         return len(self.pattern)
 
-    def __eq__(self, other):
-        if type(other) is not MeshPattern:
-            return False
-        return self.pattern == other.pattern and self.shading == other.shading
-
-    def __hash__(self):
-        return hash((self.pattern, tuple(sorted(self.shading))))
-
     def __repr__(self):
-        representation = ["MeshPattern("]
-        representation.append(super(MeshPattern, self).__repr__())
-        representation.append(", ")
-        representation.append(repr(self.shading))
-        representation.append(")")
-        return "".join(representation)
+        return "MeshPattern({self.pattern}, {self.shading})".format(**locals())
 
     def __str__(self):
         n = len(self.pattern)
