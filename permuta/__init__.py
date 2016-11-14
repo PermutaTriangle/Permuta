@@ -1,4 +1,5 @@
 from .pattern import Pattern
+from .rotatable import Rotatable
 from .permutation import Permutation
 from .permutations import Permutations
 from .mesh_pattern import MeshPattern

@@ -4,14 +4,14 @@ import numbers
 import operator
 import sys
 
-from permuta import Pattern
+from permuta import Pattern, Rotatable
 from permuta.misc import left_floor_and_ceiling
 
 if sys.version_info.major == 2:
     range = xrange
 
 
-class Permutation(tuple, Pattern):
+class Permutation(tuple, Pattern, Rotatable):
     """A permutation class."""
 
     def __new__(cls, iterable=(), check=False):
@@ -324,28 +324,6 @@ class Permutation(tuple, Pattern):
             result[index] = element
         return Permutation(result)
 
-    def rotate(self, times=1):
-        """Return self rotated 90 degrees to the right."""
-        return self._rotate(times)
-
-    rotate_right = rotate
-
-    def rotate_left(self, times=1):
-        """Return self rotated 90 degrees to the left."""
-        return self._rotate(-times)
-
-    def _rotate(self, times=1):
-        """Return self rotated 90 times times degrees to the right."""
-        times = times % 4
-        if times == 0:
-            return self
-        elif times == 1:
-            return self._rotate_right()
-        elif times == 2:
-            return self.reverse_complement()
-        else:
-            return self._rotate_left()
-
     def _rotate_right(self):
         """Return self rotated 90 degrees to the right."""
         len_perm = len(self)
@@ -361,6 +339,10 @@ class Permutation(tuple, Pattern):
         for index, value in enumerate(self):
             result[len_perm - value] = index + 1
         return Permutation(result)
+
+    def _rotate_180(self):
+        """Return self rotated 180 degrees."""
+        return self.reverse_complement()
 
     def is_increasing(self):
         """Return True if the permutation is increasing, and False otherwise."""
