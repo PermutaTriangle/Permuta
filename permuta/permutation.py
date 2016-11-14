@@ -380,10 +380,12 @@ class Permutation(tuple, Pattern):
     @classmethod
     def to_standard(cls, iterable):
         """Return the permutation corresponding to lst."""
+        # TODO: Do performance testing
         try:
             len_iterable = len(iterable)
         except TypeError:
-            len_iterable = sum(1 for _ in iterable)
+            iterable = list(iterable)
+            len_iterable = len(iterable)
         result = [None]*len_iterable
         value = 1
         for (i, _) in sorted(enumerate(iterable), key=operator.itemgetter(1)):
