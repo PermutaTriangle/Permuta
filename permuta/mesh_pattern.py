@@ -44,19 +44,33 @@ class MeshPattern(MeshPatternBase, Pattern):
     #
 
     def occurrences_in(self, perm):
+        """Find all indices of occurrences of self in perm.
+
+        Args:
+            self:
+                The mesh pattern whose occurrences are to be found.
+            perm: permuta.Permutation
+                The permutation to search for occurrences in.
+
+        Yields: [int]
+            The indices of the occurrences of self in perm. Each yielded element
+            l is a list of integer indices of the permutation perm such that
+            self.pattern == permuta.Permutation.to_standard([perm[i] for i in l])
+            and that no element not in the occurrence falls within self.shading.
+        """
         # TODO: Implement all nice
         indices = list(range(len(perm)))
         for candidate_indices in itertools.combinations(indices, len(self)):
-            candidate = [perm[i] for i in candidate_indices]
+            candidate = [perm[index] for index in candidate_indices]
             if Permutation.to_standard(candidate) != self.pattern:
                 continue
             x = 0
-            for i in range(len(perm)):
-                e = perm[i]
-                if e in candidate:
+            for element in perm:
+                if element in candidate:
                     x += 1
                     continue
-                y = sum(1 for c in candidate if c < e)
+                y = sum(1 for candidate_element in candidate
+                        if candidate_element < element)
                 if (x, y) in self.shading:
                     break
             else:
