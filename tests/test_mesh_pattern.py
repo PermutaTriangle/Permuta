@@ -12,6 +12,15 @@ class TestMeshPattern(unittest.TestCase):
         self.perm3 = Permutation([10,9,8,7,3,6,4,5,1,2])  # Occurrence: None (avoids)
         self.perm4 = Permutation([1,2,3,4,5])  # Avoids as well
         self.perm5 = Permutation([2,3,5,4,1])  # Two occurrences
+        self.patt1 = self.perm4
+        self.patt2 = self.perm5
+        self.patt3 = Permutation((3,4,1,2))
+        self.shad1 = frozenset([(5,0),(5,1),(5,2),(3,2),(2,1),(3,3),(0,0),(1,0),(2,0)])
+        self.shad2 = frozenset([(3,3),(2,2),(1,1),(0,2)])
+        self.shad3 = frozenset([(1,3),(4,4),(2,1),(2,2),(0,4),(4,0)])
+        self.mesh1 = MeshPattern(self.patt1, self.shad1)
+        self.mesh2 = MeshPattern(self.patt2, self.shad2)
+        self.mesh3 = MeshPattern(self.patt3, self.shad3)
 
     def test_add_point(self):
         pass
@@ -42,3 +51,27 @@ class TestMeshPattern(unittest.TestCase):
         self.assertEqual(self.mesh_pattern.count_occurrences_in(self.perm3), 0)
         self.assertEqual(self.mesh_pattern.count_occurrences_in(self.perm4), 0)
         self.assertEqual(self.mesh_pattern.count_occurrences_in(self.perm5), 2)
+
+    def test_len(self):
+        self.assertEqual(len(self.mesh1), 5)
+        self.assertEqual(len(self.mesh2), 5)
+        self.assertEqual(len(self.mesh3), 4)
+        self.assertEqual(len(MeshPattern()), 0)
+        self.assertEqual(len(MeshPattern((1,))), 1)
+
+    def test_eq(self):
+        self.assertNotEqual(self.mesh1, self.mesh2)
+        self.assertNotEqual(self.mesh1, self.mesh3)
+        self.assertNotEqual(self.mesh2, self.mesh1)
+        self.assertNotEqual(self.mesh2, self.mesh3)
+        self.assertNotEqual(self.mesh3, self.mesh1)
+        self.assertNotEqual(self.mesh3, self.mesh2)
+        mesh1copy = MeshPattern(self.patt1, self.shad1)
+        mesh2copy = MeshPattern(self.patt2, self.shad2)
+        mesh3copy = MeshPattern(self.patt3, self.shad3)
+        self.assertEqual(self.mesh1, mesh1copy)
+        self.assertEqual(self.mesh2, mesh2copy)
+        self.assertEqual(self.mesh3, mesh3copy)
+        self.assertEqual(mesh1copy, mesh1copy)
+        self.assertEqual(mesh2copy, mesh2copy)
+        self.assertEqual(mesh3copy, mesh3copy)
