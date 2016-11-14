@@ -85,6 +85,9 @@ class MeshPattern(MeshPatternBase, Pattern):
         from self.
         positions: 1-based indices of points
         """
+        # TODO: Rewrite completely.
+        #       Why are the indices 1-based?
+        #       This is inconsistent to all other functions.
         positions = sorted(positions)
         perm = self.pattern
         assert(set(positions) <= set(self.pattern))
