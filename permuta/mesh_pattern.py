@@ -67,6 +67,39 @@ class MeshPattern(MeshPatternBase, Pattern):
     # Methods returning new permutations
     #
 
+    def sub_mesh_pattern(self, indices):
+        """Return the mesh pattern induced by indices.
+
+        Args:
+            self:
+                A mesh pattern.
+            indices: <collections.Iterable> of <numbers.Integral>
+                A list of unique indices of elements in self.
+
+        Returns: permuta.MeshPattern
+            A mesh pattern where the pattern is the permutation induced by the
+            indices and a region is shaded if and only if the corresponding
+            region of self is fully shaded.
+        """
+        indices = sorted(indices)
+        if not indices:
+            return MeshPattern()
+        pattern = Permutation.to_standard(self.pattern[index] for index in indices)
+        vertical = [0]
+        vertical.extend(index + 1 for index in indices)
+        vertical.append(len(self) + 1)
+        horizontal = [0]
+        horizontal.extend(sorted(self.pattern[index] for index in indices))
+        horizontal.append(len(self) + 1)
+        shading = frozenset((x, y)
+                            for x in range(len(pattern) + 1)
+                            for y in range(len(pattern) + 1)
+                            if self.is_shaded((vertical[x],
+                                               horizontal[y]),
+                                              (vertical[x+1] - 1,
+                                               horizontal[y+1] - 1)))
+        return MeshPattern(pattern, shading)
+
     def rotate_right(self):
         return MeshPattern(self.pattern.rotate_right(),
                            set([_rot_right(len(self.pattern), pos)
@@ -78,60 +111,6 @@ class MeshPattern(MeshPatternBase, Pattern):
         elif type(pos) is not set:
             pos = set([pos])
         return MeshPattern(self.pattern, self.shading | pos)
-
-    def sub_mesh(self, positions):
-        """
-        Returns the mesh pattern given by using only points in positions
-        from self.
-        positions: 1-based indices of points
-        """
-        # TODO: Rewrite completely.
-        #       Why are the indices 1-based?
-        #       This is inconsistent to all other functions.
-        positions = sorted(positions)
-        perm = self.pattern
-        assert(set(positions) <= set(self.pattern))
-
-        def is_shaded(left, right, lower, upper):
-            for i in range(len(perm)):
-                if left < i+1 < right and lower < perm[i] < upper:
-                    return False
-                if i+1 >= right:
-                    break
-            for h in range(left, right):
-                for v in range(lower, upper):
-                    if (h, v) not in self.shading:
-                        return False
-            return True
-
-            # shades = 0
-            # for m in self.shading:
-            #     if left <= m[0] < right and lower <= m[1] < upper:
-            #         shades += 1
-            # return shades == (right - left)*(upper - lower)
-            # shades = [m for m in self.shading if left <= m[0] < right and
-            #           lower <= m[1] < upper]
-            # points = [i for i in range(len(perm)) if left < i+1 < right and
-            #           lower < perm[i] < upper]
-            # return (len(shades) == (right-left)*(upper-lower) and
-            #         points == [])
-
-        nperm = Permutation.to_standard([perm[i-1] for i in positions])
-        hor_lines = sorted([0] +
-                           [perm[i-1] for i in positions] +
-                           [len(perm) + 1])
-        ver_lines = sorted([0] + positions + [len(perm) + 1])
-
-        nshading = set()
-        for i in range(len(ver_lines)-1):
-            for j in range(len(hor_lines)-1):
-                if is_shaded(ver_lines[i],
-                             ver_lines[i+1],
-                             hor_lines[j],
-                             hor_lines[j+1]):
-                    nshading.add((i, j))
-
-        return MeshPattern(nperm, nshading)
 
     def add_point(self, pt, shade_dir=DIR_NONE, safe=True):
         """Returns a mesh pattern with a point added in pt.
@@ -221,6 +200,35 @@ class MeshPattern(MeshPatternBase, Pattern):
     #
     # Other methods
     #
+
+    def is_shaded(self, lower_left, upper_right=None):
+        """Check if a region of the grid is shaded.
+
+        Args:
+            self:
+                A mesh pattern.
+            lower_left: (int, int)
+                A shading coordinate of self.
+            upper_right: (int, int)
+                A shading coordinate of self.
+
+        Returns: bool
+            If upper_right is None, then True if and only if lower_left is
+            shaded; otherwise, True if and only if all regions (x, y)
+            for x in the range lower_left[0] to upper_right[0] (inclusive) and
+            for y in the range lower_left[1] to upper_right[1] (inclusive) are
+            shaded.
+        """
+        if upper_right is None:
+            return lower_left in self.shading
+        else:
+            left, lower = lower_left
+            right, upper = upper_right
+            for x in range(left, right+1):
+                for y in range(lower, upper+1):
+                    if (x, y) not in self.shading:
+                        return False
+            return True
 
     def non_pointless_boxes(self):
         res = []
@@ -395,6 +403,9 @@ class MeshPattern(MeshPatternBase, Pattern):
 
     def __len__(self):
         return len(self.pattern)
+
+    def __bool__(self):
+        return self.pattern.__bool__()
 
     def __contains__(self, other):
         # TODO: is subshading of mesh pattern?

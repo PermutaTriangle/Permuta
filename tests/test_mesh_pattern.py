@@ -52,31 +52,31 @@ class TestMeshPattern(unittest.TestCase):
         self.assertEqual(self.mesh_pattern.count_occurrences_in(self.perm4), 0)
         self.assertEqual(self.mesh_pattern.count_occurrences_in(self.perm5), 2)
 
-    def test_sub_mesh(self):
+    def test_sub_mesh_pattern(self):
         # Sub mesh pattern from indices 1, 2, and 3 of mesh1
         pattern = (1,2,3)
         shading = set([(1,0),(2,1),(2,2)])
         mesh_pattern = MeshPattern(pattern, shading)
-        sub_mesh = self.mesh1.sub_mesh((1,2,3))
-        self.assertEqual(sub_mesh, mesh_pattern)
+        sub_mesh_pattern = self.mesh1.sub_mesh_pattern((1,2,3))
+        self.assertEqual(sub_mesh_pattern, mesh_pattern)
         # Sub mesh pattern from indices 0, 1, and 4 of mesh1
         pattern = (1,2,3)
         shading = set([(0,0),(1,0),(3,0),(3,1)])
         mesh_pattern = MeshPattern(pattern, shading)
-        sub_mesh = self.mesh1.sub_mesh((0,1,4))
-        self.assertEqual(sub_mesh, mesh_pattern)
+        sub_mesh_pattern = self.mesh1.sub_mesh_pattern((0,1,4))
+        self.assertEqual(sub_mesh_pattern, mesh_pattern)
         # Sub mesh pattern from indices 3 and 4 of mesh1
-        self.assertEqual(self.mesh1.sub_mesh((3,4)), MeshPattern((1,2)))
+        self.assertEqual(self.mesh1.sub_mesh_pattern((3,4)), MeshPattern((1,2)))
         # Sub mesh pattern from indices 2 and 3 of mesh1
-        self.assertEqual(self.mesh1.sub_mesh((2,3)), MeshPattern((1,2), set([(1,1)])))
+        self.assertEqual(self.mesh1.sub_mesh_pattern((2,3)), MeshPattern((1,2), set([(1,1)])))
         # Sub mesh pattern from index 0 of mesh3
-        self.assertEqual(self.mesh3.sub_mesh((0,)), MeshPattern((1,)))
+        self.assertEqual(self.mesh3.sub_mesh_pattern((0,)), MeshPattern((1,)))
         # Sub mesh pattern from indices 0, 1, and 3 of mesh3
-        self.assertEqual(self.mesh3.sub_mesh((0,1,3)), MeshPattern((2,3,1), set([(0,3),(1,2),(3,3)])))
+        self.assertEqual(self.mesh3.sub_mesh_pattern((0,1,3)), MeshPattern((2,3,1), set([(0,3),(1,2),(3,3)])))
         # Some complete sub meshes
-        self.assertEqual(self.mesh1.sub_mesh(range(len(self.mesh1))), self.mesh1)
-        self.assertEqual(self.mesh2.sub_mesh(range(len(self.mesh2))), self.mesh2)
-        self.assertEqual(self.mesh3.sub_mesh(range(len(self.mesh3))), self.mesh3)
+        self.assertEqual(self.mesh1.sub_mesh_pattern(range(len(self.mesh1))), self.mesh1)
+        self.assertEqual(self.mesh2.sub_mesh_pattern(range(len(self.mesh2))), self.mesh2)
+        self.assertEqual(self.mesh3.sub_mesh_pattern(range(len(self.mesh3))), self.mesh3)
 
     def test_len(self):
         self.assertEqual(len(self.mesh1), 5)
