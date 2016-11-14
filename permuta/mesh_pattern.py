@@ -348,16 +348,46 @@ class MeshPattern(MeshPatternBase, Pattern):
     # Dunder methods
     #
 
-    def __len__(self):
-        return len(self.pattern)
-
     def __repr__(self):
-        return "MeshPattern({self.pattern}, {self.shading})".format(**locals())
+        return "MeshPattern({self.pattern}, {self.shading})".format(self=self)
 
     def __str__(self):
-        n = len(self.pattern)
-        arr = [[((str(n-(i-1)//2) if n < 10 else 'o') if self.pattern[(j-1)/2] == n-(i-1)//2 else '+') if j % 2 != 0 and i % 2 != 0 else '|' if j % 2 != 0 else '-' if i % 2 != 0 else ('#' if ((j-1)/2+1, n-(i-1)/2-1) in self.shading else ' ') for j in range(2*n+1)] for i in range(2*n+1)]
-        return '\n'.join(''.join(line) for line in arr)
+        result = []
+        for line_number in range(2*len(self), -1, -1):
+            if line_number % 2 == 0:
+                # The regions defined by, and the columns of, the mesh grid
+                y = line_number//2
+                for x in range(len(self) + 1):
+                    if (x, y) in self.shading:
+                        result.append("#")
+                    else:
+                        result.append(" ")
+                    result.append("|")
+                else:
+                    # Remove extra "|"
+                    result.pop()
+            else:
+                # The rows of the mesh grid
+                row_index = line_number//2
+                for column_index in range(0, len(self)):
+                    if self.pattern[column_index] == row_index+1:
+                        result.append("-")
+                        if len(self) > 9:
+                            result.append("o")
+                        else:
+                            result.append(str(self.pattern[column_index]))
+                    else:
+                        result.append("-+")
+                else:
+                    result.append("-")
+            result.append("\n")
+        else:
+            # Remove extra "\n"
+            result.pop()
+        return "".join(result)
+
+    def __len__(self):
+        return len(self.pattern)
 
     def __contains__(self, other):
         # TODO: is subshading of mesh pattern?
