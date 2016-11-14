@@ -69,8 +69,8 @@ class MeshPattern(MeshPatternBase, Pattern):
 
     def rotate_right(self):
         return MeshPattern(self.pattern.rotate_right(),
-                           set([_rot_right(len(self.pattern), pos) for pos in
-                                self.shading]))
+                           set([_rot_right(len(self.pattern), pos)
+                                for pos in self.shading]))
 
     def shade(self, pos):
         if type(pos) is list:
@@ -122,8 +122,10 @@ class MeshPattern(MeshPatternBase, Pattern):
         nshading = set()
         for i in range(len(ver_lines)-1):
             for j in range(len(hor_lines)-1):
-                if is_shaded(ver_lines[i], ver_lines[i+1],
-                             hor_lines[j], hor_lines[j+1]):
+                if is_shaded(ver_lines[i],
+                             ver_lines[i+1],
+                             hor_lines[j],
+                             hor_lines[j+1]):
                     nshading.add((i, j))
 
         return MeshPattern(nperm, nshading)
@@ -210,8 +212,8 @@ class MeshPattern(MeshPatternBase, Pattern):
         """Returns the Mesh Pattern self flipped along the
         antidiagonal, y=len(perm)-x"""
         return MeshPattern(self.pattern.flip_antidiagonal(),
-                           [(len(self.pattern)-y, len(self.pattern)-x) for (x, y) in
-                            self.shading])
+                           [(len(self.pattern)-y, len(self.pattern)-x)
+                            for (x, y) in self.shading])
 
     #
     # Other methods
@@ -327,9 +329,11 @@ class MeshPattern(MeshPatternBase, Pattern):
         "\\draw (0.01,0.01) grid ({1}+0.99,{1}+0.99);\n"
         "\\foreach [count=\\x] \\y in {{{2}}}\n"
         "  \\filldraw (\\x,\\y) circle (6pt);\n"
-        "\\end{{tikzpicture}}}}").format(
-                scale, len(self.pattern), ','.join(map(str, self.pattern)),
-                ','.join(["{}/{}".format(p[0],p[1]) for p in self.shading]))
+        "\\end{{tikzpicture}}}}").format(scale,
+                                         len(self.pattern),
+                                         ','.join(map(str, self.pattern)),
+                                         ','.join(["{}/{}".format(p[0],p[1])
+                                                   for p in self.shading]))
 
     #
     # Static methods
