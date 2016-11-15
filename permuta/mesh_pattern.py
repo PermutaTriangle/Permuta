@@ -4,7 +4,7 @@ import numbers
 import collections
 import sys
 
-from permuta import Permutation, Pattern, Rotatable
+from permuta import Permutation, Pattern, Rotatable, Shiftable, Flippable
 from permuta.misc import DIR_EAST, DIR_NORTH, DIR_WEST, DIR_SOUTH, DIR_NONE
 
 if sys.version_info.major == 2:
@@ -15,7 +15,7 @@ MeshPatternBase = collections.namedtuple("MeshPatternBase",
                                          ["pattern", "shading"])
 
 
-class MeshPattern(MeshPatternBase, Pattern, Rotatable):
+class MeshPattern(MeshPatternBase, Pattern, Rotatable, Shiftable, Flippable):
     """A mesh pattern class."""
 
     def __new__(cls, pattern=Permutation(), shading=frozenset(), check=False):
@@ -40,46 +40,23 @@ class MeshPattern(MeshPatternBase, Pattern, Rotatable):
                 assert 0 <= y <= len(self.pattern)
 
     #
-    # Occurrence/Avoidance/Containment methods
-    #
-
-    def occurrences_in(self, perm):
-        """Find all indices of occurrences of self in perm.
-
-        Args:
-            self:
-                The mesh pattern whose occurrences are to be found.
-            perm: permuta.Permutation
-                The permutation to search for occurrences in.
-
-        Yields: [int]
-            The indices of the occurrences of self in perm. Each yielded element
-            l is a list of integer indices of the permutation perm such that
-            self.pattern == permuta.Permutation.to_standard([perm[i] for i in l])
-            and that no element not in the occurrence falls within self.shading.
-        """
-        # TODO: Implement all nice
-        indices = list(range(len(perm)))
-        for candidate_indices in itertools.combinations(indices, len(self)):
-            candidate = [perm[index] for index in candidate_indices]
-            if Permutation.to_standard(candidate) != self.pattern:
-                continue
-            x = 0
-            for element in perm:
-                if element in candidate:
-                    x += 1
-                    continue
-                y = sum(1 for candidate_element in candidate
-                        if candidate_element < element)
-                if (x, y) in self.shading:
-                    break
-            else:
-                # No unused point fell within shading
-                yield list(candidate_indices)
-
-    #
     # Methods returning new permutations
     #
+
+    def complement(self):
+        # TODO: Docstring
+        return MeshPattern(self.pattern.complement(),
+                           [(x, len(self.pattern)-y) for (x, y) in self.shading])
+
+    def reverse(self):
+        # TODO: Docstring
+        return MeshPattern(self.pattern.reverse(),
+                           [(len(self.pattern)-x, y) for (x, y) in self.shading])
+
+    def inverse(self):
+        # TODO: Docstring
+        return MeshPattern(self.pattern.flip_diagonal(),
+                           [(y, x) for (x, y) in self.shading])
 
     def sub_mesh_pattern(self, indices):
         """Return the mesh pattern induced by indices.
@@ -131,6 +108,24 @@ class MeshPattern(MeshPatternBase, Pattern, Rotatable):
         return MeshPattern(self.pattern.rotate(2),
                            set([_rotate_180(len(self.pattern), pos)
                                 for pos in self.shading]))
+
+    def flip_horizontal(self):
+        """Return self flipped horizontally."""
+        return self.complement()
+
+    def flip_vertical(self):
+        """Return self flipped vertically."""
+        return self.reverse()
+
+    def flip_diagonal(self):
+        """Returns self flipped along the diagonal."""
+        return self.inverse()
+
+    def flip_antidiagonal(self):
+        """Returns self flipped along the antidiagonal."""
+        return MeshPattern(self.pattern.flip_antidiagonal(),
+                           [(len(self.pattern)-y, len(self.pattern)-x)
+                            for (x, y) in self.shading])
 
     def shade(self, pos):
         if type(pos) is list:
@@ -193,36 +188,43 @@ class MeshPattern(MeshPatternBase, Pattern, Rotatable):
         s1 = self.add_point(box)
         return s1.add_point((x+1,y))
 
-    def complement(self):
-        return MeshPattern(self.pattern.complement(),
-                           [(x, len(self.pattern)-y) for (x, y) in self.shading])
+    #
+    # Occurrence/Avoidance/Containment methods
+    #
 
-    def reverse(self):
-        return MeshPattern(self.pattern.reverse(),
-                           [(len(self.pattern)-x, y) for (x, y) in self.shading])
+    def occurrences_in(self, perm):
+        """Find all indices of occurrences of self in perm.
 
-    def inverse(self):
-        return MeshPattern(self.pattern.flip_diagonal(),
-                           [(y, x) for (x, y) in self.shading])
+        Args:
+            self:
+                The mesh pattern whose occurrences are to be found.
+            perm: permuta.Permutation
+                The permutation to search for occurrences in.
 
-    def flip_horizontal(self):
-        """Returns the Mesh Pattern self flipped horizontally"""
-        return self.complement()
-
-    def flip_vertical(self):
-        """Returns the Mesh Pattern self flipped vertically"""
-        return self.reverse()
-
-    def flip_diagonal(self):
-        """Returns the Mesh Pattern self flipped along the diagonal, y=x"""
-        return self.inverse()
-
-    def flip_antidiagonal(self):
-        """Returns the Mesh Pattern self flipped along the
-        antidiagonal, y=len(perm)-x"""
-        return MeshPattern(self.pattern.flip_antidiagonal(),
-                           [(len(self.pattern)-y, len(self.pattern)-x)
-                            for (x, y) in self.shading])
+        Yields: [int]
+            The indices of the occurrences of self in perm. Each yielded element
+            l is a list of integer indices of the permutation perm such that
+            self.pattern == permuta.Permutation.to_standard([perm[i] for i in l])
+            and that no element not in the occurrence falls within self.shading.
+        """
+        # TODO: Implement all nice
+        indices = list(range(len(perm)))
+        for candidate_indices in itertools.combinations(indices, len(self)):
+            candidate = [perm[index] for index in candidate_indices]
+            if Permutation.to_standard(candidate) != self.pattern:
+                continue
+            x = 0
+            for element in perm:
+                if element in candidate:
+                    x += 1
+                    continue
+                y = sum(1 for candidate_element in candidate
+                        if candidate_element < element)
+                if (x, y) in self.shading:
+                    break
+            else:
+                # No unused point fell within shading
+                yield list(candidate_indices)
 
     #
     # Other methods
@@ -378,13 +380,25 @@ class MeshPattern(MeshPatternBase, Pattern, Rotatable):
     #
 
     @staticmethod
-    def unrank(perm, x):
+    def unrank(pattern, number):
+        """Return the number-th shading of pattern."""
+        assert isinstance(pattern, Permutation)
+        assert isinstance(number, numbers.Integral)
+        assert 0 <= number < 2**((len(pattern) + 1)**2)
+        bound = len(pattern)
+        x = 0
+        y = 0
         shading = set()
-        for i in range(len(perm)+1):
-            for j in range(len(perm)+1):
-                if (x & (1 << (i*(len(perm)+1)+j))) != 0:
-                    shading.add((i, j))
-        return MeshPattern(perm, shading)
+        while number != 0:
+            if number % 2 == 1:
+                shading.add((x, y))
+            number //= 2
+            if y == bound:
+                x += 1
+                y = 0
+            else:
+                y += 1
+        return MeshPattern(pattern, shading)
 
     #
     # Dunder methods

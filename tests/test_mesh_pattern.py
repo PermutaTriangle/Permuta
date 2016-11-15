@@ -95,6 +95,43 @@ class TestMeshPattern(unittest.TestCase):
         mesh = MeshPattern(pattern, shading)
         self.assertEqual(mesh, self.mesh2.rotate(3))
 
+    def test_unrank(self):
+        pattern = Permutation([1,2])
+        shading = set([(0,1),
+                       (0,2),
+                       (1,2),
+                       (2,0),
+                       (2,1)])
+        number = 230
+        mesh = MeshPattern(pattern, shading)
+        self.assertEqual(MeshPattern.unrank(pattern, number), mesh)
+        pattern = Permutation([3,1,2])
+        shading = set([(0,0),
+                       (0,1),
+                       (0,2),
+                       (1,0),
+                       (1,2),
+                       (2,0),
+                       (2,1),
+                       (2,2),
+                       (2,3),
+                       (3,0)])
+        number = 8023
+        mesh = MeshPattern(pattern, shading)
+        self.assertEqual(MeshPattern.unrank(pattern, number), mesh)
+        with self.assertRaises(AssertionError):
+            self.assertEqual(MeshPattern.unrank([1,2,3], -1))
+        with self.assertRaises(AssertionError):
+            self.assertEqual(MeshPattern.unrank(Permutation([1]), "1"))
+        with self.assertRaises(AssertionError):
+            self.assertEqual(MeshPattern.unrank(Permutation([1]), 16))
+        with self.assertRaises(AssertionError):
+            self.assertEqual(MeshPattern.unrank(Permutation([1]), -1))
+        pattern = self.patt1
+        number = 0b111000000001100000011000001000001
+        mesh = self.mesh1
+        self.assertEqual(MeshPattern.unrank(pattern, number), mesh)
+
     def test_len(self):
         self.assertEqual(len(self.mesh1), 5)
         self.assertEqual(len(self.mesh2), 5)
