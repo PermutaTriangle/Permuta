@@ -4,14 +4,14 @@ import numbers
 import operator
 import sys
 
-from permuta import Pattern, Rotatable
+from permuta import Pattern, Rotatable, Shiftable
 from permuta.misc import left_floor_and_ceiling
 
 if sys.version_info.major == 2:
     range = xrange
 
 
-class Permutation(tuple, Pattern, Rotatable):
+class Permutation(tuple, Pattern, Rotatable, Shiftable):
     """A permutation class."""
 
     def __new__(cls, iterable=(), check=False):
@@ -249,7 +249,7 @@ class Permutation(tuple, Pattern, Rotatable):
         base = len(self) + 1
         return Permutation(base - element for element in reversed(self))
 
-    def shift(self, times=1):
+    def shift_right(self, times=1):
         """Return self shifted times steps to the right.
 
         If shift is negative, shifted to the left.
@@ -263,19 +263,6 @@ class Permutation(tuple, Pattern, Rotatable):
         slice_1 = itertools.islice(self, index)
         slice_2 = itertools.islice(self, index, len(self))
         return Permutation(itertools.chain(slice_2, slice_1))
-
-    shift_right = shift
-    cyclic_shift = shift
-    cyclic_shift_right = shift
-
-    def shift_left(self, times=1):
-        """Return self shifted times steps to the left.
-
-        If times is negative, shifted to the right.
-        """
-        return self.shift_right(-times)
-
-    cyclic_shift_left = shift_left
 
     def shift_up(self, times=1):
         """Return self shifted times steps up.
@@ -292,13 +279,6 @@ class Permutation(tuple, Pattern, Rotatable):
                            if element > bound
                            else element + times
                            for element in self)
-
-    def shift_down(self, times=1):
-        """Return self shifted times steps down.
-
-        If times is negative, shifted up.
-        """
-        return self.shift_up(-times)
 
     def flip_horizontal(self):
         """Return self flipped horizontally."""
