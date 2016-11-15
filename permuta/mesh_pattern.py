@@ -19,7 +19,7 @@ class MeshPattern(MeshPatternBase, Pattern, Rotatable, Shiftable, Flippable):
     """A mesh pattern class."""
 
     def __new__(cls, pattern=Permutation(), shading=frozenset(), check=False):
-        # TODO: Look into having shading be a sorted tuple of coordinates
+        # TODO: Tests, took into having shading be a sorted tuple of coordinates
         if not isinstance(pattern, Permutation):
             pattern = Permutation(pattern, check=check)
         if not isinstance(shading, frozenset):
@@ -27,7 +27,7 @@ class MeshPattern(MeshPatternBase, Pattern, Rotatable, Shiftable, Flippable):
         return super(MeshPattern, cls).__new__(cls, pattern, shading)
 
     def __init__(self, pattern=None, shading=None, check=False):
-        # TODO: Docstring
+        # TODO: Docstring, tests
         if check:
             # TODO: Add exception messages
             assert isinstance(self.shading, collections.Set)
@@ -45,17 +45,17 @@ class MeshPattern(MeshPatternBase, Pattern, Rotatable, Shiftable, Flippable):
     #
 
     def complement(self):
-        # TODO: Docstring
+        # TODO: Docstring, tests
         return MeshPattern(self.pattern.complement(),
                            [(x, len(self.pattern)-y) for (x, y) in self.shading])
 
     def reverse(self):
-        # TODO: Docstring
+        # TODO: Docstring, tests
         return MeshPattern(self.pattern.reverse(),
                            [(len(self.pattern)-x, y) for (x, y) in self.shading])
 
     def inverse(self):
-        # TODO: Docstring
+        # TODO: Docstring, tests
         return MeshPattern(self.pattern.inverse(),
                            [(y, x) for (x, y) in self.shading])
 
@@ -112,24 +112,28 @@ class MeshPattern(MeshPatternBase, Pattern, Rotatable, Shiftable, Flippable):
 
     def flip_horizontal(self):
         """Return self flipped horizontally."""
+        # TODO: Tests
         return self.complement()
 
     def flip_vertical(self):
         """Return self flipped vertically."""
+        # TODO: Tests
         return self.reverse()
 
     def flip_diagonal(self):
         """Return self flipped along the diagonal."""
+        # TODO: Tests
         return self.inverse()
 
     def flip_antidiagonal(self):
         """Return self flipped along the antidiagonal."""
+        # TODO: Tests
         return MeshPattern(self.pattern.flip_antidiagonal(),
                            [(len(self.pattern)-y, len(self.pattern)-x)
                             for (x, y) in self.shading])
 
     def shade(self, pos):
-        # TODO: Review
+        # TODO: Review, tests
         if type(pos) is list:
             pos = set(pos)
         elif type(pos) is not set:
@@ -137,7 +141,7 @@ class MeshPattern(MeshPatternBase, Pattern, Rotatable, Shiftable, Flippable):
         return MeshPattern(self.pattern, self.shading | pos)
 
     def add_point(self, pt, shade_dir=DIR_NONE, safe=True):
-        # TODO: Review
+        # TODO: Review, tests
         """Returns a mesh pattern with a point added in pt.
         If shade_dir is specified adds shading in that direction"""
         x,y = pt
@@ -182,13 +186,13 @@ class MeshPattern(MeshPatternBase, Pattern, Rotatable, Shiftable, Flippable):
         return MeshPattern(Permutation(list(nperm)), nshading)
 
     def add_increase(self,box):
-        # TODO: Review
+        # TODO: Review, tests
         x,y = box
         s1 = self.add_point(box)
         return s1.add_point((x+1,y+1))
 
     def add_decrease(self,box):
-        # TODO: Review
+        # TODO: Review, tests
         x,y = box
         s1 = self.add_point(box)
         return s1.add_point((x+1,y))
@@ -265,7 +269,7 @@ class MeshPattern(MeshPatternBase, Pattern, Rotatable, Shiftable, Flippable):
             return True
 
     def non_pointless_boxes(self):
-        # TODO: Review
+        # TODO: Review, tests
         res = []
         L = self.pattern
         for i,v in enumerate(L):
@@ -273,7 +277,7 @@ class MeshPattern(MeshPatternBase, Pattern, Rotatable, Shiftable, Flippable):
         return set(res)
 
     def _can_shade(self, pos):
-        # TODO: Review
+        # TODO: Review, tests?
         i, j = pos
         if (i, j) in self.shading:
             return False
@@ -302,7 +306,7 @@ class MeshPattern(MeshPatternBase, Pattern, Rotatable, Shiftable, Flippable):
 
     def can_shade(self, pos):
         """Returns whether it is possible to shade the box pos"""
-        # TODO: Review
+        # TODO: Review, tests?
         mp = self
         poss = []
         for i in range(4):
@@ -316,7 +320,7 @@ class MeshPattern(MeshPatternBase, Pattern, Rotatable, Shiftable, Flippable):
         return poss
 
     def _can_shade2(self, pos1, pos2):
-        # TODO: Review
+        # TODO: Review, tests?
         if pos1[1] < pos2[1]:
             pos1, pos2 = pos2, pos1
         if pos1[0] == 0 or self.pattern[pos1[0]-1] != pos1[1]:
@@ -346,7 +350,7 @@ class MeshPattern(MeshPatternBase, Pattern, Rotatable, Shiftable, Flippable):
 
     def can_shade2(self, pos1, pos2):
         """Returns if it is possible to shade pos1 and pos2"""
-        # TODO: Review
+        # TODO: Review, tests?
         mp = self
         poss = []
         for i in range(4):
@@ -361,7 +365,7 @@ class MeshPattern(MeshPatternBase, Pattern, Rotatable, Shiftable, Flippable):
         return poss
 
     def rank(self):
-        # TODO: Review
+        # TODO: Review, tests
         res = 0
         for (x, y) in self.shading:
             res |= 1 << (x * (len(self.pattern)+1) + y)
@@ -457,10 +461,13 @@ class MeshPattern(MeshPatternBase, Pattern, Rotatable, Shiftable, Flippable):
         return len(self.pattern)
 
     def __bool__(self):
-        return self.pattern.__bool__()
+        return (bool(self.pattern) or bool(self.shading))
+
+    if sys.version_info.major == 2:
+        __nonzero__ = __bool__
 
     def __contains__(self, other):
-        # TODO: Review
+        # TODO: Review, tests
         # TODO: is subshading of mesh pattern?
         # other in self
         raise NotImplementedError

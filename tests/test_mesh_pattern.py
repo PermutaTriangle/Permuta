@@ -22,35 +22,26 @@ class TestMeshPattern(unittest.TestCase):
         self.mesh2 = MeshPattern(self.patt2, self.shad2)
         self.mesh3 = MeshPattern(self.patt3, self.shad3)
 
-    def test_add_point(self):
-        pass
-
     def test_list_perm(self):
+        # TODO: What is this?
         self.assertTrue(Permutation([1,2,3,4,5]).contains(MeshPattern([1,2,3], set([(0,0)]))))
         self.assertEqual(set([(0,1),(0,2),(1,0),(1,1),(1,2),(2,0),(2,1)]), MeshPattern([2,1], set([])).non_pointless_boxes())
 
-    def test_contained_in(self):
-        self.assertTrue(Permutation([1,2,3]).contains(MeshPattern([1,2], set([(1,0),(1,1),(1,2)]))))
-        self.assertTrue(self.mesh_pattern.contained_in(self.perm1))
-        self.assertTrue(self.mesh_pattern.contained_in(self.perm2))
-        self.assertFalse(self.mesh_pattern.contained_in(self.perm3))
-        self.assertTrue(self.mesh_pattern.contained_in(self.perm1, self.perm2))
-        self.assertFalse(self.mesh_pattern.contained_in(self.perm1, self.perm3))
+    def test_init_new(self):
+        # TODO
+        pass
 
-    def test_avoided_by(self):
-        self.assertFalse(self.mesh_pattern.avoided_by(self.perm1))
-        self.assertFalse(self.mesh_pattern.avoided_by(self.perm2))
-        self.assertTrue(self.mesh_pattern.avoided_by(self.perm3))
-        self.assertTrue(self.mesh_pattern.avoided_by(self.perm4))
-        self.assertTrue(self.mesh_pattern.avoided_by(self.perm3, self.perm4))
-        self.assertFalse(self.mesh_pattern.avoided_by(self.perm4, self.perm1, self.perm3))
+    def test_complement(self):
+        # TODO
+        pass
 
-    def test_count_occurrences_in(self):
-        self.assertEqual(self.mesh_pattern.count_occurrences_in(self.perm1), 8)
-        self.assertEqual(self.mesh_pattern.count_occurrences_in(self.perm2), 12)
-        self.assertEqual(self.mesh_pattern.count_occurrences_in(self.perm3), 0)
-        self.assertEqual(self.mesh_pattern.count_occurrences_in(self.perm4), 0)
-        self.assertEqual(self.mesh_pattern.count_occurrences_in(self.perm5), 2)
+    def test_reverse(self):
+        # TODO
+        pass
+
+    def test_inverse(self):
+        # TODO
+        pass
 
     def test_sub_mesh_pattern(self):
         # Sub mesh pattern from indices 1, 2, and 3 of mesh1
@@ -94,6 +85,77 @@ class TestMeshPattern(unittest.TestCase):
         shading = set([(2,3),(3,2),(4,1),(3,0)])
         mesh = MeshPattern(pattern, shading)
         self.assertEqual(mesh, self.mesh2.rotate(3))
+
+    def flip_horizontal(self):
+        # TODO
+        pass
+
+    def flip_vertical(self):
+        # TODO
+        pass
+
+    def flip_diagonal(self):
+        # TODO
+        pass
+
+    def flip_antidiagonal(self):
+        # TODO
+        pass
+
+    def test_shade(self):
+        # TODO
+        pass
+
+    def test_add_point(self):
+        # TODO
+        pass
+
+    def test_add_increase(self):
+        # TODO
+        pass
+
+    def test_add_decrease(self):
+        # TODO
+        pass
+
+    def test_occurrences_in(self):
+        # TODO: Maybe the contained_in, etc. tests are enough?
+        pass
+
+    def test_contained_in(self):
+        self.assertTrue(Permutation([1,2,3]).contains(MeshPattern([1,2], set([(1,0),(1,1),(1,2)]))))
+        self.assertTrue(self.mesh_pattern.contained_in(self.perm1))
+        self.assertTrue(self.mesh_pattern.contained_in(self.perm2))
+        self.assertFalse(self.mesh_pattern.contained_in(self.perm3))
+        self.assertTrue(self.mesh_pattern.contained_in(self.perm1, self.perm2))
+        self.assertFalse(self.mesh_pattern.contained_in(self.perm1, self.perm3))
+
+    def test_avoided_by(self):
+        self.assertFalse(self.mesh_pattern.avoided_by(self.perm1))
+        self.assertFalse(self.mesh_pattern.avoided_by(self.perm2))
+        self.assertTrue(self.mesh_pattern.avoided_by(self.perm3))
+        self.assertTrue(self.mesh_pattern.avoided_by(self.perm4))
+        self.assertTrue(self.mesh_pattern.avoided_by(self.perm3, self.perm4))
+        self.assertFalse(self.mesh_pattern.avoided_by(self.perm4, self.perm1, self.perm3))
+
+    def test_count_occurrences_in(self):
+        self.assertEqual(self.mesh_pattern.count_occurrences_in(self.perm1), 8)
+        self.assertEqual(self.mesh_pattern.count_occurrences_in(self.perm2), 12)
+        self.assertEqual(self.mesh_pattern.count_occurrences_in(self.perm3), 0)
+        self.assertEqual(self.mesh_pattern.count_occurrences_in(self.perm4), 0)
+        self.assertEqual(self.mesh_pattern.count_occurrences_in(self.perm5), 2)
+
+    def test_is_shaded(self):
+        # TODO
+        pass
+
+    def test_non_pointless_boxes(self):
+        # TODO
+        pass
+
+    def test_rank(self):
+        # TODO
+        pass
 
     def test_unrank(self):
         pattern = Permutation([1,2])
@@ -155,3 +217,15 @@ class TestMeshPattern(unittest.TestCase):
         self.assertEqual(mesh1copy, mesh1copy)
         self.assertEqual(mesh2copy, mesh2copy)
         self.assertEqual(mesh3copy, mesh3copy)
+
+    def test_bool(self):
+        self.assertTrue(self.mesh1)
+        self.assertTrue(self.mesh2)
+        self.assertTrue(self.mesh3)
+        self.assertTrue(MeshPattern(Permutation((1,))))
+        self.assertTrue(MeshPattern((), set([(0,0)])))
+        self.assertFalse(MeshPattern())
+
+    def test_contains(self):
+        # TODO
+        pass

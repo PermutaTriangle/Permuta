@@ -239,3 +239,9 @@ class TestPermutation(unittest.TestCase):
                 self.assertFalse(Permutation(l1) < Permutation(l2))
             self.assertFalse(Permutation(l1) < Permutation(l1))
             self.assertFalse(Permutation(l2) < Permutation(l2))
+
+    def test_bool(self):
+        self.assertTrue(Permutation([1,2,3,4]))
+        self.assertTrue(Permutation([1]))
+        self.assertFalse(Permutation([]))
+        self.assertFalse(Permutation())
