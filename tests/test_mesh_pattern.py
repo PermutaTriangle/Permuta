@@ -78,6 +78,23 @@ class TestMeshPattern(unittest.TestCase):
         self.assertEqual(self.mesh2.sub_mesh_pattern(range(len(self.mesh2))), self.mesh2)
         self.assertEqual(self.mesh3.sub_mesh_pattern(range(len(self.mesh3))), self.mesh3)
 
+    def test_rotate(self):
+        # Rotate once
+        pattern = self.patt2.rotate()
+        shading = set([(2,3),(3,2),(2,5),(1,4)])
+        mesh = MeshPattern(pattern, shading)
+        self.assertEqual(mesh, self.mesh2.rotate())
+        # Rotate twice
+        pattern = self.patt2.rotate(2)
+        shading = set([(2,2),(3,3),(4,4),(5,3)])
+        mesh = MeshPattern(pattern, shading)
+        self.assertEqual(mesh, self.mesh2.rotate(2))
+        # Rotate thrice
+        pattern = self.patt2.rotate(3)
+        shading = set([(2,3),(3,2),(4,1),(3,0)])
+        mesh = MeshPattern(pattern, shading)
+        self.assertEqual(mesh, self.mesh2.rotate(3))
+
     def test_len(self):
         self.assertEqual(len(self.mesh1), 5)
         self.assertEqual(len(self.mesh2), 5)

@@ -4,7 +4,7 @@ import numbers
 import collections
 import sys
 
-from permuta import Permutation, Pattern
+from permuta import Permutation, Pattern, Rotatable
 from permuta.misc import DIR_EAST, DIR_NORTH, DIR_WEST, DIR_SOUTH, DIR_NONE
 
 if sys.version_info.major == 2:
@@ -15,7 +15,7 @@ MeshPatternBase = collections.namedtuple("MeshPatternBase",
                                          ["pattern", "shading"])
 
 
-class MeshPattern(MeshPatternBase, Pattern):
+class MeshPattern(MeshPatternBase, Pattern, Rotatable):
     """A mesh pattern class."""
 
     def __new__(cls, pattern=Permutation(), shading=frozenset(), check=False):
@@ -114,9 +114,22 @@ class MeshPattern(MeshPatternBase, Pattern):
                                                horizontal[y+1] - 1)))
         return MeshPattern(pattern, shading)
 
-    def rotate_right(self):
-        return MeshPattern(self.pattern.rotate_right(),
-                           set([_rot_right(len(self.pattern), pos)
+    def _rotate_right(self):
+        """Return self rotated 90 degrees to the right."""
+        return MeshPattern(self.pattern.rotate(),
+                           set([_rotate_right(len(self.pattern), pos)
+                                for pos in self.shading]))
+
+    def _rotate_left(self):
+        """Return self rotated 90 degrees to the left."""
+        return MeshPattern(self.pattern.rotate(3),
+                           set([_rotate_left(len(self.pattern), pos)
+                                for pos in self.shading]))
+
+    def _rotate_180(self):
+        """Return self rotated 180 degrees."""
+        return MeshPattern(self.pattern.rotate(2),
+                           set([_rotate_180(len(self.pattern), pos)
                                 for pos in self.shading]))
 
     def shade(self, pos):
@@ -427,14 +440,23 @@ class MeshPattern(MeshPatternBase, Pattern):
         raise NotImplementedError
 
 #
-# Orphan functions
+# Private helper functions
 #
 
-def _rot_right(n, pos):
-    x, y = pos
-    assert 0 <= x < n+1
-    assert 0 <= y < n+1
-    return (y, n-x)
+def _rotate_right(length, element):
+    """Rotate an element of the Cartesian product of {0,...,length} right."""
+    x, y = element
+    return (y, length - x)
+
+def _rotate_left(length, element):
+    """Rotate an element of the Cartesian product of {0,...,length} left."""
+    x, y = element
+    return (length - y, x)
+
+def _rotate_180(length, element):
+    """Rotate an element of the Cartesian product of {0,...,length} 180 degrees."""
+    x, y = element
+    return (length - x, length - y)
 
 def _G(seq):
     return zip(range(1, len(seq)+1), seq)
