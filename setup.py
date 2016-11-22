@@ -10,11 +10,10 @@ setup(
     version = "0.0.1",
     author = "Henning Ulfarsson",
     author_email = "henningu@ru.is",
-    description = "A library of stuff related to permutations.",
+    description = "A comprehensive high performance permutation library.",
     license = "BSD-3",
-    keywords = "permutations patterns",
+    keywords = "permutation mesh pattern avoid contain statistic",
     url = "https://github.com/PermutaTriangle/Permuta",
-    packages=['permuta', 'permuta.math', 'permuta.misc'],
-    long_description=read('README.md'),
-    test_suite = 'tests'
+    packages=["permuta", "permuta.math", "permuta.misc"],
+    long_description=read("README.md"),
 )
