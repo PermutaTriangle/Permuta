@@ -393,18 +393,15 @@ class Permutation(tuple, Pattern, Rotatable, Shiftable, Flippable):
 
     def descents(self):
         """Yield the indices of the descents of self."""
-        # TODO implement
-
-        p = list(self)
-        n = self.__len__()
-        descents = []
-        for i in range(1,n):
-            if p[i-1] > p[i]:
-                descents.append(i)
-        return descents
+        for index in range(1, len(self)):
+            if self[index-1] > self[index]:
+                yield index
 
     def descent_set(self):
-        # TODO: permpy bc
+        """Return the list of descents of self.
+        
+        This method is for backwards compatibility with permpy.
+        """
         return list(self.descents())
 
     def count_descents(self):
@@ -415,12 +412,15 @@ class Permutation(tuple, Pattern, Rotatable, Shiftable, Flippable):
 
     def ascents(self):
         """Yield the indices of the ascent of self."""
-        # TODO: implement
-        descents = self.descent_set()
-        return [i for i in range(1, len(self)) if i not in descents]
+        for index in range(1, len(self)):
+            if self[index-1] < self[index]:
+                yield index
     
     def ascent_set(self):
-        # TODO: permpy bc
+        """Return the list of ascents of self.
+        
+        This method is for backwards compatibility with permpy.
+        """
         return list(self.ascents())
 
     def count_ascents(self):
