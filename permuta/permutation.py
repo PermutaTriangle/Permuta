@@ -11,7 +11,6 @@ if sys.version_info.major == 2:
     range = xrange
 
 
-
 class Permutation(tuple, Pattern, Rotatable, Shiftable, Flippable):
     """A permutation class."""
 
