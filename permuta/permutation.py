@@ -381,6 +381,16 @@ class Permutation(tuple, Pattern, Rotatable, Shiftable, Flippable):
                 return False
         return True
 
+    def fixed_points(self):
+        """Return the number of fixed points in self."""
+        result = 0
+        value = 1
+        for element in self:
+            if element == value:
+                result += 1
+            value += 1
+        return result
+
     @classmethod
     def to_standard(cls, iterable):
         """Return the permutation corresponding to lst."""

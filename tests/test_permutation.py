@@ -183,6 +183,13 @@ class TestPermutation(unittest.TestCase):
             perm = Permutations(random.randint(0,20)).random_element()
             self.assertEqual(perm.reverse().complement().inverse(), perm.flip_antidiagonal())
 
+    def test_fixed_points(self):
+        self.assertEqual(Permutation().fixed_points(), 0)
+        self.assertEqual(Permutation(132).fixed_points(), 1)
+        self.assertEqual(Permutation(654321).fixed_points(), 0)
+        self.assertEqual(Permutation(521436).fixed_points(), 3)
+        self.assertEqual(Permutation(123456).fixed_points(), 6)
+
     def test_to_standard(self):
         def gen(perm):
             res = list(perm)
