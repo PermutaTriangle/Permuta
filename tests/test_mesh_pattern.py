@@ -21,3 +21,4 @@ class TestMeshPattern(unittest.TestCase):
         self.assertTrue(mesh_pattern.contained_in(perm1))
         self.assertTrue(mesh_pattern.contained_in(perm2))
         self.assertFalse(mesh_pattern.contained_in(perm3))
+        pass

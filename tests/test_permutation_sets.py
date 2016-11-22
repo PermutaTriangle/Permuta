@@ -26,7 +26,7 @@ class TestPermutationSets(unittest.TestCase):
                 self.assertEqual(len(gen), cnt)
                 self.assertEqual(len(gen), len(set(gen)))
                 for p in gen:
-                    self.assertTrue(p.avoids(patt))
+                    self.assertTrue(p.avoids(Permutation(patt)))
 
     def test_avoiders_generic(self):
         try:
@@ -62,14 +62,14 @@ class TestPermutationSets(unittest.TestCase):
                 self.assertEqual(len(gen), cnt)
                 self.assertEqual(len(gen), len(set(gen)))
                 for p in gen:
-                    self.assertTrue(p.avoids(patts))
+                    self.assertTrue(p.avoids(*patts))
 
             mx = len(enum)-1
             cnt = [ 0 for _ in range(mx+1) ]
             inst = AvoidanceClass(mx, avoiding=patts, upto=True)
             gen = list(inst)
             for p in gen:
-                self.assertTrue(p.avoids(patts))
+                self.assertTrue(p.avoids(*patts))
                 cnt[len(p)] += 1
 
             self.assertEqual(enum, cnt)

@@ -4,18 +4,6 @@ import random
 
 class TestPermutation(unittest.TestCase):
 
-    def test_init(self):
-        with self.assertRaises(AssertionError): Permutation([1,2,2], check=True)
-        with self.assertRaises(AssertionError): Permutation([2,1,2], check=True)
-        with self.assertRaises(AssertionError): Permutation([1,1], check=True)
-        with self.assertRaises(AssertionError): Permutation([2], check=True)
-        with self.assertRaises(AssertionError): Permutation(set([1,2,3]), check=True)
-        with self.assertRaises(AssertionError): Permutation(5, check=True)
-        with self.assertRaises(AssertionError): Permutation(None, check=True)
-        Permutation([], check=True)
-        Permutation([1], check=True)
-        Permutation([4,1,3,2], check=True)
-
     def test_contained_in(self):
         def generate_contained(n,perm):
             for i in range(len(perm),n):
@@ -81,13 +69,13 @@ class TestPermutation(unittest.TestCase):
 
     def test_inverse(self):
         for i in range(10):
-            self.assertEqual(Permutation(range(1,i)), Permutation(range(1,i)).inverse())
+            self.assertEqual(Permutation(list(range(1,i))), Permutation(list(range(1,i))).inverse())
         self.assertEqual(Permutation([3,2,4,1]), Permutation([4,2,1,3]).inverse())
         self.assertEqual(Permutation([5,4,2,7,6,8,9,1,3]), Permutation([8,3,9,2,1,5,4,6,7]).inverse())
 
     def test_rotate_right(self):
         for i in range(10):
-            self.assertEqual(Permutation(range(i-1,0,-1)), Permutation(range(1,i)).rotate_right())
+            self.assertEqual(Permutation(list(range(i-1,0,-1))), Permutation(list(range(1,i))).rotate_right())
         self.assertEqual(Permutation([3,2,4,5,1,6,7]), Permutation([7,6,4,3,1,2,5]).rotate_right())
         self.assertEqual(Permutation([5,6,4,2,8,1,3,7]), Permutation([5,8,2,1,3,7,4,6]).rotate_right())
 
@@ -156,7 +144,7 @@ class TestPermutation(unittest.TestCase):
                 for p in Permutations(l):
                     ok = True
                     for patt in patts:
-                        if not p.avoids(patt):
+                        if not p.avoids(Permutation(patt)):
                             ok = False
                             break
                     if ok:
