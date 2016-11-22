@@ -427,6 +427,42 @@ class Permutation(tuple, Pattern, Rotatable, Shiftable, Flippable):
 
     num_peaks = count_peaks  # permpy backwards compatibility
 
+    def valleys(self):
+        """Yield the indices of the valleys of self.
+        
+        The i-th element of a permutation is a valley if
+            self[i-1] > self[i] < self[i+1].
+        """
+        # TODO: Have an argument about docstrings with Murray
+        if len(self) <= 2:
+            return
+        ascent = True
+        for index in range(1, len(self)-1):
+            if self[index-1] < self[index]:
+                # Permutation ascended
+                if not ascent:
+                    yield index-1
+                ascent = True
+            else:
+                # Permutation descended
+                ascent = False
+        # Check if penultimate element is a valley
+        if not ascent and self[-2] < self[-1]:
+            yield len(self) - 2
+
+    def valley_list(self):
+        """Return the list of valleys of self.
+        
+        This method is for backwards compatibility with permpy.
+        """
+        return list(self.valleys())
+
+    def count_valleys(self):
+        """Count the number of valleys of self."""
+        return sum(1 for _ in self.valleys())
+
+    num_valleys = count_valleys  # permpy backwards compatibility
+
     @classmethod
     def to_standard(cls, iterable):
         """Return the permutation corresponding to lst."""

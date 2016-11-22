@@ -202,6 +202,20 @@ class TestPermutation(unittest.TestCase):
         self.assertEqual(Permutation(321546).count_peaks(), 1)
         self.assertEqual(Permutation(2341765).count_peaks(), 2)
 
+    def test_valleys(self):
+        self.assertEqual(list(Permutation().valleys()), [])
+        self.assertEqual(list(Permutation(1234).valleys()), [])
+        self.assertEqual(list(Permutation(321546).valleys()), [2, 4])
+        self.assertEqual(list(Permutation(2341765).valleys()), [3])
+        self.assertEqual(list(Permutation(3241756).valleys()), [1, 3, 5])
+
+    def test_count_valleys(self):
+        self.assertEqual(Permutation().count_valleys(), 0)
+        self.assertEqual(Permutation(1234).count_valleys(), 0)
+        self.assertEqual(Permutation(321546).count_valleys(), 2)
+        self.assertEqual(Permutation(2341765).count_valleys(), 1)
+        self.assertEqual(Permutation(3241756).count_valleys(), 3)
+
     def test_to_standard(self):
         def gen(perm):
             res = list(perm)
