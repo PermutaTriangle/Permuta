@@ -11,8 +11,11 @@ if sys.version_info.major == 2:
     range = xrange
 
 
+
 class Permutation(tuple, Pattern, Rotatable, Shiftable, Flippable):
     """A permutation class."""
+
+    _TYPE_ERROR = "Non-Permutation argument: {}"
 
     def __new__(cls, iterable=(), check=False):
         """Return a Permutation instance.
@@ -247,15 +250,22 @@ class Permutation(tuple, Pattern, Rotatable, Shiftable, Flippable):
         for index in range(len(others)):
             other = others[index]
             if not isinstance(other, Permutation):
-                message = "Non-Permutation argument: {}".format(repr(other))
-                raise TypeError(message)
+                raise TypeError(Permutation._TYPE_ERROR.format(repr(other)))
             result.extend(element + shift for element in other)
             shift += len(other)
         return Permutation(result)
 
     def skew_sum(self, *others):
         """Return the skew sum of two or more permutations."""
-        raise NotImplementedError
+        shift = sum(len(other) for other in others)
+        result = [element + shift for element in self]
+        for index in range(len(others)):
+            other = others[index]
+            if not isinstance(other, Permutation):
+                raise TypeError(Permutation._TYPE_ERROR.format(repr(other)))
+            shift -= len(other)
+            result.extend(element + shift for element in other)
+        return Permutation(result)
 
     def inverse(self):
         """Return the inverse of the permutation self."""
@@ -395,8 +405,12 @@ class Permutation(tuple, Pattern, Rotatable, Shiftable, Flippable):
         return self[value-1]
 
     def __add__(self, other):
-        """Return the direct sum of two permutations."""
-        return self.add(other)
+        """Return the direct sum of the permutations self and other."""
+        return self.direct_sum(other)
+
+    def __sub__(self, other):
+        """Return the skew sum of the permutations self and other."""
+        return self.skew_sum(other)
 
     def __repr__(self):
         return "Permutation({})".format(super(Permutation, self).__repr__())
