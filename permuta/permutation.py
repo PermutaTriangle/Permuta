@@ -82,6 +82,13 @@ class Permutation(tuple, Pattern, Rotatable, Shiftable, Flippable):
         """
         return all(patt not in self for patt in patts)
 
+    def avoids_set(patts):
+        """Check if self avoids patts.
+
+        This method is for backwards compatibility with permpy.
+        """
+        return self.avoids(*tuple(patts))
+
     def count_occurrences_of(self, patt):
         """Count the number of occurrences of patt in self.
 
@@ -95,6 +102,8 @@ class Permutation(tuple, Pattern, Rotatable, Shiftable, Flippable):
             The number of times patt occurs in self.
         """
         return patt.count_occurrences_in(self)
+
+    occurrences = count_occurrences_of  # permpy backwards compatibility
 
     def occurrences_in(self, perm):
         """Find all indices of occurrences of self in perm.
