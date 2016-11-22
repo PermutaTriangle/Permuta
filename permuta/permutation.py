@@ -512,7 +512,7 @@ class Permutation(tuple, Pattern, Rotatable, Shiftable, Flippable):
 
     @classmethod
     def to_standard(cls, iterable):
-        """Return the permutation corresponding to lst."""
+        """Return the permutation corresponding to iterable."""
         # TODO: Do performance testing
         try:
             len_iterable = len(iterable)
@@ -521,10 +521,13 @@ class Permutation(tuple, Pattern, Rotatable, Shiftable, Flippable):
             len_iterable = len(iterable)
         result = [None]*len_iterable
         value = 1
-        for (i, _) in sorted(enumerate(iterable), key=operator.itemgetter(1)):
-            result[i] = value
+        for (index, _) in sorted(enumerate(iterable), key=operator.itemgetter(1)):
+            result[index] = value
             value += 1
         return cls(result)
+
+    standardize = to_standard  # permpy backwards compatibility
+    from_iterable = to_standard  # TODO: Acceptable alias?
 
     def __call__(self, value):
         # TODO: Docstring
