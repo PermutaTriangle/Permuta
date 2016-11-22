@@ -80,6 +80,15 @@ class TestPermutation(unittest.TestCase):
         self.assertEqual(list(Permutation([5,2,3,4,1]).occurrences_in(Permutation([]))), [])
         self.assertEqual(list(Permutation([5,2,3,4,1]).occurrences_in(Permutation([2,1]))), [])
 
+    def test_apply(self):
+        for i in range(100):
+            n = random.randint(0,20)
+            lst = [ random.randint(0,10000) for i in range(n) ]
+            perm = Permutations(n).random_element()
+            res = list(perm.apply(lst))
+            for j,k in enumerate(perm.inverse()):
+                self.assertEqual(lst[j], res[k-1])
+
     def test_inverse(self):
         for i in range(10):
             self.assertEqual(Permutation(list(range(1,i))), Permutation(list(range(1,i))).inverse())
@@ -157,14 +166,22 @@ class TestPermutation(unittest.TestCase):
         self.assertEqual(Permutation.to_standard(10 - x for x in range(5)),
                          Permutation((5,4,3,2,1)))
 
-    def test_call(self):
-        for i in range(100):
-            n = random.randint(0,20)
-            lst = [ random.randint(0,10000) for i in range(n) ]
-            perm = Permutations(n).random_element()
-            res = perm(lst)
-            for j,k in enumerate(perm.inverse()):
-                self.assertEqual(lst[j], res[k-1])
+    def test_call_1(self):
+        p = Permutation((1,2,3,4))
+        for i in range(1, len(p)+1):
+            self.assertEqual(p(i), i)
+        with self.assertRaises(AssertionError): p(0)
+        with self.assertRaises(AssertionError): p(5)
+
+    def test_call_2(self):
+        p = Permutation((4,5,1,3,2))
+        self.assertEqual(p(1), 4)
+        self.assertEqual(p(2), 5)
+        self.assertEqual(p(3), 1)
+        self.assertEqual(p(4), 3)
+        self.assertEqual(p(5), 2)
+        with self.assertRaises(AssertionError): p(0)
+        with self.assertRaises(AssertionError): p(6)
 
     def test_eq(self):
         self.assertTrue(Permutation([]) == Permutation([]))

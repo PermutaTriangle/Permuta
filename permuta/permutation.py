@@ -224,6 +224,14 @@ class Permutation(tuple, Pattern, Rotatable, Shiftable, Flippable):
         self._cached_pattern_details = result
         return result
 
+    def apply(self, iterable):
+        # TODO: Docstring
+        assert isinstance(iterable, collections.Iterable)
+        iterable = tuple(iterable)
+        assert len(iterable) == len(self)
+        return (iterable[index-1] for index in self)
+
+
     def inverse(self):
         """Return the inverse of the permutation self."""
         len_perm = len(self)
@@ -355,10 +363,11 @@ class Permutation(tuple, Pattern, Rotatable, Shiftable, Flippable):
             value += 1
         return cls(result)
 
-    def __call__(self, lst):
-        """Return the result of applying self to lst."""
-        assert len(lst) == len(self)
-        return [lst[index-1] for index in self]
+    def __call__(self, value):
+        # TODO: Docstring
+        assert isinstance(value, numbers.Integral)  # TODO: Message
+        assert 0 < value <= len(self)  # TODO: Message
+        return self[value-1]
 
     def __repr__(self):
         return "Permutation({})".format(super(Permutation, self).__repr__())
