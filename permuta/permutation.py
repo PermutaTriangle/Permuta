@@ -20,11 +20,19 @@ class Permutation(tuple, Pattern, Rotatable, Shiftable, Flippable):
         Args:
             self:
                 The class of which an instance is requested.
-            iterable: <collections.Iterable>
+            iterable: <collections.Iterable> or <numbers.Integral>
                 An iterable corresponding to a legal permutation.
+                Also supports passing just a number with unique digits.
             check: bool
                 If True, iterable will be confirmed to correspond to a legal permutation.
         """
+        if isinstance(iterable, numbers.Integral):
+            number = iterable
+            assert 1 <= number <= 987654321  # TODO: Message
+            iterable = []
+            while number != 0:
+                iterable.append(number % 10)
+                number //= 10
         instance = super(Permutation, cls).__new__(cls, iterable)
         return instance
 
