@@ -11,12 +11,13 @@ class TestPermutation(unittest.TestCase):
         with self.assertRaises(AssertionError): Permutation([2], check=True)
         with self.assertRaises(AssertionError): Permutation(122, check=True)
         with self.assertRaises(TypeError): Permutation(None, check=True)
-        Permutation(613245, check=True)
         Permutation(check=True)
         Permutation([], check=True)
         Permutation([1], check=True)
         Permutation([4,1,3,2], check=True)
         Permutation(set([1,2,3]), check=True)
+        p = Permutation(613245, check=True)
+        self.assertEqual(p, Permutation((6,1,3,2,4,5)))
 
     def test_contained_in(self):
         def generate_contained(n,perm):
