@@ -1,50 +1,88 @@
-class Permutation(object):
-    """Base Permutation object"""
-    def __init__(self, perm, check=False):
-        """Create a new Permutation from the given list.
-        If check, then check that the permutation is of the correct form"""
+import collections
+import itertools
+import numbers
+import operator
+import sys
+
+from permuta import Pattern, Rotatable, Shiftable, Flippable
+from permuta.misc import left_floor_and_ceiling
+
+if sys.version_info.major == 2:
+    range = xrange
+
+
+class Permutation(tuple, Pattern, Rotatable, Shiftable, Flippable):
+    """A permutation class."""
+
+    def __new__(cls, iterable=(), check=False):
+        """Return a Permutation instance.
+
+        Args:
+            self:
+                The class of which an instance is requested.
+            iterable: <collections.Iterable>
+                An iterable corresponding to a legal permutation.
+            check: bool
+                If True, iterable will be confirmed to correspond to a legal permutation.
+        """
+        instance = super(Permutation, cls).__new__(cls, iterable)
+        return instance
+
+    def __init__(self, iterable=(), check=False):
         if check:
-            assert type(perm) is list
-            n = len(perm)
-            used = [False]*n
+            used = [False]*len(self)
+            for value in self:
+                try:
+                    assert isinstance(value, numbers.Integral)
+                except AssertionError as exception:
+                    message = "Non-integer type: {}".format(repr(value))
+                    exception.args = (message,)
+                    raise
+                assert 1 <= value <= len(self), "Out of range: {}".format(value)
+                assert not used[value-1], "Duplicate element: {}".format(value)
+                used[value-1] = True
+        self._cached_pattern_details = None
 
-            for x in perm:
-                assert type(x) is int
-                assert 1 <= x <= n
-                assert not used[x-1]
-                used[x-1] = True
+    def contains(self, *patts):
+        """Check if self contains patts.
 
-        self.perm = list(perm)
-        self._left_to_right_details_result = None
+        Args:
+            self:
+                A permutation.
+            patts: [permuta.Permutation|permuta.MeshPattern]
+                A list of classical/mesh patterns.
 
-    def contains(self, pattern):
-        """Returns true if permutation self contains a given pattern"""
-        if type(pattern) is list:
-            pattern = Permutation(pattern)
-        return pattern.contained_in(self)
+        Returns: bool
+            True if and only if all patterns in patt are contained in self.
+        """
+        return all(patt in self for patt in patts)
 
-    def avoids(self, pattern):
-        """Returns True if self contains no occurrence of pattern"""
-        if type(pattern) is list and all( type(patt) is list or type(patt) is Permutation for patt in pattern ):
-            for patt in pattern:
-                if self.contains(patt):
-                    return False
-            return True
+    def avoids(self, *patts):
+        """Check if self avoids patts.
 
-        return not self.contains(pattern)
+        Args:
+            self:
+                A permutation.
+            patts: [permuta.Permutation|permuta.MeshPattern]
+                A list of classical/mesh patterns.
 
-    def contained_in(self, perm):
-        """Returns true if the permutation self is contained in the
-        permutation perm.
-        self is treated as a pattern"""
-        return any( True for _ in self.occurrences_in(perm) )
-
-    def count_occurrences_in(self, perm):
-        """Count the number of occurrences of the pattern self in the permutation perm."""
-        return sum(1 for _ in self.occurrences_in(perm))
+        Returns: bool
+            True if and only if self avoids all patterns in patts.
+        """
+        return all(patt not in self for patt in patts)
 
     def count_occurrences_of(self, patt):
-        """Count the number of occurrences of the pattern patt in the permutation self."""
+        """Count the number of occurrences of patt in self.
+
+        Args:
+            self:
+                A permutation.
+            patt: permuta.Permutation|permuta.MeshPattern
+                A classical/mesh pattern.
+
+        Returns: int
+            The number of times patt occurs in self.
+        """
         return patt.count_occurrences_in(self)
 
     def occurrences_in(self, perm):
@@ -57,65 +95,90 @@ class Permutation(object):
                 The permutation to search for occurrences in.
 
         Yields: [int]
+            The indices of the occurrences of self in perm.
             Each yielded element l is a list of integer indices of the
             permutation perm such that:
             self == permuta.Permutation.to_standard([perm[i] for i in l])
         """
-
         # Special cases
         if len(self) == 0:
             # Pattern is empty, occurs in all permutations
-            # This is needed for the con function to work correctly
+            # This is needed for the occurrences function to work correctly
             yield []
+            return
+        if len(self) > len(perm):
+            # Pattern is too long to occur in permutation
             return
 
         # The indices of the occurrence in perm
         occurrence_indices = [None]*len(self)
 
         # Get left to right scan details
-        details = self._left_to_right_details()
+        pattern_details = self._pattern_details()
+
+        # Upper and lower bound declarations
+        upper_bound = None
+        lower_bound = None
 
         # Define function that works with the above defined variables
         # i is the index of the element in perm that is to be considered
         # k is how many elements of the permutation have already been added to occurrence
-        def con(i, k):
-            elements_left = len(perm) - i
+        def occurrences(i, k):
+            elements_remaining = len(perm) - i
             elements_needed = len(self) - k
-            left_floor_index, left_ceiling_index, left_floor_diff, left_ceiling_diff = details[k]
+
+            # Get the following variables:
+            #   - lfi: Left Floor Index
+            #   - lci: Left Ceiling Index
+            #   - lbp: Lower Bound Pre-computation
+            #   - ubp: Upper Bound pre-computation
+            lfi, lci, lbp, ubp = pattern_details[k]
+
             # Set the bounds for the new element
-            lower_bound = left_floor_diff
-            if left_floor_index is None:
-                lower_bound += 1
+            if lfi is None:
+                # The new element of the occurrence must be at least self[k];
+                # i.e., the k-th element of the pattern
+                # In this case, lbp = self[k]
+                lower_bound = lbp
             else:
-                lower_bound += perm[occurrence_indices[left_floor_index]]
-            upper_bound = -left_ceiling_diff
-            if left_ceiling_index is None:
-                upper_bound += len(perm)
+                # The new element of the occurrence must be at least as far
+                # from its left floor as self[k] is from its left floor
+                # In this case, lbp = self[k] - self[lfi]
+                occurrence_left_floor = perm[occurrence_indices[lfi]]
+                lower_bound = occurrence_left_floor + lbp
+            if lci is None:
+                # The new element of the occurrence must be at least as less
+                # than its maximum possible element---i.e., len(perm)---as
+                # self[k] is to its maximum possible element---i.e., len(self)
+                # ubp = len(self) - self[k]
+                upper_bound = len(perm) - ubp
             else:
-                upper_bound += perm[occurrence_indices[left_ceiling_index]]
-                          
+                # The new element of the occurrence must be at least as less
+                # than its left ceiling as self[k] is to its left ceiling
+                # In this case, ubp = self[lci] - self[k]
+                upper_bound = perm[occurrence_indices[lci]] - ubp
+
             # Loop over remaining elements of perm (actually i, the index)
             while 1:
-                if elements_left < elements_needed:
+                if elements_remaining < elements_needed:
                     # Can't form an occurrence with remaining elements
                     return
                 element = perm[i]
                 if lower_bound <= element <= upper_bound:
                     occurrence_indices[k] = i
-                    # Yield occurrence
-                    # TODO: will bringing this conditional out of loop speed things up?
                     if elements_needed == 1:
+                        # Yield occurrence
                         yield occurrence_indices[:]
-                    # Yield occurrences where the i-th element is chosen
                     else:
-                        for o in con(i+1, k+1):
-                            yield o
-                # Increment i, that also means elements_left should decrement
+                        # Yield occurrences where the i-th element is chosen
+                        for occurence in occurrences(i+1, k+1):
+                            yield occurence
+                # Increment i, that also means elements_remaining should decrement
                 i += 1
-                elements_left -= 1
+                elements_remaining -= 1
 
-        for o in con(0, 0):
-            yield o
+        for occurence in occurrences(0, 0):
+            yield occurence
 
     def occurrences_of(self, patt):
         """Find all indices of occurrences of patt in self.
@@ -123,159 +186,214 @@ class Permutation(object):
         This method is complementary to permuta.Permutation.occurrences_in.
         It just calls patt.occurrences_in(self) internally.
         See permuta.Permutation.occurrences_in for documentation.
+
+        Args:
+            self:
+                A permutation.
+            perm: permuta.Permutation
+                A classical pattern.
+
+        Yields: [int]
+            The indices of the occurrences of self in perm.
         """
         return patt.occurrences_in(self)
 
-    def _left_to_right_details(self):
-        # TODO: Make comment better
-        """What is known when scanning self from left to right.
-
-        TODO: Make comments nice and make betterer
-
-        Return: [(int, int, int, int)]
-        """
+    def _pattern_details(self):
+        """Subroutine of occurrences_in method."""
         # If details have been calculated before, return cached result
-        if self._left_to_right_details_result is not None:
-            return self._left_to_right_details_result
+        if self._cached_pattern_details is not None:
+            return self._cached_pattern_details
         result = []
-        for base_index in range(len(self)):
-            left_floor_index = None
-            left_ceiling_index = None
-            left_floor = 1
-            left_ceiling = len(self)
-            base_element = self[base_index]
-            for index in range(base_index):
-                element = self[index]
-                if element > base_element:
-                    if element <= left_ceiling:
-                        left_ceiling_index = index
-                        left_ceiling = element
-                else:
-                    if element >= left_floor:
-                        left_floor_index = index
-                        left_floor = element
-            # left_floor_difference:
-            # How much greater than the left floor the element must be,
-            # or how much greater than 1 it must be if left floor does not exist
-            left_floor_difference = base_element - left_floor
-            # left_ceiling_difference:
-            # Subtract this number from the length of the permutation an
-            # occurrence is being searched for in to get an upper bound for the
-            # allowed value. Tighten the bound by subtracting from the left
-            # ceiling value if its index is not None.
-            left_ceiling_difference = left_ceiling - base_element
-            compiled = (
-                         left_floor_index
-                       , left_ceiling_index
-                       , left_floor_difference
-                       , left_ceiling_difference
-                       )
+        index = 0
+        for fac_indices in left_floor_and_ceiling(self):
+            base_element = self[index]
+            compiled = (fac_indices.floor,
+
+                        fac_indices.ceiling,
+
+                        self[index]
+                        if fac_indices.floor is None
+                        else base_element - self[fac_indices.floor],
+
+                        len(self) - self[index]
+                        if fac_indices.ceiling is None
+                        else self[fac_indices.ceiling] - base_element,
+                        )
             result.append(compiled)
-        self._left_to_right_details_result = result
+            index += 1
+        self._cached_pattern_details = result
         return result
 
+    def apply(self, iterable):
+        # TODO: Docstring
+        assert isinstance(iterable, collections.Iterable)
+        iterable = tuple(iterable)
+        assert len(iterable) == len(self)
+        return (iterable[index-1] for index in self)
+
+
     def inverse(self):
-        """Return the inverse of the permutation self"""
-        n = len(self)
-        res = [None]*n
-        for i in range(n):
-            res[self.perm[i]-1] = i+1
-        return Permutation(res)
+        """Return the inverse of the permutation self."""
+        len_perm = len(self)
+        result = [None]*len_perm
+        for index in range(len_perm):
+            result[self[index]-1] = index + 1
+        return Permutation(result)
 
     def reverse(self):
-        return Permutation(self.perm[::-1])
+        """Return the reverse of the permutation self."""
+        return Permutation(self[::-1])
 
     def complement(self):
-        return Permutation([len(self.perm) - x + 1 for x in self.perm])
+        """Return the complement of the permutation self."""
+        base = len(self) + 1
+        return Permutation(base - element for element in self)
 
-    def rotate_right(self):
-        idx = [-1] * len(self)
-        for i, v in enumerate(self.perm):
-            idx[v-1] = i
-        res = []
-        for i in range(len(self)):
-            res.append(len(self) - idx[i])
-        return Permutation(res)
+    def reverse_complement(self):
+        """Return the reverse complement of self.
+
+        Equivalent to two left or right rotations.
+        """
+        base = len(self) + 1
+        return Permutation(base - element for element in reversed(self))
+
+    def shift_right(self, times=1):
+        """Return self shifted times steps to the right.
+
+        If shift is negative, shifted to the left.
+        """
+        if len(self) == 0:
+            return self
+        times = times % len(self)
+        if times == 0:
+            return self
+        index = len(self) - times
+        slice_1 = itertools.islice(self, index)
+        slice_2 = itertools.islice(self, index, len(self))
+        return Permutation(itertools.chain(slice_2, slice_1))
+
+    def shift_up(self, times=1):
+        """Return self shifted times steps up.
+
+        If times is negative, shifted down.
+        """
+        if len(self) < 2:
+            return self
+        times = times % len(self)
+        if times == 0:
+            return self
+        bound = len(self) - times
+        return Permutation(element - bound
+                           if element > bound
+                           else element + times
+                           for element in self)
 
     def flip_horizontal(self):
-        """Returns the permutation self flipped horizontally"""
+        """Return self flipped horizontally."""
         return self.complement()
 
     def flip_vertical(self):
-        """Returns the permutation self flipped vertically"""
+        """Return self flipped vertically."""
         return self.reverse()
 
     def flip_diagonal(self):
-        """Returns the permutation self flipped along the diagonal, y=x"""
+        """Return self flipped along the diagonal, y = x."""
         return self.inverse()
 
     def flip_antidiagonal(self):
-        """Returns the permutation self flipped along the
-        antidiagonal, y=len(perm)-x"""
-        # TODO: implement linear algorithm
-        return Permutation([x for _, x in
-                            sorted([(-y, len(self.perm)-x) for x, y in
-                                    enumerate(self.perm)])])
+        """Return self flipped along the antidiagonal, y = len(perm) - x."""
+        len_perm = len(self)
+        result = [None]*len_perm
+
+        flipped_pairs = ((len_perm-element, len_perm-index)
+                         for index, element in enumerate(self))
+
+        for index, element in flipped_pairs:
+            result[index] = element
+        return Permutation(result)
+
+    def _rotate_right(self):
+        """Return self rotated 90 degrees to the right."""
+        len_perm = len(self)
+        result = [None]*len_perm
+        for index, value in enumerate(self):
+            result[value-1] = len_perm - index
+        return Permutation(result)
+
+    def _rotate_left(self):
+        """Return self rotated 90 degrees to the left."""
+        len_perm = len(self)
+        result = [None]*len_perm
+        for index, value in enumerate(self):
+            result[len_perm - value] = index + 1
+        return Permutation(result)
+
+    def _rotate_180(self):
+        """Return self rotated 180 degrees."""
+        return self.reverse_complement()
 
     def is_increasing(self):
-        """Returns true if the permutation is increasing, and false otherwise."""
-        for i in range(1,len(self.perm)):
-            if self.perm[i-1] > self.perm[i]:
+        """Return True if the permutation is increasing, and False otherwise."""
+        for index in range(len(self)):
+            if self[index] != index+1:
                 return False
         return True
 
     def is_decreasing(self):
-        """Returns true if the permutation is decreasing, and false otherwise."""
-        for i in range(1,len(self.perm)):
-            if self.perm[i-1] < self.perm[i]:
+        """Return True if the permutation is decreasing, and False otherwise."""
+        len_perm = len(self)
+        for index in range(len_perm):
+            if self[index] != len_perm - index:
                 return False
         return True
 
-    @staticmethod
-    def to_standard(lst):
-        """Returns the permutation given by mapping every element in lst
-        to the lowest possible value that preserves order of the elements"""
-        n = len(lst)
-        res = [None]*n
-        for j, (x, i) in enumerate(sorted((lst[i], i) for i in range(n))):
-            res[i] = j+1
+    @classmethod
+    def to_standard(cls, iterable):
+        """Return the permutation corresponding to lst."""
+        # TODO: Do performance testing
+        try:
+            len_iterable = len(iterable)
+        except TypeError:
+            iterable = list(iterable)
+            len_iterable = len(iterable)
+        result = [None]*len_iterable
+        value = 1
+        for (i, _) in sorted(enumerate(iterable), key=operator.itemgetter(1)):
+            result[i] = value
+            value += 1
+        return cls(result)
 
-        return Permutation(res)
-
-    def __call__(self, lst):
-        """Returns the result of applying self to lst"""
-        assert len(lst) == len(self)
-
-        n = len(self)
-        res = [None]*n
-        for i in range(n):
-            res[i] = lst[self.perm[i] - 1]
-
-        return res
-
-    def __getitem__(self, i):
-        return self.perm[i]
-
-    def __len__(self):
-        return len(self.perm)
-
-    def __iter__(self):
-        return iter(self.perm)
-
-    def __str__(self):
-        return str(self.perm)
+    def __call__(self, value):
+        # TODO: Docstring
+        assert isinstance(value, numbers.Integral)  # TODO: Message
+        assert 0 < value <= len(self)  # TODO: Message
+        return self[value-1]
 
     def __repr__(self):
-        return 'Permutation(%s)' % repr(self.perm)
-
-    def __eq__(self, other):
-        return type(other) is Permutation and self.perm == other.perm
-
-    def __ne__(self, other):
-        return not (self == other)
+        return "Permutation({})".format(super(Permutation, self).__repr__())
 
     def __lt__(self, other):
-        return (len(self), self.perm) < (len(other), other.perm)
+        return (len(self), tuple(self)) < (len(other), tuple(other))
 
-    def __hash__(self):
-        return hash(tuple(self.perm))
+    def __le__(self, other):
+        return (len(self), tuple(self)) <= (len(other), tuple(other))
+
+    def __gt__(self, other):
+        return other < self
+
+    def __ge__(self, other):
+        return other <= self
+
+    def __contains__(self, patt):
+        """Check if self contains patt.
+
+        Args:
+            self:
+                A permutation.
+            patt: permuta.Permutation|permuta.MeshPattern
+                A classical/mesh pattern.
+
+        Returns: bool
+            True if and only if the pattern patt is contained in self.
+        """
+        return any(True for _ in patt.occurrences_in(self))

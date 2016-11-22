@@ -1,4 +1,7 @@
-
+from .pattern import Pattern
+from .rotatable import Rotatable
+from .shiftable import Shiftable
+from .flippable import Flippable
 from .permutation import Permutation
 from .permutations import Permutations
 from .mesh_pattern import MeshPattern
