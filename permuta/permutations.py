@@ -150,6 +150,9 @@ class PermutationsAvoiding12(PermutationPatternClass):
     def __init__(self, n):
         super(PermutationsAvoiding12, self).__init__(n,[1,2])
 
+    def random_element(self):
+        return Permutation(range(self.n,0,-1))
+
     def __iter__(self):
         yield Permutation(range(self.n,0,-1))
 
@@ -163,6 +166,9 @@ class PermutationsAvoiding21(PermutationPatternClass):
     """Class for iterating through Permutations avoiding 21 of length n"""
     def __init__(self, n):
         super(PermutationsAvoiding21, self).__init__(n,[2,1])
+
+    def random_element(self):
+        return Permutation(range(1,self.n+1))
 
     def __iter__(self):
         yield Permutation(range(1,self.n+1))
