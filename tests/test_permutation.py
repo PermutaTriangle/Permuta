@@ -196,6 +196,12 @@ class TestPermutation(unittest.TestCase):
         self.assertEqual(list(Permutation(321546).peaks()), [3])
         self.assertEqual(list(Permutation(2341765).peaks()), [2, 4])
 
+    def test_count_peaks(self):
+        self.assertEqual(Permutation().count_peaks(), 0)
+        self.assertEqual(Permutation(1234).count_peaks(), 0)
+        self.assertEqual(Permutation(321546).count_peaks(), 1)
+        self.assertEqual(Permutation(2341765).count_peaks(), 2)
+
     def test_to_standard(self):
         def gen(perm):
             res = list(perm)

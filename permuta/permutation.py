@@ -421,6 +421,12 @@ class Permutation(tuple, Pattern, Rotatable, Shiftable, Flippable):
         """
         return list(self.peaks())
 
+    def count_peaks(self):
+        """Count the number of peaks of self."""
+        return sum(1 for _ in self.peaks())
+
+    num_peaks = count_peaks  # permpy backwards compatibility
+
     @classmethod
     def to_standard(cls, iterable):
         """Return the permutation corresponding to lst."""
