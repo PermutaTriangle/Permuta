@@ -33,6 +33,7 @@ class Permutation(tuple, Pattern, Rotatable, Shiftable, Flippable):
             while number != 0:
                 iterable.append(number % 10)
                 number //= 10
+            iterable = reversed(iterable)
         instance = super(Permutation, cls).__new__(cls, iterable)
         return instance
 
@@ -239,6 +240,22 @@ class Permutation(tuple, Pattern, Rotatable, Shiftable, Flippable):
         assert len(iterable) == len(self)
         return (iterable[index-1] for index in self)
 
+    def direct_sum(self, *others):
+        """Return the direct sum of two or more permutations."""
+        result = list(self)
+        shift = len(self)
+        for index in range(len(others)):
+            other = others[index]
+            if not isinstance(other, Permutation):
+                message = "Non-Permutation argument: {}".format(repr(other))
+                raise TypeError(message)
+            result.extend(element + shift for element in other)
+            shift += len(other)
+        return Permutation(result)
+
+    def skew_sum(self, *others):
+        """Return the skew sum of two or more permutations."""
+        raise NotImplementedError
 
     def inverse(self):
         """Return the inverse of the permutation self."""
@@ -376,6 +393,10 @@ class Permutation(tuple, Pattern, Rotatable, Shiftable, Flippable):
         assert isinstance(value, numbers.Integral)  # TODO: Message
         assert 0 < value <= len(self)  # TODO: Message
         return self[value-1]
+
+    def __add__(self, other):
+        """Return the direct sum of two permutations."""
+        return self.add(other)
 
     def __repr__(self):
         return "Permutation({})".format(super(Permutation, self).__repr__())
