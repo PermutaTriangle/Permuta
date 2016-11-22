@@ -54,6 +54,25 @@ class Permutation(tuple, Pattern, Rotatable, Shiftable, Flippable):
                 used[value-1] = True
         self._cached_pattern_details = None
 
+    @classmethod
+    def to_standard(cls, iterable):
+        """Return the permutation corresponding to iterable."""
+        # TODO: Do performance testing
+        try:
+            len_iterable = len(iterable)
+        except TypeError:
+            iterable = list(iterable)
+            len_iterable = len(iterable)
+        result = [None]*len_iterable
+        value = 1
+        for (index, _) in sorted(enumerate(iterable), key=operator.itemgetter(1)):
+            result[index] = value
+            value += 1
+        return cls(result)
+
+    standardize = to_standard  # permpy backwards compatibility
+    from_iterable = to_standard  # TODO: Acceptable alias?
+
     def contains(self, *patts):
         """Check if self contains patts.
 
@@ -509,25 +528,6 @@ class Permutation(tuple, Pattern, Rotatable, Shiftable, Flippable):
         return sum(1 for _ in self.valleys())
 
     num_valleys = count_valleys  # permpy backwards compatibility
-
-    @classmethod
-    def to_standard(cls, iterable):
-        """Return the permutation corresponding to iterable."""
-        # TODO: Do performance testing
-        try:
-            len_iterable = len(iterable)
-        except TypeError:
-            iterable = list(iterable)
-            len_iterable = len(iterable)
-        result = [None]*len_iterable
-        value = 1
-        for (index, _) in sorted(enumerate(iterable), key=operator.itemgetter(1)):
-            result[index] = value
-            value += 1
-        return cls(result)
-
-    standardize = to_standard  # permpy backwards compatibility
-    from_iterable = to_standard  # TODO: Acceptable alias?
 
     def __call__(self, value):
         # TODO: Docstring
