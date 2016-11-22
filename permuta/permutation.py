@@ -391,6 +391,36 @@ class Permutation(tuple, Pattern, Rotatable, Shiftable, Flippable):
             value += 1
         return result
 
+    def peaks(self):
+        """Yield the indices of the peaks of self.
+        
+        The i-th element of a permutation is a peak if
+            self[i-1] < self[i] > self[i+1].
+        """
+        # TODO: Have an argument about docstrings with Murray
+        if len(self) <= 2:
+            return
+        ascent = False
+        for index in range(1, len(self)-1):
+            if self[index-1] < self[index]:
+                # Permutation ascended
+                ascent = True
+            else:
+                # Permutation descended
+                if ascent:
+                    yield index-1
+                ascent = False
+        # Check if penultimate element is a peak
+        if ascent and self[-2] > self[-1]:
+            yield len(self) - 2
+
+    def peak_list(self):
+        """Return the list of peaks of self.
+        
+        This method is for backwards compatibility with permpy.
+        """
+        return list(self.peaks())
+
     @classmethod
     def to_standard(cls, iterable):
         """Return the permutation corresponding to lst."""

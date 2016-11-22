@@ -190,6 +190,12 @@ class TestPermutation(unittest.TestCase):
         self.assertEqual(Permutation(521436).fixed_points(), 3)
         self.assertEqual(Permutation(123456).fixed_points(), 6)
 
+    def test_peaks(self):
+        self.assertEqual(list(Permutation().peaks()), [])
+        self.assertEqual(list(Permutation(1234).peaks()), [])
+        self.assertEqual(list(Permutation(321546).peaks()), [3])
+        self.assertEqual(list(Permutation(2341765).peaks()), [2, 4])
+
     def test_to_standard(self):
         def gen(perm):
             res = list(perm)
