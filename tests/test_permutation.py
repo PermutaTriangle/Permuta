@@ -9,13 +9,15 @@ class TestPermutation(unittest.TestCase):
         with self.assertRaises(AssertionError): Permutation([2,1,2], check=True)
         with self.assertRaises(AssertionError): Permutation([1,1], check=True)
         with self.assertRaises(AssertionError): Permutation([2], check=True)
-        with self.assertRaises(TypeError): Permutation(5, check=True)
+        with self.assertRaises(AssertionError): Permutation(122, check=True)
         with self.assertRaises(TypeError): Permutation(None, check=True)
         Permutation(check=True)
         Permutation([], check=True)
         Permutation([1], check=True)
         Permutation([4,1,3,2], check=True)
         Permutation(set([1,2,3]), check=True)
+        p = Permutation(613245, check=True)
+        self.assertEqual(p, Permutation((6,1,3,2,4,5)))
 
     def test_contained_in(self):
         def generate_contained(n,perm):
@@ -88,6 +90,40 @@ class TestPermutation(unittest.TestCase):
             res = list(perm.apply(lst))
             for j,k in enumerate(perm.inverse()):
                 self.assertEqual(lst[j], res[k-1])
+
+    def test_direct_sum(self):
+        p1 = Permutation(1243)
+        p2 = Permutation(15324)
+        p3 = Permutation(312)
+        p4 = Permutation(1)
+        p5 = Permutation()
+        # All together
+        result = p1.direct_sum(p2, p3, p4, p5)
+        expected = Permutation((1,2,4,3,5,9,7,6,8,12,10,11,13))
+        self.assertEqual(result, expected)
+        # Two
+        result = p1.direct_sum(p3)
+        expected = Permutation((1,2,4,3,7,5,6))
+        self.assertEqual(result, expected)
+        # None
+        self.assertEqual(p1.direct_sum(), p1)
+        
+    def test_skew_sum(self):
+        p1 = Permutation(1243)
+        p2 = Permutation(15324)
+        p3 = Permutation(312)
+        p4 = Permutation(1)
+        p5 = Permutation()
+        # All together
+        result = p1.skew_sum(p2, p3, p4, p5)
+        expected = Permutation((10,11,13,12,5,9,7,6,8,4,2,3,1))
+        self.assertEqual(result, expected)
+        # Two
+        result = p1.skew_sum(p3)
+        expected = Permutation((4,5,7,6,3,1,2))
+        self.assertEqual(result, expected)
+        # None
+        self.assertEqual(p1.skew_sum(), p1)
 
     def test_inverse(self):
         for i in range(10):

@@ -14,17 +14,28 @@ if sys.version_info.major == 2:
 class Permutation(tuple, Pattern, Rotatable, Shiftable, Flippable):
     """A permutation class."""
 
+    _TYPE_ERROR = "Non-Permutation argument: {}"
+
     def __new__(cls, iterable=(), check=False):
         """Return a Permutation instance.
 
         Args:
             self:
                 The class of which an instance is requested.
-            iterable: <collections.Iterable>
+            iterable: <collections.Iterable> or <numbers.Integral>
                 An iterable corresponding to a legal permutation.
+                Also supports passing just a number with unique digits.
             check: bool
                 If True, iterable will be confirmed to correspond to a legal permutation.
         """
+        if isinstance(iterable, numbers.Integral):
+            number = iterable
+            assert 1 <= number <= 987654321  # TODO: Message
+            iterable = []
+            while number != 0:
+                iterable.append(number % 10)
+                number //= 10
+            iterable = reversed(iterable)
         instance = super(Permutation, cls).__new__(cls, iterable)
         return instance
 
@@ -231,6 +242,29 @@ class Permutation(tuple, Pattern, Rotatable, Shiftable, Flippable):
         assert len(iterable) == len(self)
         return (iterable[index-1] for index in self)
 
+    def direct_sum(self, *others):
+        """Return the direct sum of two or more permutations."""
+        result = list(self)
+        shift = len(self)
+        for index in range(len(others)):
+            other = others[index]
+            if not isinstance(other, Permutation):
+                raise TypeError(Permutation._TYPE_ERROR.format(repr(other)))
+            result.extend(element + shift for element in other)
+            shift += len(other)
+        return Permutation(result)
+
+    def skew_sum(self, *others):
+        """Return the skew sum of two or more permutations."""
+        shift = sum(len(other) for other in others)
+        result = [element + shift for element in self]
+        for index in range(len(others)):
+            other = others[index]
+            if not isinstance(other, Permutation):
+                raise TypeError(Permutation._TYPE_ERROR.format(repr(other)))
+            shift -= len(other)
+            result.extend(element + shift for element in other)
+        return Permutation(result)
 
     def inverse(self):
         """Return the inverse of the permutation self."""
@@ -368,6 +402,14 @@ class Permutation(tuple, Pattern, Rotatable, Shiftable, Flippable):
         assert isinstance(value, numbers.Integral)  # TODO: Message
         assert 0 < value <= len(self)  # TODO: Message
         return self[value-1]
+
+    def __add__(self, other):
+        """Return the direct sum of the permutations self and other."""
+        return self.direct_sum(other)
+
+    def __sub__(self, other):
+        """Return the skew sum of the permutations self and other."""
+        return self.skew_sum(other)
 
     def __repr__(self):
         return "Permutation({})".format(super(Permutation, self).__repr__())
