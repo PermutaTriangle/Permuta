@@ -91,6 +91,40 @@ class TestPermutation(unittest.TestCase):
             for j,k in enumerate(perm.inverse()):
                 self.assertEqual(lst[j], res[k-1])
 
+    def test_direct_sum(self):
+        p1 = Permutation(1243)
+        p2 = Permutation(15324)
+        p3 = Permutation(312)
+        p4 = Permutation(1)
+        p5 = Permutation()
+        # All together
+        result = p1.direct_sum(p2, p3, p4, p5)
+        expected = Permutation((1,2,4,3,5,9,7,6,8,12,10,11,13))
+        self.assertEqual(result, expected)
+        # Two
+        result = p1.direct_sum(p3)
+        expected = Permutation((1,2,4,3,7,5,6))
+        self.assertEqual(result, expected)
+        # None
+        self.assertEqual(p1.direct_sum(), p1)
+        
+    def test_skew_sum(self):
+        p1 = Permutation(1243)
+        p2 = Permutation(15324)
+        p3 = Permutation(312)
+        p4 = Permutation(1)
+        p5 = Permutation()
+        # All together
+        result = p1.skew_sum(p2, p3, p4, p5)
+        expected = Permutation((10,11,13,12,5,9,7,6,8,4,2,3,1))
+        self.assertEqual(result, expected)
+        # Two
+        result = p1.skew_sum(p3)
+        expected = Permutation((4,5,7,6,3,1,2))
+        self.assertEqual(result, expected)
+        # None
+        self.assertEqual(p1.skew_sum(), p1)
+
     def test_inverse(self):
         for i in range(10):
             self.assertEqual(Permutation(list(range(1,i))), Permutation(list(range(1,i))).inverse())
