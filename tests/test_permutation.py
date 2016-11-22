@@ -190,6 +190,38 @@ class TestPermutation(unittest.TestCase):
         self.assertEqual(Permutation(521436).fixed_points(), 3)
         self.assertEqual(Permutation(123456).fixed_points(), 6)
 
+    def test_descents(self):
+        self.assertEqual(list(Permutation().descents()), [])
+        self.assertEqual(list(Permutation(1234).descents()), [])
+        self.assertEqual(list(Permutation(4321).descents()), [1,2,3])
+        self.assertEqual(list(Permutation(321546).descents()), [1, 2, 4])
+        self.assertEqual(list(Permutation(2341765).descents()), [3, 5, 6])
+        self.assertEqual(list(Permutation(42561873).descents()), [1, 4, 6, 7])
+
+    def test_count_descents(self):
+        self.assertEqual(Permutation().count_descents(), 0)
+        self.assertEqual(Permutation(1234).count_descents(), 0)
+        self.assertEqual(Permutation(4321).count_descents(), 3)
+        self.assertEqual(Permutation(321546).count_descents(), 3)
+        self.assertEqual(Permutation(2341765).count_descents(), 3)
+        self.assertEqual(Permutation(42561873).count_descents(), 4)
+
+    def test_ascents(self):
+        self.assertEqual(list(Permutation().ascents()), [])
+        self.assertEqual(list(Permutation(1234).ascents()), [1,2,3])
+        self.assertEqual(list(Permutation(4321).ascents()), [])
+        self.assertEqual(list(Permutation(321546).ascents()), [3, 5])
+        self.assertEqual(list(Permutation(2341765).ascents()), [1, 2, 4])
+        self.assertEqual(list(Permutation(42561873).ascents()), [2, 3, 5])
+
+    def test_count_ascents(self):
+        self.assertEqual(Permutation().count_ascents(), 0)
+        self.assertEqual(Permutation(1234).count_ascents(), 3)
+        self.assertEqual(Permutation(4321).count_ascents(), 0)
+        self.assertEqual(Permutation(321546).count_ascents(), 2)
+        self.assertEqual(Permutation(2341765).count_ascents(), 3)
+        self.assertEqual(Permutation(42561873).count_ascents(), 3)
+
     def test_peaks(self):
         self.assertEqual(list(Permutation().peaks()), [])
         self.assertEqual(list(Permutation(1234).peaks()), [])

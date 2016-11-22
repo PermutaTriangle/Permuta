@@ -391,6 +391,44 @@ class Permutation(tuple, Pattern, Rotatable, Shiftable, Flippable):
             value += 1
         return result
 
+    def descents(self):
+        """Yield the indices of the descents of self."""
+        # TODO implement
+
+        p = list(self)
+        n = self.__len__()
+        descents = []
+        for i in range(1,n):
+            if p[i-1] > p[i]:
+                descents.append(i)
+        return descents
+
+    def descent_set(self):
+        # TODO: permpy bc
+        return list(self.descents())
+
+    def count_descents(self):
+        """Count the number of descents of self."""
+        return sum(1 for _ in self.descents())
+
+    num_descents = count_descents  # permpy backwards compatibility
+
+    def ascents(self):
+        """Yield the indices of the ascent of self."""
+        # TODO: implement
+        descents = self.descent_set()
+        return [i for i in range(1, len(self)) if i not in descents]
+    
+    def ascent_set(self):
+        # TODO: permpy bc
+        return list(self.ascents())
+
+    def count_ascents(self):
+        """Count the number of ascents in self."""
+        return sum(1 for _ in self.ascents())
+
+    num_ascents = count_ascents  # permpy backwards compatibility
+
     def peaks(self):
         """Yield the indices of the peaks of self.
         
