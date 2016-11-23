@@ -7,19 +7,19 @@ from permuta import MeshPattern, Permutation, Permutations
 class TestPermutation(unittest.TestCase):
 
     def test_init(self):
-        with self.assertRaises(AssertionError): Permutation([1,2,2], check=True)
-        with self.assertRaises(AssertionError): Permutation([2,1,2], check=True)
-        with self.assertRaises(AssertionError): Permutation([1,1], check=True)
-        with self.assertRaises(AssertionError): Permutation([2], check=True)
-        with self.assertRaises(AssertionError): Permutation(122, check=True)
+        with self.assertRaises(AssertionError): Permutation([0,1,1], check=True)
+        with self.assertRaises(AssertionError): Permutation([1,0,1], check=True)
+        with self.assertRaises(AssertionError): Permutation([0,0], check=True)
+        with self.assertRaises(AssertionError): Permutation([1], check=True)
+        with self.assertRaises(AssertionError): Permutation(011, check=True)
         with self.assertRaises(TypeError): Permutation(None, check=True)
         Permutation(check=True)
         Permutation([], check=True)
-        Permutation([1], check=True)
-        Permutation([4,1,3,2], check=True)
-        Permutation(set([1,2,3]), check=True)
-        p = Permutation(613245, check=True)
-        self.assertEqual(p, Permutation((6,1,3,2,4,5)))
+        Permutation([0], check=True)
+        Permutation([3,0,2,1], check=True)
+        Permutation(set([0,1,2]), check=True)
+        p = Permutation(502134, check=True)
+        self.assertEqual(p, Permutation((5,0,2,1,3,4)))
 
     def test_to_standard(self):
         def gen(perm):
@@ -36,14 +36,14 @@ class TestPermutation(unittest.TestCase):
             self.assertEqual(perm, Permutation.to_standard(gen(perm)))
 
         self.assertEqual(Permutation.to_standard(range(10)),
-                         Permutation((1,2,3,4,5,6,7,8,9,10)))
+                         Permutation((0,1,2,3,4,5,6,7,8,9)))
         self.assertEqual(Permutation.to_standard(10 - x for x in range(5)),
-                         Permutation((5,4,3,2,1)))
+                         Permutation((4,3,2,1,0)))
 
     def test_identity(self):
         for length in range(11):
             self.assertEqual(Permutation.identity(length),
-                             Permutation(range(1, length+1)))
+                             Permutation(range(length)))
 
     def test_random(self):
         for length in range(11):
@@ -55,36 +55,36 @@ class TestPermutation(unittest.TestCase):
     def test_monotone_increasing(self):
         for length in range(11):
             self.assertEqual(Permutation.monotone_increasing(length),
-                             Permutation(range(1, length+1)))
+                             Permutation(range(length)))
 
     def test_monotone_decreasing(self):
         for length in range(11):
             self.assertEqual(Permutation.monotone_decreasing(length),
-                             Permutation(range(length, 0, -1)))
+                             Permutation(range(length-1, -1, -1)))
 
     def test_unrank(self):
         self.assertEqual(Permutation.unrank(0),
                          Permutation())
         self.assertEqual(Permutation.unrank(1),
-                         Permutation((1,)))
+                         Permutation((0,)))
         self.assertEqual(Permutation.unrank(2),
-                         Permutation((1,2)))
+                         Permutation((0,1)))
         self.assertEqual(Permutation.unrank(3),
-                         Permutation((2,1)))
+                         Permutation((1,0)))
         self.assertEqual(Permutation.unrank(4),
-                         Permutation((1,2,3)))
+                         Permutation((0,1,2)))
         self.assertEqual(Permutation.unrank(5),
-                         Permutation((1,3,2)))
+                         Permutation((0,2,1)))
         self.assertEqual(Permutation.unrank(6),
-                         Permutation((2,1,3)))
+                         Permutation((1,0,2)))
         self.assertEqual(Permutation.unrank(10),
-                         Permutation((1,2,3,4)))
+                         Permutation((0,1,2,3)))
         amount = 1 + 1 + 2 + 6 + 24
         self.assertEqual(Permutation.unrank(amount),
-                         Permutation((1,2,3,4,5)))
+                         Permutation((0,1,2,3,4)))
         amount = (1 + 1 + 2 + 6 + 24 + 120) - 1
         self.assertEqual(Permutation.unrank(amount),
-                         Permutation((5,4,3,2,1)))
+                         Permutation((4,3,2,1,0)))
         with self.assertRaises(AssertionError): Permutation.unrank(-1)
         with self.assertRaises(AssertionError): Permutation.unrank(6, 3)
         ps = list(Permutations(7))
@@ -93,6 +93,7 @@ class TestPermutation(unittest.TestCase):
 
     def test_contained_in(self):
         def generate_contained(n,perm):
+            # TODO: Ragnar: "I don't know how to make this method 0-based, Murray?"
             for i in range(len(perm),n):
                 r = random.randint(1,len(perm)+1)
                 for i in range(len(perm)):
@@ -102,254 +103,255 @@ class TestPermutation(unittest.TestCase):
                 perm = perm[:x] + [r] + perm[x:]
             return Permutation(perm)
 
-        self.assertTrue(Permutation([4,8,1,9,2,7,6,3,5]).contained_in(Permutation([4,8,1,9,2,7,6,3,5])))
+        self.assertTrue(Permutation([3,7,0,8,1,6,5,2,4]).contained_in(Permutation([3,7,0,8,1,6,5,2,4])))
         self.assertTrue(Permutation([]).contained_in(Permutation([])))
-        self.assertTrue(Permutation([]).contained_in(Permutation([4,8,1,9,2,7,6,3,5])))
-        self.assertTrue(Permutation([1]).contained_in(Permutation([1])))
-        self.assertFalse(Permutation([8,4,1,9,2,7,6,3,5]).contained_in(Permutation([4,8,1,9,2,7,6,3,5])))
+        self.assertTrue(Permutation([]).contained_in(Permutation([3,7,0,8,1,6,5,2,4])))
+        self.assertTrue(Permutation([0]).contained_in(Permutation([0])))
+        self.assertFalse(Permutation([7,3,0,8,1,6,5,2,4]).contained_in(Permutation([3,7,0,8,1,6,5,2,4])))
 
         for i in range(100):
+            # TODO: Ragnar: "That also means I haven't touched this."
             n = random.randint(0, 4)
             patt = Permutations(n).random_element()
             perm = generate_contained(random.randint(n, 8), list(patt))
             self.assertTrue(patt.contained_in(perm))
 
-        self.assertFalse(Permutation([1]).contained_in(Permutation([])))
-        self.assertFalse(Permutation([1,2]).contained_in(Permutation([])))
-        self.assertFalse(Permutation([1,2]).contained_in(Permutation([1])))
-        self.assertFalse(Permutation([2, 1]).contained_in(Permutation([1, 2])))
-        self.assertFalse(Permutation([1,2,3]).contained_in(Permutation([1,2])))
-        self.assertFalse(Permutation([2, 1, 3]).contained_in(Permutation([1, 2, 4, 5, 3])))
-        self.assertFalse(Permutation([1, 2, 3]).contained_in(Permutation([3, 2, 4, 1])))
-        self.assertFalse(Permutation([3, 2, 4, 1]).contained_in(Permutation([3, 1, 4, 2])))
-        self.assertFalse(Permutation([1, 3, 2]).contained_in(Permutation([3, 1, 2, 4])))
-        self.assertFalse(Permutation([3, 1, 2, 4]).contained_in(Permutation([6, 4, 3, 8, 2, 1, 7, 5])))
-        self.assertFalse(Permutation([1, 2, 3, 4]).contained_in(Permutation([5, 8, 6, 2, 7, 3, 4, 1])))
+        self.assertFalse(Permutation([0]).contained_in(Permutation([])))
+        self.assertFalse(Permutation([0,1]).contained_in(Permutation([])))
+        self.assertFalse(Permutation([0,1]).contained_in(Permutation([0])))
+        self.assertFalse(Permutation([1, 0]).contained_in(Permutation([0, 1])))
+        self.assertFalse(Permutation([0,1,2]).contained_in(Permutation([0,1])))
+        self.assertFalse(Permutation([1, 0, 2]).contained_in(Permutation([0, 1, 3, 4, 2])))
+        self.assertFalse(Permutation([0, 1, 2]).contained_in(Permutation([2, 1, 3, 0])))
+        self.assertFalse(Permutation([2, 1, 3, 0]).contained_in(Permutation([2, 0, 3, 1])))
+        self.assertFalse(Permutation([0, 2, 1]).contained_in(Permutation([2, 0, 1, 3])))
+        self.assertFalse(Permutation([2, 0, 1, 3]).contained_in(Permutation([5, 3, 2, 7, 1, 0, 6, 4])))
+        self.assertFalse(Permutation([0, 1, 2, 3]).contained_in(Permutation([4, 7, 5, 1, 6, 2, 3, 0])))
 
     def test_count_occurrences_in(self):
-        self.assertEqual(Permutation([]).count_occurrences_in(Permutation([5,2,3,4,1])), 1)
-        self.assertEqual(Permutation([1]).count_occurrences_in(Permutation([5,2,3,4,1])), 5)
-        self.assertEqual(Permutation([1,2]).count_occurrences_in(Permutation([5,2,3,4,1])), 3)
-        self.assertEqual(Permutation([2,1]).count_occurrences_in(Permutation([5,2,3,4,1])), 7)
-        self.assertEqual(Permutation([5,2,3,4,1]).count_occurrences_in(Permutation([])), 0)
-        self.assertEqual(Permutation([5,2,3,4,1]).count_occurrences_in(Permutation([2,1])), 0)
+        self.assertEqual(Permutation([]).count_occurrences_in(Permutation([4,1,2,3,0])), 1)
+        self.assertEqual(Permutation([0]).count_occurrences_in(Permutation([4,1,2,3,0])), 5)
+        self.assertEqual(Permutation([0,1]).count_occurrences_in(Permutation([4,1,2,3,0])), 3)
+        self.assertEqual(Permutation([1,0]).count_occurrences_in(Permutation([4,1,2,3,0])), 7)
+        self.assertEqual(Permutation([4,1,2,3,0]).count_occurrences_in(Permutation([])), 0)
+        self.assertEqual(Permutation([4,1,2,3,0]).count_occurrences_in(Permutation([1,0])), 0)
 
     def test_occurrences_in(self):
         self.assertEqual(
-                          list(Permutation([]).occurrences_in(Permutation([5,2,3,4,1])))
+                          list(Permutation([]).occurrences_in(Permutation([4,1,2,3,0])))
                         , [[]]
                         )
         self.assertEqual(
-                          sorted(Permutation([1]).occurrences_in(Permutation([5,2,3,4,1])))
+                          sorted(Permutation([0]).occurrences_in(Permutation([4,1,2,3,0])))
                         , [[0],[1],[2],[3],[4]]
                         )
         self.assertEqual(
-                          sorted(Permutation([1,2]).occurrences_in(Permutation([5,2,3,4,1])))
+                          sorted(Permutation([0,1]).occurrences_in(Permutation([4,1,2,3,0])))
                         , [[1,2],[1,3],[2,3]]
                         )
         self.assertEqual(
-                          sorted(Permutation([2,1]).occurrences_in(Permutation([5,2,3,4,1])))
+                          sorted(Permutation([1,0]).occurrences_in(Permutation([4,1,2,3,0])))
                         , [[0,1],[0,2],[0,3],[0,4],[1,4],[2,4],[3,4]]
                         )
-        self.assertEqual(list(Permutation([5,2,3,4,1]).occurrences_in(Permutation([]))), [])
-        self.assertEqual(list(Permutation([5,2,3,4,1]).occurrences_in(Permutation([2,1]))), [])
+        self.assertEqual(list(Permutation([4,1,2,3,0]).occurrences_in(Permutation([]))), [])
+        self.assertEqual(list(Permutation([4,1,2,3,0]).occurrences_in(Permutation([1,0]))), [])
 
     def test_apply(self):
         for i in range(100):
             n = random.randint(0,20)
-            lst = [ random.randint(0,10000) for i in range(n) ]
-            perm = Permutations(n).random_element()
+            lst = [random.randint(0,10000) for _ in range(n)]
+            perm = Permutation.random(n)
             res = list(perm.apply(lst))
             for j,k in enumerate(perm.inverse()):
-                self.assertEqual(lst[j], res[k-1])
+                self.assertEqual(lst[j], res[k])
 
     def test_direct_sum(self):
-        p1 = Permutation(1243)
-        p2 = Permutation(15324)
-        p3 = Permutation(312)
-        p4 = Permutation(1)
+        p1 = Permutation(0132)
+        p2 = Permutation(04213)
+        p3 = Permutation(201)
+        p4 = Permutation(0)
         p5 = Permutation()
         # All together
         result = p1.direct_sum(p2, p3, p4, p5)
-        expected = Permutation((1,2,4,3,5,9,7,6,8,12,10,11,13))
+        expected = Permutation((0,1,3,2,4,8,6,5,7,11,9,10,12))
         self.assertEqual(result, expected)
         # Two
         result = p1.direct_sum(p3)
-        expected = Permutation((1,2,4,3,7,5,6))
+        expected = Permutation((0,1,3,2,6,4,5))
         self.assertEqual(result, expected)
         # None
         self.assertEqual(p1.direct_sum(), p1)
         
     def test_skew_sum(self):
-        p1 = Permutation(1243)
-        p2 = Permutation(15324)
-        p3 = Permutation(312)
-        p4 = Permutation(1)
+        p1 = Permutation(0132)
+        p2 = Permutation(04213)
+        p3 = Permutation(201)
+        p4 = Permutation(0)
         p5 = Permutation()
         # All together
         result = p1.skew_sum(p2, p3, p4, p5)
-        expected = Permutation((10,11,13,12,5,9,7,6,8,4,2,3,1))
+        expected = Permutation((9,10,12,11,4,8,6,5,7,3,1,2,0))
         self.assertEqual(result, expected)
         # Two
         result = p1.skew_sum(p3)
-        expected = Permutation((4,5,7,6,3,1,2))
+        expected = Permutation((3,4,6,5,2,0,1))
         self.assertEqual(result, expected)
         # None
         self.assertEqual(p1.skew_sum(), p1)
 
     def test_inverse(self):
         for i in range(10):
-            self.assertEqual(Permutation(list(range(1,i))), Permutation(list(range(1,i))).inverse())
-        self.assertEqual(Permutation([3,2,4,1]), Permutation([4,2,1,3]).inverse())
-        self.assertEqual(Permutation([5,4,2,7,6,8,9,1,3]), Permutation([8,3,9,2,1,5,4,6,7]).inverse())
+            self.assertEqual(Permutation(range(i)), Permutation(range(i)).inverse())
+        self.assertEqual(Permutation([2,1,3,0]), Permutation([3,1,0,2]).inverse())
+        self.assertEqual(Permutation([4,3,1,6,5,7,8,0,2]), Permutation([7,2,8,1,0,4,3,5,6]).inverse())
 
     def test_rotate_right(self):
         for i in range(10):
-            self.assertEqual(Permutation(list(range(i-1,0,-1))), Permutation(list(range(1,i))).rotate_right())
-        self.assertEqual(Permutation([3,2,4,5,1,6,7]), Permutation([7,6,4,3,1,2,5]).rotate_right())
-        self.assertEqual(Permutation([5,6,4,2,8,1,3,7]), Permutation([5,8,2,1,3,7,4,6]).rotate_right())
-        self.assertEqual(Permutation([1,2,3]), Permutation([3,2,1]).rotate_right(5))
-        self.assertEqual(Permutation([5,6,4,2,1,3]), Permutation([5,6,4,2,1,3]).rotate_right(4))
+            self.assertEqual(Permutation(range(i-1,-1,-1)), Permutation(range(i)).rotate_right())
+        self.assertEqual(Permutation([2,1,3,4,0,5,6]), Permutation([6,5,3,2,0,1,4]).rotate_right())
+        self.assertEqual(Permutation([4,5,3,1,7,0,2,6]), Permutation([4,7,1,0,2,6,3,5]).rotate_right())
+        self.assertEqual(Permutation([0,1,2]), Permutation([2,1,0]).rotate_right(5))
+        self.assertEqual(Permutation([4,5,3,1,0,2]), Permutation([4,5,3,1,0,2]).rotate_right(4))
 
     def test_rotate_left(self):
         for i in range(10):
-            self.assertEqual(Permutation(list(range(i-1,0,-1))), Permutation(list(range(1,i))).rotate_right())
-        self.assertEqual(Permutation([7,6,4,3,1,2,5]).rotate_left(), Permutation([7,6,4,3,1,2,5]).rotate_right(3))
-        self.assertEqual(Permutation([7,6,4,3,1,2,5]).rotate_left(), Permutation([7,6,4,3,1,2,5]).rotate_right(-1))
-        self.assertEqual(Permutation([5,8,2,1,3,7,4,6]).rotate_left(), Permutation([5,8,2,1,3,7,4,6]).rotate_right(7))
+            self.assertEqual(Permutation(list(range(i-1,-1,-1))), Permutation(range(i)).rotate_right())
+        self.assertEqual(Permutation([6,5,3,2,0,1,4]).rotate_left(), Permutation([6,5,3,2,0,1,4]).rotate_right(3))
+        self.assertEqual(Permutation([6,5,3,2,0,1,4]).rotate_left(), Permutation([6,5,3,2,0,1,4]).rotate_right(-1))
+        self.assertEqual(Permutation([4,7,1,0,2,6,3,5]).rotate_left(), Permutation([4,7,1,0,2,6,3,5]).rotate_right(7))
         self.assertEqual(Permutation([]).rotate_left(), Permutation([]).rotate_left(123))
 
     def test_shift_left(self):
         self.assertEqual(Permutation([]), Permutation([]).shift_left())
-        self.assertEqual(Permutation([1]), Permutation([1]).shift_left())
-        self.assertEqual(Permutation([1,2,3,4,5,6,7,8]), Permutation([1,2,3,4,5,6,7,8]).shift_left(0))
-        self.assertEqual(Permutation([1,2,3,4,5,6,7,8]), Permutation([6,7,8,1,2,3,4,5]).shift_left(3))
-        self.assertEqual(Permutation([1,2,3,4,5,6,7,8]), Permutation([1,2,3,4,5,6,7,8]).shift_left(800))
-        self.assertEqual(Permutation([1,2,3,4,5,6,7,8]), Permutation([6,7,8,1,2,3,4,5]).shift_left(403))
-        self.assertEqual(Permutation([1,2,3,4,5,6,7,8]), Permutation([1,2,3,4,5,6,7,8]).shift_left(-8))
-        self.assertEqual(Permutation([1,2,3,4,5,6,7,8]), Permutation([6,7,8,1,2,3,4,5]).shift_left(-5))
+        self.assertEqual(Permutation([0]), Permutation([0]).shift_left())
+        self.assertEqual(Permutation([0,1,2,3,4,5,6,7]), Permutation([0,1,2,3,4,5,6,7]).shift_left(0))
+        self.assertEqual(Permutation([0,1,2,3,4,5,6,7]), Permutation([5,6,7,0,1,2,3,4]).shift_left(3))
+        self.assertEqual(Permutation([0,1,2,3,4,5,6,7]), Permutation([0,1,2,3,4,5,6,7]).shift_left(800))
+        self.assertEqual(Permutation([0,1,2,3,4,5,6,7]), Permutation([5,6,7,0,1,2,3,4]).shift_left(403))
+        self.assertEqual(Permutation([0,1,2,3,4,5,6,7]), Permutation([0,1,2,3,4,5,6,7]).shift_left(-8))
+        self.assertEqual(Permutation([0,1,2,3,4,5,6,7]), Permutation([5,6,7,0,1,2,3,4]).shift_left(-5))
 
     def test_shift_down(self):
         self.assertEqual(Permutation([]), Permutation([]).shift_down(1000))
-        self.assertEqual(Permutation([1]), Permutation([1]).shift_down(10))
-        self.assertEqual(Permutation([2,1,5,3,4,6]), Permutation([3,2,6,4,5,1]).shift_down())
-        self.assertEqual(Permutation([2,1,5,3,4,6]), Permutation([3,2,6,4,5,1]).shift_down(13))
-        self.assertEqual(Permutation([2,1,5,3,4,6]), Permutation([6,5,3,1,2,4]).shift_down(-2))
-        self.assertEqual(Permutation([2,1,5,3,4,6]), Permutation([6,5,3,1,2,4]).shift_down(-8))
+        self.assertEqual(Permutation([0]), Permutation([0]).shift_down(10))
+        self.assertEqual(Permutation([1,0,4,2,3,5]), Permutation([2,1,5,3,4,0]).shift_down())
+        self.assertEqual(Permutation([1,0,4,2,3,5]), Permutation([2,1,5,3,4,0]).shift_down(13))
+        self.assertEqual(Permutation([1,0,4,2,3,5]), Permutation([5,4,2,0,1,3]).shift_down(-2))
+        self.assertEqual(Permutation([1,0,4,2,3,5]), Permutation([5,4,2,0,1,3]).shift_down(-8))
 
     def test_reverse(self):
-        self.assertEqual(Permutation([6,3,4,1,5,7,2]), Permutation([2,7,5,1,4,3,6]).reverse())
-        self.assertEqual(Permutation([8,2,1,3,5,7,4,6]), Permutation([6,4,7,5,3,1,2,8]).reverse())
+        self.assertEqual(Permutation([5,2,3,0,4,6,1]), Permutation([1,6,4,0,3,2,5]).reverse())
+        self.assertEqual(Permutation([7,1,0,2,4,6,3,5]), Permutation([5,3,6,4,2,0,1,7]).reverse())
 
     def test_complement(self):
-        self.assertEqual(Permutation([7,5,3,4,2,1,6]), Permutation([1,3,5,4,6,7,2]).complement())
-        self.assertEqual(Permutation([3,6,7,4,8,5,1,2]), Permutation([6,3,2,5,1,4,8,7]).complement())
+        self.assertEqual(Permutation([6,4,2,3,1,0,5]), Permutation([0,2,4,3,5,6,1]).complement())
+        self.assertEqual(Permutation([2,5,6,3,7,4,0,1]), Permutation([5,2,1,4,0,3,7,6]).complement())
 
     def test_reverse_complement(self):
-        for i in range(100):
-            perm = Permutations(random.randint(0,20)).random_element()
+        for _ in range(100):
+            perm = Permutation.random(random.randint(0,20))
             self.assertEqual(perm.reverse_complement(), perm.rotate().rotate())
 
     def test_flip_antidiagonal(self):
         for i in range(100):
-            perm = Permutations(random.randint(0,20)).random_element()
+            perm = Permutation.random(random.randint(0,20))
             self.assertEqual(perm.reverse().complement().inverse(), perm.flip_antidiagonal())
 
     def test_fixed_points(self):
         self.assertEqual(Permutation().fixed_points(), 0)
-        self.assertEqual(Permutation(132).fixed_points(), 1)
-        self.assertEqual(Permutation(654321).fixed_points(), 0)
-        self.assertEqual(Permutation(521436).fixed_points(), 3)
-        self.assertEqual(Permutation(123456).fixed_points(), 6)
+        self.assertEqual(Permutation(021).fixed_points(), 1)
+        self.assertEqual(Permutation(543210).fixed_points(), 0)
+        self.assertEqual(Permutation(410325).fixed_points(), 3)
+        self.assertEqual(Permutation(012345).fixed_points(), 6)
 
     def test_descents(self):
         self.assertEqual(list(Permutation().descents()), [])
-        self.assertEqual(list(Permutation(1234).descents()), [])
-        self.assertEqual(list(Permutation(4321).descents()), [1,2,3])
-        self.assertEqual(list(Permutation(321546).descents()), [1, 2, 4])
-        self.assertEqual(list(Permutation(2341765).descents()), [3, 5, 6])
-        self.assertEqual(list(Permutation(42561873).descents()), [1, 4, 6, 7])
+        self.assertEqual(list(Permutation(0123).descents()), [])
+        self.assertEqual(list(Permutation(3210).descents()), [1,2,3])
+        self.assertEqual(list(Permutation(210435).descents()), [1, 2, 4])
+        self.assertEqual(list(Permutation(1230654).descents()), [3, 5, 6])
+        self.assertEqual(list(Permutation(31450762).descents()), [1, 4, 6, 7])
 
     def test_count_descents(self):
         self.assertEqual(Permutation().count_descents(), 0)
-        self.assertEqual(Permutation(1234).count_descents(), 0)
-        self.assertEqual(Permutation(4321).count_descents(), 3)
-        self.assertEqual(Permutation(321546).count_descents(), 3)
-        self.assertEqual(Permutation(2341765).count_descents(), 3)
-        self.assertEqual(Permutation(42561873).count_descents(), 4)
+        self.assertEqual(Permutation(0123).count_descents(), 0)
+        self.assertEqual(Permutation(3210).count_descents(), 3)
+        self.assertEqual(Permutation(210435).count_descents(), 3)
+        self.assertEqual(Permutation(1230654).count_descents(), 3)
+        self.assertEqual(Permutation(31450762).count_descents(), 4)
 
     def test_ascents(self):
         self.assertEqual(list(Permutation().ascents()), [])
-        self.assertEqual(list(Permutation(1234).ascents()), [1,2,3])
-        self.assertEqual(list(Permutation(4321).ascents()), [])
-        self.assertEqual(list(Permutation(321546).ascents()), [3, 5])
-        self.assertEqual(list(Permutation(2341765).ascents()), [1, 2, 4])
-        self.assertEqual(list(Permutation(42561873).ascents()), [2, 3, 5])
+        self.assertEqual(list(Permutation(0123).ascents()), [1,2,3])
+        self.assertEqual(list(Permutation(3210).ascents()), [])
+        self.assertEqual(list(Permutation(210435).ascents()), [3, 5])
+        self.assertEqual(list(Permutation(1230654).ascents()), [1, 2, 4])
+        self.assertEqual(list(Permutation(31450762).ascents()), [2, 3, 5])
 
     def test_count_ascents(self):
         self.assertEqual(Permutation().count_ascents(), 0)
-        self.assertEqual(Permutation(1234).count_ascents(), 3)
-        self.assertEqual(Permutation(4321).count_ascents(), 0)
-        self.assertEqual(Permutation(321546).count_ascents(), 2)
-        self.assertEqual(Permutation(2341765).count_ascents(), 3)
-        self.assertEqual(Permutation(42561873).count_ascents(), 3)
+        self.assertEqual(Permutation(0123).count_ascents(), 3)
+        self.assertEqual(Permutation(3210).count_ascents(), 0)
+        self.assertEqual(Permutation(210435).count_ascents(), 2)
+        self.assertEqual(Permutation(1230654).count_ascents(), 3)
+        self.assertEqual(Permutation(31450762).count_ascents(), 3)
 
     def test_peaks(self):
         self.assertEqual(list(Permutation().peaks()), [])
-        self.assertEqual(list(Permutation(1234).peaks()), [])
-        self.assertEqual(list(Permutation(321546).peaks()), [3])
-        self.assertEqual(list(Permutation(2341765).peaks()), [2, 4])
+        self.assertEqual(list(Permutation(0123).peaks()), [])
+        self.assertEqual(list(Permutation(210435).peaks()), [3])
+        self.assertEqual(list(Permutation(1230654).peaks()), [2, 4])
 
     def test_count_peaks(self):
         self.assertEqual(Permutation().count_peaks(), 0)
-        self.assertEqual(Permutation(1234).count_peaks(), 0)
-        self.assertEqual(Permutation(321546).count_peaks(), 1)
-        self.assertEqual(Permutation(2341765).count_peaks(), 2)
+        self.assertEqual(Permutation(0123).count_peaks(), 0)
+        self.assertEqual(Permutation(210435).count_peaks(), 1)
+        self.assertEqual(Permutation(1230654).count_peaks(), 2)
 
     def test_valleys(self):
         self.assertEqual(list(Permutation().valleys()), [])
-        self.assertEqual(list(Permutation(1234).valleys()), [])
-        self.assertEqual(list(Permutation(321546).valleys()), [2, 4])
-        self.assertEqual(list(Permutation(2341765).valleys()), [3])
-        self.assertEqual(list(Permutation(3241756).valleys()), [1, 3, 5])
+        self.assertEqual(list(Permutation(0123).valleys()), [])
+        self.assertEqual(list(Permutation(210435).valleys()), [2, 4])
+        self.assertEqual(list(Permutation(1230654).valleys()), [3])
+        self.assertEqual(list(Permutation(2130645).valleys()), [1, 3, 5])
 
     def test_count_valleys(self):
         self.assertEqual(Permutation().count_valleys(), 0)
-        self.assertEqual(Permutation(1234).count_valleys(), 0)
-        self.assertEqual(Permutation(321546).count_valleys(), 2)
-        self.assertEqual(Permutation(2341765).count_valleys(), 1)
-        self.assertEqual(Permutation(3241756).count_valleys(), 3)
+        self.assertEqual(Permutation(0123).count_valleys(), 0)
+        self.assertEqual(Permutation(210435).count_valleys(), 2)
+        self.assertEqual(Permutation(1230654).count_valleys(), 1)
+        self.assertEqual(Permutation(2130646).count_valleys(), 3)
 
     def test_call_1(self):
-        p = Permutation((1,2,3,4))
-        for i in range(1, len(p)+1):
+        p = Permutation((0,1,2,3))
+        for i in range(len(p)):
             self.assertEqual(p(i), i)
-        with self.assertRaises(AssertionError): p(0)
-        with self.assertRaises(AssertionError): p(5)
+        with self.assertRaises(AssertionError): p(-1)
+        with self.assertRaises(AssertionError): p(4)
 
     def test_call_2(self):
-        p = Permutation((4,5,1,3,2))
+        p = Permutation((3,4,0,2,1))
+        self.assertEqual(p(0), 3)
         self.assertEqual(p(1), 4)
-        self.assertEqual(p(2), 5)
-        self.assertEqual(p(3), 1)
-        self.assertEqual(p(4), 3)
-        self.assertEqual(p(5), 2)
-        with self.assertRaises(AssertionError): p(0)
-        with self.assertRaises(AssertionError): p(6)
+        self.assertEqual(p(2), 0)
+        self.assertEqual(p(3), 2)
+        self.assertEqual(p(4), 1)
+        with self.assertRaises(AssertionError): p(-1)
+        with self.assertRaises(AssertionError): p(5)
 
     def test_eq(self):
         self.assertTrue(Permutation([]) == Permutation([]))
-        self.assertTrue(Permutation([1]) == Permutation([1]))
-        self.assertTrue(Permutation([]) != Permutation([1]))
-        self.assertTrue(Permutation([1]) != Permutation([]))
+        self.assertTrue(Permutation([0]) == Permutation([0]))
+        self.assertTrue(Permutation([]) != Permutation([0]))
+        self.assertTrue(Permutation([0]) != Permutation([]))
         self.assertFalse(Permutation([]) != Permutation([]))
-        self.assertFalse(Permutation([1]) != Permutation([1]))
-        self.assertFalse(Permutation([]) == Permutation([1]))
-        self.assertFalse(Permutation([1]) == Permutation([]))
-        for i in range(100):
-            a = Permutations(random.randint(0,10)).random_element()
+        self.assertFalse(Permutation([0]) != Permutation([0]))
+        self.assertFalse(Permutation([]) == Permutation([0]))
+        self.assertFalse(Permutation([0]) == Permutation([]))
+        for _ in range(100):
+            a = Permutation.random(random.randint(0,10))
             b = Permutation(a)
-            c = Permutations(random.randint(0,10)).random_element()
+            c = Permutation.random(random.randint(0,10))
             if a == c:
                 continue
             self.assertTrue(a == b)
@@ -358,14 +360,15 @@ class TestPermutation(unittest.TestCase):
             self.assertTrue(c != a)
 
     def test_avoids(self):
-        self.assertTrue(Permutation([5,1,2,3,4]).avoids())
-        self.assertFalse(Permutation([5,1,2,3,4]).avoids(Permutation([1,2,3])))
-        self.assertFalse(Permutation([5,1,2,3,4]).avoids(Permutation([2,1])))
-        self.assertTrue(Permutation([5,1,2,3,4]).avoids(Permutation([3,2,1])))
-        self.assertFalse(Permutation([5,1,2,3,4]).avoids(Permutation([3,2,1]), Permutation([2,1])))
-        self.assertTrue(Permutation([5,1,2,3,4]).avoids(Permutation([3,2,1]), Permutation([2,3,1])))
+        self.assertTrue(Permutation([4,0,1,2,3]).avoids())
+        self.assertFalse(Permutation([4,0,1,2,3]).avoids(Permutation([0,1,2])))
+        self.assertFalse(Permutation([4,0,1,2,3]).avoids(Permutation([1,0])))
+        self.assertTrue(Permutation([4,0,1,2,3]).avoids(Permutation([2,1,0])))
+        self.assertFalse(Permutation([4,0,1,2,3]).avoids(Permutation([2,1,0]), Permutation([1,0])))
+        self.assertTrue(Permutation([4,0,1,2,3]).avoids(Permutation([2,1,0]), Permutation([1,2,0])))
 
     def test_avoids_2(self):
+        # TODO: Ragnar: "I leave the 0-indexing of this test as an exercise for Murray"
         bound = 6
         def do_test(patts, expected):
             for i in range(min(len(expected), bound)):
@@ -392,18 +395,21 @@ class TestPermutation(unittest.TestCase):
 
     def test_incr_decr(self):
         for i in range(100):
-            self.assertTrue(Permutation(list(range(1,i+1))).is_increasing())
-            self.assertTrue(Permutation(list(range(i,0,-1))).is_decreasing())
+            self.assertTrue(Permutation(range(i)).is_increasing())
+            self.assertTrue(Permutation(range(i-1,-1,-1)).is_decreasing())
 
-        self.assertFalse(Permutation([1,3,2]).is_increasing())
-        self.assertFalse(Permutation([1,3,2]).is_decreasing())
-        self.assertFalse(Permutation([2,1,3]).is_increasing())
-        self.assertFalse(Permutation([2,1,3]).is_decreasing())
+        self.assertFalse(Permutation([0,2,1]).is_increasing())
+        self.assertFalse(Permutation([0,2,1]).is_decreasing())
+        self.assertFalse(Permutation([1,0,2]).is_increasing())
+        self.assertFalse(Permutation([1,0,2]).is_decreasing())
 
     def test_lt(self):
+        # TODO: No length testing is done here
         for _ in range(30):
-            l1 = list(range(1, 10))
-            l2 = list(range(1, 10))
+            l1 = list(range(10))
+            l2 = list(range(10))
+            random.shuffle(l1)
+            random.shuffle(l2)
             if l1 < l2:
                 self.assertTrue(Permutation(l1) < permutation(l2))
             else:
@@ -412,7 +418,7 @@ class TestPermutation(unittest.TestCase):
             self.assertFalse(Permutation(l2) < Permutation(l2))
 
     def test_bool(self):
-        self.assertTrue(Permutation([1,2,3,4]))
-        self.assertTrue(Permutation([1]))
+        self.assertTrue(Permutation([0,1,2,3]))
+        self.assertTrue(Permutation([0]))
         self.assertFalse(Permutation([]))
         self.assertFalse(Permutation())
