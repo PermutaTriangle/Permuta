@@ -1,6 +1,8 @@
 import unittest
-from permuta import MeshPattern, Permutation, Permutations
 import random
+
+from permuta import MeshPattern, Permutation, Permutations
+
 
 class TestPermutation(unittest.TestCase):
 
@@ -18,6 +20,73 @@ class TestPermutation(unittest.TestCase):
         Permutation(set([1,2,3]), check=True)
         p = Permutation(613245, check=True)
         self.assertEqual(p, Permutation((6,1,3,2,4,5)))
+
+    def test_to_standard(self):
+        def gen(perm):
+            res = list(perm)
+            add = 0
+            for i in perm.inverse():
+                add += random.randint(0,10)
+                res[i-1] += add
+            return Permutation(res)
+
+        for i in range(100):
+            perm = Permutations(random.randint(0,20)).random_element()
+            self.assertEqual(perm, Permutation.to_standard(perm))
+            self.assertEqual(perm, Permutation.to_standard(gen(perm)))
+
+        self.assertEqual(Permutation.to_standard(range(10)),
+                         Permutation((1,2,3,4,5,6,7,8,9,10)))
+        self.assertEqual(Permutation.to_standard(10 - x for x in range(5)),
+                         Permutation((5,4,3,2,1)))
+
+    def test_identity(self):
+        for length in range(11):
+            self.assertEqual(Permutation.identity(length),
+                             Permutation(range(1, length+1)))
+
+    def test_random(self):
+        for length in range(11):
+            for _ in range(10):
+                perm = Permutation.random(length)
+                self.assertEqual(len(perm), length)
+                Permutation(perm, check=True)
+
+    def test_monotone_increasing(self):
+        for length in range(11):
+            self.assertEqual(Permutation.monotone_increasing(length),
+                             Permutation(range(1, length+1)))
+
+    def test_monotone_decreasing(self):
+        for length in range(11):
+            self.assertEqual(Permutation.monotone_decreasing(length),
+                             Permutation(range(length, 0, -1)))
+
+    def test_unrank(self):
+        self.assertEqual(Permutation.unrank(0),
+                         Permutation())
+        self.assertEqual(Permutation.unrank(1),
+                         Permutation((1,)))
+        self.assertEqual(Permutation.unrank(2),
+                         Permutation((1,2)))
+        self.assertEqual(Permutation.unrank(3),
+                         Permutation((2,1)))
+        self.assertEqual(Permutation.unrank(4),
+                         Permutation((1,2,3)))
+        self.assertEqual(Permutation.unrank(5),
+                         Permutation((1,3,2)))
+        self.assertEqual(Permutation.unrank(6),
+                         Permutation((2,1,3)))
+        self.assertEqual(Permutation.unrank(10),
+                         Permutation((1,2,3,4)))
+        amount = 1 + 1 + 2 + 6 + 24
+        self.assertEqual(Permutation.unrank(amount),
+                         Permutation((1,2,3,4,5)))
+        amount = (1 + 1 + 2 + 6 + 24 + 120) - 1
+        self.assertEqual(Permutation.unrank(amount),
+                         Permutation((5,4,3,2,1)))
+        with self.assertRaises(AssertionError): Permutation.unrank(-1)
+        with self.assertRaises(AssertionError): Permutation.unrank(6, 3)
 
     def test_contained_in(self):
         def generate_contained(n,perm):
@@ -247,25 +316,6 @@ class TestPermutation(unittest.TestCase):
         self.assertEqual(Permutation(321546).count_valleys(), 2)
         self.assertEqual(Permutation(2341765).count_valleys(), 1)
         self.assertEqual(Permutation(3241756).count_valleys(), 3)
-
-    def test_to_standard(self):
-        def gen(perm):
-            res = list(perm)
-            add = 0
-            for i in perm.inverse():
-                add += random.randint(0,10)
-                res[i-1] += add
-            return Permutation(res)
-
-        for i in range(100):
-            perm = Permutations(random.randint(0,20)).random_element()
-            self.assertEqual(perm, Permutation.to_standard(perm))
-            self.assertEqual(perm, Permutation.to_standard(gen(perm)))
-
-        self.assertEqual(Permutation.to_standard(range(10)),
-                         Permutation((1,2,3,4,5,6,7,8,9,10)))
-        self.assertEqual(Permutation.to_standard(10 - x for x in range(5)),
-                         Permutation((5,4,3,2,1)))
 
     def test_call_1(self):
         p = Permutation((1,2,3,4))

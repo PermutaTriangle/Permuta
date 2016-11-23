@@ -1,7 +1,9 @@
 import collections
 import itertools
+import math
 import numbers
 import operator
+import random
 import sys
 
 from permuta import Pattern, Rotatable, Shiftable, Flippable
@@ -72,6 +74,74 @@ class Permutation(tuple, Pattern, Rotatable, Shiftable, Flippable):
 
     standardize = to_standard  # permpy backwards compatibility
     from_iterable = to_standard  # TODO: Acceptable alias?
+
+    @classmethod
+    def identity(cls, length):
+        """Return the identity permutation of the specified length."""
+        return cls(range(1, length+1))
+
+    @classmethod
+    def random(cls, length):
+        """Return a random permutation of the specified length."""
+        result = list(range(1, length+1))
+        random.shuffle(result)
+        return cls(result)
+
+    @classmethod
+    def monotone_increasing(cls, length):
+        """Return a monotone increasing permutation of the specified length."""
+        return cls(range(1, length+1))
+
+    @classmethod
+    def monotone_decreasing(cls, length):
+        """Return a monotone decreasing permutation of the specified length."""
+        return cls(range(length, 0, -1))
+
+    @classmethod
+    def unrank(cls, number, length=None):
+        """
+        If length is not specified, make number be the total rank
+        I.e., the 0th, 1st, 2nd, 3rd, 4th, etc. are:
+        0: Permutation()
+        1: Permutation(1)
+        2: Permutation(12)
+        3: Permutation(21)
+        4: Permutation(123)
+        5: Permutation(132)
+        ...
+        """
+        # TODO: Docstring, tests, and do better? Assertions and messages
+        # TODO: The unrank function in permpy was not a good/correct one
+        #assert isinstance(number, numbers.Integral)
+        #assert 0 <= number
+        if length is None:
+            # Work out the length and number from the number given
+            assert isinstance(number, numbers.Integral)
+            assert number >= 0
+            if number == 0:
+                return cls()
+            length = 1
+            amount = 1  # Amount of permutations of length
+            while number > amount:
+                number -= amount
+                length += 1
+                amount *= length
+            number -= 1
+        else:
+            assert isinstance(length, numbers.Integral)
+            assert length >= 0
+            assert 0 <= number < factorial(length)
+        result = list(range(1, length+1))
+        for index in range(length, 0, -1):
+            other_index = number % index
+            result[index-1], result[other_index] = result[other_index], result[index-1]
+            number //= index
+        return cls(result)
+
+    ind2perm = unrank  # permpy backwards compatibility
+
+    # TODO: This one will not be a class method
+    #perm2ind = rank  # permpy backwards compatibility
 
     def contains(self, *patts):
         """Check if self contains patts.
