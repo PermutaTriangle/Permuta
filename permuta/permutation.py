@@ -88,7 +88,7 @@ class Permutation(tuple, Pattern, Rotatable, Shiftable, Flippable):
 
         The standardize alias is supplied for backwards compatibility with permpy.
         However, the permpy version did not allow for duplicate elements.
-        
+
         Examples:
             >>> Permutation.to_standard("a2gsv3")
             Permutation((2, 0, 3, 4, 5, 1))
@@ -231,7 +231,7 @@ class Permutation(tuple, Pattern, Rotatable, Shiftable, Flippable):
             True if and only if all patterns in patt are contained in self.
 
         Examples:
-            >>> Permutation.monotone_decreasing.avoids(Permutation((0, 1)))
+            >>> Permutation.monotone_decreasing(7).avoids(Permutation((0, 1)))
             True
             >>> Permutation((4, 2, 3, 1, 0)).contains(Permutation((1, 2, 0)))
             True
@@ -260,7 +260,7 @@ class Permutation(tuple, Pattern, Rotatable, Shiftable, Flippable):
             True if and only if self avoids all patterns in patts.
 
         Examples:
-            >>> Permutation.monotone_increasing.avoids(Permutation((1, 0)))
+            >>> Permutation.monotone_increasing(8).avoids(Permutation((1, 0)))
             True
             >>> Permutation((4, 2, 3, 1, 0)).avoids(Permutation((1, 2, 0)))
             False
@@ -302,7 +302,7 @@ class Permutation(tuple, Pattern, Rotatable, Shiftable, Flippable):
             >>> Permutation((0, 1, 2)).count_occurrences_of(Permutation((0, 1)))
             3
             >>> Permutation((5, 3, 0, 4, 2, 1)).count_occurrences_of(Permutation((2, 0, 1)))
-            4
+            6
         """
         return patt.count_occurrences_in(self)
 
@@ -325,13 +325,13 @@ class Permutation(tuple, Pattern, Rotatable, Shiftable, Flippable):
 
         Examples:
             >>> list(Permutation((2, 0, 1)).occurrences_in(Permutation((5, 3, 0, 4, 2, 1))))
-            [(0, 1, 3), (1, 2, 3), (1, 2, 4), (1, 2, 5)]
+            [(0, 1, 3), (0, 2, 3), (0, 2, 4), (0, 2, 5), (1, 2, 4), (1, 2, 5)]
             >>> list(Permutation((1, 0)).occurrences_in(Permutation((1, 2, 3, 0))))
-            [(2, 3)]
+            [(0, 3), (1, 3), (2, 3)]
             >>> list(Permutation((0,)).occurrences_in(Permutation((1, 2, 3, 0))))
             [(0,), (1,), (2,), (3,)]
             >>> list(Permutation().occurrences_in(Permutation((1, 2, 3, 0))))
-            []
+            [()]
         """
         # Special cases
         if len(self) == 0:
@@ -431,13 +431,13 @@ class Permutation(tuple, Pattern, Rotatable, Shiftable, Flippable):
 
         Examples:
             >>> list(Permutation((5, 3, 0, 4, 2, 1)).occurrences_of(Permutation((2, 0, 1))))
-            [(0, 1, 3), (1, 2, 3), (1, 2, 4), (1, 2, 5)]
+            [(0, 1, 3), (0, 2, 3), (0, 2, 4), (0, 2, 5), (1, 2, 4), (1, 2, 5)]
             >>> list(Permutation((1, 2, 3, 0)).occurrences_of(Permutation((1, 0))))
-            [(2, 3)]
+            [(0, 3), (1, 3), (2, 3)]
             >>> list(Permutation((1, 2, 3, 0)).occurrences_of(Permutation((0,))))
             [(0,), (1,), (2,), (3,)]
             >>> list(Permutation((1, 2, 3, 0)).occurrences_of(Permutation()))
-            []
+            [()]
         """
         return patt.occurrences_in(self)
 
@@ -631,7 +631,7 @@ class Permutation(tuple, Pattern, Rotatable, Shiftable, Flippable):
 
     def descent_set(self):
         """Return the list of descents of self.
-        
+
         This method is for backwards compatibility with permpy.
         """
         return list(self.descents())
@@ -647,10 +647,10 @@ class Permutation(tuple, Pattern, Rotatable, Shiftable, Flippable):
         for index in range(1, len(self)):
             if self[index-1] < self[index]:
                 yield index
-    
+
     def ascent_set(self):
         """Return the list of ascents of self.
-        
+
         This method is for backwards compatibility with permpy.
         """
         return list(self.ascents())
@@ -663,7 +663,7 @@ class Permutation(tuple, Pattern, Rotatable, Shiftable, Flippable):
 
     def peaks(self):
         """Yield the indices of the peaks of self.
-        
+
         The i-th element of a permutation is a peak if
             self[i-1] < self[i] > self[i+1].
         """
@@ -686,7 +686,7 @@ class Permutation(tuple, Pattern, Rotatable, Shiftable, Flippable):
 
     def peak_list(self):
         """Return the list of peaks of self.
-        
+
         This method is for backwards compatibility with permpy.
         """
         return list(self.peaks())
@@ -699,7 +699,7 @@ class Permutation(tuple, Pattern, Rotatable, Shiftable, Flippable):
 
     def valleys(self):
         """Yield the indices of the valleys of self.
-        
+
         The i-th element of a permutation is a valley if
             self[i-1] > self[i] < self[i+1].
         """
@@ -722,7 +722,7 @@ class Permutation(tuple, Pattern, Rotatable, Shiftable, Flippable):
 
     def valley_list(self):
         """Return the list of valleys of self.
-        
+
         This method is for backwards compatibility with permpy.
         """
         return list(self.valleys())

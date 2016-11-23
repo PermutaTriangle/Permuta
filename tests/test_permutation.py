@@ -134,19 +134,19 @@ class TestPermutation(unittest.TestCase):
     def test_occurrences_in(self):
         self.assertEqual(
                           list(Permutation([]).occurrences_in(Permutation([4,1,2,3,0])))
-                        , [[]]
+                        , [()]
                         )
         self.assertEqual(
                           sorted(Permutation([0]).occurrences_in(Permutation([4,1,2,3,0])))
-                        , [[0],[1],[2],[3],[4]]
+                        , [(0,),(1,),(2,),(3,),(4,)]
                         )
         self.assertEqual(
                           sorted(Permutation([0,1]).occurrences_in(Permutation([4,1,2,3,0])))
-                        , [[1,2],[1,3],[2,3]]
+                        , [(1,2),(1,3),(2,3)]
                         )
         self.assertEqual(
                           sorted(Permutation([1,0]).occurrences_in(Permutation([4,1,2,3,0])))
-                        , [[0,1],[0,2],[0,3],[0,4],[1,4],[2,4],[3,4]]
+                        , [(0,1),(0,2),(0,3),(0,4),(1,4),(2,4),(3,4)]
                         )
         self.assertEqual(list(Permutation([4,1,2,3,0]).occurrences_in(Permutation([]))), [])
         self.assertEqual(list(Permutation([4,1,2,3,0]).occurrences_in(Permutation([1,0]))), [])
