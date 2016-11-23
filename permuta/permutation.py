@@ -27,7 +27,7 @@ class Permutation(tuple, Pattern, Rotatable, Shiftable, Flippable):
             iterable: <collections.Iterable> or <numbers.Integral>
                 An iterable corresponding to a legal permutation.
                 Also supports passing just a number with unique digits.
-            check: bool
+            check: <bool>
                 If True, iterable will be confirmed to correspond to a legal permutation.
 
         Raises:
@@ -224,10 +224,10 @@ class Permutation(tuple, Pattern, Rotatable, Shiftable, Flippable):
         Args:
             self:
                 A permutation.
-            patts: [permuta.Permutation|permuta.MeshPattern]
-                A list of classical/mesh patterns.
+            patts: <permuta.Pattern> argument list
+                Classical/mesh patterns.
 
-        Returns: bool
+        Returns: <bool>
             True if and only if all patterns in patt are contained in self.
 
         Examples:
@@ -253,10 +253,10 @@ class Permutation(tuple, Pattern, Rotatable, Shiftable, Flippable):
         Args:
             self:
                 A permutation.
-            patts: [permuta.Permutation|permuta.MeshPattern]
-                A list of classical/mesh patterns.
+            patts: <permuta.Pattern> argument list
+                Classical/mesh patterns.
 
-        Returns: bool
+        Returns: <bool>
             True if and only if self avoids all patterns in patts.
 
         Examples:
@@ -292,10 +292,10 @@ class Permutation(tuple, Pattern, Rotatable, Shiftable, Flippable):
         Args:
             self:
                 A permutation.
-            patt: permuta.Permutation|permuta.MeshPattern
+            patt: <permuta.Pattern>
                 A classical/mesh pattern.
 
-        Returns: int
+        Returns: <int>
             The number of times patt occurs in self.
 
         Examples:
@@ -314,10 +314,10 @@ class Permutation(tuple, Pattern, Rotatable, Shiftable, Flippable):
         Args:
             self:
                 The classical pattern whose occurrences are to be found.
-            perm: permuta.Permutation
+            perm: <permuta.Permutation>
                 The permutation to search for occurrences in.
 
-        Yields: <tuple> of <numbers.Integral>
+        Yields: <tuple> of <int>
             The indices of the occurrences of self in perm.
             Each yielded element l is a tuple of integer indices of the
             permutation perm such that:
@@ -423,10 +423,10 @@ class Permutation(tuple, Pattern, Rotatable, Shiftable, Flippable):
         Args:
             self:
                 A permutation.
-            perm: permuta.Permutation
-                A classical pattern.
+            patt: <permuta.Pattern>
+                A classical/mesh pattern.
 
-        Yields: [int]
+        Yields: <tuple> of <int>
             The indices of the occurrences of self in perm.
 
         Examples:
@@ -768,10 +768,10 @@ class Permutation(tuple, Pattern, Rotatable, Shiftable, Flippable):
         Args:
             self:
                 A permutation.
-            patt: permuta.Permutation|permuta.MeshPattern
+            patt: <permuta.Pattern>
                 A classical/mesh pattern.
 
-        Returns: bool
+        Returns: <bool>
             True if and only if the pattern patt is contained in self.
         """
         return any(True for _ in patt.occurrences_in(self))
