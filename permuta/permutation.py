@@ -112,6 +112,7 @@ class Permutation(tuple, Pattern, Rotatable, Shiftable, Flippable):
         """
         # TODO: Docstring, tests, and do better? Assertions and messages
         # TODO: The unrank function in permpy was not a good/correct one
+        # TODO: Implement readably, nicely, and efficiently
         #assert isinstance(number, numbers.Integral)
         #assert 0 <= number
         if length is None:
@@ -130,13 +131,17 @@ class Permutation(tuple, Pattern, Rotatable, Shiftable, Flippable):
         else:
             assert isinstance(length, numbers.Integral)
             assert length >= 0
-            assert 0 <= number < factorial(length)
-        result = list(range(1, length+1))
-        for index in range(length, 0, -1):
-            other_index = number % index
-            result[index-1], result[other_index] = result[other_index], result[index-1]
-            number //= index
-        return cls(result)
+            assert 0 <= number < math.factorial(length)
+        return cls(Permutation.__unrank(number, length))
+
+    @staticmethod
+    def __unrank(number, length):
+        candidates = list(range(1, length+1))
+        for value in range(1, length+1):
+            factorial = math.factorial(length - value)
+            division = number//factorial
+            yield candidates.pop(division)
+            number %= factorial
 
     ind2perm = unrank  # permpy backwards compatibility
 
