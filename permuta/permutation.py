@@ -22,38 +22,48 @@ class Permutation(tuple, Pattern, Rotatable, Shiftable, Flippable):
         """Return a Permutation instance.
 
         Args:
-            self:
+            cls:
                 The class of which an instance is requested.
             iterable: <collections.Iterable> or <numbers.Integral>
                 An iterable corresponding to a legal permutation.
                 Also supports passing just a number with unique digits.
             check: bool
                 If True, iterable will be confirmed to correspond to a legal permutation.
+
+        Raises:
+            TypeError:
+                Bad argument.
         """
-        if isinstance(iterable, numbers.Integral):
-            number = iterable
-            assert 1 <= number <= 987654321  # TODO: Message
-            iterable = []
-            while number != 0:
-                iterable.append(number % 10)
-                number //= 10
-            iterable = reversed(iterable)
-        instance = super(Permutation, cls).__new__(cls, iterable)
-        return instance
+        try:
+            return super(Permutation, cls).__new__(cls, iterable)
+        except TypeError:
+            if isinstance(iterable, numbers.Integral):
+                number = iterable
+                if not (0 <= number <= 9876543210):
+                    raise TypeError("Bad integer {}".format(number))
+                iterable = []
+                if number == 0:
+                    iterable.append(number)
+                else:
+                    while number != 0:
+                        iterable.append(number % 10)
+                        number //= 10
+                    iterable = reversed(iterable)
+                return super(Permutation, cls).__new__(cls, iterable)
+            else:
+                raise
 
     def __init__(self, iterable=(), check=False):
+        # TODO: Docstring
         if check:
             used = [False]*len(self)
             for value in self:
-                try:
-                    assert isinstance(value, numbers.Integral)
-                except AssertionError as exception:
+                if not isinstance(value, numbers.Integral):
                     message = "Non-integer type: {}".format(repr(value))
-                    exception.args = (message,)
-                    raise
-                assert 1 <= value <= len(self), "Out of range: {}".format(value)
-                assert not used[value-1], "Duplicate element: {}".format(value)
-                used[value-1] = True
+                    raise TypeError(message)
+                assert 0 <= value < len(self), "Out of range: {}".format(value)
+                assert not used[value], "Duplicate element: {}".format(value)
+                used[value] = True
         self._cached_pattern_details = None
 
     @classmethod
