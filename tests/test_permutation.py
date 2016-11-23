@@ -87,6 +87,9 @@ class TestPermutation(unittest.TestCase):
                          Permutation((5,4,3,2,1)))
         with self.assertRaises(AssertionError): Permutation.unrank(-1)
         with self.assertRaises(AssertionError): Permutation.unrank(6, 3)
+        ps = list(Permutations(7))
+        urs = list(Permutation.unrank(n, 7) for n in range(len(ps)))
+        self.assertEqual(urs, ps)
 
     def test_contained_in(self):
         def generate_contained(n,perm):
