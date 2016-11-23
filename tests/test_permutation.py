@@ -11,7 +11,7 @@ class TestPermutation(unittest.TestCase):
         with self.assertRaises(AssertionError): Permutation([1,0,1], check=True)
         with self.assertRaises(AssertionError): Permutation([0,0], check=True)
         with self.assertRaises(AssertionError): Permutation([1], check=True)
-        with self.assertRaises(AssertionError): Permutation(011, check=True)
+        with self.assertRaises(AssertionError): Permutation(101, check=True)
         with self.assertRaises(TypeError): Permutation(None, check=True)
         Permutation(check=True)
         Permutation([], check=True)
@@ -166,10 +166,10 @@ class TestPermutation(unittest.TestCase):
                 self.assertEqual(lst[j], res[k])
 
     def test_direct_sum(self):
-        p1 = Permutation(0132)
-        p2 = Permutation(04213)
+        p1 = Permutation((0,1,3,2))
+        p2 = Permutation((0,4,2,1,3))
         p3 = Permutation(201)
-        p4 = Permutation(0)
+        p4 = Permutation((0,))
         p5 = Permutation()
         # All together
         result = p1.direct_sum(p2, p3, p4, p5)
@@ -183,10 +183,10 @@ class TestPermutation(unittest.TestCase):
         self.assertEqual(p1.direct_sum(), p1)
         
     def test_skew_sum(self):
-        p1 = Permutation(0132)
-        p2 = Permutation(04213)
+        p1 = Permutation((0,1,3,2))
+        p2 = Permutation((0,4,2,1,3))
         p3 = Permutation(201)
-        p4 = Permutation(0)
+        p4 = Permutation((0,))
         p5 = Permutation()
         # All together
         result = p1.skew_sum(p2, p3, p4, p5)
@@ -259,14 +259,14 @@ class TestPermutation(unittest.TestCase):
 
     def test_fixed_points(self):
         self.assertEqual(Permutation().fixed_points(), 0)
-        self.assertEqual(Permutation(021).fixed_points(), 1)
+        self.assertEqual(Permutation((0,2,1)).fixed_points(), 1)
         self.assertEqual(Permutation(543210).fixed_points(), 0)
         self.assertEqual(Permutation(410325).fixed_points(), 3)
-        self.assertEqual(Permutation(012345).fixed_points(), 6)
+        self.assertEqual(Permutation((0,1,2,3,4,5)).fixed_points(), 6)
 
     def test_descents(self):
         self.assertEqual(list(Permutation().descents()), [])
-        self.assertEqual(list(Permutation(0123).descents()), [])
+        self.assertEqual(list(Permutation((0,1,2,3)).descents()), [])
         self.assertEqual(list(Permutation(3210).descents()), [1,2,3])
         self.assertEqual(list(Permutation(210435).descents()), [1, 2, 4])
         self.assertEqual(list(Permutation(1230654).descents()), [3, 5, 6])
@@ -274,7 +274,7 @@ class TestPermutation(unittest.TestCase):
 
     def test_count_descents(self):
         self.assertEqual(Permutation().count_descents(), 0)
-        self.assertEqual(Permutation(0123).count_descents(), 0)
+        self.assertEqual(Permutation((0,1,2,3)).count_descents(), 0)
         self.assertEqual(Permutation(3210).count_descents(), 3)
         self.assertEqual(Permutation(210435).count_descents(), 3)
         self.assertEqual(Permutation(1230654).count_descents(), 3)
@@ -282,7 +282,7 @@ class TestPermutation(unittest.TestCase):
 
     def test_ascents(self):
         self.assertEqual(list(Permutation().ascents()), [])
-        self.assertEqual(list(Permutation(0123).ascents()), [1,2,3])
+        self.assertEqual(list(Permutation((0,1,2,3)).ascents()), [1,2,3])
         self.assertEqual(list(Permutation(3210).ascents()), [])
         self.assertEqual(list(Permutation(210435).ascents()), [3, 5])
         self.assertEqual(list(Permutation(1230654).ascents()), [1, 2, 4])
@@ -290,7 +290,7 @@ class TestPermutation(unittest.TestCase):
 
     def test_count_ascents(self):
         self.assertEqual(Permutation().count_ascents(), 0)
-        self.assertEqual(Permutation(0123).count_ascents(), 3)
+        self.assertEqual(Permutation((0,1,2,3)).count_ascents(), 3)
         self.assertEqual(Permutation(3210).count_ascents(), 0)
         self.assertEqual(Permutation(210435).count_ascents(), 2)
         self.assertEqual(Permutation(1230654).count_ascents(), 3)
@@ -298,26 +298,26 @@ class TestPermutation(unittest.TestCase):
 
     def test_peaks(self):
         self.assertEqual(list(Permutation().peaks()), [])
-        self.assertEqual(list(Permutation(0123).peaks()), [])
+        self.assertEqual(list(Permutation((0,1,2,3)).peaks()), [])
         self.assertEqual(list(Permutation(210435).peaks()), [3])
         self.assertEqual(list(Permutation(1230654).peaks()), [2, 4])
 
     def test_count_peaks(self):
         self.assertEqual(Permutation().count_peaks(), 0)
-        self.assertEqual(Permutation(0123).count_peaks(), 0)
+        self.assertEqual(Permutation((0,1,2,3)).count_peaks(), 0)
         self.assertEqual(Permutation(210435).count_peaks(), 1)
         self.assertEqual(Permutation(1230654).count_peaks(), 2)
 
     def test_valleys(self):
         self.assertEqual(list(Permutation().valleys()), [])
-        self.assertEqual(list(Permutation(0123).valleys()), [])
+        self.assertEqual(list(Permutation((0,1,2,3)).valleys()), [])
         self.assertEqual(list(Permutation(210435).valleys()), [2, 4])
         self.assertEqual(list(Permutation(1230654).valleys()), [3])
         self.assertEqual(list(Permutation(2130645).valleys()), [1, 3, 5])
 
     def test_count_valleys(self):
         self.assertEqual(Permutation().count_valleys(), 0)
-        self.assertEqual(Permutation(0123).count_valleys(), 0)
+        self.assertEqual(Permutation((0,1,2,3)).count_valleys(), 0)
         self.assertEqual(Permutation(210435).count_valleys(), 2)
         self.assertEqual(Permutation(1230654).count_valleys(), 1)
         self.assertEqual(Permutation(2130646).count_valleys(), 3)
