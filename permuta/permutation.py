@@ -21,6 +21,19 @@ class Permutation(tuple, Pattern, Rotatable, Shiftable, Flippable):
     def __new__(cls, iterable=(), check=False):
         """Return a Permutation instance.
 
+        Args:
+            cls:
+                The class of which an instance is requested.
+            iterable: <collections.Iterable> or <numbers.Integral>
+                An iterable corresponding to a legal permutation.
+                Also supports passing just a number with unique digits.
+            check: bool
+                If True, iterable will be confirmed to correspond to a legal permutation.
+
+        Raises:
+            TypeError:
+                Bad argument.
+
         Examples:
             >>> Permutation((0,3,1,2))
             Permutation((0, 3, 1, 2))
@@ -34,19 +47,6 @@ class Permutation(tuple, Pattern, Rotatable, Shiftable, Flippable):
             Traceback (most recent call last):
                 ...
             TypeError: Non-integer type: 'a'
-
-        Args:
-            cls:
-                The class of which an instance is requested.
-            iterable: <collections.Iterable> or <numbers.Integral>
-                An iterable corresponding to a legal permutation.
-                Also supports passing just a number with unique digits.
-            check: bool
-                If True, iterable will be confirmed to correspond to a legal permutation.
-
-        Raises:
-            TypeError:
-                Bad argument.
         """
         try:
             return super(Permutation, cls).__new__(cls, iterable)
@@ -221,6 +221,15 @@ class Permutation(tuple, Pattern, Rotatable, Shiftable, Flippable):
     def contains(self, *patts):
         """Check if self contains patts.
 
+        Args:
+            self:
+                A permutation.
+            patts: [permuta.Permutation|permuta.MeshPattern]
+                A list of classical/mesh patterns.
+
+        Returns: bool
+            True if and only if all patterns in patt are contained in self.
+
         Examples:
             >>> Permutation.monotone_decreasing.avoids(Permutation((0, 1)))
             True
@@ -235,6 +244,11 @@ class Permutation(tuple, Pattern, Rotatable, Shiftable, Flippable):
             True
             >>> Permutation((5, 3, 0, 4, 2, 1)).contains(pattern2, pattern3)
             False
+        """
+        return all(patt in self for patt in patts)
+
+    def avoids(self, *patts):
+        """Check if self avoids patts.
 
         Args:
             self:
@@ -243,12 +257,7 @@ class Permutation(tuple, Pattern, Rotatable, Shiftable, Flippable):
                 A list of classical/mesh patterns.
 
         Returns: bool
-            True if and only if all patterns in patt are contained in self.
-        """
-        return all(patt in self for patt in patts)
-
-    def avoids(self, *patts):
-        """Check if self avoids patts.
+            True if and only if self avoids all patterns in patts.
 
         Examples:
             >>> Permutation.monotone_increasing.avoids(Permutation((1, 0)))
@@ -267,15 +276,6 @@ class Permutation(tuple, Pattern, Rotatable, Shiftable, Flippable):
             False
             >>> Permutation((5, 3, 0, 4, 2, 1)).avoids(pattern3, pattern4)
             True
-
-        Args:
-            self:
-                A permutation.
-            patts: [permuta.Permutation|permuta.MeshPattern]
-                A list of classical/mesh patterns.
-
-        Returns: bool
-            True if and only if self avoids all patterns in patts.
         """
         return all(patt not in self for patt in patts)
 
@@ -289,12 +289,6 @@ class Permutation(tuple, Pattern, Rotatable, Shiftable, Flippable):
     def count_occurrences_of(self, patt):
         """Count the number of occurrences of patt in self.
 
-        Examples:
-            >>> Permutation((0, 1, 2)).count_occurrences_of(Permutation((0, 1)))
-            3
-            >>> Permutation((5, 3, 0, 4, 2, 1)).count_occurrences_of(Permutation((2, 0, 1)))
-            4
-
         Args:
             self:
                 A permutation.
@@ -303,6 +297,12 @@ class Permutation(tuple, Pattern, Rotatable, Shiftable, Flippable):
 
         Returns: int
             The number of times patt occurs in self.
+
+        Examples:
+            >>> Permutation((0, 1, 2)).count_occurrences_of(Permutation((0, 1)))
+            3
+            >>> Permutation((5, 3, 0, 4, 2, 1)).count_occurrences_of(Permutation((2, 0, 1)))
+            4
         """
         return patt.count_occurrences_in(self)
 
@@ -310,16 +310,6 @@ class Permutation(tuple, Pattern, Rotatable, Shiftable, Flippable):
 
     def occurrences_in(self, perm):
         """Find all indices of occurrences of self in perm.
-
-        Examples:
-            >>> list(Permutation((2, 0, 1)).occurrences_in(Permutation((5, 3, 0, 4, 2, 1))))
-            [(0, 1, 3), (1, 2, 3), (1, 2, 4), (1, 2, 5)]
-            >>> list(Permutation((1, 0)).occurrences_in(Permutation((1, 2, 3, 0))))
-            [(2, 3)]
-            >>> list(Permutation((0,)).occurrences_in(Permutation((1, 2, 3, 0))))
-            [(0,), (1,), (2,), (3,)]
-            >>> list(Permutation().occurrences_in(Permutation((1, 2, 3, 0))))
-            []
 
         Args:
             self:
@@ -332,6 +322,16 @@ class Permutation(tuple, Pattern, Rotatable, Shiftable, Flippable):
             Each yielded element l is a tuple of integer indices of the
             permutation perm such that:
             self == permuta.Permutation.to_standard([perm[i] for i in l])
+
+        Examples:
+            >>> list(Permutation((2, 0, 1)).occurrences_in(Permutation((5, 3, 0, 4, 2, 1))))
+            [(0, 1, 3), (1, 2, 3), (1, 2, 4), (1, 2, 5)]
+            >>> list(Permutation((1, 0)).occurrences_in(Permutation((1, 2, 3, 0))))
+            [(2, 3)]
+            >>> list(Permutation((0,)).occurrences_in(Permutation((1, 2, 3, 0))))
+            [(0,), (1,), (2,), (3,)]
+            >>> list(Permutation().occurrences_in(Permutation((1, 2, 3, 0))))
+            []
         """
         # Special cases
         if len(self) == 0:
@@ -420,6 +420,15 @@ class Permutation(tuple, Pattern, Rotatable, Shiftable, Flippable):
         It just calls patt.occurrences_in(self) internally.
         See permuta.Permutation.occurrences_in for documentation.
 
+        Args:
+            self:
+                A permutation.
+            perm: permuta.Permutation
+                A classical pattern.
+
+        Yields: [int]
+            The indices of the occurrences of self in perm.
+
         Examples:
             >>> list(Permutation((5, 3, 0, 4, 2, 1)).occurrences_of(Permutation((2, 0, 1))))
             [(0, 1, 3), (1, 2, 3), (1, 2, 4), (1, 2, 5)]
@@ -429,15 +438,6 @@ class Permutation(tuple, Pattern, Rotatable, Shiftable, Flippable):
             [(0,), (1,), (2,), (3,)]
             >>> list(Permutation((1, 2, 3, 0)).occurrences_of(Permutation()))
             []
-
-        Args:
-            self:
-                A permutation.
-            perm: permuta.Permutation
-                A classical pattern.
-
-        Yields: [int]
-            The indices of the occurrences of self in perm.
         """
         return patt.occurrences_in(self)
 
