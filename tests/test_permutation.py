@@ -27,18 +27,13 @@ class TestPermutation(unittest.TestCase):
             add = 0
             for i in perm.inverse():
                 add += random.randint(0,10)
-                res[i-1] += add
+                res[i] += add
             return Permutation(res)
 
-        for i in range(100):
-            perm = Permutations(random.randint(0,20)).random_element()
+        for _ in range(100):
+            perm = Permutation.random(random.randint(0,20))
             self.assertEqual(perm, Permutation.to_standard(perm))
             self.assertEqual(perm, Permutation.to_standard(gen(perm)))
-
-        self.assertEqual(Permutation.to_standard(range(10)),
-                         Permutation((0,1,2,3,4,5,6,7,8,9)))
-        self.assertEqual(Permutation.to_standard(10 - x for x in range(5)),
-                         Permutation((4,3,2,1,0)))
 
     def test_identity(self):
         for length in range(11):

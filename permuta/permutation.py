@@ -24,6 +24,8 @@ class Permutation(tuple, Pattern, Rotatable, Shiftable, Flippable):
         Examples:
             >>> Permutation((0,3,1,2))
             Permutation((0, 3, 1, 2))
+            >>> Permutation(range(5, -1, -1))
+            Permutation((5, 4, 3, 2, 1, 0))
             >>> Permutation(6012354)
             Permutation((6, 0, 1, 2, 3, 5, 4))
             >>> Permutation("abc")  # Not good
@@ -80,7 +82,19 @@ class Permutation(tuple, Pattern, Rotatable, Shiftable, Flippable):
 
     @classmethod
     def to_standard(cls, iterable):
-        """Return the permutation corresponding to iterable."""
+        """Return the permutation corresponding to iterable.
+
+        Duplicate elements are allowed and become consecutive elements (see example).
+
+        The standardize alias is supplied for backwards compatibility with permpy.
+        However, the permpy version did not allow for duplicate elements.
+        
+        Examples:
+            >>> Permutation.to_standard("a2gsv3")
+            Permutation((2, 0, 3, 4, 5, 1))
+            >>> Permutation.to_standard("caaba")
+            Permutation((4, 0, 1, 3, 2))
+        """
         # TODO: Do performance testing
         try:
             len_iterable = len(iterable)
@@ -88,7 +102,7 @@ class Permutation(tuple, Pattern, Rotatable, Shiftable, Flippable):
             iterable = list(iterable)
             len_iterable = len(iterable)
         result = [None]*len_iterable
-        value = 1
+        value = 0
         for (index, _) in sorted(enumerate(iterable), key=operator.itemgetter(1)):
             result[index] = value
             value += 1
@@ -99,40 +113,74 @@ class Permutation(tuple, Pattern, Rotatable, Shiftable, Flippable):
 
     @classmethod
     def identity(cls, length):
-        """Return the identity permutation of the specified length."""
-        return cls(range(1, length+1))
+        """Return the identity permutation of the specified length.
+
+        Examples:
+            >>> Permutation.identity(0)
+            Permutation(())
+            >>> Permutation.identity(4)
+            Permutation((0, 1, 2, 3))
+        """
+        return cls(range(length))
 
     @classmethod
     def random(cls, length):
-        """Return a random permutation of the specified length."""
-        result = list(range(1, length+1))
+        """Return a random permutation of the specified length.
+
+        Examples:
+            >>> perm = Permutation.random(8)
+            >>> len(perm) == 8
+            True
+            >>> # TODO: test perm in Permutations(8)
+            >>> perm = Permutation(perm, check=True)
+        """
+        result = list(range(length))
         random.shuffle(result)
         return cls(result)
 
     @classmethod
     def monotone_increasing(cls, length):
-        """Return a monotone increasing permutation of the specified length."""
-        return cls(range(1, length+1))
+        """Return a monotone increasing permutation of the specified length.
+
+        Examples:
+            >>> Permutation.monotone_increasing(0)
+            Permutation(())
+            >>> Permutation.monotone_increasing(4)
+            Permutation((0, 1, 2, 3))
+        """
+        return cls(range(length))
 
     @classmethod
     def monotone_decreasing(cls, length):
-        """Return a monotone decreasing permutation of the specified length."""
-        return cls(range(length, 0, -1))
+        """Return a monotone decreasing permutation of the specified length.
+
+        Examples:
+            >>> Permutation.monotone_decreasing(0)
+            Permutation(())
+            >>> Permutation.monotone_decreasing(4)
+            Permutation((3, 2, 1, 0))
+        """
+        return cls(range(length-1, -1, -1))
 
     @classmethod
     def unrank(cls, number, length=None):
         """
-        If length is not specified, make number be the total rank
-        I.e., the 0th, 1st, 2nd, 3rd, 4th, etc. are:
-        0: Permutation()
-        1: Permutation(1)
-        2: Permutation(12)
-        3: Permutation(21)
-        4: Permutation(123)
-        5: Permutation(132)
-        ...
+
+        Examples:
+            >>> Permutation.unrank(0)
+            Permutation(())
+            >>> Permutation.unrank(1)
+            Permutation((0,))
+            >>> Permutation.unrank(2)
+            Permutation((0, 1))
+            >>> Permutation.unrank(3)
+            Permutation((1, 0))
+            >>> Permutation.unrank(4)
+            Permutation((0, 1, 2))
+            >>> Permutation.unrank(5)
+            Permutation((0, 2, 1))
         """
-        # TODO: Docstring, tests, and do better? Assertions and messages
+        # TODO: Docstring, and do better? Assertions and messages
         # TODO: The unrank function in permpy was not a good/correct one
         # TODO: Implement readably, nicely, and efficiently
         #assert isinstance(number, numbers.Integral)
@@ -158,7 +206,7 @@ class Permutation(tuple, Pattern, Rotatable, Shiftable, Flippable):
 
     @staticmethod
     def __unrank(number, length):
-        candidates = list(range(1, length+1))
+        candidates = list(range(length))
         for value in range(1, length+1):
             factorial = math.factorial(length - value)
             division = number//factorial
