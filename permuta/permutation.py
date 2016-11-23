@@ -21,6 +21,18 @@ class Permutation(tuple, Pattern, Rotatable, Shiftable, Flippable):
     def __new__(cls, iterable=(), check=False):
         """Return a Permutation instance.
 
+        Examples:
+            >>> Permutation((0,3,1,2))
+            Permutation((0, 3, 1, 2))
+            >>> Permutation(6012354)
+            Permutation((6, 0, 1, 2, 3, 5, 4))
+            >>> Permutation("abc")  # Not good
+            Permutation(('a', 'b', 'c'))
+            >>> Permutation("abc", check=True)
+            Traceback (most recent call last):
+                ...
+            TypeError: Non-integer type: 'a'
+
         Args:
             cls:
                 The class of which an instance is requested.
