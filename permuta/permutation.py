@@ -18,6 +18,10 @@ class Permutation(tuple, Pattern, Rotatable, Shiftable, Flippable):
 
     _TYPE_ERROR = "'{}' object is not a Permutation"
 
+    #
+    # Methods returning a single Permutation instance
+    #
+
     def __new__(cls, iterable=(), check=False):
         """Return a Permutation instance.
 
@@ -221,39 +225,6 @@ class Permutation(tuple, Pattern, Rotatable, Shiftable, Flippable):
 
     # TODO: This one will not be a class method
     #perm2ind = rank  # permpy backwards compatibility
-
-    def apply(self, iterable):
-        """Permute an iterable using the permutation.
-
-        Args:
-            self:
-                A permutation.
-            iterable: <collections.Iterable>
-                An iterable of len(self) elements.
-
-        Returns: <tuple>
-            The elements of iterable in the permuted order.
-
-        Raises:
-            TypeError:
-                Bad argument type.
-
-        Examples:
-            >>> Permutation((4, 1, 2, 0, 3)).apply((1, 2, 3, 4, 5))
-            (5, 2, 3, 1, 4)
-            >>> Permutation((4, 1, 2, 0, 3)).apply("abcde")
-            ('e', 'b', 'c', 'a', 'd')
-            >>> Permutation((1, 2, 0, 3)).apply("abcde")
-            Traceback (most recent call last):
-                ...
-            TypeError: Length mismatch
-        """
-        iterable = tuple(iterable)
-        if len(iterable) != len(self):
-            raise TypeError("Length mismatch")
-        return tuple(iterable[index] for index in self)
-
-    permute = apply  # Alias of Permutation.apply
 
     def direct_sum(self, *others):
         """Return the direct sum of two or more permutations.
@@ -481,6 +452,10 @@ class Permutation(tuple, Pattern, Rotatable, Shiftable, Flippable):
         """Return self rotated 180 degrees."""
         return self.reverse_complement()
 
+    #
+    # General and statistical methods
+    #
+
     def is_increasing(self):
         """Return True if the permutation is increasing, and False otherwise."""
         for index in range(len(self)):
@@ -495,6 +470,40 @@ class Permutation(tuple, Pattern, Rotatable, Shiftable, Flippable):
             if self[index] != len_perm - index - 1:
                 return False
         return True
+
+    def apply(self, iterable):
+        """Permute an iterable using the permutation.
+
+        Args:
+            self:
+                A permutation.
+            iterable: <collections.Iterable>
+                An iterable of len(self) elements.
+
+        Returns: <tuple>
+            The elements of iterable in the permuted order.
+
+        Raises:
+            TypeError:
+                Bad argument type.
+
+        Examples:
+            >>> Permutation((4, 1, 2, 0, 3)).apply((1, 2, 3, 4, 5))
+            (5, 2, 3, 1, 4)
+            >>> Permutation((4, 1, 2, 0, 3)).apply("abcde")
+            ('e', 'b', 'c', 'a', 'd')
+            >>> Permutation((1, 2, 0, 3)).apply("abcde")
+            Traceback (most recent call last):
+                ...
+            TypeError: Length mismatch
+        """
+        iterable = tuple(iterable)
+        if len(iterable) != len(self):
+            raise TypeError("Length mismatch")
+        return tuple(iterable[index] for index in self)
+
+    permute = apply  # Alias of Permutation.apply
+
 
     def fixed_points(self):
         """Return the number of fixed points in self.
@@ -517,7 +526,7 @@ class Permutation(tuple, Pattern, Rotatable, Shiftable, Flippable):
 
     def descents(self):
         """Yield the indices of the descents of self.
-        
+
         Examples:
             >>> tuple(Permutation((0, 1, 3, 2, 4)).descents())
             (3,)
@@ -553,7 +562,7 @@ class Permutation(tuple, Pattern, Rotatable, Shiftable, Flippable):
 
     def ascents(self):
         """Yield the indices of the ascent of self.
-        
+
         Examples:
             >>> tuple(Permutation((0, 1, 3, 2, 4)).ascents())
             (1, 2, 4)
@@ -575,7 +584,7 @@ class Permutation(tuple, Pattern, Rotatable, Shiftable, Flippable):
 
     def count_ascents(self):
         """Count the number of ascents in self.
-        
+
         Examples:
             >>> Permutation((0, 1, 3, 2, 4)).count_ascents()
             3
@@ -691,6 +700,10 @@ class Permutation(tuple, Pattern, Rotatable, Shiftable, Flippable):
         return sum(1 for _ in self.valleys())
 
     num_valleys = count_valleys  # permpy backwards compatibility
+
+    #
+    # Pattern related methods
+    #
 
     def contains(self, *patts):
         """Check if self contains patts.
@@ -941,9 +954,13 @@ class Permutation(tuple, Pattern, Rotatable, Shiftable, Flippable):
         self._cached_pattern_details = result
         return result
 
+    #
+    # Magic/dunder methods
+    #
+
     def __call__(self, value):
         """Map value to its image defined by the permutation.
-        
+
         Examples:
             >>> Permutation((3, 1, 2, 0))(0)
             3
