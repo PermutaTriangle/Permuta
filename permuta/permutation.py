@@ -938,9 +938,18 @@ class Permutation(tuple, Pattern, Rotatable, Shiftable, Flippable):
     num_valleys = count_valleys  # permpy backwards compatibility
 
     def __call__(self, value):
-        # TODO: Docstring
-        assert isinstance(value, numbers.Integral)  # TODO: Message
-        assert 0 <= value < len(self)  # TODO: Message
+        """Map value to its image defined by the permutation.
+        
+        Examples:
+            >>> Permutation((3, 1, 2, 0))(0)
+            3
+            >>> Permutation((3, 1, 2, 0))(1)
+            1
+            >>> Permutation((3, 1, 2, 0))(2)
+            2
+            >>> Permutation((3, 1, 2, 0))(3)
+            0
+        """
         return self[value]
 
     def __add__(self, other):
