@@ -557,11 +557,18 @@ class Permutation(tuple, Pattern, Rotatable, Shiftable, Flippable):
         return Permutation(result)
 
     def inverse(self):
-        """Return the inverse of the permutation self."""
+        """Return the inverse of the permutation self.
+        
+        Examples:
+            >>> Permutation((1, 2, 5, 0, 3, 4)).inverse()
+            Permutation((3, 0, 1, 4, 5, 2))
+            >>> Permutation((2, 0, 1)).inverse().inverse() == Permutation((2, 0, 1))
+            True
+        """
         len_perm = len(self)
         result = [None]*len_perm
         for index in range(len_perm):
-            result[self[index]-1] = index + 1
+            result[self[index]] = index
         return Permutation(result)
 
     def reverse(self):
