@@ -821,7 +821,7 @@ class Permutation(tuple, Pattern, Rotatable, Shiftable, Flippable):
         occurrence_indices = [None]*len(self)
 
         # Get left to right scan details
-        pattern_details = self._pattern_details()
+        pattern_details = self.__pattern_details()
 
         # Upper and lower bound declarations
         upper_bound = None
@@ -915,7 +915,7 @@ class Permutation(tuple, Pattern, Rotatable, Shiftable, Flippable):
         """
         return patt.occurrences_in(self)
 
-    def _pattern_details(self):
+    def __pattern_details(self):
         """Subroutine of occurrences_in method."""
         # If details have been calculated before, return cached result
         if self._cached_pattern_details is not None:
