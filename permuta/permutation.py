@@ -282,6 +282,16 @@ class Permutation(tuple, Pattern, Rotatable, Shiftable, Flippable):
             result.extend(element + shift for element in other)
         return Permutation(result)
 
+    def inflate(self, components, indices=None):
+        """Inflate element(s)."""
+        # TODO: Discuss implementation
+        pass
+
+
+    def __inflate_shifts(self, component):
+        """ """
+        pass
+
     def inverse(self):
         """Return the inverse of the permutation self.
 
