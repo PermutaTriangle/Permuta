@@ -614,6 +614,12 @@ class Permutation(tuple, Pattern, Rotatable, Shiftable, Flippable):
         """Return self shifted times steps to the right.
 
         If shift is negative, shifted to the left.
+
+        Examples:
+            >>> Permutation((0, 1, 2)).shift_right()
+            Permutation((2, 0, 1))
+            >>> Permutation((0, 1, 2)).shift_right(-4)
+            Permutation((1, 2, 0))
         """
         if len(self) == 0:
             return self
