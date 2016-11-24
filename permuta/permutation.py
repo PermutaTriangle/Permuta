@@ -648,6 +648,8 @@ class Permutation(tuple, Pattern, Rotatable, Shiftable, Flippable):
             >>> Permutation((0,)).shift_up(1234)
             Permutation((0,))
         """
+        if len(self) == 0:
+            return self
         times = times % len(self)
         if times == 0:
             return self
@@ -952,6 +954,10 @@ class Permutation(tuple, Pattern, Rotatable, Shiftable, Flippable):
             >>> Permutation((3, 1, 2, 0))(3)
             0
         """
+        if not isinstance(value, numbers.Integral):
+            raise TypeError("{} object is not an integer".format(repr(value)))
+        if not (0 <= value < len(self)):
+            raise ValueError("Element out of range: {}".format(value))
         return self[value]
 
     def __add__(self, other):
