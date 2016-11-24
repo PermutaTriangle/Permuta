@@ -836,6 +836,14 @@ class Permutation(tuple, Pattern, Rotatable, Shiftable, Flippable):
 
         The i-th element of a permutation is a peak if
             self[i-1] < self[i] > self[i+1].
+
+        Examples:
+            >>> tuple(Permutation((5, 3, 4, 0, 2, 1)).peaks())
+            (2, 4)
+            >>> tuple(Permutation((1, 2, 0)).peaks())
+            (1,)
+            >>> tuple(Permutation((2, 1, 0)).peaks())
+            ()
         """
         # TODO: Have an argument about docstrings with Murray
         if len(self) <= 2:
@@ -862,7 +870,16 @@ class Permutation(tuple, Pattern, Rotatable, Shiftable, Flippable):
         return list(self.peaks())
 
     def count_peaks(self):
-        """Count the number of peaks of self."""
+        """Count the number of peaks of self.
+
+        Examples:
+            >>> Permutation((5, 3, 4, 0, 2, 1)).count_peaks()
+            2
+            >>> Permutation((1, 2, 0)).count_peaks()
+            1
+            >>> Permutation((2, 1, 0)).count_peaks()
+            0
+        """
         return sum(1 for _ in self.peaks())
 
     num_peaks = count_peaks  # permpy backwards compatibility
@@ -872,6 +889,14 @@ class Permutation(tuple, Pattern, Rotatable, Shiftable, Flippable):
 
         The i-th element of a permutation is a valley if
             self[i-1] > self[i] < self[i+1].
+
+        Examples:
+            >>> tuple(Permutation((5, 3, 4, 0, 2, 1)).valleys())
+            (1, 3)
+            >>> tuple(Permutation((2, 0, 1)).valleys())
+            (1,)
+            >>> tuple(Permutation((1, 2, 0)).valleys())
+            ()
         """
         # TODO: Have an argument about docstrings with Murray
         if len(self) <= 2:
@@ -898,7 +923,16 @@ class Permutation(tuple, Pattern, Rotatable, Shiftable, Flippable):
         return list(self.valleys())
 
     def count_valleys(self):
-        """Count the number of valleys of self."""
+        """Count the number of valleys of self.
+
+        Examples:
+            >>> Permutation((5, 3, 4, 0, 2, 1)).count_valleys()
+            2
+            >>> Permutation((2, 0, 1)).count_valleys()
+            1
+            >>> Permutation((1, 2, 0)).count_valleys()
+            0
+        """
         return sum(1 for _ in self.valleys())
 
     num_valleys = count_valleys  # permpy backwards compatibility
