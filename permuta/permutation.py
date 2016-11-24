@@ -759,7 +759,16 @@ class Permutation(tuple, Pattern, Rotatable, Shiftable, Flippable):
         return result
 
     def descents(self):
-        """Yield the indices of the descents of self."""
+        """Yield the indices of the descents of self.
+        
+        Examples:
+            >>> tuple(Permutation((0, 1, 3, 2, 4)).descents())
+            (3,)
+            >>> tuple(Permutation((3, 2, 1, 0)).descents())
+            (1, 2, 3)
+            >>> tuple(Permutation((0, 1, 2)).descents())
+            ()
+        """
         for index in range(1, len(self)):
             if self[index-1] > self[index]:
                 yield index
@@ -772,13 +781,30 @@ class Permutation(tuple, Pattern, Rotatable, Shiftable, Flippable):
         return list(self.descents())
 
     def count_descents(self):
-        """Count the number of descents of self."""
+        """Count the number of descents of self.
+        Examples:
+            >>> Permutation((0, 1, 3, 2, 4)).count_descents()
+            1
+            >>> Permutation((3, 2, 1, 0)).count_descents()
+            3
+            >>> Permutation((0, 1, 2)).count_descents()
+            0
+        """
         return sum(1 for _ in self.descents())
 
     num_descents = count_descents  # permpy backwards compatibility
 
     def ascents(self):
-        """Yield the indices of the ascent of self."""
+        """Yield the indices of the ascent of self.
+        
+        Examples:
+            >>> tuple(Permutation((0, 1, 3, 2, 4)).ascents())
+            (1, 2, 4)
+            >>> tuple(Permutation((0, 4, 3, 2, 1)).ascents())
+            (1,)
+            >>> tuple(Permutation((3, 2, 1, 0)).ascents())
+            ()
+        """
         for index in range(1, len(self)):
             if self[index-1] < self[index]:
                 yield index
@@ -791,7 +817,16 @@ class Permutation(tuple, Pattern, Rotatable, Shiftable, Flippable):
         return list(self.ascents())
 
     def count_ascents(self):
-        """Count the number of ascents in self."""
+        """Count the number of ascents in self.
+        
+        Examples:
+            >>> Permutation((0, 1, 3, 2, 4)).count_ascents()
+            3
+            >>> Permutation((0, 4, 3, 2, 1)).count_ascents()
+            1
+            >>> Permutation((3, 2, 1, 0)).count_ascents()
+            0
+        """
         return sum(1 for _ in self.ascents())
 
     num_ascents = count_ascents  # permpy backwards compatibility
