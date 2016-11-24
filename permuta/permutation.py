@@ -727,7 +727,7 @@ class Permutation(tuple, Pattern, Rotatable, Shiftable, Flippable):
     def is_increasing(self):
         """Return True if the permutation is increasing, and False otherwise."""
         for index in range(len(self)):
-            if self[index] != index+1:
+            if self[index] != index:
                 return False
         return True
 
@@ -735,7 +735,7 @@ class Permutation(tuple, Pattern, Rotatable, Shiftable, Flippable):
         """Return True if the permutation is decreasing, and False otherwise."""
         len_perm = len(self)
         for index in range(len_perm):
-            if self[index] != len_perm - index:
+            if self[index] != len_perm - index - 1:
                 return False
         return True
 
