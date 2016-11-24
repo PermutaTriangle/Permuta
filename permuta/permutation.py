@@ -635,17 +635,20 @@ class Permutation(tuple, Pattern, Rotatable, Shiftable, Flippable):
         """Return self shifted times steps up.
 
         If times is negative, shifted down.
+
+        Examples:
+            >>> Permutation((0, 1, 2, 3)).shift_up(2)
+            Permutation((2, 3, 0, 1))
+            >>> Permutation((0, 1, 2, 3)).shift_up(-7)
+            Permutation((1, 2, 3, 0))
+            >>> Permutation((0,)).shift_up(1234)
+            Permutation((0,))
         """
-        if len(self) < 2:
-            return self
         times = times % len(self)
         if times == 0:
             return self
-        bound = len(self) - times
-        return Permutation(element - bound
-                           if element > bound
-                           else element + times
-                           for element in self)
+        bound = len(self)
+        return Permutation((element + times) % bound for element in self)
 
     def flip_horizontal(self):
         """Return self flipped horizontally."""
