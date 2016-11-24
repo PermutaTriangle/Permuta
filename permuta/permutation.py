@@ -16,7 +16,7 @@ if sys.version_info.major == 2:
 class Permutation(tuple, Pattern, Rotatable, Shiftable, Flippable):
     """A permutation class."""
 
-    _TYPE_ERROR = "Non-Permutation argument: {}"
+    _TYPE_ERROR = "'{}' object is not a Permutation"
 
     def __new__(cls, iterable=(), check=False):
         """Return a Permutation instance.
@@ -468,11 +468,37 @@ class Permutation(tuple, Pattern, Rotatable, Shiftable, Flippable):
         return result
 
     def apply(self, iterable):
-        # TODO: Docstring
-        assert isinstance(iterable, collections.Iterable)
+        """Permute an iterable using the permutation.
+
+        Args:
+            self:
+                A permutation.
+            iterable: <collections.Iterable>
+                An iterable of len(self) elements.
+
+        Returns: <tuple>
+            The elements of iterable in the permuted order.
+
+        Raises:
+            TypeError:
+                Bad argument.
+        
+        Examples:
+            >>> Permutation((4, 1, 2, 0, 3)).apply((1, 2, 3, 4, 5))
+            (5, 2, 3, 1, 4)
+            >>> Permutation((4, 1, 2, 0, 3)).apply("abcde")
+            ('e', 'b', 'c', 'a', 'd')
+            >>> Permutation((1, 2, 0, 3)).apply("abcde")
+            Traceback (most recent call last):
+                ...
+            TypeError: Length mismatch
+        """
         iterable = tuple(iterable)
-        assert len(iterable) == len(self)
-        return (iterable[index-1] for index in self)
+        if len(iterable) != len(self):
+            raise TypeError("Length mismatch")
+        return tuple(iterable[index] for index in self)
+
+    permute = apply  # Alias of Permutation.apply
 
     def direct_sum(self, *others):
         """Return the direct sum of two or more permutations."""
@@ -736,8 +762,8 @@ class Permutation(tuple, Pattern, Rotatable, Shiftable, Flippable):
     def __call__(self, value):
         # TODO: Docstring
         assert isinstance(value, numbers.Integral)  # TODO: Message
-        assert 0 < value <= len(self)  # TODO: Message
-        return self[value-1]
+        assert 0 <= value < len(self)  # TODO: Message
+        return self[value]
 
     def __add__(self, other):
         """Return the direct sum of the permutations self and other."""
