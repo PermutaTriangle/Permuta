@@ -323,6 +323,49 @@ class Permutation(tuple, Pattern, Rotatable, Shiftable, Flippable):
 
     multiply = compose
 
+    def insert(self, index=None, value=None):
+        """Return a permutation with an added element.
+
+        Args:
+            index:
+                Where in the permutation the value is to occur.
+                If None, the value defaults to len(self)+1.
+            value:
+                An integer in the range of 0 to len(self) inclusive.
+                If None, the value defaults to len(self).
+
+        Returns:
+            The permutation with the added value (and other values adjusted if needed).
+
+        Raises:
+            ValueError:
+                Value passed cannot legally be added to permutation.
+            TypeError:
+                Value passed is not an integer.
+            IndexError:
+                Index is not valid.
+
+        Examples:
+            >>> Permutation((0, 1)).insert()
+            Permutation((0, 1, 2))
+            >>> Permutation((0, 1)).insert(0)
+            Permutation((2, 0, 1))
+            >>> Permutation((2, 0, 1)).insert(2, 1)
+            Permutation((3, 0, 1, 2))
+        """
+        if index is None:
+            index = len(self)+1
+        if value is None:
+            value = len(self)
+        else:
+            if not isinstance(value, numbers.Integral):
+                raise TypeError("{} object is not an integer".format(repr(value)))
+            if not (0 <= value <= len(self)):
+                raise ValueError("Element out of range: {}".format(value))
+        result = [element if element < value else element+1 for element in self]
+        result.insert(index, value)
+        return Permutation(result)
+
     def inflate(self, components, indices=None):
         """Inflate element(s)."""
         # TODO: Discuss implementation
