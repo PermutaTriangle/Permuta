@@ -600,8 +600,14 @@ class Permutation(tuple, Pattern, Rotatable, Shiftable, Flippable):
         """Return the reverse complement of self.
 
         Equivalent to two left or right rotations.
+
+        Examples:
+            >>> Permutation((1, 2, 3, 0, 4)).reverse_complement()
+            Permutation((0, 4, 1, 2, 3))
+            >>> Permutation((2, 0, 1)).reverse_complement()
+            Permutation((1, 2, 0))
         """
-        base = len(self) + 1
+        base = len(self) - 1
         return Permutation(base - element for element in reversed(self))
 
     def shift_right(self, times=1):
