@@ -709,7 +709,7 @@ class Permutation(tuple, Pattern, Rotatable, Shiftable, Flippable):
         len_perm = len(self)
         result = [None]*len_perm
         for index, value in enumerate(self):
-            result[value-1] = len_perm - index
+            result[value] = len_perm - index - 1
         return Permutation(result)
 
     def _rotate_left(self):
@@ -717,7 +717,7 @@ class Permutation(tuple, Pattern, Rotatable, Shiftable, Flippable):
         len_perm = len(self)
         result = [None]*len_perm
         for index, value in enumerate(self):
-            result[len_perm - value] = index + 1
+            result[len_perm - value - 1] = index
         return Permutation(result)
 
     def _rotate_180(self):
