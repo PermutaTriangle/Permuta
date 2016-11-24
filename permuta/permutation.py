@@ -652,7 +652,7 @@ class Permutation(tuple, Pattern, Rotatable, Shiftable, Flippable):
 
     def flip_horizontal(self):
         """Return self flipped horizontally.
-        
+
         Examples:
             >>> Permutation((1, 2, 3, 0, 4)).flip_horizontal()
             Permutation((3, 2, 1, 4, 0))
@@ -673,11 +673,18 @@ class Permutation(tuple, Pattern, Rotatable, Shiftable, Flippable):
         return self.reverse()
 
     def flip_diagonal(self):
-        """Return self flipped along the diagonal, y = x."""
+        """Return self flipped along the diagonal.
+
+        Examples:
+            >>> Permutation((1, 2, 5, 0, 3, 4)).flip_diagonal()
+            Permutation((3, 0, 1, 4, 5, 2))
+            >>> Permutation((0, 1)).flip_diagonal()
+            Permutation((0, 1))
+        """
         return self.inverse()
 
     def flip_antidiagonal(self):
-        """Return self flipped along the antidiagonal, y = len(perm) - x.
+        """Return self flipped along the antidiagonal..
 
         Examples:
             >>> Permutation((3, 2, 0, 1)).flip_antidiagonal()
