@@ -482,7 +482,7 @@ class Permutation(tuple, Pattern, Rotatable, Shiftable, Flippable):
         Raises:
             TypeError:
                 Bad argument.
-        
+
         Examples:
             >>> Permutation((4, 1, 2, 0, 3)).apply((1, 2, 3, 4, 5))
             (5, 2, 3, 1, 4)
@@ -508,7 +508,7 @@ class Permutation(tuple, Pattern, Rotatable, Shiftable, Flippable):
                 A permutation.
             others: <permuta.Permutation> argument list
                 Permutations.
-        
+
         Returns: <permuta.Permutation>
             The direct sum of all the permutations.
 
@@ -536,7 +536,7 @@ class Permutation(tuple, Pattern, Rotatable, Shiftable, Flippable):
                 A permutation.
             others: <permuta.Permutation> argument list
                 Permutations.
-        
+
         Returns: <permuta.Permutation>
             The skew sum of all the permutations.
 
@@ -558,7 +558,7 @@ class Permutation(tuple, Pattern, Rotatable, Shiftable, Flippable):
 
     def inverse(self):
         """Return the inverse of the permutation self.
-        
+
         Examples:
             >>> Permutation((1, 2, 5, 0, 3, 4)).inverse()
             Permutation((3, 0, 1, 4, 5, 2))
@@ -575,7 +575,7 @@ class Permutation(tuple, Pattern, Rotatable, Shiftable, Flippable):
 
     def reverse(self):
         """Return the reverse of the permutation self.
-        
+
         Examples:
             >>> Permutation((1, 2, 5, 0, 3, 4)).reverse()
             Permutation((4, 3, 0, 5, 2, 1))
@@ -585,8 +585,15 @@ class Permutation(tuple, Pattern, Rotatable, Shiftable, Flippable):
         return Permutation(self[::-1])
 
     def complement(self):
-        """Return the complement of the permutation self."""
-        base = len(self) + 1
+        """Return the complement of the permutation self.
+
+        Examples:
+            >>> Permutation((1, 2, 3, 0, 4)).complement()
+            Permutation((3, 2, 1, 4, 0))
+            >>> Permutation((2, 0, 1)).complement()
+            Permutation((0, 2, 1))
+        """
+        base = len(self) - 1
         return Permutation(base - element for element in self)
 
     def reverse_complement(self):
