@@ -677,11 +677,20 @@ class Permutation(tuple, Pattern, Rotatable, Shiftable, Flippable):
         return self.inverse()
 
     def flip_antidiagonal(self):
-        """Return self flipped along the antidiagonal, y = len(perm) - x."""
+        """Return self flipped along the antidiagonal, y = len(perm) - x.
+
+        Examples:
+            >>> Permutation((3, 2, 0, 1)).flip_antidiagonal()
+            Permutation((3, 2, 0, 1))
+            >>> Permutation((1, 2, 3, 0, 4)).flip_antidiagonal()
+            Permutation((0, 2, 3, 4, 1))
+            >>> Permutation((1, 2, 0, 3)).flip_antidiagonal()
+            Permutation((0, 2, 3, 1))
+        """
         len_perm = len(self)
         result = [None]*len_perm
 
-        flipped_pairs = ((len_perm-element, len_perm-index)
+        flipped_pairs = ((len_perm-element-1, len_perm-index-1)
                          for index, element in enumerate(self))
 
         for index, element in flipped_pairs:
