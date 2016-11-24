@@ -323,27 +323,28 @@ class Permutation(tuple, Pattern, Rotatable, Shiftable, Flippable):
 
     multiply = compose
 
-    def insert(self, index=None, value=None):
-        """Return a permutation with an added element.
+    def insert(self, index=None, new_element=None):
+        """Return the permutation acquired by adding a new element.
 
         Args:
-            index:
+            index: <int>
                 Where in the permutation the value is to occur.
                 If None, the value defaults to len(self)+1.
-            value:
+            new_element: <int>
                 An integer in the range of 0 to len(self) inclusive.
-                If None, the value defaults to len(self).
+                If None, the element defaults to len(self).
 
-        Returns:
-            The permutation with the added value (and other values adjusted if needed).
+        Returns: <permuta.Permutation>
+            The permutation with the added element (and other elements adjusted
+            as needed).
 
         Raises:
-            ValueError:
-                Value passed cannot legally be added to permutation.
-            TypeError:
-                Value passed is not an integer.
             IndexError:
                 Index is not valid.
+            ValueError:
+                Element passed cannot legally be added to permutation.
+            TypeError:
+                Element passed is not an integer.
 
         Examples:
             >>> Permutation((0, 1)).insert()
@@ -355,16 +356,83 @@ class Permutation(tuple, Pattern, Rotatable, Shiftable, Flippable):
         """
         if index is None:
             index = len(self)+1
-        if value is None:
-            value = len(self)
+        if new_element is None:
+            new_element = len(self)
         else:
-            if not isinstance(value, numbers.Integral):
-                raise TypeError("{} object is not an integer".format(repr(value)))
-            if not (0 <= value <= len(self)):
-                raise ValueError("Element out of range: {}".format(value))
-        result = [element if element < value else element+1 for element in self]
-        result.insert(index, value)
-        return Permutation(result)
+            if not isinstance(new_element, numbers.Integral):
+                raise TypeError("{} object is not an integer".format(repr(new_element)))
+            if not (0 <= new_element <= len(self)):
+                raise ValueError("Element out of range: {}".format(new_element))
+        slice_1 = (element if element < new_element else element+1
+                   for element in itertools.islice(self, index))
+        slice_2 = (element if element < new_element else element+1
+                   for element in itertools.islice(self, index, len(self)))
+        return Permutation(itertools.chain(slice_1, (new_element,), slice_2))
+
+    def remove(self, index=None):
+        """Return the permutation acquired by removing an element at a specified index.
+
+        Args:
+            index: <int>
+                The index of the element to be removed.
+                If None, the greatest element of the permutation is removed.
+
+        Returns: <permuta.Permutation>
+            The permutation without the element (and other elements adjusted if needed).
+
+        Raises:
+            IndexError:
+                Index is not valid.
+
+        Examples:
+            >>> Permutation((2, 0, 1)).remove()
+            Permutation((0, 1))
+            >>> Permutation((3, 0, 1, 2)).remove(0)
+            Permutation((0, 1, 2))
+            >>> Permutation((2, 0, 1)).remove(2)
+            Permutation((1, 0))
+            >>> Permutation((0,)).remove(0)
+            Permutation(())
+        """
+        if index is None:
+            return self.remove_element()
+        selected = self[index]
+        return Permutation(element if element < selected else element-1
+                           for element in self if element != selected)
+
+    def remove_element(self, selected=None):
+        """Return the permutation acquired by removing a specific element from self.
+
+        Args:
+            selected: <int>
+                The element selected to be removed. It is an integer in the
+                range of 0 to len(self) inclusive. If None, it defaults to len(self).
+
+        Returns: <permuta.Permutation>
+            The permutation with the selected element removed (and other
+            elements adjusted as needed).
+
+        Raises:
+            ValueError:
+                Selected element does not belong to permutation.
+            TypeError:
+                Element passed is not an integer.
+
+        Examples:
+            >>> Permutation((3, 0, 1, 2)).remove_element()
+            Permutation((0, 1, 2))
+            >>> Permutation((3, 0, 2, 1)).remove_element(0)
+            Permutation((2, 1, 0))
+        """
+        if selected == None:
+            selected = len(self)-1
+        else:
+            if not isinstance(selected, numbers.Integral):
+                raise TypeError("{} object is not an integer".format(repr(selected)))
+            if not (0 <= selected < len(self)):
+                raise ValueError("Element out of range: {}".format(selected))
+        return Permutation(element if element < selected else element-1
+                           for element in self if element != selected)
 
     def inflate(self, components, indices=None):
         """Inflate element(s)."""
