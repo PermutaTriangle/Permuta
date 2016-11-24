@@ -501,7 +501,23 @@ class Permutation(tuple, Pattern, Rotatable, Shiftable, Flippable):
     permute = apply  # Alias of Permutation.apply
 
     def direct_sum(self, *others):
-        """Return the direct sum of two or more permutations."""
+        """Return the direct sum of two or more permutations.
+
+        Args:
+            self:
+                A permutation.
+            others: <permuta.Permutation> argument list
+                Permutations.
+        
+        Returns: <permuta.Permutation>
+            The direct sum of all the permutations.
+
+        Examples:
+            >>> Permutation((0,)).direct_sum(Permutation((1, 0)))
+            Permutation((0, 2, 1))
+            >>> Permutation((0,)).direct_sum(Permutation((1, 0)), Permutation((2, 1, 0)))
+            Permutation((0, 2, 1, 5, 4, 3))
+        """
         result = list(self)
         shift = len(self)
         for index in range(len(others)):
@@ -513,7 +529,23 @@ class Permutation(tuple, Pattern, Rotatable, Shiftable, Flippable):
         return Permutation(result)
 
     def skew_sum(self, *others):
-        """Return the skew sum of two or more permutations."""
+        """Return the skew sum of two or more permutations.
+
+        Args:
+            self:
+                A permutation.
+            others: <permuta.Permutation> argument list
+                Permutations.
+        
+        Returns: <permuta.Permutation>
+            The skew sum of all the permutations.
+
+        Examples:
+            >>> Permutation((0,)).skew_sum(Permutation((0, 1)))
+            Permutation((2, 0, 1))
+            >>> Permutation((0,)).skew_sum(Permutation((0, 1)), Permutation((2, 1, 0)))
+            Permutation((5, 3, 4, 2, 1, 0))
+        """
         shift = sum(len(other) for other in others)
         result = [element + shift for element in self]
         for index in range(len(others)):
