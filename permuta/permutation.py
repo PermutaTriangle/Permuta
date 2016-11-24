@@ -222,255 +222,6 @@ class Permutation(tuple, Pattern, Rotatable, Shiftable, Flippable):
     # TODO: This one will not be a class method
     #perm2ind = rank  # permpy backwards compatibility
 
-    def contains(self, *patts):
-        """Check if self contains patts.
-
-        Args:
-            self:
-                A permutation.
-            patts: <permuta.Pattern> argument list
-                Classical/mesh patterns.
-
-        Returns: <bool>
-            True if and only if all patterns in patt are contained in self.
-
-        Examples:
-            >>> Permutation.monotone_decreasing(7).avoids(Permutation((0, 1)))
-            True
-            >>> Permutation((4, 2, 3, 1, 0)).contains(Permutation((1, 2, 0)))
-            True
-            >>> Permutation((0, 1, 2)).contains(Permutation((1,0)))
-            False
-            >>> pattern1 = Permutation((0, 1))
-            >>> pattern2 = Permutation((2, 0, 1))
-            >>> pattern3 = Permutation((0, 3, 1, 2))
-            >>> Permutation((5, 3, 0, 4, 2, 1)).contains(pattern1, pattern2)
-            True
-            >>> Permutation((5, 3, 0, 4, 2, 1)).contains(pattern2, pattern3)
-            False
-        """
-        return all(patt in self for patt in patts)
-
-    def avoids(self, *patts):
-        """Check if self avoids patts.
-
-        Args:
-            self:
-                A permutation.
-            patts: <permuta.Pattern> argument list
-                Classical/mesh patterns.
-
-        Returns: <bool>
-            True if and only if self avoids all patterns in patts.
-
-        Examples:
-            >>> Permutation.monotone_increasing(8).avoids(Permutation((1, 0)))
-            True
-            >>> Permutation((4, 2, 3, 1, 0)).avoids(Permutation((1, 2, 0)))
-            False
-            >>> Permutation((0, 1, 2)).avoids(Permutation((1,0)))
-            True
-            >>> pattern1 = Permutation((0, 1))
-            >>> pattern2 = Permutation((2, 0, 1))
-            >>> pattern3 = Permutation((0, 3, 1, 2))
-            >>> pattern4 = Permutation((0, 1, 2))
-            >>> Permutation((5, 3, 0, 4, 2, 1)).avoids(pattern1, pattern2)
-            False
-            >>> Permutation((5, 3, 0, 4, 2, 1)).avoids(pattern2, pattern3)
-            False
-            >>> Permutation((5, 3, 0, 4, 2, 1)).avoids(pattern3, pattern4)
-            True
-        """
-        return all(patt not in self for patt in patts)
-
-    def avoids_set(patts):
-        """Check if self avoids patts.
-
-        This method is for backwards compatibility with permpy.
-        """
-        return self.avoids(*tuple(patts))
-
-    def count_occurrences_of(self, patt):
-        """Count the number of occurrences of patt in self.
-
-        Args:
-            self:
-                A permutation.
-            patt: <permuta.Pattern>
-                A classical/mesh pattern.
-
-        Returns: <int>
-            The number of times patt occurs in self.
-
-        Examples:
-            >>> Permutation((0, 1, 2)).count_occurrences_of(Permutation((0, 1)))
-            3
-            >>> Permutation((5, 3, 0, 4, 2, 1)).count_occurrences_of(Permutation((2, 0, 1)))
-            6
-        """
-        return patt.count_occurrences_in(self)
-
-    occurrences = count_occurrences_of  # permpy backwards compatibility
-
-    def occurrences_in(self, perm):
-        """Find all indices of occurrences of self in perm.
-
-        Args:
-            self:
-                The classical pattern whose occurrences are to be found.
-            perm: <permuta.Permutation>
-                The permutation to search for occurrences in.
-
-        Yields: <tuple> of <int>
-            The indices of the occurrences of self in perm.
-            Each yielded element l is a tuple of integer indices of the
-            permutation perm such that:
-            self == permuta.Permutation.to_standard([perm[i] for i in l])
-
-        Examples:
-            >>> list(Permutation((2, 0, 1)).occurrences_in(Permutation((5, 3, 0, 4, 2, 1))))
-            [(0, 1, 3), (0, 2, 3), (0, 2, 4), (0, 2, 5), (1, 2, 4), (1, 2, 5)]
-            >>> list(Permutation((1, 0)).occurrences_in(Permutation((1, 2, 3, 0))))
-            [(0, 3), (1, 3), (2, 3)]
-            >>> list(Permutation((0,)).occurrences_in(Permutation((1, 2, 3, 0))))
-            [(0,), (1,), (2,), (3,)]
-            >>> list(Permutation().occurrences_in(Permutation((1, 2, 3, 0))))
-            [()]
-        """
-        # Special cases
-        if len(self) == 0:
-            # Pattern is empty, occurs in all permutations
-            # This is needed for the occurrences function to work correctly
-            yield ()
-            return
-        if len(self) > len(perm):
-            # Pattern is too long to occur in permutation
-            return
-
-        # The indices of the occurrence in perm
-        occurrence_indices = [None]*len(self)
-
-        # Get left to right scan details
-        pattern_details = self._pattern_details()
-
-        # Upper and lower bound declarations
-        upper_bound = None
-        lower_bound = None
-
-        # Define function that works with the above defined variables
-        # i is the index of the element in perm that is to be considered
-        # k is how many elements of the permutation have already been added to occurrence
-        def occurrences(i, k):
-            elements_remaining = len(perm) - i
-            elements_needed = len(self) - k
-
-            # Get the following variables:
-            #   - lfi: Left Floor Index
-            #   - lci: Left Ceiling Index
-            #   - lbp: Lower Bound Pre-computation
-            #   - ubp: Upper Bound pre-computation
-            lfi, lci, lbp, ubp = pattern_details[k]
-
-            # Set the bounds for the new element
-            if lfi is None:
-                # The new element of the occurrence must be at least self[k];
-                # i.e., the k-th element of the pattern
-                # In this case, lbp = self[k]
-                lower_bound = lbp
-            else:
-                # The new element of the occurrence must be at least as far
-                # from its left floor as self[k] is from its left floor
-                # In this case, lbp = self[k] - self[lfi]
-                occurrence_left_floor = perm[occurrence_indices[lfi]]
-                lower_bound = occurrence_left_floor + lbp
-            if lci is None:
-                # The new element of the occurrence must be at least as less
-                # than its maximum possible element---i.e., len(perm)---as
-                # self[k] is to its maximum possible element---i.e., len(self)
-                # ubp = len(self) - self[k]
-                upper_bound = len(perm) - ubp
-            else:
-                # The new element of the occurrence must be at least as less
-                # than its left ceiling as self[k] is to its left ceiling
-                # In this case, ubp = self[lci] - self[k]
-                upper_bound = perm[occurrence_indices[lci]] - ubp
-
-            # Loop over remaining elements of perm (actually i, the index)
-            while 1:
-                if elements_remaining < elements_needed:
-                    # Can't form an occurrence with remaining elements
-                    return
-                element = perm[i]
-                if lower_bound <= element <= upper_bound:
-                    occurrence_indices[k] = i
-                    if elements_needed == 1:
-                        # Yield occurrence
-                        yield tuple(occurrence_indices)
-                    else:
-                        # Yield occurrences where the i-th element is chosen
-                        for occurence in occurrences(i+1, k+1):
-                            yield occurence
-                # Increment i, that also means elements_remaining should decrement
-                i += 1
-                elements_remaining -= 1
-
-        for occurence in occurrences(0, 0):
-            yield occurence
-
-    def occurrences_of(self, patt):
-        """Find all indices of occurrences of patt in self.
-
-        This method is complementary to permuta.Permutation.occurrences_in.
-        It just calls patt.occurrences_in(self) internally.
-        See permuta.Permutation.occurrences_in for documentation.
-
-        Args:
-            self:
-                A permutation.
-            patt: <permuta.Pattern>
-                A classical/mesh pattern.
-
-        Yields: <tuple> of <int>
-            The indices of the occurrences of self in perm.
-
-        Examples:
-            >>> list(Permutation((5, 3, 0, 4, 2, 1)).occurrences_of(Permutation((2, 0, 1))))
-            [(0, 1, 3), (0, 2, 3), (0, 2, 4), (0, 2, 5), (1, 2, 4), (1, 2, 5)]
-            >>> list(Permutation((1, 2, 3, 0)).occurrences_of(Permutation((1, 0))))
-            [(0, 3), (1, 3), (2, 3)]
-            >>> list(Permutation((1, 2, 3, 0)).occurrences_of(Permutation((0,))))
-            [(0,), (1,), (2,), (3,)]
-            >>> list(Permutation((1, 2, 3, 0)).occurrences_of(Permutation()))
-            [()]
-        """
-        return patt.occurrences_in(self)
-
-    def _pattern_details(self):
-        """Subroutine of occurrences_in method."""
-        # If details have been calculated before, return cached result
-        if self._cached_pattern_details is not None:
-            return self._cached_pattern_details
-        result = []
-        index = 0
-        for fac_indices in left_floor_and_ceiling(self):
-            base_element = self[index]
-            compiled = (fac_indices.floor,
-
-                        fac_indices.ceiling,
-
-                        self[index]
-                        if fac_indices.floor is None
-                        else base_element - self[fac_indices.floor],
-
-                        len(self) - self[index]
-                        if fac_indices.ceiling is None
-                        else self[fac_indices.ceiling] - base_element,
-                        )
-            result.append(compiled)
-            index += 1
-        self._cached_pattern_details = result
-        return result
-
     def apply(self, iterable):
         """Permute an iterable using the permutation.
 
@@ -940,6 +691,255 @@ class Permutation(tuple, Pattern, Rotatable, Shiftable, Flippable):
         return sum(1 for _ in self.valleys())
 
     num_valleys = count_valleys  # permpy backwards compatibility
+
+    def contains(self, *patts):
+        """Check if self contains patts.
+
+        Args:
+            self:
+                A permutation.
+            patts: <permuta.Pattern> argument list
+                Classical/mesh patterns.
+
+        Returns: <bool>
+            True if and only if all patterns in patt are contained in self.
+
+        Examples:
+            >>> Permutation.monotone_decreasing(7).avoids(Permutation((0, 1)))
+            True
+            >>> Permutation((4, 2, 3, 1, 0)).contains(Permutation((1, 2, 0)))
+            True
+            >>> Permutation((0, 1, 2)).contains(Permutation((1,0)))
+            False
+            >>> pattern1 = Permutation((0, 1))
+            >>> pattern2 = Permutation((2, 0, 1))
+            >>> pattern3 = Permutation((0, 3, 1, 2))
+            >>> Permutation((5, 3, 0, 4, 2, 1)).contains(pattern1, pattern2)
+            True
+            >>> Permutation((5, 3, 0, 4, 2, 1)).contains(pattern2, pattern3)
+            False
+        """
+        return all(patt in self for patt in patts)
+
+    def avoids(self, *patts):
+        """Check if self avoids patts.
+
+        Args:
+            self:
+                A permutation.
+            patts: <permuta.Pattern> argument list
+                Classical/mesh patterns.
+
+        Returns: <bool>
+            True if and only if self avoids all patterns in patts.
+
+        Examples:
+            >>> Permutation.monotone_increasing(8).avoids(Permutation((1, 0)))
+            True
+            >>> Permutation((4, 2, 3, 1, 0)).avoids(Permutation((1, 2, 0)))
+            False
+            >>> Permutation((0, 1, 2)).avoids(Permutation((1,0)))
+            True
+            >>> pattern1 = Permutation((0, 1))
+            >>> pattern2 = Permutation((2, 0, 1))
+            >>> pattern3 = Permutation((0, 3, 1, 2))
+            >>> pattern4 = Permutation((0, 1, 2))
+            >>> Permutation((5, 3, 0, 4, 2, 1)).avoids(pattern1, pattern2)
+            False
+            >>> Permutation((5, 3, 0, 4, 2, 1)).avoids(pattern2, pattern3)
+            False
+            >>> Permutation((5, 3, 0, 4, 2, 1)).avoids(pattern3, pattern4)
+            True
+        """
+        return all(patt not in self for patt in patts)
+
+    def avoids_set(patts):
+        """Check if self avoids patts.
+
+        This method is for backwards compatibility with permpy.
+        """
+        return self.avoids(*tuple(patts))
+
+    def count_occurrences_of(self, patt):
+        """Count the number of occurrences of patt in self.
+
+        Args:
+            self:
+                A permutation.
+            patt: <permuta.Pattern>
+                A classical/mesh pattern.
+
+        Returns: <int>
+            The number of times patt occurs in self.
+
+        Examples:
+            >>> Permutation((0, 1, 2)).count_occurrences_of(Permutation((0, 1)))
+            3
+            >>> Permutation((5, 3, 0, 4, 2, 1)).count_occurrences_of(Permutation((2, 0, 1)))
+            6
+        """
+        return patt.count_occurrences_in(self)
+
+    occurrences = count_occurrences_of  # permpy backwards compatibility
+
+    def occurrences_in(self, perm):
+        """Find all indices of occurrences of self in perm.
+
+        Args:
+            self:
+                The classical pattern whose occurrences are to be found.
+            perm: <permuta.Permutation>
+                The permutation to search for occurrences in.
+
+        Yields: <tuple> of <int>
+            The indices of the occurrences of self in perm.
+            Each yielded element l is a tuple of integer indices of the
+            permutation perm such that:
+            self == permuta.Permutation.to_standard([perm[i] for i in l])
+
+        Examples:
+            >>> list(Permutation((2, 0, 1)).occurrences_in(Permutation((5, 3, 0, 4, 2, 1))))
+            [(0, 1, 3), (0, 2, 3), (0, 2, 4), (0, 2, 5), (1, 2, 4), (1, 2, 5)]
+            >>> list(Permutation((1, 0)).occurrences_in(Permutation((1, 2, 3, 0))))
+            [(0, 3), (1, 3), (2, 3)]
+            >>> list(Permutation((0,)).occurrences_in(Permutation((1, 2, 3, 0))))
+            [(0,), (1,), (2,), (3,)]
+            >>> list(Permutation().occurrences_in(Permutation((1, 2, 3, 0))))
+            [()]
+        """
+        # Special cases
+        if len(self) == 0:
+            # Pattern is empty, occurs in all permutations
+            # This is needed for the occurrences function to work correctly
+            yield ()
+            return
+        if len(self) > len(perm):
+            # Pattern is too long to occur in permutation
+            return
+
+        # The indices of the occurrence in perm
+        occurrence_indices = [None]*len(self)
+
+        # Get left to right scan details
+        pattern_details = self._pattern_details()
+
+        # Upper and lower bound declarations
+        upper_bound = None
+        lower_bound = None
+
+        # Define function that works with the above defined variables
+        # i is the index of the element in perm that is to be considered
+        # k is how many elements of the permutation have already been added to occurrence
+        def occurrences(i, k):
+            elements_remaining = len(perm) - i
+            elements_needed = len(self) - k
+
+            # Get the following variables:
+            #   - lfi: Left Floor Index
+            #   - lci: Left Ceiling Index
+            #   - lbp: Lower Bound Pre-computation
+            #   - ubp: Upper Bound pre-computation
+            lfi, lci, lbp, ubp = pattern_details[k]
+
+            # Set the bounds for the new element
+            if lfi is None:
+                # The new element of the occurrence must be at least self[k];
+                # i.e., the k-th element of the pattern
+                # In this case, lbp = self[k]
+                lower_bound = lbp
+            else:
+                # The new element of the occurrence must be at least as far
+                # from its left floor as self[k] is from its left floor
+                # In this case, lbp = self[k] - self[lfi]
+                occurrence_left_floor = perm[occurrence_indices[lfi]]
+                lower_bound = occurrence_left_floor + lbp
+            if lci is None:
+                # The new element of the occurrence must be at least as less
+                # than its maximum possible element---i.e., len(perm)---as
+                # self[k] is to its maximum possible element---i.e., len(self)
+                # ubp = len(self) - self[k]
+                upper_bound = len(perm) - ubp
+            else:
+                # The new element of the occurrence must be at least as less
+                # than its left ceiling as self[k] is to its left ceiling
+                # In this case, ubp = self[lci] - self[k]
+                upper_bound = perm[occurrence_indices[lci]] - ubp
+
+            # Loop over remaining elements of perm (actually i, the index)
+            while 1:
+                if elements_remaining < elements_needed:
+                    # Can't form an occurrence with remaining elements
+                    return
+                element = perm[i]
+                if lower_bound <= element <= upper_bound:
+                    occurrence_indices[k] = i
+                    if elements_needed == 1:
+                        # Yield occurrence
+                        yield tuple(occurrence_indices)
+                    else:
+                        # Yield occurrences where the i-th element is chosen
+                        for occurence in occurrences(i+1, k+1):
+                            yield occurence
+                # Increment i, that also means elements_remaining should decrement
+                i += 1
+                elements_remaining -= 1
+
+        for occurence in occurrences(0, 0):
+            yield occurence
+
+    def occurrences_of(self, patt):
+        """Find all indices of occurrences of patt in self.
+
+        This method is complementary to permuta.Permutation.occurrences_in.
+        It just calls patt.occurrences_in(self) internally.
+        See permuta.Permutation.occurrences_in for documentation.
+
+        Args:
+            self:
+                A permutation.
+            patt: <permuta.Pattern>
+                A classical/mesh pattern.
+
+        Yields: <tuple> of <int>
+            The indices of the occurrences of self in perm.
+
+        Examples:
+            >>> list(Permutation((5, 3, 0, 4, 2, 1)).occurrences_of(Permutation((2, 0, 1))))
+            [(0, 1, 3), (0, 2, 3), (0, 2, 4), (0, 2, 5), (1, 2, 4), (1, 2, 5)]
+            >>> list(Permutation((1, 2, 3, 0)).occurrences_of(Permutation((1, 0))))
+            [(0, 3), (1, 3), (2, 3)]
+            >>> list(Permutation((1, 2, 3, 0)).occurrences_of(Permutation((0,))))
+            [(0,), (1,), (2,), (3,)]
+            >>> list(Permutation((1, 2, 3, 0)).occurrences_of(Permutation()))
+            [()]
+        """
+        return patt.occurrences_in(self)
+
+    def _pattern_details(self):
+        """Subroutine of occurrences_in method."""
+        # If details have been calculated before, return cached result
+        if self._cached_pattern_details is not None:
+            return self._cached_pattern_details
+        result = []
+        index = 0
+        for fac_indices in left_floor_and_ceiling(self):
+            base_element = self[index]
+            compiled = (fac_indices.floor,
+
+                        fac_indices.ceiling,
+
+                        self[index]
+                        if fac_indices.floor is None
+                        else base_element - self[fac_indices.floor],
+
+                        len(self) - self[index]
+                        if fac_indices.ceiling is None
+                        else self[fac_indices.ceiling] - base_element,
+                        )
+            result.append(compiled)
+            index += 1
+        self._cached_pattern_details = result
+        return result
 
     def __call__(self, value):
         """Map value to its image defined by the permutation.
