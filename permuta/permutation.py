@@ -282,6 +282,47 @@ class Permutation(tuple, Pattern, Rotatable, Shiftable, Flippable):
             result.extend(element + shift for element in other)
         return Permutation(result)
 
+    def compose(self, *others):
+        """Return the composition of two or more permutations.
+
+        Args:
+            self:
+                A permutation.
+            others: <permuta.Permutation> argument list
+                Permutations.
+
+        Returns: <permuta.Permutation>
+            The consecutive pointwise application of all the above permutations
+            in reverse order.
+
+        Raises:
+            TypeError:
+                An object in the argument list is not a permutation.
+            ValueError:
+                A permutation in the argument list is of the wrong length.
+
+        Examples:
+            >>> Permutation((0, 3, 1, 2)).compose(Permutation((2, 1, 0, 3)))
+            Permutation((1, 3, 0, 2))
+            >>> Permutation((0, 3, 1, 2)).compose(Permutation((2, 1, 0, 3)), Permutation((0, 1, 3, 2)))
+            Permutation((1, 3, 2, 0))
+        """
+        for other in others:
+            if not isinstance(other, Permutation):
+                raise TypeError(Permutation._TYPE_ERROR.format(repr(other)))
+            if len(other) != len(self):
+                raise ValueError("Permutation length mismatch")
+        result = [None]*len(self)
+        for value in range(len(self)):
+            composed_value = value
+            for other in reversed(others):
+                composed_value = other[composed_value]
+            composed_value = self[composed_value]
+            result[value] = composed_value
+        return Permutation(result)
+
+    multiply = compose
+
     def inflate(self, components, indices=None):
         """Inflate element(s)."""
         # TODO: Discuss implementation
@@ -994,6 +1035,10 @@ class Permutation(tuple, Pattern, Rotatable, Shiftable, Flippable):
     def __sub__(self, other):
         """Return the skew sum of the permutations self and other."""
         return self.skew_sum(other)
+
+    def __mul__(self, other):
+        """Return the composition of two permutations."""
+        return self.multiply(other)
 
     def __repr__(self):
         return "Permutation({})".format(super(Permutation, self).__repr__())
