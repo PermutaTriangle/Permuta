@@ -32,7 +32,9 @@ class Permutation(tuple, Pattern, Rotatable, Shiftable, Flippable):
 
         Raises:
             TypeError:
-                Bad argument.
+                Bad argument type.
+            ValueError:
+                Bad argument, but correct type.
 
         Examples:
             >>> Permutation((0,3,1,2))
@@ -46,7 +48,7 @@ class Permutation(tuple, Pattern, Rotatable, Shiftable, Flippable):
             >>> Permutation("abc", check=True)
             Traceback (most recent call last):
                 ...
-            TypeError: Non-integer type: 'a'
+            TypeError: 'a' object is not an integer
         """
         try:
             return super(Permutation, cls).__new__(cls, iterable)
@@ -54,7 +56,7 @@ class Permutation(tuple, Pattern, Rotatable, Shiftable, Flippable):
             if isinstance(iterable, numbers.Integral):
                 number = iterable
                 if not (0 <= number <= 9876543210):
-                    raise TypeError("Bad integer {}".format(number))
+                    raise ValueError("Illegal permutation: {}".format(number))
                 iterable = []
                 if number == 0:
                     iterable.append(number)
@@ -73,10 +75,12 @@ class Permutation(tuple, Pattern, Rotatable, Shiftable, Flippable):
             used = [False]*len(self)
             for value in self:
                 if not isinstance(value, numbers.Integral):
-                    message = "Non-integer type: {}".format(repr(value))
+                    message = "{} object is not an integer".format(repr(value))
                     raise TypeError(message)
-                assert 0 <= value < len(self), "Out of range: {}".format(value)
-                assert not used[value], "Duplicate element: {}".format(value)
+                if not (0 <= value < len(self)):
+                    raise ValueError("Element out of range: {}".format(value))
+                if used[value]:
+                    raise ValueError("Duplicate element: {}".format(value))
                 used[value] = True
         self._cached_pattern_details = None
 
@@ -481,7 +485,7 @@ class Permutation(tuple, Pattern, Rotatable, Shiftable, Flippable):
 
         Raises:
             TypeError:
-                Bad argument.
+                Bad argument type.
 
         Examples:
             >>> Permutation((4, 1, 2, 0, 3)).apply((1, 2, 3, 4, 5))
@@ -845,7 +849,6 @@ class Permutation(tuple, Pattern, Rotatable, Shiftable, Flippable):
             >>> tuple(Permutation((2, 1, 0)).peaks())
             ()
         """
-        # TODO: Have an argument about docstrings with Murray
         if len(self) <= 2:
             return
         ascent = False
@@ -898,7 +901,6 @@ class Permutation(tuple, Pattern, Rotatable, Shiftable, Flippable):
             >>> tuple(Permutation((1, 2, 0)).valleys())
             ()
         """
-        # TODO: Have an argument about docstrings with Murray
         if len(self) <= 2:
             return
         ascent = True
