@@ -740,9 +740,18 @@ class Permutation(tuple, Pattern, Rotatable, Shiftable, Flippable):
         return True
 
     def fixed_points(self):
-        """Return the number of fixed points in self."""
+        """Return the number of fixed points in self.
+
+        Examples:
+            >>> Permutation((0, 1, 4, 3, 2)).fixed_points()
+            3
+            >>> Permutation((0, 1, 2, 3, 4)).fixed_points()
+            5
+            >>> Permutation((3, 2, 1, 0)).fixed_points()
+            0
+        """
         result = 0
-        value = 1
+        value = 0
         for element in self:
             if element == value:
                 result += 1
