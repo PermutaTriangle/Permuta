@@ -120,6 +120,22 @@ class Permutation(tuple, Pattern, Rotatable, Shiftable, Flippable):
     from_iterable = to_standard  # TODO: Acceptable alias?
 
     @classmethod
+    def one_based(cls, iterable, check=True):
+        """A way to enter a permutation in the traditional permuta way.
+
+        Examples:
+            >>> Permutation.one_based((4, 1, 3, 2))
+            Permutation((3, 0, 2, 1))
+        """
+        return cls(((element-1) for element in iterable), check)
+
+    # TODO: Which aliases?
+    proper = one_based
+    one = one_based
+    ob = one_based
+    ton = one_based
+
+    @classmethod
     def identity(cls, length):
         """Return the identity permutation of the specified length.
 
