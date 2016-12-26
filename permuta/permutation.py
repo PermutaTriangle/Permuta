@@ -1,4 +1,5 @@
-import collections
+# pylint: disable=too-many-lines,missing-docstring
+
 import itertools
 import math
 import numbers
@@ -10,10 +11,15 @@ from permuta import Pattern, Rotatable, Shiftable, Flippable
 from permuta.misc import left_floor_and_ceiling
 
 if sys.version_info.major == 2:
-    range = xrange
+    range = xrange  #pylint: disable=redefined-builtin,invalid-name,undefined-variable
 
 
-class Permutation(tuple, Pattern, Rotatable, Shiftable, Flippable):
+class Permutation(tuple,
+                  Pattern,
+                  Rotatable,
+                  Shiftable,
+                  Flippable
+                 ):  # pylint: disable=too-many-ancestors,too-many-public-methods
     """A permutation class."""
 
     _TYPE_ERROR = "'{}' object is not a Permutation"
@@ -22,7 +28,7 @@ class Permutation(tuple, Pattern, Rotatable, Shiftable, Flippable):
     # Methods returning a single Permutation instance
     #
 
-    def __new__(cls, iterable=(), check=False):
+    def __new__(cls, iterable=(), check=False):  # pylint: disable=unused-argument
         """Return a Permutation instance.
 
         Args:
@@ -41,7 +47,7 @@ class Permutation(tuple, Pattern, Rotatable, Shiftable, Flippable):
                 Bad argument, but correct type.
 
         Examples:
-            >>> Permutation((0,3,1,2))
+            >>> Permutation((0, 3, 1, 2))
             Permutation((0, 3, 1, 2))
             >>> Permutation(range(5, -1, -1))
             Permutation((5, 4, 3, 2, 1, 0))
@@ -57,23 +63,24 @@ class Permutation(tuple, Pattern, Rotatable, Shiftable, Flippable):
         try:
             return super(Permutation, cls).__new__(cls, iterable)
         except TypeError:
+            # Try to
             if isinstance(iterable, numbers.Integral):
                 number = iterable
-                if not (0 <= number <= 9876543210):
+                if not 0 <= number <= 9876543210:
                     raise ValueError("Illegal permutation: {}".format(number))
-                iterable = []
+                digit_list = []
                 if number == 0:
-                    iterable.append(number)
+                    digit_list.append(number)
                 else:
                     while number != 0:
-                        iterable.append(number % 10)
+                        digit_list.append(number % 10)
                         number //= 10
-                    iterable = reversed(iterable)
+                    iterable = reversed(digit_list)
                 return super(Permutation, cls).__new__(cls, iterable)
             else:
                 raise
 
-    def __init__(self, iterable=(), check=False):
+    def __init__(self, iterable=(), check=False):  # pylint: disable=unused-argument,super-init-not-called
         # TODO: Docstring
         if check:
             used = [False]*len(self)
@@ -81,7 +88,7 @@ class Permutation(tuple, Pattern, Rotatable, Shiftable, Flippable):
                 if not isinstance(value, numbers.Integral):
                     message = "{} object is not an integer".format(repr(value))
                     raise TypeError(message)
-                if not (0 <= value < len(self)):
+                if not 0 <= value < len(self):
                     raise ValueError("Element out of range: {}".format(value))
                 if used[value]:
                     raise ValueError("Duplicate element: {}".format(value))
@@ -130,10 +137,9 @@ class Permutation(tuple, Pattern, Rotatable, Shiftable, Flippable):
         return cls(((element-1) for element in iterable), check)
 
     # TODO: Which aliases?
-    proper = one_based
     one = one_based
-    ob = one_based
-    ton = one_based
+    proper = one_based
+    scientific = one_based
 
     @classmethod
     def identity(cls, length):
@@ -320,8 +326,8 @@ class Permutation(tuple, Pattern, Rotatable, Shiftable, Flippable):
         Examples:
             >>> Permutation((0, 3, 1, 2)).compose(Permutation((2, 1, 0, 3)))
             Permutation((1, 3, 0, 2))
-            >>> Permutation((0, 3, 1, 2)).compose(Permutation((2, 1, 0, 3)), Permutation((0, 1, 3, 2)))
-            Permutation((1, 3, 2, 0))
+            >>> Permutation((1, 0, 2)).compose(Permutation((0, 1, 2)), Permutation((2, 1, 0)))
+            Permutation((2, 0, 1))
         """
         for other in others:
             if not isinstance(other, Permutation):
@@ -377,7 +383,7 @@ class Permutation(tuple, Pattern, Rotatable, Shiftable, Flippable):
         else:
             if not isinstance(new_element, numbers.Integral):
                 raise TypeError("{} object is not an integer".format(repr(new_element)))
-            if not (0 <= new_element <= len(self)):
+            if not 0 <= new_element <= len(self):
                 raise ValueError("Element out of range: {}".format(new_element))
         slice_1 = (element if element < new_element else element+1
                    for element in itertools.islice(self, index))
@@ -440,12 +446,12 @@ class Permutation(tuple, Pattern, Rotatable, Shiftable, Flippable):
             >>> Permutation((3, 0, 2, 1)).remove_element(0)
             Permutation((2, 1, 0))
         """
-        if selected == None:
+        if selected is None:
             selected = len(self)-1
         else:
             if not isinstance(selected, numbers.Integral):
                 raise TypeError("{} object is not an integer".format(repr(selected)))
-            if not (0 <= selected < len(self)):
+            if not 0 <= selected < len(self):
                 raise ValueError("Element out of range: {}".format(selected))
         return Permutation(element if element < selected else element-1
                            for element in self if element != selected)
@@ -454,7 +460,6 @@ class Permutation(tuple, Pattern, Rotatable, Shiftable, Flippable):
         """Inflate element(s)."""
         # TODO: Discuss implementation
         pass
-
 
     def __inflate_shifts(self, component):
         """ """
@@ -535,14 +540,32 @@ class Permutation(tuple, Pattern, Rotatable, Shiftable, Flippable):
         slice_2 = itertools.islice(self, index, len(self))
         return Permutation(itertools.chain(slice_2, slice_1))
 
+    def shift_left(self, times=1):
+        """Return self shifted times steps to the left.
+
+        If shift is negative, shifted to the right.
+
+        Examples:
+            >>> Permutation((0, 1, 2)).shift_left()
+            Permutation((1, 2, 0))
+            >>> Permutation((0, 1, 2)).shift_left(-4)
+            Permutation((2, 0, 1))
+        """
+        return self.shift_right(-times)
+
+    shift = shift_right
+    cyclic_shift = shift_right
+    cyclic_shift_right = shift_right
+    cyclic_shift_left = shift_left
+
     def shift_up(self, times=1):
         """Return self shifted times steps up.
 
         If times is negative, shifted down.
 
         Examples:
-            >>> Permutation((0, 1, 2, 3)).shift_up(2)
-            Permutation((2, 3, 0, 1))
+            >>> Permutation((0, 1, 2, 3)).shift_up(1)
+            Permutation((1, 2, 3, 0))
             >>> Permutation((0, 1, 2, 3)).shift_up(-7)
             Permutation((1, 2, 3, 0))
             >>> Permutation((0,)).shift_up(1234)
@@ -555,6 +578,21 @@ class Permutation(tuple, Pattern, Rotatable, Shiftable, Flippable):
             return self
         bound = len(self)
         return Permutation((element + times) % bound for element in self)
+
+    def shift_down(self, times=1):
+        """Return self shifted times steps down.
+
+        If times is negative, shifted up.
+
+        Examples:
+            >>> Permutation((0, 1, 2, 3)).shift_down(1)
+            Permutation((3, 0, 1, 2))
+            >>> Permutation((0, 1, 2, 3)).shift_down(-7)
+            Permutation((3, 0, 1, 2))
+            >>> Permutation((0,)).shift_down(1234)
+            Permutation((0,))
+        """
+        return self.shift_up(-times)
 
     def flip_horizontal(self):
         """Return self flipped horizontally.
@@ -681,7 +719,6 @@ class Permutation(tuple, Pattern, Rotatable, Shiftable, Flippable):
         return tuple(iterable[index] for index in self)
 
     permute = apply  # Alias of Permutation.apply
-
 
     def fixed_points(self):
         """Return the number of fixed points in self.
@@ -944,7 +981,7 @@ class Permutation(tuple, Pattern, Rotatable, Shiftable, Flippable):
         """
         return all(patt not in self for patt in patts)
 
-    def avoids_set(patts):
+    def avoids_set(self, patts):
         """Check if self avoids patts.
 
         This method is for backwards compatibility with permpy.
@@ -1013,10 +1050,6 @@ class Permutation(tuple, Pattern, Rotatable, Shiftable, Flippable):
 
         # Get left to right scan details
         pattern_details = self.__pattern_details()
-
-        # Upper and lower bound declarations
-        upper_bound = None
-        lower_bound = None
 
         # Define function that works with the above defined variables
         # i is the index of the element in perm that is to be considered
@@ -1126,7 +1159,7 @@ class Permutation(tuple, Pattern, Rotatable, Shiftable, Flippable):
                         len(self) - self[index]
                         if fac_indices.ceiling is None
                         else self[fac_indices.ceiling] - base_element,
-                        )
+                       )
             result.append(compiled)
             index += 1
         self._cached_pattern_details = result
@@ -1151,7 +1184,7 @@ class Permutation(tuple, Pattern, Rotatable, Shiftable, Flippable):
         """
         if not isinstance(value, numbers.Integral):
             raise TypeError("{} object is not an integer".format(repr(value)))
-        if not (0 <= value < len(self)):
+        if not 0 <= value < len(self):
             raise ValueError("Element out of range: {}".format(value))
         return self[value]
 

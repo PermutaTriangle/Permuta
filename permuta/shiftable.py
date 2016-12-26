@@ -13,18 +13,13 @@ class Shiftable(ABC):
         """
         pass
 
-    shift = shift_right
-    cyclic_shift = shift_right
-    cyclic_shift_right = shift_right
-
+    @abc.abstractmethod
     def shift_left(self, times=1):
         """Return self shifted times steps to the left.
 
         If times is negative, shifted to the right.
         """
-        return self.shift_right(-times)
-
-    cyclic_shift_left = shift_left
+        pass
 
     @abc.abstractmethod
     def shift_up(self, times=1):
@@ -34,9 +29,10 @@ class Shiftable(ABC):
         """
         pass
 
+    @abc.abstractmethod
     def shift_down(self, times=1):
         """Return self shifted times steps down.
 
         If times is negative, shifted up.
         """
-        return self.shift_up(-times)
+        pass
