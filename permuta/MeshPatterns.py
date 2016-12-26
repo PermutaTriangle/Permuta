@@ -1,5 +1,5 @@
-from .permutations import Permutations
-from .mesh_pattern import MeshPattern
+from .Permutations import Permutations
+from .MeshPattern import MeshPattern
 import random
 
 

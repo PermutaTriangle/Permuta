@@ -5,7 +5,7 @@ import sys
 
 from math import factorial
 
-from .permutation import Permutation
+from .Permutation import Permutation
 from .math import catalan
 
 class PermutationPatternClass(object):
