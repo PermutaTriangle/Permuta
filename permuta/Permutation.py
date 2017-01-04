@@ -124,7 +124,7 @@ class Permutation(tuple,
         return cls(result)
 
     standardize = to_standard  # permpy backwards compatibility
-    from_iterable = to_standard  # TODO: Acceptable alias?
+    from_iterable = to_standard
 
     @classmethod
     def one_based(cls, iterable, check=True):
@@ -136,7 +136,6 @@ class Permutation(tuple,
         """
         return cls(((element-1) for element in iterable), check)
 
-    # TODO: Which aliases?
     one = one_based
     proper = one_based
     scientific = one_based
@@ -211,8 +210,7 @@ class Permutation(tuple,
             Permutation((0, 2, 1))
         """
         # TODO: Docstring, and do better? Assertions and messages
-        # TODO: The unrank function in permpy was not a good/correct one
-        # TODO: Implement readably, nicely, and efficiently
+        #       Implement readably, nicely, and efficiently
         #assert isinstance(number, numbers.Integral)
         #assert 0 <= number
         if length is None:
@@ -245,8 +243,9 @@ class Permutation(tuple,
 
     ind2perm = unrank  # permpy backwards compatibility
 
-    # TODO: This one will not be a class method
-    #perm2ind = rank  # permpy backwards compatibility
+    #
+    # Methods modifying/combining Permutation instances
+    #
 
     def direct_sum(self, *others):
         """Return the direct sum of two or more permutations.
@@ -465,6 +464,10 @@ class Permutation(tuple,
         """ """
         pass
 
+    #
+    # Methods for basic Permutation transforming
+    #
+
     def inverse(self):
         """Return the inverse of the permutation self.
 
@@ -669,7 +672,7 @@ class Permutation(tuple,
         return self.reverse_complement()
 
     #
-    # General and statistical methods
+    # Statistical methods
     #
 
     def is_increasing(self):
@@ -686,39 +689,6 @@ class Permutation(tuple,
             if self[index] != len_perm - index - 1:
                 return False
         return True
-
-    def apply(self, iterable):
-        """Permute an iterable using the permutation.
-
-        Args:
-            self:
-                A permutation.
-            iterable: <collections.Iterable>
-                An iterable of len(self) elements.
-
-        Returns: <tuple>
-            The elements of iterable in the permuted order.
-
-        Raises:
-            TypeError:
-                Bad argument type.
-
-        Examples:
-            >>> Permutation((4, 1, 2, 0, 3)).apply((1, 2, 3, 4, 5))
-            (5, 2, 3, 1, 4)
-            >>> Permutation((4, 1, 2, 0, 3)).apply("abcde")
-            ('e', 'b', 'c', 'a', 'd')
-            >>> Permutation((1, 2, 0, 3)).apply("abcde")
-            Traceback (most recent call last):
-                ...
-            TypeError: Length mismatch
-        """
-        iterable = tuple(iterable)
-        if len(iterable) != len(self):
-            raise TypeError("Length mismatch")
-        return tuple(iterable[index] for index in self)
-
-    permute = apply  # Alias of Permutation.apply
 
     def fixed_points(self):
         """Return the number of fixed points in self.
@@ -916,8 +886,11 @@ class Permutation(tuple,
 
     num_valleys = count_valleys  # permpy backwards compatibility
 
+    # TODO: Implement rank method
+    #perm2ind = rank  # permpy backwards compatibility
+
     #
-    # Pattern related methods
+    # Pattern matching methods
     #
 
     def contains(self, *patts):
@@ -1164,6 +1137,43 @@ class Permutation(tuple,
             index += 1
         self._cached_pattern_details = result
         return result
+
+    #
+    # General methods
+    #
+
+    def apply(self, iterable):
+        """Permute an iterable using the permutation.
+
+        Args:
+            self:
+                A permutation.
+            iterable: <collections.Iterable>
+                An iterable of len(self) elements.
+
+        Returns: <tuple>
+            The elements of iterable in the permuted order.
+
+        Raises:
+            TypeError:
+                Bad argument type.
+
+        Examples:
+            >>> Permutation((4, 1, 2, 0, 3)).apply((1, 2, 3, 4, 5))
+            (5, 2, 3, 1, 4)
+            >>> Permutation((4, 1, 2, 0, 3)).apply("abcde")
+            ('e', 'b', 'c', 'a', 'd')
+            >>> Permutation((1, 2, 0, 3)).apply("abcde")
+            Traceback (most recent call last):
+                ...
+            TypeError: Length mismatch
+        """
+        iterable = tuple(iterable)
+        if len(iterable) != len(self):
+            raise TypeError("Length mismatch")
+        return tuple(iterable[index] for index in self)
+
+    permute = apply  # Alias of Permutation.apply
 
     #
     # Magic/dunder methods
