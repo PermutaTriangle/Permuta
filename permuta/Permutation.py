@@ -25,10 +25,22 @@ class Permutation(tuple,
     _TYPE_ERROR = "'{}' object is not a Permutation"
 
     #
+    # Methods to modify Permutation class settings
+    #
+
+    @staticmethod
+    def toggle_check():
+        # TODO: Docstring and discuss, can settings be done better?
+        if Permutation._init_helper is Permutation._init_checked:
+            Permutation._init_helper = Permutation._init_unchecked
+        else:
+            Permutation._init_helper = Permutation._init_checked
+
+    #
     # Methods returning a single Permutation instance
     #
 
-    def __new__(cls, iterable=(), check=False):  # pylint: disable=unused-argument
+    def __new__(cls, iterable=()):  # pylint: disable=unused-argument
         """Return a Permutation instance.
 
         Args:
@@ -37,8 +49,6 @@ class Permutation(tuple,
             iterable: <collections.Iterable> or <numbers.Integral>
                 An iterable corresponding to a legal permutation.
                 Also supports passing just a number with unique digits.
-            check: <bool>
-                If True, iterable will be confirmed to correspond to a legal permutation.
 
         Raises:
             TypeError:
@@ -53,17 +63,16 @@ class Permutation(tuple,
             Permutation((5, 4, 3, 2, 1, 0))
             >>> Permutation(6012354)
             Permutation((6, 0, 1, 2, 3, 5, 4))
+            >>> Permutation.toggle_check()
             >>> Permutation("abc")  # Not good
-            Permutation(('a', 'b', 'c'))
-            >>> Permutation("abc", check=True)
             Traceback (most recent call last):
                 ...
             TypeError: 'a' object is not an integer
         """
         try:
-            return super(Permutation, cls).__new__(cls, iterable)
+            return tuple.__new__(cls, iterable)
         except TypeError:
-            # Try to
+            # Try to interpret object as permutation
             if isinstance(iterable, numbers.Integral):
                 number = iterable
                 if not 0 <= number <= 9876543210:
@@ -76,24 +85,31 @@ class Permutation(tuple,
                         digit_list.append(number % 10)
                         number //= 10
                     iterable = reversed(digit_list)
-                return super(Permutation, cls).__new__(cls, iterable)
+                return tuple.__new__(cls, iterable)
             else:
                 raise
 
-    def __init__(self, iterable=(), check=False):  # pylint: disable=unused-argument,super-init-not-called
-        # TODO: Docstring
-        if check:
-            used = [False]*len(self)
-            for value in self:
-                if not isinstance(value, numbers.Integral):
-                    message = "{} object is not an integer".format(repr(value))
-                    raise TypeError(message)
-                if not 0 <= value < len(self):
-                    raise ValueError("Element out of range: {}".format(value))
-                if used[value]:
-                    raise ValueError("Duplicate element: {}".format(value))
-                used[value] = True
+    def __init__(self, iterable=()):  # pylint: disable=unused-argument,super-init-not-called
+        # Attribute used for finding self as a pattern in another permutation
         self._cached_pattern_details = None
+        self._init_helper()
+
+    def _init_unchecked(self):
+        pass
+
+    def _init_checked(self):
+        used = [False]*len(self)
+        for value in self:
+            if not isinstance(value, numbers.Integral):
+                message = "{} object is not an integer".format(repr(value))
+                raise TypeError(message)
+            if not 0 <= value < len(self):
+                raise ValueError("Element out of range: {}".format(value))
+            if used[value]:
+                raise ValueError("Duplicate element: {}".format(value))
+            used[value] = True
+
+    _init_helper = _init_unchecked
 
     @classmethod
     def to_standard(cls, iterable):
@@ -127,14 +143,14 @@ class Permutation(tuple,
     from_iterable = to_standard
 
     @classmethod
-    def one_based(cls, iterable, check=True):
+    def one_based(cls, iterable):
         """A way to enter a permutation in the traditional permuta way.
 
         Examples:
             >>> Permutation.one_based((4, 1, 3, 2))
             Permutation((3, 0, 2, 1))
         """
-        return cls(((element-1) for element in iterable), check)
+        return cls(((element-1) for element in iterable))
 
     one = one_based
     proper = one_based
@@ -161,7 +177,6 @@ class Permutation(tuple,
             >>> len(perm) == 8
             True
             >>> # TODO: test perm in Permutations(8)
-            >>> perm = Permutation(perm, check=True)
         """
         result = list(range(length))
         random.shuffle(result)
