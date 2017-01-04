@@ -86,11 +86,12 @@ class Permutation(tuple,
                         number //= 10
                     iterable = reversed(digit_list)
                 return tuple.__new__(cls, iterable)
+            # TODO: Also have string version? e.g. Permutation("0132")
             else:
                 raise
 
     def __init__(self, iterable=()):  # pylint: disable=unused-argument,super-init-not-called
-        # Attribute used for finding self as a pattern in another permutation
+        # Cache for data used when finding occurrences of self in a permutation
         self._cached_pattern_details = None
         self._init_helper()
 
