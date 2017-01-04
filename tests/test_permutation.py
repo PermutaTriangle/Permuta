@@ -4,19 +4,23 @@ from permuta import MeshPattern, Permutation, Permutations
     
 
 def test_init():
-    with pytest.raises(ValueError): Permutation([0,1,1], check=True)
-    with pytest.raises(ValueError): Permutation([1,0,1], check=True)
-    with pytest.raises(ValueError): Permutation([0,0], check=True)
-    with pytest.raises(ValueError): Permutation([1], check=True)
-    with pytest.raises(ValueError): Permutation(101, check=True)
-    with pytest.raises(TypeError): Permutation(None, check=True)
-    Permutation(check=True)
-    Permutation([], check=True)
-    Permutation([0], check=True)
-    Permutation([3,0,2,1], check=True)
-    Permutation(set([0,1,2]), check=True)
-    p = Permutation(502134, check=True)
-    assert p == Permutation((5,0,2,1,3,4))
+    Permutation.toggle_check()
+    try:
+        with pytest.raises(ValueError): Permutation([0,1,1])
+        with pytest.raises(ValueError): Permutation([1,0,1])
+        with pytest.raises(ValueError): Permutation([0,0])
+        with pytest.raises(ValueError): Permutation([1])
+        with pytest.raises(ValueError): Permutation(101)
+        with pytest.raises(TypeError): Permutation(None)
+        Permutation()
+        Permutation([])
+        Permutation([0])
+        Permutation([3,0,2,1])
+        Permutation(set([0,1,2]))
+        p = Permutation(502134)
+        assert p == Permutation((5,0,2,1,3,4))
+    finally:
+        Permutation.toggle_check()
 
 def test_to_standard():
     def gen(perm):
@@ -37,11 +41,15 @@ def test_identity():
         assert Permutation.identity(length) == Permutation(range(length))
 
 def test_random():
-    for length in range(11):
-        for _ in range(10):
-            perm = Permutation.random(length)
-            assert len(perm) == length
-            Permutation(perm, check=True)
+    Permutation.toggle_check()
+    try:
+        for length in range(11):
+            for _ in range(10):
+                perm = Permutation.random(length)
+                assert len(perm) == length
+                Permutation(perm)
+    finally:
+        Permutation.toggle_check()
 
 def test_monotone_increasing():
     for length in range(11):
