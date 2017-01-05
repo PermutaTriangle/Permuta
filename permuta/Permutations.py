@@ -1,3 +1,5 @@
+# pylint: disable=missing-docstring
+
 import collections
 import itertools
 import random
@@ -8,56 +10,61 @@ from math import factorial
 from .Permutation import Permutation
 from .math import catalan
 
-class PermutationPatternClass(object):
-    def __init__(self, n, pattern):
-        self.n = n
-        self.patt = pattern
-        self.pattstr = "".join(map(str,self.patt))
+
+class _PermutationPatternClass(object):  # pylint: disable=too-few-public-methods
+    """A base class for permutation classes."""
+    def __init__(self, length, patterns):
+        self.length = length
+        self.patterns = patterns
 
     def __str__(self):
-        return "Permutations of length %d avoiding %s" % (self.n, self.pattstr)
+        result = ["Permutations of length "]
+        result.append(str(self.length))
+        result.append(" avoiding ")
+        result.append(str(self.patterns))
+        return "".join(result)
 
     def __repr__(self):
-        return "PermutationPatternClass(%d,%s)" % (self.n, self.patt)
+        return self.__class__.__name__ + "({}, {})".format(self.length, self.patterns)
 
 
 class Permutations(object):
-    def __new__(cls, n, avoiding=None, **kwargs):
-        if avoiding==None:
-            return PermutationsAvoidingNone(n)
-        if isinstance(avoiding, Permutation):
-            p = avoiding
-            if len(p) == 2:
-                if p[0] == 1:
-                    return PermutationsAvoiding12(n)
+    def __new__(cls, length, avoiding=None):
+        if avoiding is None:
+            return PermutationsAvoidingNone(length)
+        elif isinstance(avoiding, Permutation):
+            # Decision trees for special cases
+            if len(avoiding) == 2:
+                if avoiding[0] == 0:
+                    return PermutationsAvoiding01(length)
                 else:
-                    return PermutationsAvoiding21(n)
-            if len(p) == 3:
-                if p[0] == 1:
-                    if p[1] == 2:
-                        return PermutationsAvoiding123(n)
+                    return PermutationsAvoiding10(length)
+            elif len(avoiding) == 3:
+                if avoiding[0] == 0:
+                    if avoiding[1] == 1:
+                        return PermutationsAvoiding012(length)
                     else:
-                        return PermutationsAvoiding132(n)
-                elif p[0] == 2:
-                    if p[1] == 1:
-                        return PermutationsAvoiding213(n)
+                        return PermutationsAvoiding021(length)
+                elif avoiding[0] == 1:
+                    if avoiding[1] == 0:
+                        return PermutationsAvoiding102(length)
                     else:
-                        return PermutationsAvoiding231(n)
+                        return PermutationsAvoiding120(length)
                 else:
-                    if p[1] == 1:
-                        return PermutationsAvoiding312(n)
+                    if avoiding[1] == 0:
+                        return PermutationsAvoiding201(length)
                     else:
-                        return PermutationsAvoiding321(n)
+                        return PermutationsAvoiding210(length)
             else:
-                return PermutationsAvoidingGeneric(n,(avoiding,))
+                return PermutationsAvoidingGeneric(length,(avoiding,))
         elif (isinstance(avoiding, collections.Iterable) and
                 all(isinstance(x, Permutation) for x in avoiding)):
-            return PermutationsAvoidingGeneric(n,avoiding, **kwargs)
-        else:
+            return PermutationsAvoidingGeneric(length, avoiding)
+        else:  # TODO: TypeError, not RTE
             raise RuntimeError("Cannot avoid " + repr(avoiding))
 
 
-class PermutationsAvoidingGeneric(PermutationPatternClass):
+class PermutationsAvoidingGeneric(_PermutationPatternClass):
     def __init__(self, n, patterns, upto=False):
         super(PermutationsAvoidingGeneric, self).__init__(n,tuple(patterns))
         self.n = n
@@ -142,13 +149,10 @@ class PermutationsAvoidingNone(itertools.permutations):
     def __str__(self):
         return "The set of Permutations of length {}".format(self.length)
 
-    def __repr__(self):
-        return "Permutations({})".format(self.length)
-
-class PermutationsAvoiding12(PermutationPatternClass):
+class PermutationsAvoiding01(_PermutationPatternClass):
     """Class for iterating through Permutations avoiding 12 of length n"""
     def __init__(self, n):
-        super(PermutationsAvoiding12, self).__init__(n,[1,2])
+        super(PermutationsAvoiding01, self).__init__(n,[1,2])
 
     def random_element(self):
         return Permutation(range(self.n,0,-1))
@@ -162,10 +166,10 @@ class PermutationsAvoiding12(PermutationPatternClass):
     def is_polynomial(self):
         return True
 
-class PermutationsAvoiding21(PermutationPatternClass):
+class PermutationsAvoiding10(_PermutationPatternClass):
     """Class for iterating through Permutations avoiding 21 of length n"""
     def __init__(self, n):
-        super(PermutationsAvoiding21, self).__init__(n,[2,1])
+        super(PermutationsAvoiding10, self).__init__(n,[2,1])
 
     def random_element(self):
         return Permutation(range(1,self.n+1))
@@ -179,19 +183,16 @@ class PermutationsAvoiding21(PermutationPatternClass):
     def is_polynomial(self):
         return True
 
-class CatalanAvoidingClass(PermutationPatternClass):
-    def __init__(self, n, pattern):
-        super(CatalanAvoidingClass, self).__init__(n,pattern)
-
+class CatalanAvoidingClass(_PermutationPatternClass):
     def __len__(self):
         return catalan(self.n)
 
     def is_polynomial(self):
         return False
 
-class PermutationsAvoiding123(CatalanAvoidingClass):
+class PermutationsAvoiding012(CatalanAvoidingClass):
     def __init__(self,n):
-        super(PermutationsAvoiding123, self).__init__(n,[1,2,3])
+        super(PermutationsAvoiding012, self).__init__(n,[1,2,3])
 
     def __iter__(self):
 
@@ -208,7 +209,7 @@ class PermutationsAvoiding123(CatalanAvoidingClass):
                     yield p
             return
 
-        for p in PermutationsAvoiding132(self.n):
+        for p in PermutationsAvoiding021(self.n):
             # use simion-schmidt bijection
             m = self.n + 1
             minima = []
@@ -231,10 +232,10 @@ class PermutationsAvoiding123(CatalanAvoidingClass):
                     b += 1
             yield Permutation(new_perm)
 
-class PermutationsAvoiding132(CatalanAvoidingClass):
+class PermutationsAvoiding021(CatalanAvoidingClass):
     """Class for iterating through Permutations avoiding 132 of length n"""
     def __init__(self, n):
-        super(PermutationsAvoiding132, self).__init__(n,[1,3,2])
+        super(PermutationsAvoiding021, self).__init__(n,[1,3,2])
 
     def __iter__(self):
 
@@ -253,8 +254,8 @@ class PermutationsAvoiding132(CatalanAvoidingClass):
 
         for left_length in range(0,self.n):
             right_length = self.n - 1 - left_length
-            for left in PermutationsAvoiding132(left_length):
-                for right in PermutationsAvoiding132(right_length):
+            for left in PermutationsAvoiding021(left_length):
+                for right in PermutationsAvoiding021(right_length):
 
                     yield Permutation([x + right_length for x in left]
                                          + [self.n]
@@ -262,41 +263,41 @@ class PermutationsAvoiding132(CatalanAvoidingClass):
         return
 
 
-class PermutationsAvoiding213(CatalanAvoidingClass):
+class PermutationsAvoiding102(CatalanAvoidingClass):
     """Class for iterating through Permutations avoiding 213 of length n"""
     def __init__(self, n):
-        super(PermutationsAvoiding213, self).__init__(n,[2,1,3])
+        super(PermutationsAvoiding102, self).__init__(n,[2,1,3])
 
     def __iter__(self):
-        for p in PermutationsAvoiding132(self.n):
+        for p in PermutationsAvoiding021(self.n):
             yield p.reverse().complement()
 
 
-class PermutationsAvoiding231(CatalanAvoidingClass):
+class PermutationsAvoiding120(CatalanAvoidingClass):
     """Class for iterating through Permutations avoiding 231 of length n"""
     def __init__(self, n):
-        super(PermutationsAvoiding231, self).__init__(n,[2,3,1])
+        super(PermutationsAvoiding120, self).__init__(n,[2,3,1])
 
     def __iter__(self):
-        for p in PermutationsAvoiding132(self.n):
+        for p in PermutationsAvoiding021(self.n):
             yield p.reverse()
 
 
-class PermutationsAvoiding312(CatalanAvoidingClass):
+class PermutationsAvoiding201(CatalanAvoidingClass):
     """Class for iterating through Permutations avoiding 312 of length n"""
     def __init__(self, n):
-        super(PermutationsAvoiding312, self).__init__(n,[3,1,2])
+        super(PermutationsAvoiding201, self).__init__(n,[3,1,2])
 
     def __iter__(self):
-        for p in PermutationsAvoiding132(self.n):
+        for p in PermutationsAvoiding021(self.n):
             yield p.complement()
 
-class PermutationsAvoiding321(CatalanAvoidingClass):
+class PermutationsAvoiding210(CatalanAvoidingClass):
     def __init__(self,n):
-        super(PermutationsAvoiding321, self).__init__(n,[3,2,1])
+        super(PermutationsAvoiding210, self).__init__(n,[3,2,1])
 
     def __iter__(self):
-        for p in PermutationsAvoiding123(self.n):
+        for p in PermutationsAvoiding012(self.n):
             yield p.reverse()
 
 # # Will return the set of polynomial types it intersects with (W_++, W+-, W^-1 ++, L_2, L_2^R etc)
