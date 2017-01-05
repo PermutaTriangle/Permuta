@@ -10,17 +10,20 @@ from math import factorial
 from .Permutation import Permutation
 from .math import catalan
 
+if sys.version_info.major == 2:
+    range = xrange  #pylint: disable=redefined-builtin,invalid-name,undefined-variable
+
 
 class _PermutationPatternClass(object):  # pylint: disable=too-few-public-methods
-    """A base class for permutation classes."""
+    """A base class for permutation defined by patterns classes."""
     def __init__(self, length, patterns):
         self.length = length
         self.patterns = patterns
 
     def __str__(self):
-        result = ["Permutations of length "]
+        result = ["Permutation class of length "]
         result.append(str(self.length))
-        result.append(" avoiding ")
+        result.append(" defined by ")
         result.append(str(self.patterns))
         return "".join(result)
 
@@ -118,8 +121,9 @@ class PermutationsAvoidingNone(itertools.permutations):
     __slots__ = ("length", "domain")
 
     def __new__(cls, length):
-        domain = list(range(1, length+1))  # TODO: xrange or future
+        domain = list(range(length))
         instance = super(PermutationsAvoidingNone, cls).__new__(cls, domain)
+        # Initialize, even if it should technically be done in __init__
         instance.domain = domain
         instance.length = length
         return instance
@@ -129,25 +133,28 @@ class PermutationsAvoidingNone(itertools.permutations):
 
     if sys.version_info.major == 2:
         def next(self):
-            return Permutation(super(PermutationsAvoidingNone, self).next())
+            return Permutation(super(PermutationsAvoidingNone, self).next())  # pylint: disable=no-member
     else:
         def __next__(self):
-            return Permutation(super(PermutationsAvoidingNone, self).__next__())
+            return Permutation(super(PermutationsAvoidingNone, self).__next__())  # pylint: disable=no-member
 
     def __iter__(self):
         return self
 
     def random_element(self):
         """Return a random permutation of the length."""
-        lst = self.domain[:]
-        random.shuffle(lst)
-        return Permutation(lst)
+        random.shuffle(self.domain)  # TODO: Not use domain attribute?
+        return Permutation(self.domain)
 
     def __len__(self):
         return factorial(self.length)
 
     def __str__(self):
-        return "The set of Permutations of length {}".format(self.length)
+        return "The set of all Permutations of length {}".format(self.length)
+
+    def __contains__(self, other):
+        """Check if other is a permutation in the set."""
+        return isinstance(other, Permutation) and len(other) == self.length
 
 class PermutationsAvoiding01(_PermutationPatternClass):
     """Class for iterating through Permutations avoiding 12 of length n"""
