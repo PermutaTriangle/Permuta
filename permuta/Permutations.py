@@ -92,10 +92,9 @@ class PermutationsAvoidingGeneric(_PermutationPatternClass):
                     maybe_list.append(len(prev)+1)
                     maybe_list.extend(prev[index:])
                     maybe = Permutation(maybe_list)
-                    for patt in self.patterns:
-                        if maybe.contains(patt): # TODO: only check for occurrences that contain the new len(prev)+1 element
-                            nxt.add(maybe)
-                            break
+                    # TODO: only check for occurrences that contain the new len(prev)+1 element
+                    if not maybe.avoids(*self.patterns):
+                        nxt.add(maybe)
             current = nxt
             if self.up_to or length == self.length:
                 for perm in current:
