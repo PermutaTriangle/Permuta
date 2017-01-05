@@ -68,50 +68,44 @@ class Permutations(object):
 
 
 class PermutationsAvoidingGeneric(_PermutationPatternClass):
-    def __init__(self, n, patterns, upto=False):
-        super(PermutationsAvoidingGeneric, self).__init__(n,tuple(patterns))
-        self.n = n
-        self.pattstr = "("+",".join(["".join(map(str,x)) for x in patterns])+")"
-        self.upto = upto
+    def __init__(self, length, patterns, up_to=None):
+        super(PermutationsAvoidingGeneric, self).__init__(length, tuple(patterns))
+        self.length = length
+        self.up_to = up_to
 
     def __iter__(self):
         # TODO: make this lazy, i.e. use yield inside the generation (if possible)
-        cur = set([ Permutation([]) ])
-        if self.upto or self.n == 0:
-            maybe = Permutation([])
-            ok = True
-            for p in self.patt:
-                if maybe.contains(p):
-                    ok = False
-                    break
-            if ok:
-                yield maybe
 
-        for l in range(1,self.n+1):
+        current = set([Permutation()])
+
+        # TODO: Why this strange case? Yield empty permutation if it doesn't avoid all the patterns?
+        if self.up_to or self.length == 0:
+            empty_permutation = Permutation()
+            if not empty_permutation.avoids(*self.patterns):
+                yield empty_permutation
+
+        for length in range(1, self.length+1):
             nxt = set()
-            for prev in cur:
-                for i in range(len(prev)+1):
-                    maybe_list = list(prev[:i])
+            for prev in current:
+                for index in range(len(prev)+1):
+                    maybe_list = list(prev[:index])
                     maybe_list.append(len(prev)+1)
-                    maybe_list.extend(prev[i:])
+                    maybe_list.extend(prev[index:])
                     maybe = Permutation(maybe_list)
-                    ok = True
-                    for p in self.patt:
-                        if maybe.contains(p): # TODO: only check for occurrences that contain the new len(prev)+1 element
-                            ok = False
+                    for patt in self.patterns:
+                        if maybe.contains(patt): # TODO: only check for occurrences that contain the new len(prev)+1 element
+                            nxt.add(maybe)
                             break
-                    if ok:
-                        nxt.add(maybe)
-            cur = nxt
-            if self.upto or l == self.n:
-                for p in cur:
-                    yield p
+            current = nxt
+            if self.up_to or length == self.length:
+                for perm in current:
+                    yield perm
 
     def is_polynomial(self):
-        overallinterset = set([])
-        for perm in self.patt:
+        overallinterset = set()
+        for perm in self.patterns:
             overallinterset = overallinterset.union(types(perm))
-            if len(overallinterset) == 10:
+            if len(overallinterset) == 10:  # TODO: wat?
                 return True
         return False
 
