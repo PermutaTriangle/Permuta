@@ -108,6 +108,7 @@ class PermutationsAvoidingGeneric(_PermutationPatternClass):
                 return True
         return False
 
+
 class PermutationsAvoidingNone(itertools.permutations):
     """Class for iterating through all Permutations of a specific length."""
 
@@ -149,6 +150,7 @@ class PermutationsAvoidingNone(itertools.permutations):
         """Check if other is a permutation in the set."""
         return isinstance(other, Permutation) and len(other) == self.length
 
+
 class PermutationsAvoiding01(_PermutationPatternClass):
     """Class for iterating through Permutations avoiding 12 of length n"""
     def __init__(self, n):
@@ -165,6 +167,7 @@ class PermutationsAvoiding01(_PermutationPatternClass):
     
     def is_polynomial(self):
         return True
+
 
 class PermutationsAvoiding10(_PermutationPatternClass):
     """Class for iterating through Permutations avoiding 21 of length n"""
@@ -183,12 +186,14 @@ class PermutationsAvoiding10(_PermutationPatternClass):
     def is_polynomial(self):
         return True
 
+
 class CatalanAvoidingClass(_PermutationPatternClass):
     def __len__(self):
         return catalan(self.n)
 
     def is_polynomial(self):
         return False
+
 
 class PermutationsAvoiding012(CatalanAvoidingClass):
     def __init__(self,n):
@@ -231,6 +236,7 @@ class PermutationsAvoiding012(CatalanAvoidingClass):
                     new_perm.append( non_minima[b] )
                     b += 1
             yield Permutation(new_perm)
+
 
 class PermutationsAvoiding021(CatalanAvoidingClass):
     """Class for iterating through Permutations avoiding 132 of length n"""
@@ -291,6 +297,7 @@ class PermutationsAvoiding201(CatalanAvoidingClass):
     def __iter__(self):
         for p in PermutationsAvoiding021(self.n):
             yield p.complement()
+
 
 class PermutationsAvoiding210(CatalanAvoidingClass):
     def __init__(self,n):
