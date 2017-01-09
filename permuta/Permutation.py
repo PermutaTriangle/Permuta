@@ -86,7 +86,7 @@ class Permutation(tuple,
                         number //= 10
                     iterable = reversed(digit_list)
                 return tuple.__new__(cls, iterable)
-            # TODO: Also have string version? e.g. Permutation("0132")
+            # TODO: Also have string version? e.g. Permutation("0132"): YES!
             else:
                 raise
 
@@ -473,7 +473,7 @@ class Permutation(tuple,
 
     def inflate(self, components, indices=None):
         """Inflate element(s)."""
-        # TODO: Discuss implementation
+        # TODO: Discuss implementation: GOOD: Dict or complete list
         pass
 
     def __inflate_shifts(self, component):
