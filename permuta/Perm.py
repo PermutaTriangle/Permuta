@@ -7,10 +7,10 @@ import operator
 import random
 import sys
 
-from permuta._interfaces.Pattern import Pattern
-from permuta._interfaces.Flippable import Flippable
-from permuta._interfaces.Rotatable import Rotatable
-from permuta._interfaces.Shiftable import Shiftable
+from permuta._interfaces import Pattern
+from permuta._interfaces import Flippable
+from permuta._interfaces import Rotatable
+from permuta._interfaces import Shiftable
 from permuta.misc import left_floor_and_ceiling
 
 if sys.version_info.major == 2:

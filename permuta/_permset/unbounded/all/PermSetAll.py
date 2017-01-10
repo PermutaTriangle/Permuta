@@ -1,7 +1,7 @@
 import abc
 import numbers
 
-from permuta._permset.unbounded.PermSetUnbounded import PermSetUnbounded
+from .. import PermSetUnbounded
 
 
 class PermSetAll(PermSetUnbounded):

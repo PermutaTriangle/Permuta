@@ -1,5 +1,5 @@
-from ..PermSetUnbounded import PermSetUnbounded
-from ...descriptors.Basis import Basis
+from .. import PermSetUnbounded
+from ...descriptors import Basis
 
 
 class Avoiding(PermSetUnbounded):
