@@ -46,6 +46,49 @@ permutation 0213. There are several ways of doing this
 You can also just type in a number, but since everything is zero based you could
 not create `0213`, but any permutation not starting with `0`: `Perm(102)`.
 
+You can visualize a permutation
+
+```python
+import matplotlib.pyplot as plt
+>>> p.plot(title='plot of a permutation', xlabel='position', ylabel='value')
+```
+
+![alt text](https://github.com/PermutaTriangle/Permuta/img/american-mink.jpg "Plot of a permutation")
+
+You can also get an ascii picture
+
+```python
+>>> p.plot(use_mpl=False)
+ XXX
+```
+
+The basic symmetries are implemented
+```python
+>>> p.reverse(), p.complement(), p.inverse()
+ XXX
+```
+
+To take direct sums and skew sums we use `+` and `-`
+
+```python
+>>> q = Perm((0,1,2,3,4))
+>>> p + q, p - q
+ XXX
+```
+
+There are several functions, or permutation statistics, you can apply to
+permutations
+
+```python
+>>>  p.num_ascents(), p.inversions(), p.fixed_points(), p.longestrun(), p.majorindex(), p.num_cycles()
+ XXX
+```
+
+```python
+>>>  p.num_cycles(), p.num_peaks(), p.num_ltrmin(), p.num_bonds(), p.num_bonds(), p.num_valleys()
+ XXX
+```
+
 ### Creating the set of permutations of a specific length
 Typing
 
@@ -59,13 +102,6 @@ permutation by doing
 ```python
 >>> perm = A.random()
 >>> p
- XXX
-```
-
-There are several functions, or permutation statistics, you can apply to `p` now
-
-```python
->>>  p.cycles(), p.order(), p.ZZZ()
  XXX
 ```
 
@@ -126,8 +162,15 @@ For the distribution (as a polynomial you can do)
  XXX
 ```
 
+To get a feeling for what an average permutation looks like you can create a
+heatmap
 
+```python
+>>> C = PermSet.avoiding(Permutation((0,2,1,3)))[9]
+>>> C.heatmap()
+```
 
+![alt text](https://github.com/PermutaTriangle/Permuta/img/american-mink.jpg "Plot of a permutation")
 
 ## License
 BSD-3: see the [LICENSE](https://github.com/PermutaTriangle/Permuta/blob/master/LICENSE) file.

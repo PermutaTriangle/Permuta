@@ -1,0 +1,28 @@
+Plan on merging permpy into permuta by forking permpy into permpy_documentation_for_permuta
+and make comments on functions when we merge them in. Not everything should go
+into permuta:
+
+These should go into permuta
+avclass -> AvoidanceClass
+permutation.py -> merge with permuta
+
+InsertionEncoding -> new repo that imports permuta
+
+geometricGridclasses -> into the above
+
+
+permclass -> ?/bisc
+
+
+
+misc.py -> ?
+
+TRASH
+mperm.py (multiset permutations) -> ?
+onefile.py -> ?
+def_inf_P_to_I(P,I) -> ?? WAT
+statistics.py -> keep separately inside permuta
+RestrictedContainers -> new repo that imports permuta
+
+vector.py and vector_set.py -> needed by peg permutations
+pegpermset.py and pegpermutation.py -> new repo for gridclasses and geometric gridclasses
