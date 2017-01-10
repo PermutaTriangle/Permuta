@@ -1,10 +1,11 @@
 import abc
 import numbers
 
-from permuta._permset.descriptors import Basis, Descriptor
-from permuta._permset import PermSetBase
-from permuta._permset.unbounded import PermSetUnbounded
-from permuta._permset.unbounded.all import PermSetAll
+from permuta._permset.descriptors.Basis import Basis
+from permuta._permset.descriptors.Basis import Descriptor
+from permuta._permset.PermSetBase import PermSetBase
+from permuta._permset.unbounded.PermSetUnbounded import PermSetUnbounded
+from permuta._permset.unbounded.all.PermSetAll import PermSetAll
 
 
 class PermSetMetaclass(type):

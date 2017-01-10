@@ -1,6 +1,5 @@
-#
-# PermSetUnbounded subclasses: Avoiding
-#
+from ..PermSetUnbounded import PermSetUnbounded
+from ...descriptors.Basis import Basis
 
 
 class Avoiding(PermSetUnbounded):
@@ -11,15 +10,3 @@ class Avoiding(PermSetUnbounded):
         raise NotImplementedError
     def __getitem__(self, perm):
         raise NotImplementedError
-
-
-class Avoiding1(Avoiding):
-    descriptor = Basis(1)
-    def contains(self, perm):
-        raise NotImplementedError
-    def __getitem__(self, perm):
-        raise NotImplementedError
-
-
-class Avoiding2(Avoiding):
-    descriptor = Basis(2)
