@@ -11,3 +11,5 @@ class PermSetAll(PermSetUnbounded):
         raise NotImplementedError
     def __getitem__(self, key):
         raise NotImplementedError
+    def __repr__(self):
+        return "<The set of all perms>"

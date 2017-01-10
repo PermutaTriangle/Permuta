@@ -11,4 +11,4 @@ class Avoiding(PermSetUnbounded):
     def __getitem__(self, perm):
         raise NotImplementedError
     def __repr__(self):
-        return "<PermSet of all perms avoiding {}>".format(repr(self.descriptor))
+        return "<The set of all perms avoiding {}>".format(repr(self.descriptor.basis))
