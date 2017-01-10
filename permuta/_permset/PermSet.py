@@ -2,9 +2,7 @@ import abc
 import numbers
 
 from permuta._permset.descriptors import Basis, Descriptor
-from permuta._permset import PermSetBase
-from permuta._permset.unbounded import PermSetUnbounded
-from permuta._permset.unbounded.all import PermSetAll
+import permuta._permset as _permset
 
 
 class PermSetMetaclass(type):
@@ -36,36 +34,36 @@ class PermSet(object, metaclass=PermSetMetaclass):
         return PermSet(Basis(basis))
 
 
-##
-## PermSetBase and the two subclass groups
-##
 #
+# PermSetBase and the two subclass groups
 #
-#class PermSetBase(metaclass=abc.ABCMeta):
-#    @abc.abstractmethod
-#    def contains(self, perm):
-#        pass
-#
-#
-#class PermSetUnbounded(PermSetBase):
-#    def __init__(self, descriptor):
-#        self.descriptor = descriptor
-#    @abc.abstractmethod
-#    def up_to(self, perm):
-#        pass
-#    @abc.abstractmethod
-#    def __getitem__(self, key):
-#        pass
-#
-#
-#class PermSetRestricted(PermSetBase):
-#    def __init__(self, descriptor):
-#        self.descriptor = descriptor
-#    @abc.abstractmethod
-#    def random(self, perm):
-#        pass
-#
-#
+
+
+class PermSetBase(metaclass=abc.ABCMeta):
+    @abc.abstractmethod
+    def contains(self, perm):
+        pass
+
+
+class PermSetUnbounded(PermSetBase):
+    def __init__(self, descriptor):
+        self.descriptor = descriptor
+    @abc.abstractmethod
+    def up_to(self, perm):
+        pass
+    @abc.abstractmethod
+    def __getitem__(self, key):
+        pass
+
+
+class PermSetRestricted(PermSetBase):
+    def __init__(self, descriptor):
+        self.descriptor = descriptor
+    @abc.abstractmethod
+    def random(self, perm):
+        pass
+
+
 ##
 ## PermSetRestricted subclasses
 ##
