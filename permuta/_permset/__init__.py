@@ -1,1 +1,1 @@
-import .descriptors
+from . import descriptors
