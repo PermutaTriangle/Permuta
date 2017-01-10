@@ -3,6 +3,7 @@
 from .Descriptor import Descriptor
 
 
+# TODO: Inherit from PermSetFinite?
 class Basis(Descriptor):  # pylint: disable=too-few-public-methods
     """A basis class.
 
@@ -15,3 +16,5 @@ class Basis(Descriptor):  # pylint: disable=too-few-public-methods
         self.basis = perms
     def __eq__(self, other):
         return isinstance(other, self.__class__) and self.basis == other.basis
+    def __repr__(self):
+        return "<{} {}>".format(self.__class__.__qualname__, self.basis)
