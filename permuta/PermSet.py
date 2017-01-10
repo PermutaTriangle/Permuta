@@ -1,6 +1,8 @@
 import abc
 import numbers
 
+import ._permset
+
 
 #
 # Descriptors
