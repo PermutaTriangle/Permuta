@@ -7,41 +7,44 @@ import operator
 import random
 import sys
 
-from permuta import Pattern, Rotatable, Shiftable, Flippable
+from permuta._interfaces.Pattern import Pattern
+from permuta._interfaces.Flippable import Flippable
+from permuta._interfaces.Rotatable import Rotatable
+from permuta._interfaces.Shiftable import Shiftable
 from permuta.misc import left_floor_and_ceiling
 
 if sys.version_info.major == 2:
     range = xrange  #pylint: disable=redefined-builtin,invalid-name,undefined-variable
 
 
-class Permutation(tuple,
-                  Pattern,
-                  Rotatable,
-                  Shiftable,
-                  Flippable
-                 ):  # pylint: disable=too-many-ancestors,too-many-public-methods
+class Perm(tuple,
+           Pattern,
+           Rotatable,
+           Shiftable,
+           Flippable
+          ):  # pylint: disable=too-many-ancestors,too-many-public-methods
     """A permutation class."""
 
-    _TYPE_ERROR = "'{}' object is not a Permutation"
+    _TYPE_ERROR = "'{}' object is not a perm"
 
     #
-    # Methods to modify Permutation class settings
+    # Methods to modify Perm class settings
     #
 
     @staticmethod
     def toggle_check():
         # TODO: Docstring and discuss, can settings be done better?
-        if Permutation._init_helper is Permutation._init_checked:
-            Permutation._init_helper = Permutation._init_unchecked
+        if Perm._init_helper is Perm._init_checked:
+            Perm._init_helper = Perm._init_unchecked
         else:
-            Permutation._init_helper = Permutation._init_checked
+            Perm._init_helper = Perm._init_checked
 
     #
-    # Methods returning a single Permutation instance
+    # Methods returning a single Perm instance
     #
 
     def __new__(cls, iterable=()):  # pylint: disable=unused-argument
-        """Return a Permutation instance.
+        """Return a Perm instance.
 
         Args:
             cls:
@@ -57,14 +60,14 @@ class Permutation(tuple,
                 Bad argument, but correct type.
 
         Examples:
-            >>> Permutation((0, 3, 1, 2))
-            Permutation((0, 3, 1, 2))
-            >>> Permutation(range(5, -1, -1))
-            Permutation((5, 4, 3, 2, 1, 0))
-            >>> Permutation(6012354)
-            Permutation((6, 0, 1, 2, 3, 5, 4))
-            >>> Permutation.toggle_check()
-            >>> Permutation("abc")  # Not good
+            >>> Perm((0, 3, 1, 2))
+            Perm((0, 3, 1, 2))
+            >>> Perm(range(5, -1, -1))
+            Perm((5, 4, 3, 2, 1, 0))
+            >>> Perm(6012354)
+            Perm((6, 0, 1, 2, 3, 5, 4))
+            >>> Perm.toggle_check()
+            >>> Perm("abc")  # Not good
             Traceback (most recent call last):
                 ...
             TypeError: 'a' object is not an integer
@@ -86,7 +89,7 @@ class Permutation(tuple,
                         number //= 10
                     iterable = reversed(digit_list)
                 return tuple.__new__(cls, iterable)
-            # TODO: Also have string version? e.g. Permutation("0132"): YES!
+            # TODO: Also have string version? e.g. Perm("0132"): YES!
             else:
                 raise
 
@@ -122,10 +125,10 @@ class Permutation(tuple,
         However, the permpy version did not allow for duplicate elements.
 
         Examples:
-            >>> Permutation.to_standard("a2gsv3")
-            Permutation((2, 0, 3, 4, 5, 1))
-            >>> Permutation.to_standard("caaba")
-            Permutation((4, 0, 1, 3, 2))
+            >>> Perm.to_standard("a2gsv3")
+            Perm((2, 0, 3, 4, 5, 1))
+            >>> Perm.to_standard("caaba")
+            Perm((4, 0, 1, 3, 2))
         """
         # TODO: Do performance testing
         try:
@@ -148,8 +151,8 @@ class Permutation(tuple,
         """A way to enter a permutation in the traditional permuta way.
 
         Examples:
-            >>> Permutation.one_based((4, 1, 3, 2))
-            Permutation((3, 0, 2, 1))
+            >>> Perm.one_based((4, 1, 3, 2))
+            Perm((3, 0, 2, 1))
         """
         return cls(((element-1) for element in iterable))
 
@@ -162,10 +165,10 @@ class Permutation(tuple,
         """Return the identity permutation of the specified length.
 
         Examples:
-            >>> Permutation.identity(0)
-            Permutation(())
-            >>> Permutation.identity(4)
-            Permutation((0, 1, 2, 3))
+            >>> Perm.identity(0)
+            Perm(())
+            >>> Perm.identity(4)
+            Perm((0, 1, 2, 3))
         """
         return cls(range(length))
 
@@ -174,10 +177,10 @@ class Permutation(tuple,
         """Return a random permutation of the specified length.
 
         Examples:
-            >>> perm = Permutation.random(8)
+            >>> perm = Perm.random(8)
             >>> len(perm) == 8
             True
-            >>> # TODO: test perm in Permutations(8)
+            >>> # TODO: test perm in PermSet(8)
         """
         result = list(range(length))
         random.shuffle(result)
@@ -188,10 +191,10 @@ class Permutation(tuple,
         """Return a monotone increasing permutation of the specified length.
 
         Examples:
-            >>> Permutation.monotone_increasing(0)
-            Permutation(())
-            >>> Permutation.monotone_increasing(4)
-            Permutation((0, 1, 2, 3))
+            >>> Perm.monotone_increasing(0)
+            Perm(())
+            >>> Perm.monotone_increasing(4)
+            Perm((0, 1, 2, 3))
         """
         return cls(range(length))
 
@@ -200,10 +203,10 @@ class Permutation(tuple,
         """Return a monotone decreasing permutation of the specified length.
 
         Examples:
-            >>> Permutation.monotone_decreasing(0)
-            Permutation(())
-            >>> Permutation.monotone_decreasing(4)
-            Permutation((3, 2, 1, 0))
+            >>> Perm.monotone_decreasing(0)
+            Perm(())
+            >>> Perm.monotone_decreasing(4)
+            Perm((3, 2, 1, 0))
         """
         return cls(range(length-1, -1, -1))
 
@@ -212,18 +215,18 @@ class Permutation(tuple,
         """
 
         Examples:
-            >>> Permutation.unrank(0)
-            Permutation(())
-            >>> Permutation.unrank(1)
-            Permutation((0,))
-            >>> Permutation.unrank(2)
-            Permutation((0, 1))
-            >>> Permutation.unrank(3)
-            Permutation((1, 0))
-            >>> Permutation.unrank(4)
-            Permutation((0, 1, 2))
-            >>> Permutation.unrank(5)
-            Permutation((0, 2, 1))
+            >>> Perm.unrank(0)
+            Perm(())
+            >>> Perm.unrank(1)
+            Perm((0,))
+            >>> Perm.unrank(2)
+            Perm((0, 1))
+            >>> Perm.unrank(3)
+            Perm((1, 0))
+            >>> Perm.unrank(4)
+            Perm((0, 1, 2))
+            >>> Perm.unrank(5)
+            Perm((0, 2, 1))
         """
         # TODO: Docstring, and do better? Assertions and messages
         #       Implement readably, nicely, and efficiently
@@ -246,7 +249,7 @@ class Permutation(tuple,
             assert isinstance(length, numbers.Integral)
             assert length >= 0
             assert 0 <= number < math.factorial(length)
-        return cls(Permutation.__unrank(number, length))
+        return cls(Perm.__unrank(number, length))
 
     @staticmethod
     def __unrank(number, length):
@@ -260,7 +263,7 @@ class Permutation(tuple,
     ind2perm = unrank  # permpy backwards compatibility
 
     #
-    # Methods modifying/combining Permutation instances
+    # Methods modifying/combining Perm instances
     #
 
     def direct_sum(self, *others):
@@ -269,27 +272,27 @@ class Permutation(tuple,
         Args:
             self:
                 A permutation.
-            others: <permuta.Permutation> argument list
-                Permutations.
+            others: <permuta.Perm> argument list
+                Perms.
 
-        Returns: <permuta.Permutation>
+        Returns: <permuta.Perm>
             The direct sum of all the permutations.
 
         Examples:
-            >>> Permutation((0,)).direct_sum(Permutation((1, 0)))
-            Permutation((0, 2, 1))
-            >>> Permutation((0,)).direct_sum(Permutation((1, 0)), Permutation((2, 1, 0)))
-            Permutation((0, 2, 1, 5, 4, 3))
+            >>> Perm((0,)).direct_sum(Perm((1, 0)))
+            Perm((0, 2, 1))
+            >>> Perm((0,)).direct_sum(Perm((1, 0)), Perm((2, 1, 0)))
+            Perm((0, 2, 1, 5, 4, 3))
         """
         result = list(self)
         shift = len(self)
         for index in range(len(others)):
             other = others[index]
-            if not isinstance(other, Permutation):
-                raise TypeError(Permutation._TYPE_ERROR.format(repr(other)))
+            if not isinstance(other, Perm):
+                raise TypeError(Perm._TYPE_ERROR.format(repr(other)))
             result.extend(element + shift for element in other)
             shift += len(other)
-        return Permutation(result)
+        return Perm(result)
 
     def skew_sum(self, *others):
         """Return the skew sum of two or more permutations.
@@ -297,27 +300,27 @@ class Permutation(tuple,
         Args:
             self:
                 A permutation.
-            others: <permuta.Permutation> argument list
-                Permutations.
+            others: <permuta.Perm> argument list
+                Perms.
 
-        Returns: <permuta.Permutation>
+        Returns: <permuta.Perm>
             The skew sum of all the permutations.
 
         Examples:
-            >>> Permutation((0,)).skew_sum(Permutation((0, 1)))
-            Permutation((2, 0, 1))
-            >>> Permutation((0,)).skew_sum(Permutation((0, 1)), Permutation((2, 1, 0)))
-            Permutation((5, 3, 4, 2, 1, 0))
+            >>> Perm((0,)).skew_sum(Perm((0, 1)))
+            Perm((2, 0, 1))
+            >>> Perm((0,)).skew_sum(Perm((0, 1)), Perm((2, 1, 0)))
+            Perm((5, 3, 4, 2, 1, 0))
         """
         shift = sum(len(other) for other in others)
         result = [element + shift for element in self]
         for index in range(len(others)):
             other = others[index]
-            if not isinstance(other, Permutation):
-                raise TypeError(Permutation._TYPE_ERROR.format(repr(other)))
+            if not isinstance(other, Perm):
+                raise TypeError(Perm._TYPE_ERROR.format(repr(other)))
             shift -= len(other)
             result.extend(element + shift for element in other)
-        return Permutation(result)
+        return Perm(result)
 
     def compose(self, *others):
         """Return the composition of two or more permutations.
@@ -325,10 +328,10 @@ class Permutation(tuple,
         Args:
             self:
                 A permutation.
-            others: <permuta.Permutation> argument list
-                Permutations.
+            others: <permuta.Perm> argument list
+                Perms.
 
-        Returns: <permuta.Permutation>
+        Returns: <permuta.Perm>
             The consecutive pointwise application of all the above permutations
             in reverse order.
 
@@ -339,16 +342,16 @@ class Permutation(tuple,
                 A permutation in the argument list is of the wrong length.
 
         Examples:
-            >>> Permutation((0, 3, 1, 2)).compose(Permutation((2, 1, 0, 3)))
-            Permutation((1, 3, 0, 2))
-            >>> Permutation((1, 0, 2)).compose(Permutation((0, 1, 2)), Permutation((2, 1, 0)))
-            Permutation((2, 0, 1))
+            >>> Perm((0, 3, 1, 2)).compose(Perm((2, 1, 0, 3)))
+            Perm((1, 3, 0, 2))
+            >>> Perm((1, 0, 2)).compose(Perm((0, 1, 2)), Perm((2, 1, 0)))
+            Perm((2, 0, 1))
         """
         for other in others:
-            if not isinstance(other, Permutation):
-                raise TypeError(Permutation._TYPE_ERROR.format(repr(other)))
+            if not isinstance(other, Perm):
+                raise TypeError(Perm._TYPE_ERROR.format(repr(other)))
             if len(other) != len(self):
-                raise ValueError("Permutation length mismatch")
+                raise ValueError("Perm length mismatch")
         result = [None]*len(self)
         for value in range(len(self)):
             composed_value = value
@@ -356,7 +359,7 @@ class Permutation(tuple,
                 composed_value = other[composed_value]
             composed_value = self[composed_value]
             result[value] = composed_value
-        return Permutation(result)
+        return Perm(result)
 
     multiply = compose
 
@@ -371,7 +374,7 @@ class Permutation(tuple,
                 An integer in the range of 0 to len(self) inclusive.
                 If None, the element defaults to len(self).
 
-        Returns: <permuta.Permutation>
+        Returns: <permuta.Perm>
             The permutation with the added element (and other elements adjusted
             as needed).
 
@@ -384,12 +387,12 @@ class Permutation(tuple,
                 Element passed is not an integer.
 
         Examples:
-            >>> Permutation((0, 1)).insert()
-            Permutation((0, 1, 2))
-            >>> Permutation((0, 1)).insert(0)
-            Permutation((2, 0, 1))
-            >>> Permutation((2, 0, 1)).insert(2, 1)
-            Permutation((3, 0, 1, 2))
+            >>> Perm((0, 1)).insert()
+            Perm((0, 1, 2))
+            >>> Perm((0, 1)).insert(0)
+            Perm((2, 0, 1))
+            >>> Perm((2, 0, 1)).insert(2, 1)
+            Perm((3, 0, 1, 2))
         """
         if index is None:
             index = len(self)+1
@@ -404,7 +407,7 @@ class Permutation(tuple,
                    for element in itertools.islice(self, index))
         slice_2 = (element if element < new_element else element+1
                    for element in itertools.islice(self, index, len(self)))
-        return Permutation(itertools.chain(slice_1, (new_element,), slice_2))
+        return Perm(itertools.chain(slice_1, (new_element,), slice_2))
 
     def remove(self, index=None):
         """Return the permutation acquired by removing an element at a specified index.
@@ -414,7 +417,7 @@ class Permutation(tuple,
                 The index of the element to be removed.
                 If None, the greatest element of the permutation is removed.
 
-        Returns: <permuta.Permutation>
+        Returns: <permuta.Perm>
             The permutation without the element (and other elements adjusted if needed).
 
         Raises:
@@ -422,20 +425,20 @@ class Permutation(tuple,
                 Index is not valid.
 
         Examples:
-            >>> Permutation((2, 0, 1)).remove()
-            Permutation((0, 1))
-            >>> Permutation((3, 0, 1, 2)).remove(0)
-            Permutation((0, 1, 2))
-            >>> Permutation((2, 0, 1)).remove(2)
-            Permutation((1, 0))
-            >>> Permutation((0,)).remove(0)
-            Permutation(())
+            >>> Perm((2, 0, 1)).remove()
+            Perm((0, 1))
+            >>> Perm((3, 0, 1, 2)).remove(0)
+            Perm((0, 1, 2))
+            >>> Perm((2, 0, 1)).remove(2)
+            Perm((1, 0))
+            >>> Perm((0,)).remove(0)
+            Perm(())
         """
         if index is None:
             return self.remove_element()
         selected = self[index]
-        return Permutation(element if element < selected else element-1
-                           for element in self if element != selected)
+        return Perm(element if element < selected else element-1
+                    for element in self if element != selected)
 
     def remove_element(self, selected=None):
         """Return the permutation acquired by removing a specific element from self.
@@ -445,7 +448,7 @@ class Permutation(tuple,
                 The element selected to be removed. It is an integer in the
                 range of 0 to len(self) inclusive. If None, it defaults to len(self).
 
-        Returns: <permuta.Permutation>
+        Returns: <permuta.Perm>
             The permutation with the selected element removed (and other
             elements adjusted as needed).
 
@@ -456,10 +459,10 @@ class Permutation(tuple,
                 Element passed is not an integer.
 
         Examples:
-            >>> Permutation((3, 0, 1, 2)).remove_element()
-            Permutation((0, 1, 2))
-            >>> Permutation((3, 0, 2, 1)).remove_element(0)
-            Permutation((2, 1, 0))
+            >>> Perm((3, 0, 1, 2)).remove_element()
+            Perm((0, 1, 2))
+            >>> Perm((3, 0, 2, 1)).remove_element(0)
+            Perm((2, 1, 0))
         """
         if selected is None:
             selected = len(self)-1
@@ -468,8 +471,8 @@ class Permutation(tuple,
                 raise TypeError("{} object is not an integer".format(repr(selected)))
             if not 0 <= selected < len(self):
                 raise ValueError("Element out of range: {}".format(selected))
-        return Permutation(element if element < selected else element-1
-                           for element in self if element != selected)
+        return Perm(element if element < selected else element-1
+                    for element in self if element != selected)
 
     def inflate(self, components, indices=None):
         """Inflate element(s)."""
@@ -481,48 +484,48 @@ class Permutation(tuple,
         pass
 
     #
-    # Methods for basic Permutation transforming
+    # Methods for basic Perm transforming
     #
 
     def inverse(self):
         """Return the inverse of the permutation self.
 
         Examples:
-            >>> Permutation((1, 2, 5, 0, 3, 4)).inverse()
-            Permutation((3, 0, 1, 4, 5, 2))
-            >>> Permutation((2, 0, 1)).inverse().inverse() == Permutation((2, 0, 1))
+            >>> Perm((1, 2, 5, 0, 3, 4)).inverse()
+            Perm((3, 0, 1, 4, 5, 2))
+            >>> Perm((2, 0, 1)).inverse().inverse() == Perm((2, 0, 1))
             True
-            >>> Permutation((0, 1)).inverse()
-            Permutation((0, 1))
+            >>> Perm((0, 1)).inverse()
+            Perm((0, 1))
         """
         len_perm = len(self)
         result = [None]*len_perm
         for index in range(len_perm):
             result[self[index]] = index
-        return Permutation(result)
+        return Perm(result)
 
     def reverse(self):
         """Return the reverse of the permutation self.
 
         Examples:
-            >>> Permutation((1, 2, 5, 0, 3, 4)).reverse()
-            Permutation((4, 3, 0, 5, 2, 1))
-            >>> Permutation((0, 1)).reverse()
-            Permutation((1, 0))
+            >>> Perm((1, 2, 5, 0, 3, 4)).reverse()
+            Perm((4, 3, 0, 5, 2, 1))
+            >>> Perm((0, 1)).reverse()
+            Perm((1, 0))
         """
-        return Permutation(self[::-1])
+        return Perm(self[::-1])
 
     def complement(self):
         """Return the complement of the permutation self.
 
         Examples:
-            >>> Permutation((1, 2, 3, 0, 4)).complement()
-            Permutation((3, 2, 1, 4, 0))
-            >>> Permutation((2, 0, 1)).complement()
-            Permutation((0, 2, 1))
+            >>> Perm((1, 2, 3, 0, 4)).complement()
+            Perm((3, 2, 1, 4, 0))
+            >>> Perm((2, 0, 1)).complement()
+            Perm((0, 2, 1))
         """
         base = len(self) - 1
-        return Permutation(base - element for element in self)
+        return Perm(base - element for element in self)
 
     def reverse_complement(self):
         """Return the reverse complement of self.
@@ -530,13 +533,13 @@ class Permutation(tuple,
         Equivalent to two left or right rotations.
 
         Examples:
-            >>> Permutation((1, 2, 3, 0, 4)).reverse_complement()
-            Permutation((0, 4, 1, 2, 3))
-            >>> Permutation((2, 0, 1)).reverse_complement()
-            Permutation((1, 2, 0))
+            >>> Perm((1, 2, 3, 0, 4)).reverse_complement()
+            Perm((0, 4, 1, 2, 3))
+            >>> Perm((2, 0, 1)).reverse_complement()
+            Perm((1, 2, 0))
         """
         base = len(self) - 1
-        return Permutation(base - element for element in reversed(self))
+        return Perm(base - element for element in reversed(self))
 
     def shift_right(self, times=1):
         """Return self shifted times steps to the right.
@@ -544,10 +547,10 @@ class Permutation(tuple,
         If shift is negative, shifted to the left.
 
         Examples:
-            >>> Permutation((0, 1, 2)).shift_right()
-            Permutation((2, 0, 1))
-            >>> Permutation((0, 1, 2)).shift_right(-4)
-            Permutation((1, 2, 0))
+            >>> Perm((0, 1, 2)).shift_right()
+            Perm((2, 0, 1))
+            >>> Perm((0, 1, 2)).shift_right(-4)
+            Perm((1, 2, 0))
         """
         if len(self) == 0:
             return self
@@ -557,7 +560,7 @@ class Permutation(tuple,
         index = len(self) - times
         slice_1 = itertools.islice(self, index)
         slice_2 = itertools.islice(self, index, len(self))
-        return Permutation(itertools.chain(slice_2, slice_1))
+        return Perm(itertools.chain(slice_2, slice_1))
 
     def shift_left(self, times=1):
         """Return self shifted times steps to the left.
@@ -565,10 +568,10 @@ class Permutation(tuple,
         If shift is negative, shifted to the right.
 
         Examples:
-            >>> Permutation((0, 1, 2)).shift_left()
-            Permutation((1, 2, 0))
-            >>> Permutation((0, 1, 2)).shift_left(-4)
-            Permutation((2, 0, 1))
+            >>> Perm((0, 1, 2)).shift_left()
+            Perm((1, 2, 0))
+            >>> Perm((0, 1, 2)).shift_left(-4)
+            Perm((2, 0, 1))
         """
         return self.shift_right(-times)
 
@@ -583,12 +586,12 @@ class Permutation(tuple,
         If times is negative, shifted down.
 
         Examples:
-            >>> Permutation((0, 1, 2, 3)).shift_up(1)
-            Permutation((1, 2, 3, 0))
-            >>> Permutation((0, 1, 2, 3)).shift_up(-7)
-            Permutation((1, 2, 3, 0))
-            >>> Permutation((0,)).shift_up(1234)
-            Permutation((0,))
+            >>> Perm((0, 1, 2, 3)).shift_up(1)
+            Perm((1, 2, 3, 0))
+            >>> Perm((0, 1, 2, 3)).shift_up(-7)
+            Perm((1, 2, 3, 0))
+            >>> Perm((0,)).shift_up(1234)
+            Perm((0,))
         """
         if len(self) == 0:
             return self
@@ -596,7 +599,7 @@ class Permutation(tuple,
         if times == 0:
             return self
         bound = len(self)
-        return Permutation((element + times) % bound for element in self)
+        return Perm((element + times) % bound for element in self)
 
     def shift_down(self, times=1):
         """Return self shifted times steps down.
@@ -604,12 +607,12 @@ class Permutation(tuple,
         If times is negative, shifted up.
 
         Examples:
-            >>> Permutation((0, 1, 2, 3)).shift_down(1)
-            Permutation((3, 0, 1, 2))
-            >>> Permutation((0, 1, 2, 3)).shift_down(-7)
-            Permutation((3, 0, 1, 2))
-            >>> Permutation((0,)).shift_down(1234)
-            Permutation((0,))
+            >>> Perm((0, 1, 2, 3)).shift_down(1)
+            Perm((3, 0, 1, 2))
+            >>> Perm((0, 1, 2, 3)).shift_down(-7)
+            Perm((3, 0, 1, 2))
+            >>> Perm((0,)).shift_down(1234)
+            Perm((0,))
         """
         return self.shift_up(-times)
 
@@ -617,10 +620,10 @@ class Permutation(tuple,
         """Return self flipped horizontally.
 
         Examples:
-            >>> Permutation((1, 2, 3, 0, 4)).flip_horizontal()
-            Permutation((3, 2, 1, 4, 0))
-            >>> Permutation((2, 0, 1)).flip_horizontal()
-            Permutation((0, 2, 1))
+            >>> Perm((1, 2, 3, 0, 4)).flip_horizontal()
+            Perm((3, 2, 1, 4, 0))
+            >>> Perm((2, 0, 1)).flip_horizontal()
+            Perm((0, 2, 1))
         """
         return self.complement()
 
@@ -628,10 +631,10 @@ class Permutation(tuple,
         """Return self flipped vertically.
 
         Examples:
-            >>> Permutation((1, 2, 5, 0, 3, 4)).flip_vertical()
-            Permutation((4, 3, 0, 5, 2, 1))
-            >>> Permutation((0, 1)).flip_vertical()
-            Permutation((1, 0))
+            >>> Perm((1, 2, 5, 0, 3, 4)).flip_vertical()
+            Perm((4, 3, 0, 5, 2, 1))
+            >>> Perm((0, 1)).flip_vertical()
+            Perm((1, 0))
         """
         return self.reverse()
 
@@ -639,10 +642,10 @@ class Permutation(tuple,
         """Return self flipped along the diagonal.
 
         Examples:
-            >>> Permutation((1, 2, 5, 0, 3, 4)).flip_diagonal()
-            Permutation((3, 0, 1, 4, 5, 2))
-            >>> Permutation((0, 1)).flip_diagonal()
-            Permutation((0, 1))
+            >>> Perm((1, 2, 5, 0, 3, 4)).flip_diagonal()
+            Perm((3, 0, 1, 4, 5, 2))
+            >>> Perm((0, 1)).flip_diagonal()
+            Perm((0, 1))
         """
         return self.inverse()
 
@@ -650,12 +653,12 @@ class Permutation(tuple,
         """Return self flipped along the antidiagonal..
 
         Examples:
-            >>> Permutation((3, 2, 0, 1)).flip_antidiagonal()
-            Permutation((3, 2, 0, 1))
-            >>> Permutation((1, 2, 3, 0, 4)).flip_antidiagonal()
-            Permutation((0, 2, 3, 4, 1))
-            >>> Permutation((1, 2, 0, 3)).flip_antidiagonal()
-            Permutation((0, 2, 3, 1))
+            >>> Perm((3, 2, 0, 1)).flip_antidiagonal()
+            Perm((3, 2, 0, 1))
+            >>> Perm((1, 2, 3, 0, 4)).flip_antidiagonal()
+            Perm((0, 2, 3, 4, 1))
+            >>> Perm((1, 2, 0, 3)).flip_antidiagonal()
+            Perm((0, 2, 3, 1))
         """
         len_perm = len(self)
         result = [None]*len_perm
@@ -665,7 +668,7 @@ class Permutation(tuple,
 
         for index, element in flipped_pairs:
             result[index] = element
-        return Permutation(result)
+        return Perm(result)
 
     def _rotate_right(self):
         """Return self rotated 90 degrees to the right."""
@@ -673,7 +676,7 @@ class Permutation(tuple,
         result = [None]*len_perm
         for index, value in enumerate(self):
             result[value] = len_perm - index - 1
-        return Permutation(result)
+        return Perm(result)
 
     def _rotate_left(self):
         """Return self rotated 90 degrees to the left."""
@@ -681,7 +684,7 @@ class Permutation(tuple,
         result = [None]*len_perm
         for index, value in enumerate(self):
             result[len_perm - value - 1] = index
-        return Permutation(result)
+        return Perm(result)
 
     def _rotate_180(self):
         """Return self rotated 180 degrees."""
@@ -710,11 +713,11 @@ class Permutation(tuple,
         """Return the number of fixed points in self.
 
         Examples:
-            >>> Permutation((0, 1, 4, 3, 2)).fixed_points()
+            >>> Perm((0, 1, 4, 3, 2)).fixed_points()
             3
-            >>> Permutation((0, 1, 2, 3, 4)).fixed_points()
+            >>> Perm((0, 1, 2, 3, 4)).fixed_points()
             5
-            >>> Permutation((3, 2, 1, 0)).fixed_points()
+            >>> Perm((3, 2, 1, 0)).fixed_points()
             0
         """
         result = 0
@@ -729,11 +732,11 @@ class Permutation(tuple,
         """Yield the indices of the descents of self.
 
         Examples:
-            >>> tuple(Permutation((0, 1, 3, 2, 4)).descents())
+            >>> tuple(Perm((0, 1, 3, 2, 4)).descents())
             (3,)
-            >>> tuple(Permutation((3, 2, 1, 0)).descents())
+            >>> tuple(Perm((3, 2, 1, 0)).descents())
             (1, 2, 3)
-            >>> tuple(Permutation((0, 1, 2)).descents())
+            >>> tuple(Perm((0, 1, 2)).descents())
             ()
         """
         for index in range(1, len(self)):
@@ -750,11 +753,11 @@ class Permutation(tuple,
     def count_descents(self):
         """Count the number of descents of self.
         Examples:
-            >>> Permutation((0, 1, 3, 2, 4)).count_descents()
+            >>> Perm((0, 1, 3, 2, 4)).count_descents()
             1
-            >>> Permutation((3, 2, 1, 0)).count_descents()
+            >>> Perm((3, 2, 1, 0)).count_descents()
             3
-            >>> Permutation((0, 1, 2)).count_descents()
+            >>> Perm((0, 1, 2)).count_descents()
             0
         """
         return sum(1 for _ in self.descents())
@@ -765,11 +768,11 @@ class Permutation(tuple,
         """Yield the indices of the ascent of self.
 
         Examples:
-            >>> tuple(Permutation((0, 1, 3, 2, 4)).ascents())
+            >>> tuple(Perm((0, 1, 3, 2, 4)).ascents())
             (1, 2, 4)
-            >>> tuple(Permutation((0, 4, 3, 2, 1)).ascents())
+            >>> tuple(Perm((0, 4, 3, 2, 1)).ascents())
             (1,)
-            >>> tuple(Permutation((3, 2, 1, 0)).ascents())
+            >>> tuple(Perm((3, 2, 1, 0)).ascents())
             ()
         """
         for index in range(1, len(self)):
@@ -787,11 +790,11 @@ class Permutation(tuple,
         """Count the number of ascents in self.
 
         Examples:
-            >>> Permutation((0, 1, 3, 2, 4)).count_ascents()
+            >>> Perm((0, 1, 3, 2, 4)).count_ascents()
             3
-            >>> Permutation((0, 4, 3, 2, 1)).count_ascents()
+            >>> Perm((0, 4, 3, 2, 1)).count_ascents()
             1
-            >>> Permutation((3, 2, 1, 0)).count_ascents()
+            >>> Perm((3, 2, 1, 0)).count_ascents()
             0
         """
         return sum(1 for _ in self.ascents())
@@ -805,11 +808,11 @@ class Permutation(tuple,
             self[i-1] < self[i] > self[i+1].
 
         Examples:
-            >>> tuple(Permutation((5, 3, 4, 0, 2, 1)).peaks())
+            >>> tuple(Perm((5, 3, 4, 0, 2, 1)).peaks())
             (2, 4)
-            >>> tuple(Permutation((1, 2, 0)).peaks())
+            >>> tuple(Perm((1, 2, 0)).peaks())
             (1,)
-            >>> tuple(Permutation((2, 1, 0)).peaks())
+            >>> tuple(Perm((2, 1, 0)).peaks())
             ()
         """
         if len(self) <= 2:
@@ -817,10 +820,10 @@ class Permutation(tuple,
         ascent = False
         for index in range(1, len(self)-1):
             if self[index-1] < self[index]:
-                # Permutation ascended
+                # Perm ascended
                 ascent = True
             else:
-                # Permutation descended
+                # Perm descended
                 if ascent:
                     yield index-1
                 ascent = False
@@ -839,11 +842,11 @@ class Permutation(tuple,
         """Count the number of peaks of self.
 
         Examples:
-            >>> Permutation((5, 3, 4, 0, 2, 1)).count_peaks()
+            >>> Perm((5, 3, 4, 0, 2, 1)).count_peaks()
             2
-            >>> Permutation((1, 2, 0)).count_peaks()
+            >>> Perm((1, 2, 0)).count_peaks()
             1
-            >>> Permutation((2, 1, 0)).count_peaks()
+            >>> Perm((2, 1, 0)).count_peaks()
             0
         """
         return sum(1 for _ in self.peaks())
@@ -857,11 +860,11 @@ class Permutation(tuple,
             self[i-1] > self[i] < self[i+1].
 
         Examples:
-            >>> tuple(Permutation((5, 3, 4, 0, 2, 1)).valleys())
+            >>> tuple(Perm((5, 3, 4, 0, 2, 1)).valleys())
             (1, 3)
-            >>> tuple(Permutation((2, 0, 1)).valleys())
+            >>> tuple(Perm((2, 0, 1)).valleys())
             (1,)
-            >>> tuple(Permutation((1, 2, 0)).valleys())
+            >>> tuple(Perm((1, 2, 0)).valleys())
             ()
         """
         if len(self) <= 2:
@@ -869,12 +872,12 @@ class Permutation(tuple,
         ascent = True
         for index in range(1, len(self)-1):
             if self[index-1] < self[index]:
-                # Permutation ascended
+                # Perm ascended
                 if not ascent:
                     yield index-1
                 ascent = True
             else:
-                # Permutation descended
+                # Perm descended
                 ascent = False
         # Check if penultimate element is a valley
         if not ascent and self[-2] < self[-1]:
@@ -891,11 +894,11 @@ class Permutation(tuple,
         """Count the number of valleys of self.
 
         Examples:
-            >>> Permutation((5, 3, 4, 0, 2, 1)).count_valleys()
+            >>> Perm((5, 3, 4, 0, 2, 1)).count_valleys()
             2
-            >>> Permutation((2, 0, 1)).count_valleys()
+            >>> Perm((2, 0, 1)).count_valleys()
             1
-            >>> Permutation((1, 2, 0)).count_valleys()
+            >>> Perm((1, 2, 0)).count_valleys()
             0
         """
         return sum(1 for _ in self.valleys())
@@ -922,18 +925,18 @@ class Permutation(tuple,
             True if and only if all patterns in patt are contained in self.
 
         Examples:
-            >>> Permutation.monotone_decreasing(7).avoids(Permutation((0, 1)))
+            >>> Perm.monotone_decreasing(7).avoids(Perm((0, 1)))
             True
-            >>> Permutation((4, 2, 3, 1, 0)).contains(Permutation((1, 2, 0)))
+            >>> Perm((4, 2, 3, 1, 0)).contains(Perm((1, 2, 0)))
             True
-            >>> Permutation((0, 1, 2)).contains(Permutation((1,0)))
+            >>> Perm((0, 1, 2)).contains(Perm((1,0)))
             False
-            >>> pattern1 = Permutation((0, 1))
-            >>> pattern2 = Permutation((2, 0, 1))
-            >>> pattern3 = Permutation((0, 3, 1, 2))
-            >>> Permutation((5, 3, 0, 4, 2, 1)).contains(pattern1, pattern2)
+            >>> pattern1 = Perm((0, 1))
+            >>> pattern2 = Perm((2, 0, 1))
+            >>> pattern3 = Perm((0, 3, 1, 2))
+            >>> Perm((5, 3, 0, 4, 2, 1)).contains(pattern1, pattern2)
             True
-            >>> Permutation((5, 3, 0, 4, 2, 1)).contains(pattern2, pattern3)
+            >>> Perm((5, 3, 0, 4, 2, 1)).contains(pattern2, pattern3)
             False
         """
         return all(patt in self for patt in patts)
@@ -951,21 +954,21 @@ class Permutation(tuple,
             True if and only if self avoids all patterns in patts.
 
         Examples:
-            >>> Permutation.monotone_increasing(8).avoids(Permutation((1, 0)))
+            >>> Perm.monotone_increasing(8).avoids(Perm((1, 0)))
             True
-            >>> Permutation((4, 2, 3, 1, 0)).avoids(Permutation((1, 2, 0)))
+            >>> Perm((4, 2, 3, 1, 0)).avoids(Perm((1, 2, 0)))
             False
-            >>> Permutation((0, 1, 2)).avoids(Permutation((1,0)))
+            >>> Perm((0, 1, 2)).avoids(Perm((1,0)))
             True
-            >>> pattern1 = Permutation((0, 1))
-            >>> pattern2 = Permutation((2, 0, 1))
-            >>> pattern3 = Permutation((0, 3, 1, 2))
-            >>> pattern4 = Permutation((0, 1, 2))
-            >>> Permutation((5, 3, 0, 4, 2, 1)).avoids(pattern1, pattern2)
+            >>> pattern1 = Perm((0, 1))
+            >>> pattern2 = Perm((2, 0, 1))
+            >>> pattern3 = Perm((0, 3, 1, 2))
+            >>> pattern4 = Perm((0, 1, 2))
+            >>> Perm((5, 3, 0, 4, 2, 1)).avoids(pattern1, pattern2)
             False
-            >>> Permutation((5, 3, 0, 4, 2, 1)).avoids(pattern2, pattern3)
+            >>> Perm((5, 3, 0, 4, 2, 1)).avoids(pattern2, pattern3)
             False
-            >>> Permutation((5, 3, 0, 4, 2, 1)).avoids(pattern3, pattern4)
+            >>> Perm((5, 3, 0, 4, 2, 1)).avoids(pattern3, pattern4)
             True
         """
         return all(patt not in self for patt in patts)
@@ -990,9 +993,9 @@ class Permutation(tuple,
             The number of times patt occurs in self.
 
         Examples:
-            >>> Permutation((0, 1, 2)).count_occurrences_of(Permutation((0, 1)))
+            >>> Perm((0, 1, 2)).count_occurrences_of(Perm((0, 1)))
             3
-            >>> Permutation((5, 3, 0, 4, 2, 1)).count_occurrences_of(Permutation((2, 0, 1)))
+            >>> Perm((5, 3, 0, 4, 2, 1)).count_occurrences_of(Perm((2, 0, 1)))
             6
         """
         return patt.count_occurrences_in(self)
@@ -1005,23 +1008,23 @@ class Permutation(tuple,
         Args:
             self:
                 The classical pattern whose occurrences are to be found.
-            perm: <permuta.Permutation>
+            perm: <permuta.Perm>
                 The permutation to search for occurrences in.
 
         Yields: <tuple> of <int>
             The indices of the occurrences of self in perm.
             Each yielded element l is a tuple of integer indices of the
             permutation perm such that:
-            self == permuta.Permutation.to_standard([perm[i] for i in l])
+            self == permuta.Perm.to_standard([perm[i] for i in l])
 
         Examples:
-            >>> list(Permutation((2, 0, 1)).occurrences_in(Permutation((5, 3, 0, 4, 2, 1))))
+            >>> list(Perm((2, 0, 1)).occurrences_in(Perm((5, 3, 0, 4, 2, 1))))
             [(0, 1, 3), (0, 2, 3), (0, 2, 4), (0, 2, 5), (1, 2, 4), (1, 2, 5)]
-            >>> list(Permutation((1, 0)).occurrences_in(Permutation((1, 2, 3, 0))))
+            >>> list(Perm((1, 0)).occurrences_in(Perm((1, 2, 3, 0))))
             [(0, 3), (1, 3), (2, 3)]
-            >>> list(Permutation((0,)).occurrences_in(Permutation((1, 2, 3, 0))))
+            >>> list(Perm((0,)).occurrences_in(Perm((1, 2, 3, 0))))
             [(0,), (1,), (2,), (3,)]
-            >>> list(Permutation().occurrences_in(Permutation((1, 2, 3, 0))))
+            >>> list(Perm().occurrences_in(Perm((1, 2, 3, 0))))
             [()]
         """
         # Special cases
@@ -1103,9 +1106,9 @@ class Permutation(tuple,
     def occurrences_of(self, patt):
         """Find all indices of occurrences of patt in self.
 
-        This method is complementary to permuta.Permutation.occurrences_in.
+        This method is complementary to permuta.Perm.occurrences_in.
         It just calls patt.occurrences_in(self) internally.
-        See permuta.Permutation.occurrences_in for documentation.
+        See permuta.Perm.occurrences_in for documentation.
 
         Args:
             self:
@@ -1117,13 +1120,13 @@ class Permutation(tuple,
             The indices of the occurrences of self in perm.
 
         Examples:
-            >>> list(Permutation((5, 3, 0, 4, 2, 1)).occurrences_of(Permutation((2, 0, 1))))
+            >>> list(Perm((5, 3, 0, 4, 2, 1)).occurrences_of(Perm((2, 0, 1))))
             [(0, 1, 3), (0, 2, 3), (0, 2, 4), (0, 2, 5), (1, 2, 4), (1, 2, 5)]
-            >>> list(Permutation((1, 2, 3, 0)).occurrences_of(Permutation((1, 0))))
+            >>> list(Perm((1, 2, 3, 0)).occurrences_of(Perm((1, 0))))
             [(0, 3), (1, 3), (2, 3)]
-            >>> list(Permutation((1, 2, 3, 0)).occurrences_of(Permutation((0,))))
+            >>> list(Perm((1, 2, 3, 0)).occurrences_of(Perm((0,))))
             [(0,), (1,), (2,), (3,)]
-            >>> list(Permutation((1, 2, 3, 0)).occurrences_of(Permutation()))
+            >>> list(Perm((1, 2, 3, 0)).occurrences_of(Perm()))
             [()]
         """
         return patt.occurrences_in(self)
@@ -1175,11 +1178,11 @@ class Permutation(tuple,
                 Bad argument type.
 
         Examples:
-            >>> Permutation((4, 1, 2, 0, 3)).apply((1, 2, 3, 4, 5))
+            >>> Perm((4, 1, 2, 0, 3)).apply((1, 2, 3, 4, 5))
             (5, 2, 3, 1, 4)
-            >>> Permutation((4, 1, 2, 0, 3)).apply("abcde")
+            >>> Perm((4, 1, 2, 0, 3)).apply("abcde")
             ('e', 'b', 'c', 'a', 'd')
-            >>> Permutation((1, 2, 0, 3)).apply("abcde")
+            >>> Perm((1, 2, 0, 3)).apply("abcde")
             Traceback (most recent call last):
                 ...
             TypeError: Length mismatch
@@ -1189,7 +1192,7 @@ class Permutation(tuple,
             raise TypeError("Length mismatch")
         return tuple(iterable[index] for index in self)
 
-    permute = apply  # Alias of Permutation.apply
+    permute = apply  # Alias of Perm.apply
 
     #
     # Magic/dunder methods
@@ -1199,13 +1202,13 @@ class Permutation(tuple,
         """Map value to its image defined by the permutation.
 
         Examples:
-            >>> Permutation((3, 1, 2, 0))(0)
+            >>> Perm((3, 1, 2, 0))(0)
             3
-            >>> Permutation((3, 1, 2, 0))(1)
+            >>> Perm((3, 1, 2, 0))(1)
             1
-            >>> Permutation((3, 1, 2, 0))(2)
+            >>> Perm((3, 1, 2, 0))(2)
             2
-            >>> Permutation((3, 1, 2, 0))(3)
+            >>> Perm((3, 1, 2, 0))(3)
             0
         """
         if not isinstance(value, numbers.Integral):
@@ -1227,7 +1230,7 @@ class Permutation(tuple,
         return self.multiply(other)
 
     def __repr__(self):
-        return "Permutation({})".format(super(Permutation, self).__repr__())
+        return "Perm({})".format(super(Perm, self).__repr__())
 
     def __lt__(self, other):
         return (len(self), tuple(self)) < (len(other), tuple(other))
