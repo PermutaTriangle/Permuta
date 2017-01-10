@@ -23,7 +23,7 @@ class Perm(tuple,
            Shiftable,
            Flippable
           ):  # pylint: disable=too-many-ancestors,too-many-public-methods
-    """A permutation class."""
+    """A perm class."""
 
     _TYPE_ERROR = "'{}' object is not a perm"
 
@@ -50,7 +50,7 @@ class Perm(tuple,
             cls:
                 The class of which an instance is requested.
             iterable: <collections.Iterable> or <numbers.Integral>
-                An iterable corresponding to a legal permutation.
+                An iterable corresponding to a legal perm.
                 Also supports passing just a number with unique digits.
 
         Raises:
@@ -75,11 +75,11 @@ class Perm(tuple,
         try:
             return tuple.__new__(cls, iterable)
         except TypeError:
-            # Try to interpret object as permutation
+            # Try to interpret object as perm
             if isinstance(iterable, numbers.Integral):
                 number = iterable
                 if not 0 <= number <= 9876543210:
-                    raise ValueError("Illegal permutation: {}".format(number))
+                    raise ValueError("Illegal perm: {}".format(number))
                 digit_list = []
                 if number == 0:
                     digit_list.append(number)
@@ -94,7 +94,7 @@ class Perm(tuple,
                 raise
 
     def __init__(self, iterable=()):  # pylint: disable=unused-argument,super-init-not-called
-        # Cache for data used when finding occurrences of self in a permutation
+        # Cache for data used when finding occurrences of self in a perm
         self._cached_pattern_details = None
         self._init_helper()
 
@@ -117,7 +117,7 @@ class Perm(tuple,
 
     @classmethod
     def to_standard(cls, iterable):
-        """Return the permutation corresponding to iterable.
+        """Return the perm corresponding to iterable.
 
         Duplicate elements are allowed and become consecutive elements (see example).
 
@@ -148,7 +148,7 @@ class Perm(tuple,
 
     @classmethod
     def one_based(cls, iterable):
-        """A way to enter a permutation in the traditional permuta way.
+        """A way to enter a perm in the traditional permuta way.
 
         Examples:
             >>> Perm.one_based((4, 1, 3, 2))
@@ -162,7 +162,7 @@ class Perm(tuple,
 
     @classmethod
     def identity(cls, length):
-        """Return the identity permutation of the specified length.
+        """Return the identity perm of the specified length.
 
         Examples:
             >>> Perm.identity(0)
@@ -174,7 +174,7 @@ class Perm(tuple,
 
     @classmethod
     def random(cls, length):
-        """Return a random permutation of the specified length.
+        """Return a random perm of the specified length.
 
         Examples:
             >>> perm = Perm.random(8)
@@ -188,7 +188,7 @@ class Perm(tuple,
 
     @classmethod
     def monotone_increasing(cls, length):
-        """Return a monotone increasing permutation of the specified length.
+        """Return a monotone increasing perm of the specified length.
 
         Examples:
             >>> Perm.monotone_increasing(0)
@@ -200,7 +200,7 @@ class Perm(tuple,
 
     @classmethod
     def monotone_decreasing(cls, length):
-        """Return a monotone decreasing permutation of the specified length.
+        """Return a monotone decreasing perm of the specified length.
 
         Examples:
             >>> Perm.monotone_decreasing(0)
@@ -239,7 +239,7 @@ class Perm(tuple,
             if number == 0:
                 return cls()
             length = 1
-            amount = 1  # Amount of permutations of length
+            amount = 1  # Amount of perms of length
             while number > amount:
                 number -= amount
                 length += 1
@@ -267,16 +267,16 @@ class Perm(tuple,
     #
 
     def direct_sum(self, *others):
-        """Return the direct sum of two or more permutations.
+        """Return the direct sum of two or more perms.
 
         Args:
             self:
-                A permutation.
+                A perm.
             others: <permuta.Perm> argument list
                 Perms.
 
         Returns: <permuta.Perm>
-            The direct sum of all the permutations.
+            The direct sum of all the perms.
 
         Examples:
             >>> Perm((0,)).direct_sum(Perm((1, 0)))
@@ -295,16 +295,16 @@ class Perm(tuple,
         return Perm(result)
 
     def skew_sum(self, *others):
-        """Return the skew sum of two or more permutations.
+        """Return the skew sum of two or more perms.
 
         Args:
             self:
-                A permutation.
+                A perm.
             others: <permuta.Perm> argument list
                 Perms.
 
         Returns: <permuta.Perm>
-            The skew sum of all the permutations.
+            The skew sum of all the perms.
 
         Examples:
             >>> Perm((0,)).skew_sum(Perm((0, 1)))
@@ -323,23 +323,23 @@ class Perm(tuple,
         return Perm(result)
 
     def compose(self, *others):
-        """Return the composition of two or more permutations.
+        """Return the composition of two or more perms.
 
         Args:
             self:
-                A permutation.
+                A perm.
             others: <permuta.Perm> argument list
                 Perms.
 
         Returns: <permuta.Perm>
-            The consecutive pointwise application of all the above permutations
+            The consecutive pointwise application of all the above perms
             in reverse order.
 
         Raises:
             TypeError:
-                An object in the argument list is not a permutation.
+                An object in the argument list is not a perm.
             ValueError:
-                A permutation in the argument list is of the wrong length.
+                A perm in the argument list is of the wrong length.
 
         Examples:
             >>> Perm((0, 3, 1, 2)).compose(Perm((2, 1, 0, 3)))
@@ -364,25 +364,25 @@ class Perm(tuple,
     multiply = compose
 
     def insert(self, index=None, new_element=None):
-        """Return the permutation acquired by adding a new element.
+        """Return the perm acquired by adding a new element.
 
         Args:
             index: <int>
-                Where in the permutation the value is to occur.
+                Where in the perm the value is to occur.
                 If None, the value defaults to len(self)+1.
             new_element: <int>
                 An integer in the range of 0 to len(self) inclusive.
                 If None, the element defaults to len(self).
 
         Returns: <permuta.Perm>
-            The permutation with the added element (and other elements adjusted
+            The perm with the added element (and other elements adjusted
             as needed).
 
         Raises:
             IndexError:
                 Index is not valid.
             ValueError:
-                Element passed cannot legally be added to permutation.
+                Element passed cannot legally be added to perm.
             TypeError:
                 Element passed is not an integer.
 
@@ -410,15 +410,15 @@ class Perm(tuple,
         return Perm(itertools.chain(slice_1, (new_element,), slice_2))
 
     def remove(self, index=None):
-        """Return the permutation acquired by removing an element at a specified index.
+        """Return the perm acquired by removing an element at a specified index.
 
         Args:
             index: <int>
                 The index of the element to be removed.
-                If None, the greatest element of the permutation is removed.
+                If None, the greatest element of the perm is removed.
 
         Returns: <permuta.Perm>
-            The permutation without the element (and other elements adjusted if needed).
+            The perm without the element (and other elements adjusted if needed).
 
         Raises:
             IndexError:
@@ -441,7 +441,7 @@ class Perm(tuple,
                     for element in self if element != selected)
 
     def remove_element(self, selected=None):
-        """Return the permutation acquired by removing a specific element from self.
+        """Return the perm acquired by removing a specific element from self.
 
         Args:
             selected: <int>
@@ -449,12 +449,12 @@ class Perm(tuple,
                 range of 0 to len(self) inclusive. If None, it defaults to len(self).
 
         Returns: <permuta.Perm>
-            The permutation with the selected element removed (and other
+            The perm with the selected element removed (and other
             elements adjusted as needed).
 
         Raises:
             ValueError:
-                Selected element does not belong to permutation.
+                Selected element does not belong to perm.
             TypeError:
                 Element passed is not an integer.
 
@@ -488,7 +488,7 @@ class Perm(tuple,
     #
 
     def inverse(self):
-        """Return the inverse of the permutation self.
+        """Return the inverse of the perm self.
 
         Examples:
             >>> Perm((1, 2, 5, 0, 3, 4)).inverse()
@@ -505,7 +505,7 @@ class Perm(tuple,
         return Perm(result)
 
     def reverse(self):
-        """Return the reverse of the permutation self.
+        """Return the reverse of the perm self.
 
         Examples:
             >>> Perm((1, 2, 5, 0, 3, 4)).reverse()
@@ -516,7 +516,7 @@ class Perm(tuple,
         return Perm(self[::-1])
 
     def complement(self):
-        """Return the complement of the permutation self.
+        """Return the complement of the perm self.
 
         Examples:
             >>> Perm((1, 2, 3, 0, 4)).complement()
@@ -695,14 +695,14 @@ class Perm(tuple,
     #
 
     def is_increasing(self):
-        """Return True if the permutation is increasing, and False otherwise."""
+        """Return True if the perm is increasing, and False otherwise."""
         for index in range(len(self)):
             if self[index] != index:
                 return False
         return True
 
     def is_decreasing(self):
-        """Return True if the permutation is decreasing, and False otherwise."""
+        """Return True if the perm is decreasing, and False otherwise."""
         len_perm = len(self)
         for index in range(len_perm):
             if self[index] != len_perm - index - 1:
@@ -804,7 +804,7 @@ class Perm(tuple,
     def peaks(self):
         """Yield the indices of the peaks of self.
 
-        The i-th element of a permutation is a peak if
+        The i-th element of a perm is a peak if
             self[i-1] < self[i] > self[i+1].
 
         Examples:
@@ -856,7 +856,7 @@ class Perm(tuple,
     def valleys(self):
         """Yield the indices of the valleys of self.
 
-        The i-th element of a permutation is a valley if
+        The i-th element of a perm is a valley if
             self[i-1] > self[i] < self[i+1].
 
         Examples:
@@ -917,7 +917,7 @@ class Perm(tuple,
 
         Args:
             self:
-                A permutation.
+                A perm.
             patts: <permuta.Pattern> argument list
                 Classical/mesh patterns.
 
@@ -946,7 +946,7 @@ class Perm(tuple,
 
         Args:
             self:
-                A permutation.
+                A perm.
             patts: <permuta.Pattern> argument list
                 Classical/mesh patterns.
 
@@ -985,7 +985,7 @@ class Perm(tuple,
 
         Args:
             self:
-                A permutation.
+                A perm.
             patt: <permuta.Pattern>
                 A classical/mesh pattern.
 
@@ -1009,12 +1009,12 @@ class Perm(tuple,
             self:
                 The classical pattern whose occurrences are to be found.
             perm: <permuta.Perm>
-                The permutation to search for occurrences in.
+                The perm to search for occurrences in.
 
         Yields: <tuple> of <int>
             The indices of the occurrences of self in perm.
             Each yielded element l is a tuple of integer indices of the
-            permutation perm such that:
+            perm perm such that:
             self == permuta.Perm.to_standard([perm[i] for i in l])
 
         Examples:
@@ -1029,12 +1029,12 @@ class Perm(tuple,
         """
         # Special cases
         if len(self) == 0:
-            # Pattern is empty, occurs in all permutations
+            # Pattern is empty, occurs in all perms
             # This is needed for the occurrences function to work correctly
             yield ()
             return
         if len(self) > len(perm):
-            # Pattern is too long to occur in permutation
+            # Pattern is too long to occur in perm
             return
 
         # The indices of the occurrence in perm
@@ -1045,7 +1045,7 @@ class Perm(tuple,
 
         # Define function that works with the above defined variables
         # i is the index of the element in perm that is to be considered
-        # k is how many elements of the permutation have already been added to occurrence
+        # k is how many elements of the perm have already been added to occurrence
         def occurrences(i, k):
             elements_remaining = len(perm) - i
             elements_needed = len(self) - k
@@ -1112,7 +1112,7 @@ class Perm(tuple,
 
         Args:
             self:
-                A permutation.
+                A perm.
             patt: <permuta.Pattern>
                 A classical/mesh pattern.
 
@@ -1162,11 +1162,11 @@ class Perm(tuple,
     #
 
     def apply(self, iterable):
-        """Permute an iterable using the permutation.
+        """Permute an iterable using the perm.
 
         Args:
             self:
-                A permutation.
+                A perm.
             iterable: <collections.Iterable>
                 An iterable of len(self) elements.
 
@@ -1199,7 +1199,7 @@ class Perm(tuple,
     #
 
     def __call__(self, value):
-        """Map value to its image defined by the permutation.
+        """Map value to its image defined by the perm.
 
         Examples:
             >>> Perm((3, 1, 2, 0))(0)
@@ -1218,15 +1218,15 @@ class Perm(tuple,
         return self[value]
 
     def __add__(self, other):
-        """Return the direct sum of the permutations self and other."""
+        """Return the direct sum of the perms self and other."""
         return self.direct_sum(other)
 
     def __sub__(self, other):
-        """Return the skew sum of the permutations self and other."""
+        """Return the skew sum of the perms self and other."""
         return self.skew_sum(other)
 
     def __mul__(self, other):
-        """Return the composition of two permutations."""
+        """Return the composition of two perms."""
         return self.multiply(other)
 
     def __repr__(self):
@@ -1249,7 +1249,7 @@ class Perm(tuple,
 
         Args:
             self:
-                A permutation.
+                A perm.
             patt: <permuta.Pattern>
                 A classical/mesh pattern.
 
