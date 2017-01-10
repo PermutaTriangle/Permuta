@@ -1,7 +1,8 @@
 import abc
 import numbers
 
-import permuta._permset.descriptor 
+from permuta._permset.descriptors import Basis, Descriptor
+import permuta._permset as _permset
 
 
 class PermSetMetaclass(type):
@@ -28,10 +29,10 @@ class PermSet(object, metaclass=PermSetMetaclass):
         else:
             raise RuntimeError("I don't know")  # TODO: Not raise an exception?
 
-
     @classmethod
     def avoiding(_cls, basis):
         return PermSet(Basis(basis))
+
 
 #
 # PermSetBase and the two subclass groups
@@ -63,134 +64,134 @@ class PermSetRestricted(PermSetBase):
         pass
 
 
+##
+## PermSetRestricted subclasses
+##
 #
-# PermSetRestricted subclasses
 #
-
-
-class PermSetSingleLength(PermSetRestricted):
-    # Abstract class?
-    pass
-
-
-class PermSetStatic(PermSetRestricted):
-    # Abstract class?
-    pass
-
-
+#class PermSetSingleLength(PermSetRestricted):
+#    # Abstract class?
+#    pass
 #
-# PermSetUnbounded subclasses
 #
-
-
+#class PermSetStatic(PermSetRestricted):
+#    # Abstract class?
+#    pass
 #
-# PermSetUnbounded subclasses: All permutations
 #
-
-
-class PermSetAll(PermSetUnbounded):
-    def contains(self, perm):
-        raise NotImplementedError
-    def up_to(self, perm):
-        raise NotImplementedError
-    def __getitem__(self, key):
-        return PermSetSingleLength()
-
-
+##
+## PermSetUnbounded subclasses
+##
 #
-# PermSetUnbounded subclasses: Avoiding
 #
-
-
-class Avoiding(PermSetUnbounded):
-    descriptor = Basis
-    def contains(self, perm):
-        raise NotImplementedError
-    def up_to(self, perm):
-        raise NotImplementedError
-    def __getitem__(self, perm):
-        raise NotImplementedError
-
-
-class Avoiding1(Avoiding):
-    descriptor = Basis(1)
-    def contains(self, perm):
-        raise NotImplementedError
-    def __getitem__(self, perm):
-        raise NotImplementedError
-
-
-class Avoiding2(Avoiding):
-    descriptor = Basis(2)
-
-
+##
+## PermSetUnbounded subclasses: All permutations
+##
 #
-# PermSetUnbounded subclasses: Containing
 #
-
-
-class Containing(PermSetUnbounded):
-    descriptor = ContainmentBasis
-    def contains(self, perm):
-        raise NotImplementedError
-    def up_to(self, perm):
-        raise NotImplementedError
-    def __getitem__(self, perm):
-        raise NotImplementedError
-
-
-class Containing12(Containing):
-    descriptor = ContainmentBasis(1, 2)
-    def contains(self, perm):
-        raise NotImplementedError
-    def up_to(self, perm):
-        raise NotImplementedError
-    def __getitem__(self, perm):
-        raise NotImplementedError
-
-
-class Containing23(Containing):
-    descriptor = ContainmentBasis(2, 3)
-    def contains(self, perm):
-        raise NotImplementedError
-    def up_to(self, perm):
-        raise NotImplementedError
-    def __getitem__(self, perm):
-        raise NotImplementedError
-
-
+#class PermSetAll(PermSetUnbounded):
+#    def contains(self, perm):
+#        raise NotImplementedError
+#    def up_to(self, perm):
+#        raise NotImplementedError
+#    def __getitem__(self, key):
+#        return PermSetSingleLength()
 #
-# PermSetUnbounded subclasses: Predicated
 #
-
-
-class Predicated(PermSetUnbounded):
-    descriptor = Predicate
-    def contains(self, perm):
-        raise NotImplementedError
-    def up_to(self, perm):
-        raise NotImplementedError
-    def __getitem__(self, perm):
-        raise NotImplementedError
-
-
+##
+## PermSetUnbounded subclasses: Avoiding
+##
 #
-# Creating a new Descriptor and PermSetUnbounded
 #
-
-
-class VeeDescriptor(Descriptor):
-    def __init__(self):
-        pass
-    def __eq__(self, other):
-        return True
-
-
-class Vee(PermSetUnbounded):
-    descriptor = VeeDescriptor
-    def contains(self, perm):
-        raise NotImplementedError
-    def up_to(self, perm):
-        raise NotImplementedError
-    def __getitem__(self, perm):
-        raise NotImplementedError
+#class Avoiding(PermSetUnbounded):
+#    descriptor = Basis
+#    def contains(self, perm):
+#        raise NotImplementedError
+#    def up_to(self, perm):
+#        raise NotImplementedError
+#    def __getitem__(self, perm):
+#        raise NotImplementedError
+#
+#
+#class Avoiding1(Avoiding):
+#    descriptor = Basis(1)
+#    def contains(self, perm):
+#        raise NotImplementedError
+#    def __getitem__(self, perm):
+#        raise NotImplementedError
+#
+#
+#class Avoiding2(Avoiding):
+#    descriptor = Basis(2)
+#
+#
+##
+## PermSetUnbounded subclasses: Containing
+##
+#
+#
+#class Containing(PermSetUnbounded):
+#    descriptor = ContainmentBasis
+#    def contains(self, perm):
+#        raise NotImplementedError
+#    def up_to(self, perm):
+#        raise NotImplementedError
+#    def __getitem__(self, perm):
+#        raise NotImplementedError
+#
+#
+#class Containing12(Containing):
+#    descriptor = ContainmentBasis(1, 2)
+#    def contains(self, perm):
+#        raise NotImplementedError
+#    def up_to(self, perm):
+#        raise NotImplementedError
+#    def __getitem__(self, perm):
+#        raise NotImplementedError
+#
+#
+#class Containing23(Containing):
+#    descriptor = ContainmentBasis(2, 3)
+#    def contains(self, perm):
+#        raise NotImplementedError
+#    def up_to(self, perm):
+#        raise NotImplementedError
+#    def __getitem__(self, perm):
+#        raise NotImplementedError
+#
+#
+##
+## PermSetUnbounded subclasses: Predicated
+##
+#
+#
+#class Predicated(PermSetUnbounded):
+#    descriptor = Predicate
+#    def contains(self, perm):
+#        raise NotImplementedError
+#    def up_to(self, perm):
+#        raise NotImplementedError
+#    def __getitem__(self, perm):
+#        raise NotImplementedError
+#
+#
+##
+## Creating a new Descriptor and PermSetUnbounded
+##
+#
+#
+#class VeeDescriptor(Descriptor):
+#    def __init__(self):
+#        pass
+#    def __eq__(self, other):
+#        return True
+#
+#
+#class Vee(PermSetUnbounded):
+#    descriptor = VeeDescriptor
+#    def contains(self, perm):
+#        raise NotImplementedError
+#    def up_to(self, perm):
+#        raise NotImplementedError
+#    def __getitem__(self, perm):
+#        raise NotImplementedError
