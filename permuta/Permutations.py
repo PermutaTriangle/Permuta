@@ -11,7 +11,7 @@ from .Permutation import Permutation
 from .math import catalan
 
 if sys.version_info.major == 2:
-    range = xrange  #pylint: disable=redefined-builtin,invalid-name,undefined-variable
+    range = xrange  # pylint: disable=redefined-builtin,invalid-name,undefined-variable
 
 
 class _PermutationPatternClass(object):  # pylint: disable=too-few-public-methods
@@ -29,6 +29,9 @@ class _PermutationPatternClass(object):  # pylint: disable=too-few-public-method
 
     def __repr__(self):
         return self.__class__.__name__ + "({}, {})".format(self.length, self.patterns)
+
+    def is_polynomial(self):
+        raise NotImplementedError
 
 
 class Permutations(object):
