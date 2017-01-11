@@ -54,9 +54,9 @@ class PermSetAllSpecificLength(itertools.permutations):
         return self
 
     def random(self):
-        """Return a random permutation of the length."""
-        number = random.randint(0, len(self)-1)
-        return Perm.unrank(number, self.length)
+        """Return a random perm of the length."""
+        random.shuffle(self.domain)  # TODO: Not use domain attribute?
+        return Permutation(self.domain)
 
     def __len__(self):
         return factorial(self.length)
