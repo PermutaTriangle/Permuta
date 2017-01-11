@@ -71,6 +71,8 @@ class Perm(tuple,
             Traceback (most recent call last):
                 ...
             TypeError: 'a' object is not an integer
+            >>> Perm("012")
+            Perm((0, 1, 2))
         """
         try:
             return tuple.__new__(cls, iterable)
@@ -89,7 +91,8 @@ class Perm(tuple,
                         number //= 10
                     iterable = reversed(digit_list)
                 return tuple.__new__(cls, iterable)
-            # TODO: Also have string version? e.g. Perm("0132"): YES!
+            elif isinstance(iterable, str):
+                return tuple.__new__(cls, map(int, iterable))
             else:
                 raise
 
