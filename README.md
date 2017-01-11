@@ -90,7 +90,7 @@ permutations
 ```
 
 ```python
->>>  p.num_cycles(), p.num_peaks(), p.num_ltrmin(), p.num_bonds(), p.num_bonds(), p.num_valleys()
+>>>  p.num_cycles(), p.num_peaks(), p.num_ltrmin(), p.num_bonds(), p.num_valleys()
  XXX
 ```
 

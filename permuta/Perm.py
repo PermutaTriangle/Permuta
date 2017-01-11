@@ -89,7 +89,6 @@ class Perm(tuple,
                         number //= 10
                     iterable = reversed(digit_list)
                 return tuple.__new__(cls, iterable)
-            # TODO: Also have string version? e.g. Perm("0132"): YES!
             else:
                 raise
 
@@ -145,6 +144,19 @@ class Perm(tuple,
 
     standardize = to_standard  # permpy backwards compatibility
     from_iterable = to_standard
+
+    @classmethod
+    def from_string(cls, string):
+        """Return the perm corresponding to the string given.
+
+        Examples:
+            >>> Perm.from_string("203451")
+            Perm((2, 0, 3, 4, 5, 1))
+            >>> Perm.from_string("40132")
+            Perm((4, 0, 1, 3, 2))
+        """
+        if isinstance(string, str):
+            return tuple.__new__(cls, map(int, string))
 
     @classmethod
     def one_based(cls, iterable):
