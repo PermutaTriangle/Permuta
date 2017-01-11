@@ -1,7 +1,4 @@
-import abc
-import numbers
-
-from .. import PermSetUnbounded
+from ..PermSetUnbounded import PermSetUnbounded
 
 
 class PermSetAll(PermSetUnbounded):
