@@ -2,6 +2,7 @@
 
 -[ ] copy `statistics.py`
 -[ ] copy `permset.py`
+-[ ] finish copying `permutation.py`
 -[ ] copy `permclass.py`
 -[ ] copy `mperm.py`
 -[ ] copy `misc.py`

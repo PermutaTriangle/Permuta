@@ -483,6 +483,32 @@ class Perm(tuple,
         """ """
         pass
 
+    def contract_inc_bonds(self):
+        P = Perm(self)
+        while P.num_inc_bonds() > 0:
+            for i in range(0,len(P)-1):
+                if P[i+1] == P[i]+1:
+                    P = Perm(P[:i]+P[i+1:])
+                    break
+        return P
+
+    def contract_dec_bonds(self):
+        P = Perm(self)
+        while P.num_dec_bonds() > 0:
+            for i in range(0,len(P)-1):
+                if P[i+1] == P[i]-1:
+                    P = Perm(P[:i]+P[i+1:])
+                    break
+        return P
+
+    def contract_bonds(self):
+        P = Perm(self)
+        while P.num_bonds() > 0:
+            for i in range(0,len(P)-1):
+                if P[i+1] == P[i]+1 or P[i+1] == P[i]-1:
+                    P = Perm(P[:i]+P[i+1:])
+                    break
+        return P
     #
     # Methods for basic Perm transforming
     #
@@ -690,6 +716,16 @@ class Perm(tuple,
         """Return self rotated 180 degrees."""
         return self.reverse_complement()
 
+    def all_syms(self):
+        S = permset.PermSet([self])
+        S = S.union(permset.PermSet([P.reverse() for P in S]))
+        S = S.union(permset.PermSet([P.complement() for P in S]))
+        S = S.union(permset.PermSet([P.inverse() for P in S]))
+        return S
+
+    def is_representative(self):
+        return self == sorted(self.all_syms())[0]
+
     #
     # Statistical methods
     #
@@ -727,6 +763,46 @@ class Perm(tuple,
                 result += 1
             value += 1
         return result
+
+    def is_skew_decomposable(self):
+        """Determines whether the permutation is expressible as the skew sum of
+        two permutations.
+
+        >>> p = Perm.random(8).direct_sum(Perm.random(12))
+        >>> p.skew_decomposable()
+        False
+        >>> p.complement().skew_decomposable()
+        True
+        """
+
+        p = list(self)
+        n = self.__len__()
+        for i in range(1,n):
+            if set(range(n-i,n)) == set(p[0:i]):
+                return True
+        return False
+
+    skew_decomposable = is_skew_decomposabl # permpy backwards compatibilitye
+
+    def is_sum_decomposable(self):
+        """Determines whether the permutation is expressible as the direct sum of
+        two permutations.
+
+        >>> p = Perm.random(4).direct_sum(Perm.random(15))
+        >>> p.sum_decomposable()
+        True
+        >>> p.reverse().sum_decomposable()
+        False
+        """
+
+        p = list(self)
+        n = self.__len__()
+        for i in range(1,n):
+            if set(range(0,i)) == set(p[0:i]):
+                return True
+        return False
+
+    sum_decomposable = is_sum_decomposable # permpy backwards compatibility
 
     def descents(self):
         """Yield the indices of the descents of self.
@@ -905,8 +981,332 @@ class Perm(tuple,
 
     num_valleys = count_valleys  # permpy backwards compatibility
 
+    def order(self):
+        L = map(len, self.cycle_decomp())
+        return reduce(lambda x,y: x*y // fractions.gcd(x,y), L)
+
+    def ltrmin(self):
+        """Returns the positions of the left-to-right minima.
+
+        >>> Perm(35412).ltrmin()
+        [0, 3]
+        """
+
+        n = self.__len__()
+        L = []
+        minval = len(self) + 1
+        for idx, val in enumerate(self):
+            if val < minval:
+                L.append(idx)
+                minval = val
+        return L
+
+    def rtlmin(self):
+        """Returns the positions of the left-to-right minima.
+
+        >>> Perm(315264).rtlmin()
+        [5, 3, 1]
+        """
+        rev_perm = self.reverse()
+        return [len(self) - val - 1 for val in rev_perm.ltrmin()]
+
+    def ltrmax(self):
+        return [len(self)-i-1 for i in Perm(self[::-1]).rtlmax()][::-1]
+
+    def rtlmax(self):
+        return [len(self)-i-1 for i in self.complement().reverse().ltrmin()][::-1]
+
+    def count_ltrmin(self):
+        return len(self.ltrmin())
+
+    num_ltrmin = count_ltrmin
+
+    def count_inversions(self):
+        """Returns the number of inversions of the permutation, i.e., the
+        number of pairs i,j such that i < j and self(i) > self(j).
+
+        TODO: Reimplement in NlogN time.
+
+        >>> Perm(4132).inversions()
+        4
+        >>> Perm.monotone_decreasing(6).inversions() == 5*6 / 2
+        True
+        >>> Perm.monotone_increasing(7).inversions()
+        0
+        """
+
+        p = list(self)
+        n = self.__len__()
+        inv = 0
+        for i in range(n):
+            for j in range(i+1,n):
+                if p[i]>p[j]:
+                    inv+=1
+        return inv
+
+    def count_noninversions(self):
+        """
+        TODO: Reimplement using count_inversions.
+        """
+        p = list(self)
+        n = self.__len__()
+        inv = 0
+        for i in range(n):
+            for j in range(i+1,n):
+                if p[i]<p[j]:
+                    inv+=1
+        return inv
+
+    def min_gapsize(self):
+        """Returns the minimum gap between any two entries in the permutation 
+        (computed with the taxicab metric).
+
+        TODO: currently uses the naive algorithm --- can be improved 
+
+        >>> Perm(3142).min_gapsize()
+        3
+        """
+        min_dist = len(self)
+        for i, j in itertools.combinations(range(len(self)), 2):
+            h_dist = abs(i - j)
+            v_dist = abs(self[i] - self[j])
+            dist = h_dist + v_dist
+            if dist < min_dist:
+                min_dist = dist
+        return min_dist
+
+    def count_bonds(self):
+        """Counts the number of bonds, that is the number of adjacent locations
+        with adjacent values.
+        """
+        # numbonds = 0
+        # p = list(self)
+        # for i in range(1,len(p)):
+            # if p[i] - p[i-1] == 1 or p[i] - p[i-1] == -1:
+                # numbonds+=1
+        # return numbonds
+        return len([i for i in range(len(self)-1) if self[i+1] == self[i]+1 or self[i+1] == self[i]-1])
+
+    num_bonds = count_bonds
+    bonds = count_bonds # permpy backwards compatibility
+
+    def count_inc_bonds(self):
+        return len([i for i in range(len(self)-1) if self[i+1] == self[i]+1])
+
+    num_inc_bonds = count_inc_bonds
+
+    def num_dec_bonds(self):
+        return len([i for i in range(len(self)-1) if self[i+1] == self[i]-1])
+
+    num_dec_bonds = count_dec_bonds
+
+    def majorindex(self):
+        sum = 0
+        p = list(self)
+        n = self.__len__()
+        for i in range(0,n-1):
+            if p[i] > p[i+1]:
+                sum += i + 1
+        return sum
+
+    def longestrun_ascending(self):
+        p = list(self)
+        n = self.__len__()
+        maxi = 0
+        length = 1
+        for i in range(1,n):
+            if p[i-1] < p[i]:
+                length += 1
+                if length > maxi: maxi = length
+            else:
+                length = 1
+        return max(maxi,length)
+
+    def longestrun_descending(self):
+        return self.complement().longestrun_ascending()
+
+    def longestrun(self):
+        return max(self.longestrun_ascending(), self.longestrun_descending())
+
+    def cycle_decomp(self):
+        """Calculates the cycle decomposition of the permutation. Returns a list
+        of cycles, each of which is represented as a list.
+
+        >>> Perm(53814276).cycle_decomp()
+        [[4, 3, 0], [6], [7, 5, 1, 2]]
+        """
+        n = self.__len__()
+        seen = set()
+        cyclelist = []
+        while len(seen) < n:
+            a = max(set(range(n)) - seen)
+            cyc = [a]
+            b = self(a)
+            seen.add(b)
+            while b != a:
+                cyc.append(b)
+                b = self(b)
+                seen.add(b)
+            cyclelist.append(cyc)
+        cyclelist.reverse()
+        return cyclelist
+
+    def num_cycles(self):
+        """Returns the number of cycles in the permutation.
+
+        >>> Perm(53814276).num_cycles()
+        3
+        """
+
+        return len(self.cycle_decomp())
+
+    num_cycles = count_cycles # permpy backwards compatibility
+
+    def is_involution(self):
+        """Checks if the permutation is an involution, i.e., is equal to it's
+        own inverse. """
+
+        return self == self.inverse()
+
+    def is_identity(self):
+        """Checks if the permutation is the identity.
+
+        >>> p = Perm.random(10)
+        >>> (p * p.inverse()).is_identity()
+        True
+        """
+
+        return self == Perm.identity(len(self))
+
     # TODO: Implement rank method
     #perm2ind = rank  # permpy backwards compatibility
+
+
+    #
+    # Decomposition and generation from self methods
+    #
+
+    def block_decomposition(self, return_patterns=False):
+        blocks = [[],[]]
+        for i in range(2, len(self)):
+            blocks.append([])
+            for j in range (0,len(self)-i+1):
+                if max(self[j:j+i]) - min(self[j:j+i]) == i-1:
+                    blocks[i].append(j)
+        if return_patterns:
+            patterns = []
+            for length in range(0, len(blocks)):
+                for start_index in blocks[length]:
+                    patterns.append(Perm(self[start_index:start_index+length]))
+            return patterns
+        else:
+            return blocks
+
+    all_intervals = block_decomposition # permpy backwards compatibility
+    decomposition = block_decomposition
+
+    def monotone_block_decomposition(self, with_ones=False):
+        mi = []
+        difference = 0
+        c_start = 0
+        c_length = 0
+        for i in range(0,len(self)-1):
+            if math.fabs(self[i] - self[i+1]) == 1 and (c_length == 0 or self[i] - self[i+1] == difference):
+                if c_length == 0:
+                    c_start = i
+                c_length += 1
+                difference = self[i] - self[i+1]
+            else:
+                if c_length != 0:
+                    mi.append((c_start, c_start+c_length))
+                c_start = 0
+                c_length = 0
+                difference = 0
+        if c_length != 0:
+            mi.append((c_start, c_start+c_length))
+
+        if with_ones:
+            in_int = []
+            for (start,end) in mi:
+                in_int.extend(range(start, end+1))
+            for i in range(len(self)):
+                if i not in in_int:
+                    mi.append((i,i))
+            mi.sort(key=lambda x : x[0])
+        return mi
+
+    all_monotone_intervals = monotone_block_decomposition # permpy backwards compatibility
+
+    def maximum_block(self):
+        ''' Finds the biggest interval, and returns (i,j) is one is found,
+        where i is the size of the interval, and j is the index of the first
+        entry in the interval.
+
+        Returns (0,0) if no interval is found, i.e., if the permutation is
+        simple.
+        '''
+        for i in range(2, len(self))[::-1]:
+            for j in range (0,len(self)-i+1):
+                if max(self[j:j+i]) - min(self[j:j+i]) == i-1:
+                    return (i,j)
+        return (0,0)
+
+    maximal_interval = maximum_block # permpy backwards compatibility
+
+    def simple_location(self):
+        ''' Searches for an interval, and returns (i,j) if one is found, where
+        i is the size of the interval, and j is the first index of the interval.
+
+        Returns (0,0) if no interval is found, i.e., if the permutation is
+        simple.
+        '''
+        mins = list(self)
+        maxs = list(self)
+        for i in range(1,len(self)-1):
+            for j in reversed(range(i,len(self))):
+                mins[j] = min(mins[j-1], self[j])
+                maxs[j] = max(maxs[j-1], self[j])
+                if maxs[j] - mins[j] == i:
+                    return (i,j)
+        return (0,0)
+
+    def is_simple(self):
+        ''' returns True is this permutation is simple, False otherwise'''
+        (i,j) = self.simple_location()
+        return i == 0
+
+    def is_strongly_simple(self):
+        return self.is_simple() and all([p.is_simple() for p in self.children()])
+
+    def children(self):
+        """Returns all patterns of length one less than the permutation. One
+        layer of the downset, also called the shadow.
+        """
+        return permpy.permset.PermSet([Perm(p) for p in [self[:i]+self[i+1:] for i in range(0,len(self))]])
+    shrink_by_one = children
+
+    def downset(self):
+        return permset.PermSet([self]).downset()
+
+    def sum_indecomposable_sequence(self):
+        S = self.downset()
+        return [len([p for p in S if len(p)==i and not p.sum_decomposable()]) for i in range(1,max([len(p) for p in S])+1)]
+
+    def count_rtlmax_ltrmin_layers(self):
+        return len(self.rtlmax_ltrmin_decomposition())
+
+    num_rtlmax_ltrmin_layers = count_rtlmax_ltrmin_layers
+
+    def rtlmax_ltrmin_decomposition(self):
+        P = Perm(self)
+        num_layers = 0
+        layers = []
+        while len(P) > 0:
+            num_layers += 1
+            positions = sorted(list(set(P.rtlmax()+P.ltrmin())))
+            layers.append(positions)
+            P = Perm([P[i] for i in range(len(P)) if i not in positions])
+        return layers
 
     #
     # Pattern matching methods
@@ -1193,6 +1593,105 @@ class Perm(tuple,
         return tuple(iterable[index] for index in self)
 
     permute = apply  # Alias of Perm.apply
+
+
+    #
+    # Visualization methods
+    #
+    def ascii_plot(self):
+        """Prints a simple plot of the given Permutation."""
+        n = self.__len__()
+        array = [[' ' for i in range(n)] for j in range(n)]
+        for i in range(n):
+            array[self[i]][i] = '*'
+        array.reverse()
+        s = '\n'.join( (' '.join(l) for l in array))
+        return s
+
+    def cycle_notation(self):
+        """Returns the cycle notation representation of the permutation."""
+        base = 0
+        stringlist = ['( ' + ' '.join([str(x + base) for x in cyc]) + ' )'
+                            for cyc in self.cycle_decomp()]
+        return ' '.join(stringlist)
+
+    cycles = cycle_notation # permpy backwards compatibility
+
+    def plot(self, show=True, ax=None, use_mpl=True, fname=None, **kwargs):
+        """Draws a matplotlib plot of the permutation. Can be used for both
+        quick visualization, or to build a larger figure. Unrecognized arguments
+        are passed as options to the axes object to allow for customization
+        (i.e., setting a figure title, or setting labels on the axes). Falls
+        back to an ascii_plot if matplotlib isn't found, or if use_mpl is set to
+        False.
+        """
+        if not mpl_imported or not use_mpl:
+            return self._ascii_plot()
+        xs = [val for val in range(len(self))]
+        ys = [val for val in self]
+        if not ax:
+            ax = plt.gca()
+        scat = ax.scatter(xs, ys, s=40, c='k')
+        ax_settings = {'xticks': xs, 'yticks': ys,
+                    'xticklabels': '', 'yticklabels': '',
+                    'xlim': (min(xs) - 1, max(xs) + 1),
+                    'ylim': (min(ys) - 1, max(ys) + 1)}
+        ax.set(**ax_settings)
+        ax.set(**kwargs)
+        ax.set_aspect('equal')
+        if fname:
+            fig = plt.gcf()
+            fig.savefig(fname, dpi=300)
+        if show:
+            plt.show()
+        return ax
+
+    def _show(self):
+        """Opens a window the a matplotlib plot of the permutation.
+
+        TODO: review
+        """
+
+        if sys.platform == 'linux2':
+            opencmd = 'gnome-open'
+        else:
+            opencmd = 'open'
+        s = r"\documentclass{standalone}\n\usepackage{tikz}\n\n\\begin{document}\n\n"
+        s += self.to_tikz()
+        s += "\n\n\end{document}"
+        dname = random.randint(1000,9999)
+        os.system('mkdir t_'+str(dname))
+        with open('t_'+str(dname)+'/t.tex', 'w') as f:
+            f.write(s)
+        subprocess.call(['pdflatex', '-output-directory=t_'+str(dname), 't_'+str(dname)+'/t.tex'],
+            stderr = subprocess.PIPE, stdout = subprocess.PIPE)
+        # os.system('pdflatex -output-directory=t_'+str(dname)+' t_'+str(dname)+'/t.tex')
+        subprocess.call([opencmd, 't_'+str(dname)+'/t.pdf'],
+            stderr = subprocess.PIPE, stdout = subprocess.PIPE)
+        time.sleep(1)
+        if sys.platform != 'linux2':
+            subprocess.call(['rm', '-r', 't_'+str(dname)+'/'])
+
+    def to_tikz(self):
+        s = r'\begin{tikzpicture}[scale=.3,baseline=(current bounding box.center)]';
+        s += '\n\t'
+        s += r'\draw[ultra thick] (1,0) -- ('+str(len(self))+',0);'
+        s += '\n\t'
+        s += r'\draw[ultra thick] (0,1) -- (0,'+str(len(self))+');'
+        s += '\n\t'
+        s += r'\foreach \x in {1,...,'+str(len(self))+'} {'
+        s += '\n\t\t'
+        s += r'\draw[thick] (\x,.09)--(\x,-.5);'
+        s += '\n\t\t'
+        s += r'\draw[thick] (.09,\x)--(-.5,\x);'
+        s += '\n\t'
+        s += r'}'
+        for (i,e) in enumerate(self):
+            s += '\n\t'
+            s += r'\draw[fill=black] ('+str(i+1)+','+str(e+1)+') circle (5pt);'
+        s += '\n'
+        s += r'\end{tikzpicture}'
+        return s
 
     #
     # Magic/dunder methods
