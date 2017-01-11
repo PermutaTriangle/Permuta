@@ -794,7 +794,7 @@ class Perm(tuple,
                 return True
         return False
 
-    skew_decomposable = is_skew_decomposabl # permpy backwards compatibilitye
+    skew_decomposable = is_skew_decomposable # permpy backwards compatibilitye
 
     def is_sum_decomposable(self):
         """Determines whether the permutation is expressible as the direct sum of
@@ -1107,7 +1107,7 @@ class Perm(tuple,
 
     num_inc_bonds = count_inc_bonds
 
-    def num_dec_bonds(self):
+    def count_dec_bonds(self):
         return len([i for i in range(len(self)-1) if self[i+1] == self[i]-1])
 
     num_dec_bonds = count_dec_bonds
@@ -1163,7 +1163,7 @@ class Perm(tuple,
         cyclelist.reverse()
         return cyclelist
 
-    def num_cycles(self):
+    def count_cycles(self):
         """Returns the number of cycles in the permutation.
 
         >>> Perm(53814276).num_cycles()
