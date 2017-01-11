@@ -42,7 +42,7 @@ permutation 0213. There are several ways of doing this
  Perm((0,2,1,3))
 >>> Perm([0,2,1,3])
  Perm((0, 2, 1, 3))
->>> Perm('0213') # TODO THIS DOES NOT WORK RAGGI!
+>>> Perm.from_string('0213') # TODO THIS DOES NOT WORK RAGGI!
 ```
 
 You can also just type in a number, but since everything is zero based you could
