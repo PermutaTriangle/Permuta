@@ -5,3 +5,4 @@ docs/build/*
 *.DS_Store
 /build
 /dist
+/permenv

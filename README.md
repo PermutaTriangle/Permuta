@@ -39,8 +39,10 @@ permutation 0213. There are several ways of doing this
 
 ```python
 >>> Perm((0,2,1,3))
+ Perm((0,2,1,3))
 >>> Perm([0,2,1,3])
->>> Perm('0213')
+ Perm((0, 2, 1, 3))
+>>> Perm('0213') # TODO THIS DOES NOT WORK RAGGI!
 ```
 
 You can also just type in a number, but since everything is zero based you could
@@ -49,8 +51,9 @@ not create `0213`, but any permutation not starting with `0`: `Perm(102)`.
 You can visualize a permutation
 
 ```python
-import matplotlib.pyplot as plt
->>> p.plot(title='plot of a permutation', xlabel='position', ylabel='value')
+import matplotlib.pyplot as plt #TODO Does this work?
+p = Perm((0, 2, 1, 3))
+>>> p.plot(title='plot of a permutation', xlabel='position', ylabel='value') # TODO WHY NOT WORK RAGGI?
 ```
 
 ![alt text](https://github.com/PermutaTriangle/Permuta/img/american-mink.jpg "Plot of a permutation")
@@ -58,34 +61,36 @@ import matplotlib.pyplot as plt
 You can also get an ascii picture
 
 ```python
->>> p.plot(use_mpl=False)
+>>> p.plot(use_mpl=False) # TODO No work
  XXX
 ```
 
 The basic symmetries are implemented
 ```python
->>> p.reverse(), p.complement(), p.inverse()
- XXX
+>>> [p.reverse(), p.complement(), p.inverse()]
+ [Perm((3, 1, 2, 0)), Perm((3, 1, 2, 0)), Perm((0, 2, 1, 3))]
 ```
 
 To take direct sums and skew sums we use `+` and `-`
 
 ```python
 >>> q = Perm((0,1,2,3,4))
->>> p + q, p - q
- XXX
+>>> p + q
+ Perm((0, 2, 1, 3, 4, 5, 6, 7, 8))
+>>> p - q
+ Perm((5, 7, 6, 8, 0, 1, 2, 3, 4))
 ```
 
 There are several functions, or permutation statistics, you can apply to
 permutations
 
 ```python
->>>  p.num_ascents(), p.inversions(), p.fixed_points(), p.longestrun(), p.majorindex(), p.num_cycles()
+>>> [p.num_ascents(), p.inversions(), p.fixed_points(), p.longestrun(), p.majorindex(), p.num_cycles()]
  XXX
 ```
 
 ```python
->>>  p.num_cycles(), p.num_peaks(), p.num_ltrmin(), p.num_bonds(), p.num_bonds(), p.num_valleys()
+>>>  p.num_cycles(), p.num_peaks(), p.num_ltrmin(), p.num_bonds(), p.num_valleys()
  XXX
 ```
 
