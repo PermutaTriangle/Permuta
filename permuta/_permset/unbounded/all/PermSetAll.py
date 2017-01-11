@@ -2,6 +2,7 @@
 
 import itertools
 import random
+import numbers
 import sys
 
 from math import factorial
@@ -15,14 +16,23 @@ if sys.version_info.major == 2:
     range = xrange  # pylint: disable=redefined-builtin,invalid-name,undefined-variable
 
 
-class PermSetAll(PermSetUnbounded):  # TODO: docstring
-    __PERM_SET_CACHE = {}
-    def contains(self, perm):
-        raise NotImplementedError
+class PermSetAll(PermSetUnbounded):
+    __CACHE = {}
+
     def up_to(self, perm):
         raise NotImplementedError
+    
+    def __contains__(self, perm):
+        return True  # Why are you asking if a perm is in the set of all perms?
+
     def __getitem__(self, key):
-        return PermSetDispatcher(key)
+        assert isinstance(key, numbers.Integral)
+        perm_set = PermSetAll.__CACHE.get(key)
+        if perm_set is None:
+            perm_set = PermSetAllSpecificLength(key)
+            PermSetAll.__CACHE[key] = perm_set
+        return perm_set
+
     def __repr__(self):
         return "<The set of all perms>"
 
@@ -40,9 +50,6 @@ class PermSetAllSpecificLength(PermSetBase, itertools.permutations):  # TODO: In
         instance.length = length
         return instance
 
-    def is_polynomial(self):
-        return False
-
     def random(self):
         """Return a random perm of the length."""
         random.shuffle(self.domain)  # TODO: Not use domain attribute?
@@ -58,6 +65,10 @@ class PermSetAllSpecificLength(PermSetBase, itertools.permutations):  # TODO: In
     def __contains__(self, other):
         """Check if other is a permutation in the set."""
         return isinstance(other, Permutation) and len(other) == self.length
+
+    def __eq__(self, other):
+        print("eq called on me")
+        return id(self) == id(other)
 
     def __len__(self):
         return factorial(self.length)
