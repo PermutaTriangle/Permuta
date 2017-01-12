@@ -3,6 +3,7 @@
 *.log
 docs/build/*
 *.DS_Store
+.cache
 /build
 /dist
 /permenv

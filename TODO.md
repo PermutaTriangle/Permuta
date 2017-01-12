@@ -2,7 +2,8 @@
 
 -[ ] copy `statistics.py`
 -[ ] copy `permset.py`
--[ ] finish copying `permutation.py`
+-[X] finish copying `permutation.py`
+-[ ] write test `Perm.py`
 -[ ] copy `permclass.py`
 -[ ] copy `mperm.py`
 -[ ] copy `misc.py`
