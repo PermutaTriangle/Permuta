@@ -11,22 +11,22 @@
 - [X] swap : subroutine of ind2perm
 - [ ] plentiful : TODO understand wtf this does
 - [X] segment : subroutine of plentiful
-- [X] _is_iterable : not needed
-- [X] __call__
+- [X] \_is_iterable : not needed
+- [X] \_\_call\_\_
 - [X] oneline : standard representation of the permutations as a tuple
 - [X] cycles : copied as `cycle_notation`
-- [X] \__repr__
-- [X] \__mul__
-- [X] \__add__
-- [X] \__sub__
-- [X] \__pow__
+- [X] \_\_repr_\_
+- [X] \_\_mul_\_
+- [X] \_\_add_\_
+- [X] \_\_sub\_\_
+- [X] \_\_pow\_\_
 - [ ] perm2ind : TODO implement as `rank`
 - [X] delete : implemented as `remove`
 - [X] insert
 - [X] complement
 - [X] reverse
 - [X] inverse
-- [X] _ascii_plot
+- [X] \_\_ascii_plot
 - [X] cycle_decomp
 - [X] direct_sum
 - [X] skew_sum
@@ -94,7 +94,7 @@
 - [ ] all_extensions : WTF
 - [ ] all_extensions_track_index : WTF
 - [X] plot
-- [X] _show
+- [X] \_show
 - [X] to_tikz
 - [X] shrink_by_one : gives a PermSet of all permutations with one element removed
 - [X] children : alias for `shrink_by_one`
