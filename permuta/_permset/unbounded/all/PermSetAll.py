@@ -6,7 +6,7 @@ import sys
 from math import factorial
 
 from permuta import Perm
-from permuta.math import catalan
+from permuta.misc import catalan
 
 
 if sys.version_info.major == 2:
