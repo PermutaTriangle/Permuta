@@ -1130,7 +1130,7 @@ class Perm(tuple,
     # TODO: Alias longestruns to longestruns_ascending
     # TODO: Create count_ functions for longestruns
 
-    def longestrun_ascending(self):
+    def length_of_longestrun_ascending(self):
         p = list(self)
         n = self.__len__()
         maxi = 0
@@ -1143,11 +1143,10 @@ class Perm(tuple,
                 length = 1
         return max(maxi,length)
 
-    def longestrun_descending(self):
-        return self.complement().longestrun_ascending()
+    length_of_longestrun = length_of_longestrun_ascending
 
-    def longestrun(self):
-        return max(self.longestrun_ascending(), self.longestrun_descending())
+    def length_of_longestrun_descending(self):
+        return self.complement().longestrun_ascending()
 
     def cycle_decomp(self):
         """Calculates the cycle decomposition of the permutation. Returns a list
