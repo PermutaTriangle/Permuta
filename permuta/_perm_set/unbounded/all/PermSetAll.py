@@ -8,11 +8,9 @@ import sys
 from math import factorial
 
 from permuta import Perm
-from permuta._permset import PermSetBase
-from permuta._permset.finite import PermSetFinite
-from permuta._permset.unbounded import PermSetUnbounded
-
-#from ..PermSetUnbounded import PermSetUnbounded
+from permuta._perm_set import PermSetBase
+from permuta._perm_set.finite import PermSetFinite
+from permuta._perm_set.unbounded import PermSetUnbounded
 
 
 if sys.version_info.major == 2:

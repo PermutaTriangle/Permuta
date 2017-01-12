@@ -3,9 +3,9 @@ import numbers
 
 from permuta.descriptors import Basis
 from permuta.descriptors import Descriptor
-from permuta._permset import PermSetBase
-from permuta._permset.unbounded.all import PermSetAll
-from permuta._permset.unbounded.described import PermSetDescribed
+from permuta._perm_set import PermSetBase
+from permuta._perm_set.unbounded.all import PermSetAll
+from permuta._perm_set.unbounded.described import PermSetDescribed
 
 
 class PermSetMetaclass(type):
