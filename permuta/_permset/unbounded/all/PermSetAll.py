@@ -9,7 +9,10 @@ from math import factorial
 
 from permuta import Perm
 from permuta._permset import PermSetBase
+from permuta._permset.finite import PermSetFinite
 from permuta._permset.unbounded import PermSetUnbounded
+
+#from ..PermSetUnbounded import PermSetUnbounded
 
 
 if sys.version_info.major == 2:
@@ -43,27 +46,22 @@ class PermSetAll(PermSetUnbounded):
         return isinstance(perm, Perm)  # Why would you even ask?
 
     def __getitem__(self, key):
-        assert isinstance(key, numbers.Integral)
-        perm_set = PermSetAll.__CACHE.get(key)
-        if perm_set is None:
-            perm_set = PermSetAllSpecificLength(key)
-            PermSetAll.__CACHE[key] = perm_set
-        return perm_set
+        if not isinstance(key, numbers.Integral):
+            raise TypeError("{} not int".format(repr(key)))  # TODO
+        elif key < 0:
+            raise ValueError("Key {} is negative".format(key))  # TODO
+        return PermSetAllSpecificLength(key)
 
     def __repr__(self):
         return "<The set of all perms>"
 
 
-class PermSetAllSpecificLength(PermSetBase):  # TODO: Inherit from proper superclass
+class PermSetAllSpecificLength(PermSetFinite):
     """Class for iterating through all perms of a specific length."""
 
     __slots__ = ("_length")
 
     def __init__(self, length):
-        if not isinstance(length, numbers.Integral):
-            raise TypeError("{} not int".format(repr(length)))  # TODO
-        elif length < 0:
-            raise ValueError("Length {} is negative".format(length))  # TODO
         self._length = length
 
     @property
@@ -100,7 +98,3 @@ class PermSetAllSpecificLength(PermSetBase):  # TODO: Inherit from proper superc
 class PermSetAllSpecificLengthIterator(itertools.permutations):
     def __next__(self):
         return Perm(super(PermSetAllSpecificLengthIterator, self).__next__())  # pylint: disable=no-member
-
-
-class PermSetAllRange(PermSetBase):  # TODO: Inherit from proper superclass
-    pass

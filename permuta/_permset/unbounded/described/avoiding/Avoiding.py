@@ -1,8 +1,8 @@
-from ..PermSetUnbounded import PermSetUnbounded
-from ...descriptors.Basis import Basis
+from ..PermSetDescribed import PermSetDescribed
+from permuta.descriptors import Basis
 
 
-class Avoiding(PermSetUnbounded):
+class Avoiding(PermSetDescribed):
     descriptor = Basis
     def contains(self, perm):
         raise NotImplementedError

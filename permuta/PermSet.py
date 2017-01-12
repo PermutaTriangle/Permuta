@@ -1,11 +1,11 @@
 import abc
 import numbers
 
-from permuta._permset.descriptors import Basis
-from permuta._permset.descriptors import Descriptor
+from .descriptors import Basis
+from .descriptors import Descriptor
 from permuta._permset import PermSetBase
-from permuta._permset.unbounded import PermSetUnbounded
 from permuta._permset.unbounded.all import PermSetAll
+from permuta._permset.unbounded.described import PermSetDescribed
 
 
 class PermSetMetaclass(type):
@@ -21,12 +21,12 @@ class PermSet(object, metaclass=PermSetMetaclass):
         elif isinstance(descriptor, numbers.Integral):
             return PermSetAll(True)[descriptor]
         elif isinstance(descriptor, Descriptor):
-            for generic in PermSetUnbounded.__subclasses__():
-                if isinstance(descriptor, generic.descriptor):
-                    for cls in generic.__subclasses__():
+            for described in PermSetDescribed.__subclasses__():
+                if isinstance(descriptor, described.descriptor):
+                    for cls in described.__subclasses__():
                         if cls.descriptor == descriptor:
                             return cls(descriptor)
-                    return generic(descriptor)
+                    return described(descriptor)
                     break  # Shouldn't continue looking
             raise RuntimeError("PermSet for descriptor {} not found".format(repr(descriptor)))  # TODO: Something else?
         else:
@@ -38,7 +38,7 @@ class PermSet(object, metaclass=PermSetMetaclass):
 
 
 ##
-## Creating a new Descriptor and PermSetUnbounded
+## Creating a new Descriptor and PermSetDescribed
 ##
 #
 #
@@ -49,7 +49,7 @@ class PermSet(object, metaclass=PermSetMetaclass):
 #        return True
 #
 #
-#class Vee(PermSetUnbounded):
+#class Vee(PermSetDescribed):
 #    descriptor = VeeDescriptor
 #    def contains(self, perm):
 #        raise NotImplementedError
