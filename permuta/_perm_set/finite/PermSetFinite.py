@@ -9,7 +9,3 @@ class PermSetFinite(PermSetBase):
         # Return a random element from the range
         # Only possible due to it being finite
         pass
-
-
-class PermSetFiniteSingleLength(PermSetFinite):
-    pass
