@@ -754,15 +754,15 @@ class Perm(tuple,
                 return False
         return True
 
-    def fixed_points(self):
+    def count_fixed_points(self):
         """Return the number of fixed points in self.
 
         Examples:
-            >>> Perm((0, 1, 4, 3, 2)).fixed_points()
+            >>> Perm((0, 1, 4, 3, 2)).count_fixed_points()
             3
-            >>> Perm((0, 1, 2, 3, 4)).fixed_points()
+            >>> Perm((0, 1, 2, 3, 4)).count_fixed_points()
             5
-            >>> Perm((3, 2, 1, 0)).fixed_points()
+            >>> Perm((3, 2, 1, 0)).count_fixed_points()
             0
         """
         result = 0
@@ -772,6 +772,10 @@ class Perm(tuple,
                 result += 1
             value += 1
         return result
+
+    # TODO: Implement a function that returns a list of fixed points.
+
+    fixed_points = count_fixed_points
 
     def is_skew_decomposable(self):
         """Determines whether the permutation is expressible as the skew sum of
@@ -1036,11 +1040,11 @@ class Perm(tuple,
 
         TODO: Reimplement in NlogN time.
 
-        >>> Perm(4132).inversions()
+        >>> Perm(4132).count_inversions()
         4
-        >>> Perm.monotone_decreasing(6).inversions() == 5*6 / 2
+        >>> Perm.monotone_decreasing(6).count_inversions() == 5*6 / 2
         True
-        >>> Perm.monotone_increasing(7).inversions()
+        >>> Perm.monotone_increasing(7).count_inversions()
         0
         """
 
@@ -1052,6 +1056,10 @@ class Perm(tuple,
                 if p[i]>p[j]:
                     inv+=1
         return inv
+
+    inversions = count_inversions
+
+    # TODO: Implement function that returns list of inversions.
 
     def count_noninversions(self):
         """
@@ -1118,6 +1126,10 @@ class Perm(tuple,
                 sum += i + 1
         return sum
 
+    # TODO: Create a functions with longestruns as prefix that returns a list of all the longest runs.
+    # TODO: Alias longestruns to longestruns_ascending
+    # TODO: Create count_ functions for longestruns
+
     def longestrun_ascending(self):
         p = list(self)
         n = self.__len__()
@@ -1163,8 +1175,8 @@ class Perm(tuple,
     def count_cycles(self):
         """Returns the number of cycles in the permutation.
 
-        >>> Perm(53814276).num_cycles()
-        3
+        >>> Perm('538104276').count_cycles()
+        4
         """
 
         return len(self.cycle_decomp())
