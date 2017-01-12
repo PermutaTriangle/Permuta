@@ -17,15 +17,15 @@ if sys.version_info.major == 2:
 
 
 class PermSetAll(PermSetUnbounded):
-    __CACHE = {}
     __iter = None
     __iter_number = None
 
     def up_to(self, perm):
+        # Should return a PermSetAllRange
         raise NotImplementedError
 
     def __next__(self):
-        if self.__iter == None:
+        if self.__iter is None:
             self.__iter = iter(self[self.__iter_number])
         try:
             return next(self.__iter)
@@ -40,7 +40,7 @@ class PermSetAll(PermSetUnbounded):
         return self
 
     def __contains__(self, perm):
-        return True  # Why are you asking if a perm is in the set of all perms?
+        return isinstance(perm, Perm)  # Why would you even ask?
 
     def __getitem__(self, key):
         assert isinstance(key, numbers.Integral)
@@ -54,37 +54,38 @@ class PermSetAll(PermSetUnbounded):
         return "<The set of all perms>"
 
 
-class PermSetAllSpecificLength(PermSetBase, itertools.permutations):  # TODO: Inherit from proper superclass
+class PermSetAllSpecificLength(PermSetBase):  # TODO: Inherit from proper superclass
     """Class for iterating through all perms of a specific length."""
 
-    __slots__ = ("length", "domain")
+    __slots__ = ("_length")
 
-    def __new__(cls, length):
-        domain = list(range(length))
-        instance = super(PermSetAllSpecificLength, cls).__new__(cls, domain)
-        # Initialize, even if it should technically be done in __init__
-        instance.domain = domain
-        instance.length = length
-        return instance
+    def __init__(self, length):
+        if not isinstance(length, numbers.Integral):
+            raise TypeError("{} not int".format(repr(length)))  # TODO
+        elif length < 0:
+            raise ValueError("Length {} is negative".format(length))  # TODO
+        self._length = length
+
+    @property
+    def length(self):
+        return self._length
+
+    @property
+    def domain(self):
+        return list(range(self.length))
 
     def random(self):
         """Return a random perm of the length."""
-        random.shuffle(self.domain)  # TODO: Not use domain attribute?
-        return Perm(self.domain)
-
-    if sys.version_info.major == 2:
-        def next(self):
-            return Perm(super(PermSetAllSpecificLength, self).next())  # pylint: disable=no-member
-    else:
-        def __next__(self):
-            return Perm(super(PermSetAllSpecificLength, self).__next__())  # pylint: disable=no-member
+        all_elements = self.domain
+        random.shuffle(all_elements)
+        return Perm(all_elements)
 
     def __contains__(self, other):
         """Check if other is a permutation in the set."""
         return isinstance(other, Permutation) and len(other) == self.length
 
-    def __eq__(self, other):
-        return id(self) == id(other)
+    def __iter__(self):
+        return PermSetAllSpecificLengthIterator(self.domain)
 
     def __len__(self):
         return factorial(self.length)
@@ -94,3 +95,12 @@ class PermSetAllSpecificLength(PermSetBase, itertools.permutations):  # TODO: In
 
     def __repr__(self):
         return "<PermSet of all perms of length {}>".format(self.length)
+
+
+class PermSetAllSpecificLengthIterator(itertools.permutations):
+    def __next__(self):
+        return Perm(super(PermSetAllSpecificLengthIterator, self).__next__())  # pylint: disable=no-member
+
+
+class PermSetAllRange(PermSetBase):  # TODO: Inherit from proper superclass
+    pass
