@@ -1765,7 +1765,3 @@ class Perm(tuple,
             True if and only if the pattern patt is contained in self.
         """
         return any(True for _ in patt.occurrences_in(self))
-
-# if __name__ == '__main__':
-    # import doctest
-    # doctest.testmod()
