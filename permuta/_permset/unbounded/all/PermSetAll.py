@@ -18,10 +18,27 @@ if sys.version_info.major == 2:
 
 class PermSetAll(PermSetUnbounded):
     __CACHE = {}
+    __iter = None
+    __iter_number = None
 
     def up_to(self, perm):
         raise NotImplementedError
+
+    def __next__(self):
+        if self.__iter == None:
+            self.__iter = iter(self[self.__iter_number])
+        try:
+            return next(self.__iter)
+        except StopIteration:
+            self.__iter = None
+            self.__iter_number += 1
+            return self.__next__()
     
+    def __iter__(self):
+        self.__iter = None
+        self.__iter_number = 0
+        return self
+
     def __contains__(self, perm):
         return True  # Why are you asking if a perm is in the set of all perms?
 
@@ -67,7 +84,6 @@ class PermSetAllSpecificLength(PermSetBase, itertools.permutations):  # TODO: In
         return isinstance(other, Permutation) and len(other) == self.length
 
     def __eq__(self, other):
-        print("eq called on me")
         return id(self) == id(other)
 
     def __len__(self):
