@@ -7,10 +7,7 @@ import operator
 import random
 import sys
 
-from permuta._interfaces import Pattern
-from permuta._interfaces import Flippable
-from permuta._interfaces import Rotatable
-from permuta._interfaces import Shiftable
+from permuta._interfaces import Pattern, Flippable, Rotatable, Shiftable
 from permuta.misc import left_floor_and_ceiling
 
 if sys.version_info.major == 2:
@@ -1768,3 +1765,7 @@ class Perm(tuple,
             True if and only if the pattern patt is contained in self.
         """
         return any(True for _ in patt.occurrences_in(self))
+
+# if __name__ == '__main__':
+    # import doctest
+    # doctest.testmod()
