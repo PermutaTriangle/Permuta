@@ -1,2 +1,2 @@
-from .PermSetUnbounded import PermSetUnbounded
+from .PermSetDescribed import PermSetDescribed
 from . import avoiding

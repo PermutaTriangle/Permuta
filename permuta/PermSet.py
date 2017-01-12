@@ -1,8 +1,8 @@
 import abc
 import numbers
 
-from .descriptors import Basis
-from .descriptors import Descriptor
+from permuta.descriptors import Basis
+from permuta.descriptors import Descriptor
 from permuta._permset import PermSetBase
 from permuta._permset.unbounded.all import PermSetAll
 from permuta._permset.unbounded.described import PermSetDescribed
@@ -17,9 +17,9 @@ class PermSetMetaclass(type):
 class PermSet(object, metaclass=PermSetMetaclass):
     def __new__(_cls, descriptor=None):
         if descriptor is None:
-            return PermSetAll(True)
+            return PermSetAll()
         elif isinstance(descriptor, numbers.Integral):
-            return PermSetAll(True)[descriptor]
+            return PermSetAll()[descriptor]
         elif isinstance(descriptor, Descriptor):
             for described in PermSetDescribed.__subclasses__():
                 if isinstance(descriptor, described.descriptor):

@@ -72,6 +72,9 @@ class PermSetAllSpecificLength(PermSetFinite):
     def domain(self):
         return list(range(self.length))
 
+    def up_to(self):
+        raise NotImplementedError
+
     def random(self):
         """Return a random perm of the length."""
         all_elements = self.domain
@@ -81,6 +84,9 @@ class PermSetAllSpecificLength(PermSetFinite):
     def __contains__(self, other):
         """Check if other is a permutation in the set."""
         return isinstance(other, Permutation) and len(other) == self.length
+
+    def __getitem__(self, key):
+        raise NotImplementedError
 
     def __iter__(self):
         return PermSetAllSpecificLengthIterator(self.domain)
