@@ -1001,7 +1001,7 @@ class Perm(tuple,
     def ltrmin(self):
         """Returns the positions of the left-to-right minima.
 
-        >>> Perm(35412).ltrmin()
+        >>> Perm(24301).ltrmin()
         [0, 3]
         """
 
@@ -1017,7 +1017,7 @@ class Perm(tuple,
     def rtlmin(self):
         """Returns the positions of the left-to-right minima.
 
-        >>> Perm(315264).rtlmin()
+        >>> Perm(204153).rtlmin()
         [5, 3, 1]
         """
         rev_perm = self.reverse()
@@ -1040,7 +1040,7 @@ class Perm(tuple,
 
         TODO: Reimplement in NlogN time.
 
-        >>> Perm(4132).count_inversions()
+        >>> Perm(3021).count_inversions()
         4
         >>> Perm.monotone_decreasing(6).count_inversions() == 5*6 / 2
         True
@@ -1080,7 +1080,7 @@ class Perm(tuple,
 
         TODO: currently uses the naive algorithm --- can be improved 
 
-        >>> Perm(3142).min_gapsize()
+        >>> Perm(2031).min_gapsize()
         3
         """
         min_dist = len(self)
@@ -1153,7 +1153,7 @@ class Perm(tuple,
         """Calculates the cycle decomposition of the permutation. Returns a list
         of cycles, each of which is represented as a list.
 
-        >>> Perm(53814276).cycle_decomp()
+        >>> Perm(42703165).cycle_decomp()
         [[4, 3, 0], [6], [7, 5, 1, 2]]
         """
         n = self.__len__()
@@ -1175,7 +1175,7 @@ class Perm(tuple,
     def count_cycles(self):
         """Returns the number of cycles in the permutation.
 
-        >>> Perm('538104276').count_cycles()
+        >>> Perm(538104276).count_cycles()
         4
         """
 
