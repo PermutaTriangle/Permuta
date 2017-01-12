@@ -1126,10 +1126,6 @@ class Perm(tuple,
                 sum += i + 1
         return sum
 
-    # TODO: Create a functions with longestruns as prefix that returns a list of all the longest runs.
-    # TODO: Alias longestruns to longestruns_ascending
-    # TODO: Create count_ functions for longestruns
-
     def longestruns_ascending(self):
         n = self.__len__()
         if n == 0:
