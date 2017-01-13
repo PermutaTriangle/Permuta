@@ -1,5 +1,5 @@
 from .PermSetFinite import PermSetFinite
 
 
-class PermSetFiniteSingleLength(PermSetFinite):
+class PermSetFiniteSpecificLength(PermSetFinite):
     pass

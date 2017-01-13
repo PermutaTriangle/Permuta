@@ -8,9 +8,8 @@ import sys
 from math import factorial
 
 from permuta import Perm
-from permuta.misc import checking
-from permuta._perm_set import PermSetBase
 from permuta._perm_set.finite import PermSetFinite
+from permuta._perm_set.finite import PermSetFiniteSpecificLength
 from permuta._perm_set.unbounded import PermSetUnbounded
 
 
@@ -57,7 +56,7 @@ class PermSetAll(PermSetUnbounded):
         return "<The set of all perms>"
 
 
-class PermSetAllSpecificLength(PermSetFinite):
+class PermSetAllSpecificLength(PermSetFiniteSpecificLength):
     """Class for iterating through all perms of a specific length."""
 
     __slots__ = ("_length")
@@ -71,10 +70,7 @@ class PermSetAllSpecificLength(PermSetFinite):
 
     @property
     def domain(self):
-        return list(range(self.length))
-
-    def up_to(self):
-        raise NotImplementedError
+        return list(range(self.length))  # tuple instead?
 
     def random(self):
         """Return a random perm of the length."""
@@ -107,3 +103,11 @@ class PermSetAllSpecificLength(PermSetFinite):
 class PermSetAllSpecificLengthIterator(itertools.permutations):
     def __next__(self):
         return Perm(super(PermSetAllSpecificLengthIterator, self).__next__())  # pylint: disable=no-member
+
+
+class PermSetAllFiniteLengthSubset(PermSetFinite):
+    pass
+
+
+class PermSetAllUnboundedLengthSubset(PermSetUnbounded):
+    pass
