@@ -19,7 +19,7 @@ class PermSet(object, metaclass=PermSetMetaclass):
         if descriptor is None:
             return PermSetAll()
         elif isinstance(descriptor, numbers.Integral):
-            return PermSetAll()[descriptor]
+            return PermSetAll().of_length(descriptor)
         elif isinstance(descriptor, Descriptor):
             for described in PermSetDescribed.__subclasses__():
                 if isinstance(descriptor, described.descriptor):
@@ -33,8 +33,8 @@ class PermSet(object, metaclass=PermSetMetaclass):
             raise RuntimeError("I don't know")  # TODO: Not raise an exception?
 
     @classmethod
-    def avoiding(_cls, basis):
-        return PermSet(Basis(basis))
+    def avoiding(cls, basis):
+        return cls(Basis(basis))
 
 
 ##

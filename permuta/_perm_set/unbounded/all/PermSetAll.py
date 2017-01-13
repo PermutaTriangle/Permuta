@@ -8,6 +8,7 @@ import sys
 from math import factorial
 
 from permuta import Perm
+from permuta.misc import checking
 from permuta._perm_set import PermSetBase
 from permuta._perm_set.finite import PermSetFinite
 from permuta._perm_set.unbounded import PermSetUnbounded
@@ -25,6 +26,15 @@ class PermSetAll(PermSetUnbounded):
         # Should return a PermSetAllRange
         raise NotImplementedError
 
+    def of_length(self, length):
+        return PermSetAllSpecificLength(length)
+
+    def range(self, stop):
+        raise NotImplementedError
+
+    def __getitem__(self, key):
+        return Perm.unrank(key)
+
     def __next__(self):
         if self.__iter is None:
             self.__iter = iter(self[self.__iter_number])
@@ -34,7 +44,7 @@ class PermSetAll(PermSetUnbounded):
             self.__iter = None
             self.__iter_number += 1
             return self.__next__()
-    
+
     def __iter__(self):
         self.__iter = None
         self.__iter_number = 0
@@ -42,13 +52,6 @@ class PermSetAll(PermSetUnbounded):
 
     def __contains__(self, perm):
         return isinstance(perm, Perm)  # Why would you even ask?
-
-    def __getitem__(self, key):
-        if not isinstance(key, numbers.Integral):
-            raise TypeError("{} not int".format(repr(key)))  # TODO
-        elif key < 0:
-            raise ValueError("Key {} is negative".format(key))  # TODO
-        return PermSetAllSpecificLength(key)
 
     def __repr__(self):
         return "<The set of all perms>"
@@ -84,9 +87,11 @@ class PermSetAllSpecificLength(PermSetFinite):
         return isinstance(other, Permutation) and len(other) == self.length
 
     def __getitem__(self, key):
-        raise NotImplementedError
+        return Perm.unrank(key, self.length)
 
     def __iter__(self):
+        # Need to return new instance because permutations of itertools depletes self
+        # This probably needs looking into because the iter isn't a subclass of PermSet
         return PermSetAllSpecificLengthIterator(self.domain)
 
     def __len__(self):
