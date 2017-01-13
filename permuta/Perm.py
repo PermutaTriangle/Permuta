@@ -994,6 +994,16 @@ class Perm(tuple,
 
     num_valleys = count_valleys  # permpy backwards compatibility
 
+    def bend_list(self):
+        """Returns the list of indices at which the permutation changes
+        direction. That is, the number of non-monotone consecutive triples of
+        the permutation. A permutation p can be expressed as the concatenation
+        of len(p.bend_list()) + 1 monotone segments."""
+        raise NotImplementedError
+
+        # this isn't quite correct....
+        return len([i for i in range(1, len(self)-1) if (self[i-1] > self[i] and self[i+1] > self[i]) or (self[i-1] < self[i] and self[i+1] < self[i])])
+
     def order(self):
         L = map(len, self.cycle_decomp())
         return reduce(lambda x,y: x*y // fractions.gcd(x,y), L)
@@ -1215,6 +1225,41 @@ class Perm(tuple,
     # TODO: Implement rank method
     #perm2ind = rank  # permpy backwards compatibility
 
+    def threepats(self):
+        p = list(self)
+        n = self.__len__()
+        patnums = {'123' : 0, '132' : 0, '213' : 0,
+                             '231' : 0, '312' : 0, '321' : 0}
+        for i in range(n-2):
+            for j in range(i+1,n-1):
+                for k in range(j+1,n):
+                    patnums[''.join(map(lambda x: str(x+1),Permutation([p[i], p[j], p[k]])))] += 1
+        return patnums
+
+    def fourpats(self):
+        p = list(self)
+        n = self.__len__()
+        patnums = {'1234' : 0, '1243' : 0, '1324' : 0,
+                             '1342' : 0, '1423' : 0, '1432' : 0,
+                             '2134' : 0, '2143' : 0, '2314' : 0,
+                             '2341' : 0, '2413' : 0, '2431' : 0,
+                             '3124' : 0, '3142' : 0, '3214' : 0,
+                             '3241' : 0, '3412' : 0, '3421' : 0,
+                             '4123' : 0, '4132' : 0, '4213' : 0,
+                             '4231' : 0, '4312' : 0, '4321' : 0 }
+
+        for i in range(n-3):
+            for j in range(i+1,n-2):
+                for k in range(j+1,n-1):
+                    for m in range(k+1,n):
+                        patnums[''.join(map(lambda x: str(x+1),list(Permutation([p[i], p[j], p[k], p[m]]))))] += 1
+        return patnums
+
+    def rank_val(self, i):
+        return len([j for j in range(i+1,len(self)) if self[j] < self[i]])
+
+    def rank_encoding(self):
+        return [self.rank_val(i) for i in range(len(self))]
 
     #
     # Decomposition and generation from self methods
@@ -1271,6 +1316,9 @@ class Perm(tuple,
 
     all_monotone_intervals = monotone_block_decomposition # permpy backwards compatibility
 
+    def monotone_quotient(self):
+        return Permutation([self[k[0]] for k in self.all_monotone_intervals(with_ones=True)])
+
     def maximum_block(self):
         ''' Finds the biggest interval, and returns (i,j) is one is found,
         where i is the size of the interval, and j is the index of the first
@@ -1322,6 +1370,28 @@ class Perm(tuple,
 
     def downset(self):
         return permset.PermSet([self]).downset()
+
+    # TODO: discuss return value conventions, should this return PermSet instead of set of Perm? maybe list of Perm?
+    def coveredby(self):
+        S = set()
+        n = len(self)
+        for i in range(n+1):
+            for j in range(n+1):
+                S.add(self.insert(i,j))
+        return S
+
+    # TODO: discuss return value conventions, should this return PermSet instead of set of Perm? maybe list of Perm?
+    def buildupset(self, height):
+        n = len(self)
+        L = [set() for i in range(n)]
+        L.append( set([self]) )
+        for i in range(n + 1, height):
+            oldS = list(L[i-1])
+            newS    = set()
+            for perm in oldS:
+                newS = newS.union(perm.coveredby())
+            L.append(newS)
+        return L
 
     def sum_indecomposable_sequence(self):
         S = self.downset()

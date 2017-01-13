@@ -3,13 +3,13 @@
 - [X] monotone_decreasing
 - [X] identity
 - [X] random
-- [ ] random_avoider : will probably be moved to PermSet.py
-- [ ] listall : will probably be moved to PermSet.py or removed
+- [ ] random_avoider : will probably be moved to PermSet.py (RAGGI)
+- [ ] listall : will probably be moved to PermSet.py or removed (RAGGI)
 - [X] standardize
 - [ ] change_repr : needs discussion
 - [X] ind2perm : called `unrank`
 - [X] swap : subroutine of ind2perm
-- [ ] plentiful : TODO understand wtf this does
+- [ ] plentiful : ask JAY
 - [X] segment : subroutine of plentiful
 - [X] \_is_iterable : not needed
 - [X] \_\_call\_\_
@@ -20,7 +20,7 @@
 - [X] \_\_add_\_
 - [X] \_\_sub\_\_
 - [X] \_\_pow\_\_
-- [ ] perm2ind : TODO implement as `rank`
+- [ ] perm2ind : TODO implement as `rank` (RAGGI?)
 - [X] delete : implemented as `remove`
 - [X] insert
 - [X] complement
@@ -39,12 +39,12 @@
 - [X] ascent_set
 - [X] num_ascents : copied as `count_ascents`
 - [X] peak_list
-- [ ] check
+- [X] check
 - [X] num_peaks : copied as count_peaks
 - [X] valley_list
 - [X] num_valleys : copied as `conut_valleys`
-- [ ] bend_list : not implemented in `permpy` anyways
-- [ ] trivial : this is stupid
+- [X] bend_list : not implemented in `permpy` anyways
+- [X] trivial : this is stupid
 - [X] order
 - [X] ltrmin
 - [X] rtlmin
@@ -56,33 +56,33 @@
 - [X] noninversions : should be reimplemented as count_noninversions using inversions
 - [X] bonds : should be copied as count_bonds
 - [X] majorindex
-- [ ] fixedptsplusbonds : returns sum of fixed points and bonds, not needed?
+- [X] fixedptsplusbonds : returns sum of fixed points and bonds, should just call the two functions
 - [X] longestrunA : maybe change name? maybe return indices instead of length? copied as `longestrun_ascending`
 - [X] longestrunD : maybe change name? maybe return indeces instead of length? copied as `longestrun_descending`
 - [X] longestrun : maybe return indices instead of length, then add `count_longestrun`
-- [ ] christiecycles : WTF
-- [ ] othercycles : WTF
-- [ ] sumcycles : WTF
-- [ ] maxcycles : WTF
+- [ ] christiecycles : ask JAY
+- [ ] othercycles : ask JAY
+- [ ] sumcycles : ask JAY
+- [ ] maxcycles : ask JAY
 - [X] is_involution
 - [X] is_identity
-- [ ] threepats
-- [ ] fourpats
-- [ ] num_consecutive_3214 : makes no freakin sense to have here
-- [ ] coveredby : looks unneaded and weird
-- [ ] buildupset : looks weird
-- [ ] set_up_bounds : function to set up some kind of upper and lower bounds on the values? used in the cointainment functions
+- [X] threepats
+- [X] fourpats
+- [X] num_consecutive_3214 : makes no freakin sense to have here
+- [X] coveredby : TODO: reimplement in Permuta
+- [X] buildupset : looks weird
+- [ ] set_up_bounds : ask JAY
 - [X] avoids
 - [X] avoids_set
 - [X] involves
 - [X] involved_in
-- [ ] involvement_check_final : probably these three are not needed
-- [ ] involvement_check
-- [ ] involvement_fits
+- [ ] involvement_check_final : probably these three are not needed, (RAGGI)
+- [ ] involvement_check (RAGGI)
+- [ ] involvement_fits (RAGGI)
 - [X] occurrences
 - [X] all_intervals : a substition(block/interval) decomposition of the permutation, with all possible blocks(all sizes, also non-maximal), copied as `block_decomposition`
 - [X] all_monotone_intervals : a substitution(block/interval) decomposition of the permutation where the blocks are monotone increasing or decreasing, copied as `monotone_block_decomposition`
-- [ ] monotone_quotient : values of the first elements of the blocks in the monotone substitution(block/interval) decomposition
+- [X] monotone_quotient : values of the first elements of the blocks in the monotone substitution(block/interval) decomposition
 - [X] maximal_interval : finds the biggest interval in the permutation
 - [X] simple_location : finds some interval of length at least 2
 - [X] is_simple : checks if the permutation is simple
@@ -100,10 +100,10 @@
 - [X] children : alias for `shrink_by_one`
 - [X] downset
 - [X] sum_indecomposable_sequence
-- [ ] sum_indec_bdd_by : WTF
+- [ ] sum_indec_bdd_by : ask JAY
 - [X] contains_locations : same as the `occurrences_of` function
-- [ ] rank_val : inversions containing the location as the bigger element
-- [ ] rank_encoding : `rank_val` of each position in permutation
+- [X] rank_val : number of inversions by value at index
+- [X] rank_encoding : `rank_val` of each position in permutation
 - [X] num_rtlmax_ltrmin_layers
 - [X] rtlmax_ltrmin_decomposition
 - [X] num_inc_bonds : should be copied as `count_inc_bonds`
@@ -114,6 +114,6 @@
 - [X] contract_bonds
 - [X] all_syms
 - [X] is_representative
-- [ ] greedy_sum : TODO ask J
-- [ ] chom_sum : TODO ask J
-- [ ] chom_skew : TODO ask J
+- [ ] greedy_sum : TODO ask JAY
+- [ ] chom_sum : TODO ask JAY
+- [ ] chom_skew : TODO ask JAY
