@@ -1316,7 +1316,8 @@ class Perm(tuple,
         """Returns all patterns of length one less than the permutation. One
         layer of the downset, also called the shadow.
         """
-        return permpy.permset.PermSet([Perm(p) for p in [self[:i]+self[i+1:] for i in range(0,len(self))]])
+        return PermSet([Perm(p) for p in [self[:i]+self[i+1:] for i in range(0,len(self))]])
+
     shrink_by_one = children
 
     def downset(self):
