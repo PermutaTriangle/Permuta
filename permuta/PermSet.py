@@ -4,6 +4,7 @@ import numbers
 from permuta.descriptors import Basis
 from permuta.descriptors import Descriptor
 from permuta._perm_set import PermSetBase
+from permuta._perm_set.finite import PermSetStatic
 from permuta._perm_set.unbounded.all import PermSetAll
 from permuta._perm_set.unbounded.described import PermSetDescribed
 
@@ -19,6 +20,7 @@ class PermSet(object, metaclass=PermSetMetaclass):
         if descriptor is None:
             return PermSetAll()
         elif isinstance(descriptor, numbers.Integral):
+            # Descriptor is actually just a number
             return PermSetAll().of_length(descriptor)
         elif isinstance(descriptor, Descriptor):
             for described in PermSetDescribed.__subclasses__():
@@ -30,7 +32,8 @@ class PermSet(object, metaclass=PermSetMetaclass):
                     break  # Shouldn't continue looking
             raise RuntimeError("PermSet for descriptor {} not found".format(repr(descriptor)))  # TODO: Something else?
         else:
-            raise RuntimeError("I don't know")  # TODO: Not raise an exception?
+            # Descriptor might just be a set of perms
+            return PermSetStatic(descriptor)
 
     @classmethod
     def avoiding(cls, basis):

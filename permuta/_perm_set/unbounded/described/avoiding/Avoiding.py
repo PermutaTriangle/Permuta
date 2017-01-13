@@ -1,4 +1,5 @@
 from ..PermSetDescribed import PermSetDescribed
+from permuta import Perm
 from permuta.descriptors import Basis
 
 
