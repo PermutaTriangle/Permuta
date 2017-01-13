@@ -8,6 +8,7 @@ import random
 import sys
 
 from permuta.interfaces import Pattern, Flippable, Rotatable, Shiftable
+from permuta.misc import checking
 from permuta.misc import left_floor_and_ceiling
 
 if sys.version_info.major == 2:
@@ -235,6 +236,8 @@ class Perm(tuple,
             >>> Perm.unrank(4)
             Perm((0, 1, 2))
             >>> Perm.unrank(5)
+            Perm((0, 2, 1))
+            >>> Perm.unrank(1, 3)
             Perm((0, 2, 1))
         """
         # TODO: Docstring, and do better? Assertions and messages
