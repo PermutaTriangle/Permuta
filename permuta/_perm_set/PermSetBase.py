@@ -9,5 +9,9 @@ class PermSetBase(metaclass=abc.ABCMeta):
     def __contains__(self, perm):
         pass
 
+    @abc.abstractmethod
+    def __getitem__(self, key):
+        pass
+
     def __repr__(self):
         return "<A set of some perms>"

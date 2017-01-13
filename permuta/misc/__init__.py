@@ -1,3 +1,5 @@
+from . import checking
+
 from .algorithm_x import AlgorithmX
 from .counting import factorial, binomial, catalan
 from .dancing_links import DancingLinks

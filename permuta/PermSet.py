@@ -1,11 +1,11 @@
 import abc
 import numbers
 
-from permuta._permset.descriptors import Basis
-from permuta._permset.descriptors import Descriptor
-from permuta._permset import PermSetBase
-from permuta._permset.unbounded import PermSetUnbounded
-from permuta._permset.unbounded.all import PermSetAll
+from permuta.descriptors import Basis
+from permuta.descriptors import Descriptor
+from permuta._perm_set import PermSetBase
+from permuta._perm_set.unbounded.all import PermSetAll
+from permuta._perm_set.unbounded.described import PermSetDescribed
 
 
 class PermSetMetaclass(type):
@@ -17,28 +17,28 @@ class PermSetMetaclass(type):
 class PermSet(object, metaclass=PermSetMetaclass):
     def __new__(_cls, descriptor=None):
         if descriptor is None:
-            return PermSetAll(True)
+            return PermSetAll()
         elif isinstance(descriptor, numbers.Integral):
-            return PermSetAll(True)[descriptor]
+            return PermSetAll().of_length(descriptor)
         elif isinstance(descriptor, Descriptor):
-            for generic in PermSetUnbounded.__subclasses__():
-                if isinstance(descriptor, generic.descriptor):
-                    for cls in generic.__subclasses__():
+            for described in PermSetDescribed.__subclasses__():
+                if isinstance(descriptor, described.descriptor):
+                    for cls in described.__subclasses__():
                         if cls.descriptor == descriptor:
                             return cls(descriptor)
-                    return generic(descriptor)
+                    return described(descriptor)
                     break  # Shouldn't continue looking
             raise RuntimeError("PermSet for descriptor {} not found".format(repr(descriptor)))  # TODO: Something else?
         else:
             raise RuntimeError("I don't know")  # TODO: Not raise an exception?
 
     @classmethod
-    def avoiding(_cls, basis):
-        return PermSet(Basis(basis))
+    def avoiding(cls, basis):
+        return cls(Basis(basis))
 
 
 ##
-## Creating a new Descriptor and PermSetUnbounded
+## Creating a new Descriptor and PermSetDescribed
 ##
 #
 #
@@ -49,7 +49,7 @@ class PermSet(object, metaclass=PermSetMetaclass):
 #        return True
 #
 #
-#class Vee(PermSetUnbounded):
+#class Vee(PermSetDescribed):
 #    descriptor = VeeDescriptor
 #    def contains(self, perm):
 #        raise NotImplementedError
