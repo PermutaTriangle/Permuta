@@ -47,7 +47,15 @@ class Avoiding(PermSetDescribed):
         raise NotImplementedError
 
     def __getitem__(self, key):
-        raise NotImplementedError
+        level = 0
+        while True:
+            self.assure_length(level)
+            level_size = len(self.cache[level])
+            if level_size <= key:
+                key -= level_size
+            else:  # TODO: So dumb
+                return list(self.cache[level])[key]
+            level += 1
 
     def __next__(self):
         if self._iter is None:
