@@ -3,9 +3,9 @@ import random
 from .PermSetFinite import PermSetFinite
 
 
-class PermSetStatic(tuple, PermSetFinite):
-    def __new__(cls, iterable):
-        return tuple.__new__(cls, sorted(list(iterable)))
+class PermSetStatic(set, PermSetFinite):
+    def __init__(self, iterable):
+        return super(PermSetStatic, self).__init__(iterable)
 
     def random(self):
-        return random.choice(self)
+        return random.choice(self)  # TODO

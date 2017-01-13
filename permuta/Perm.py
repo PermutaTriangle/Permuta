@@ -154,7 +154,7 @@ class Perm(tuple,
             Perm((4, 0, 1, 3, 2))
         """
         if isinstance(string, str):
-            return tuple.__new__(cls, map(int, string))
+            return cls(map(int, string))
 
     @classmethod
     def one_based(cls, iterable):
