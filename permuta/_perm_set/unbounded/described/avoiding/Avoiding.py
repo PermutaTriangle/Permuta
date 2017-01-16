@@ -111,7 +111,8 @@ class AvoidingSpecificLength(PermSetFiniteSpecificLength):
     def __contains__(self, other):
         """Check if other is a permutation in the set."""
         # TODO  When is it better to check for avoidance?
-        return isinstance(other, Permutation) and contained in cache
+
+        return isinstance(other, Perm) and len(other) == self.length and self.supervisor.contains(other)
 
     def __getitem__(self, key):
         raise NotImplementedError

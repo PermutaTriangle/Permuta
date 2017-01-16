@@ -126,8 +126,8 @@ permutations that avoid every pattern in `L`
 
 We can ask whether a specific permutation `q` belongs to B
 ```python
->>> B.contains(q)
-XXX
+>>> B.contains(Perm((2,0,1,3)))
+ False
 ```
 
 If you want all permutations of length six in B you can do
