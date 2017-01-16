@@ -15,9 +15,9 @@ class Basis(Descriptor):  # pylint: disable=too-few-public-methods
     def __init__(self, perms):
         # Make sure we're working with a sorted list of perms
         if isinstance(perms, Perm):
-            perms = [perms]
+            perms = (perms,)
         else:
-            perms = list(sorted(perms))
+            perms = tuple(sorted(perms))
 
         if len(perms) > 1:
             # Remove superfluous elements from basis
