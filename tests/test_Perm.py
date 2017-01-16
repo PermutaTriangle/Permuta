@@ -100,17 +100,13 @@ def test_unrank():
     with pytest.raises(AssertionError): Perm.unrank(-1)
     with pytest.raises(AssertionError): Perm.unrank(6, 3)
 
-# TODO: This test will work after PermSet have been changed to be 0 based
-@pytest.mark.xfail
 def test_unrank_2():
-    ps = list(PermSet(7))
-    urs = list(Perm.unrank(n, 7) for n in range(len(ps)))
-    assert urs == ps
+    length = 7
+    for number, perm in enumerate(PermSet(length)):
+        assert Perm.unrank(number, length) == perm
 
-@pytest.mark.xfail
 def test_contained_in():
     def generate_contained(n, perm):
-        # TODO: Ragnar: "I don't know how to make this method 0-based, Murray?". Murray: "It works :\"
         for i in range(len(perm), n):
             r = random.randint(1, len(perm)+1)
             for i in range(len(perm)):
@@ -127,9 +123,8 @@ def test_contained_in():
     assert not Perm([7, 3, 0, 8, 1, 6, 5, 2, 4]).contained_in(Perm([3, 7, 0, 8, 1, 6, 5, 2, 4]))
 
     for i in range(100):
-        # TODO: Ragnar: "That also means I haven't touched this."
         n = random.randint(0, 4)
-        patt = PermSet(n).random_element()
+        patt = PermSet(n).random()
         perm = generate_contained(random.randint(n, 8), list(patt))
         assert patt.contained_in(perm)
 
@@ -637,8 +632,6 @@ def test_avoids():
     assert not (Perm([4, 0, 1, 2, 3]).avoids(Perm([2, 1, 0]), Perm([1, 0])))
     assert Perm([4, 0, 1, 2, 3]).avoids(Perm([2, 1, 0]), Perm([1, 2, 0]))
 
-# TODO: Have to examine this function
-@pytest.mark.xfail
 def test_avoids_2():
     bound = 6
     def do_test(patts, expected):
@@ -669,10 +662,10 @@ def test_incr_decr():
         assert Perm(range(i)).is_increasing()
         assert Perm(range(i-1, -1, -1)).is_decreasing()
 
-    assert not (Perm([0, 2, 1]).is_increasing())
-    assert not (Perm([0, 2, 1]).is_decreasing())
-    assert not (Perm([1, 0, 2]).is_increasing())
-    assert not (Perm([1, 0, 2]).is_decreasing())
+    assert not Perm([0, 2, 1]).is_increasing()
+    assert not Perm([0, 2, 1]).is_decreasing()
+    assert not Perm([1, 0, 2]).is_increasing()
+    assert not Perm([1, 0, 2]).is_decreasing()
 
 def test_lt():
     # TODO: No length testing is done here
