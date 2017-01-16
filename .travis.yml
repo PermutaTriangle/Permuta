@@ -8,4 +8,4 @@ python:
   - "nightly"
   - "pypy"
   - "pypy3"
-script: py.test
+script: py.test tests

@@ -9,6 +9,10 @@ class Descriptor(metaclass=abc.ABCMeta):
     def __eq__(self, other):
         pass
 
+    @abc.abstractmethod
+    def __hash__(self):
+        pass
+
 
 #class ContainmentBasis(Descriptor):
 #    def __init__(self, n, o):
