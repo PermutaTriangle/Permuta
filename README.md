@@ -42,11 +42,13 @@ permutation 0213. There are several ways of doing this
  Perm((0,2,1,3))
 >>> Perm([0,2,1,3])
  Perm((0, 2, 1, 3))
->>> Perm.from_string('0213') # TODO THIS DOES NOT WORK RAGGI!
+>>> Perm.from_string('0213')
+ Perm((0, 2, 1, 3))
 ```
 
-You can also just type in a number, but since everything is zero based you could
-not create `0213`, but any permutation not starting with `0`: `Perm(102)`.
+You can also just type in a number, but since everything is zero based you can
+not create `0213` in this way, but any permutation not starting with `0`:
+`Perm(102)`.
 
 You can visualize a permutation
 
@@ -85,13 +87,13 @@ There are several functions, or permutation statistics, you can apply to
 permutations
 
 ```python
->>> [p.num_ascents(), p.inversions(), p.fixed_points(), p.longestrun(), p.majorindex(), p.num_cycles()]
- XXX
+>>> [p.count_ascents(), p.count_inversions(), p.count_fixed_points(), p.length_of_longestrun(), p.majorindex(), p.count_cycles()]
+ [2, 1, 2, 2, 2, 3]
 ```
 
 ```python
->>>  p.num_cycles(), p.num_peaks(), p.num_ltrmin(), p.num_bonds(), p.num_valleys()
- XXX
+>>>  [p.count_peaks(), p.count_ltrmin(), p.count_bonds(), p.count_valleys()]
+ [1, 1, 1, 1]
 ```
 
 ### Creating the set of permutations of a specific length
@@ -99,15 +101,17 @@ Typing
 
 ```python
 >>> A = PermSet(6)
+>>> A
+ <PermSet of all perms of length 6>
 ```
 
 creates the set of permutations of six elements. You can choose a random
 permutation by doing
 
 ```python
->>> perm = A.random()
+>>> p = A.random()
 >>> p
- XXX
+ Perm((3, 2, 5, 0, 4, 1))
 ```
 
 ### Avoiding patterns
@@ -116,37 +120,41 @@ permutations that avoid every pattern in `L`
 
 ```python
 >>> B = PermSet.avoiding([Perm((0,1,2)), Perm((0,2,1))])
+>>> B
+ <The set of all perms avoiding <Basis: (Perm((0, 1, 2)), Perm((0, 2, 1)))>>
 ```
 
 We can ask whether a specific permutation `q` belongs to B
 ```python
->>> B.contains(q)
-XXX
+>>> B.contains(Perm((2,0,1,3)))
+ False
 ```
 
 If you want all permutations of length six in B you can do
 
 ```python
->>> C = B[6] # or equivalently C = B.of_length(6)
+>>> C = B.of_length(6)
+>>> C
+ <PermSet of all perms of length 6 avoiding <Basis: (Perm((0, 1)),)>>
 ```
 
 If you want permutations of length up to and including six you can do
 
 ```python
->>> D = B[:7] # or equivalently D = B.up_to(7)
+>>> D = B.up_to(7)
 ```
 
-Note that we follow the usual slicing convention of Python of not including the
+Note that we follow the usual range convention of Python of not including the
 last element.
 
 Note that if you later want permutations up to length eight in this class you
 can do
 
 ```python
->>> D = B[:9]
+>>> D = B.up_to(9)
 ```
 
-and this will use the work that was done in computing `B[:7]` and not do the
+and this will use the work that was done in computing `B.up_to(7)` and not do the
 work all over again.
 
 ### Statistics on sets of permutations
@@ -156,7 +164,7 @@ certain length we do
 
 ```python
 >>> E = PermSet.avoiding(Perm((0,2,1,3))) # note that we do not need to put a single pattern in a list
->>> E[8].total_statistic(Perm.inversions)
+>>> E.of_length(8).total_statistic(Perm.inversions)
  XXX
 ```
 
