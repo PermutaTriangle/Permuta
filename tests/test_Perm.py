@@ -10,9 +10,12 @@ def test_init():
         with pytest.raises(ValueError): Perm([0,0])
         with pytest.raises(ValueError): Perm([1])
         with pytest.raises(ValueError): Perm(101)
+        with pytest.raises(ValueError): Perm(-234)
         with pytest.raises(TypeError): Perm(None)
+        with pytest.raises(TypeError): Perm([0.1,0.2,0.3])
         Perm()
         Perm([])
+        Perm(0)
         Perm([0])
         Perm([3,0,2,1])
         Perm(set([0,1,2]))
@@ -29,6 +32,9 @@ def test_to_standard():
             add += random.randint(0,10)
             res[i] += add
         return Perm(res)
+
+    perm = Perm.to_standard(x for x in range(10))
+    Perm.to_standard(x for x in range(3,10))
 
     for _ in range(100):
         perm = Perm.random(random.randint(0,20))

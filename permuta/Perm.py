@@ -85,8 +85,8 @@ class Perm(tuple,
                     while number != 0:
                         digit_list.append(number % 10)
                         number //= 10
-                    iterable = reversed(digit_list)
-                return tuple.__new__(cls, iterable)
+                    digit_list.reverse()
+                return tuple.__new__(cls, digit_list)
             else:
                 raise
 
