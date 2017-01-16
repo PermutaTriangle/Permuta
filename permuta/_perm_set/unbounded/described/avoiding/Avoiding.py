@@ -72,8 +72,13 @@ class Avoiding(PermSetDescribed):
         self._iter_number = 0
         return self
 
-    def __contains__(self, perm):
-        return perm.avoids(*self.basis.basis)
+    def __contains__(self, perm): # TODO: Raggi, are we happy with this?
+        level = len(perm)
+        self.assure_length(level)
+        return perm in self.cache[level]
+        # naive implementation
+        # return perm.avoids(*self.basis.perms)
+
 
     def __repr__(self):
         return "<The set of all perms avoiding {}>".format(repr(self.basis))
@@ -108,7 +113,7 @@ class AvoidingSpecificLength(PermSetFiniteSpecificLength):
     def __contains__(self, other):
         """Check if other is a permutation in the set."""
         # TODO  When is it better to check for avoidance?
-        return isinstance(other, Permutation) and contained in cache  
+        return isinstance(other, Permutation) and contained in cache
 
     def __getitem__(self, key):
         raise NotImplementedError
