@@ -1,16 +1,17 @@
+import random
+import functools
+
 from ..PermSetDescribed import PermSetDescribed
+
 from permuta import Perm
 from permuta.descriptors import Basis
 from permuta._perm_set.finite import PermSetFiniteSpecificLength
-#from permuta._perm_set.finite import PermSetStatic
-
-
-# PermSet.avoiding([(0, 2, 1), (1, 2, 3, 4, 0)])
 
 
 class Avoiding(PermSetDescribed):
+    __slots__ = ("cache", "basis")
     descriptor = Basis
-    __CLASS_CACHE = {}  # Empty basis is dispatched to correct class (AvoidingEmpty)
+    __CLASS_CACHE = {}  # Empty basis is dispatched to correct/another class (AvoidingEmpty)
 
     def __new__(cls, basis):
         if basis in Avoiding.__CLASS_CACHE:
@@ -22,44 +23,43 @@ class Avoiding(PermSetDescribed):
             Avoiding.__CLASS_CACHE[basis] = instance
             return instance
 
-
-    def assure_length(self, length):
-        while len(self.cache) <= length:
-            next_level = set()
+    def _ensure_level(self, level_number):
+        # Ensure level is available
+        patts = self.basis
+        while len(self.cache) <= level_number:
+            new_level = set()
             total_indices = len(self.cache)  # really: len(perm) + 1
             #new_element = indices - 1  # TODO Performance without insert method
             for perm in self.cache[-1]:
                 for index in range(total_indices):
                     new_perm = perm.insert(index)
-                    if new_perm.avoids(*self.basis.perms):
-                        next_level.add(new_perm)
-            self.cache.append(next_level)
+                    if new_perm.avoids(*patts):
+                        new_level.add(new_perm)
+            self.cache.append(new_level)
 
-    def up_to(self, perm):
-        # Should return a PermSetAllRange
-        raise NotImplementedError
+    def _get_level(self, level_number):
+        self._ensure_level(level_number)
+        return self.cache[level_number]
 
     def of_length(self, length):
-        # TODO: Cache of instances
-        return AvoidingSpecificLength(length, self)
-
-    def range(self, stop):
-        raise NotImplementedError
+        # TODO: Cache of instances?
+        getter = functools.partial(self._get_level, length)
+        return AvoidingSpecificLength(length, self.basis, getter)
 
     def __getitem__(self, key):
-        level = 0
+        level_number = 0
         while True:
-            self.assure_length(level)
-            level_size = len(self.cache[level])
-            if level_size <= key:
-                key -= level_size
+            level = self._get_level(level_number)
+            if len(level) <= key:
+                key -= len(level)
             else:  # TODO: So dumb
-                return list(self.cache[level])[key]
-            level += 1
+                return list(level)[key]
+            level_number += 1
 
     def __next__(self):
         if self._iter is None:
-            self._iter = iter(self.of_length(self._iter_number))
+            self._ensure_level(self._iter_number)
+            self._iter = iter(self.cache[self._iter_number])
         try:
             return next(self._iter)
         except StopIteration:
@@ -74,63 +74,55 @@ class Avoiding(PermSetDescribed):
 
     def __contains__(self, perm):
         # TODO: Think about heuristics for switching to avoiding the patterns in the basis instead
-        level = len(perm)
-        self.assure_length(level)
-        return perm in self.cache[level]
+        if isinstance(perm, Perm):
+            length = len(perm)
+            self._ensure_level(length)
+            return perm in self.cache[length]
+        else:
+            raise TypeError  # TODO
+
+    def __str__(self):
+        perms_string = ", ".join(map(str, self.basis))
+        return "The set of all perms avoiding {}".format(perms_string)
 
     def __repr__(self):
-        return "<The set of all perms avoiding {}>".format(repr(self.basis))
+        return "<PermSet of all perms avoiding {}>".format(self.basis)
 
 
 class AvoidingSpecificLength(PermSetFiniteSpecificLength):
     """Class for iterating through all perms of a specific length avoiding a basis."""
 
-    __slots__ = ("_length")
+    __slots__ = ("_length", "_basis", "_get_perms", "_iter")
 
-    def __init__(self, length, supervisor):
+    def __init__(self, length, basis, get_perms):
         self._length = length
-        self._supervisor = supervisor
-        self._basis = supervisor.basis
+        self._basis = basis
+        self._get_perms = get_perms
         self._iter = None
 
-    @property
-    def length(self):
-        return self._length
-
-    @property
-    def basis(self):
-        return self._basis
-
-    @property
-    def supervisor(self):
-        return self._supervisor
-
     def random(self):
-        raise NotImplementedError
+        return random.choice(self._get_perms())
 
     def __contains__(self, other):
         """Check if other is a permutation in the set."""
-        # TODO  When is it better to check for avoidance?
-
-        return isinstance(other, Perm) and len(other) == self.length and self.supervisor.contains(other)
+        return isinstance(other, Perm) and other in self._get_perms()
 
     def __getitem__(self, key):
         raise NotImplementedError
 
     def __iter__(self):
-        self.supervisor.assure_length(self.length)
-        self._iter = iter(self.supervisor.cache[self.length])
+        self._iter = iter(self._get_perms())
         return self
 
     def __len__(self):
-        self.supervisor.assure_length(self.length)
-        return len(self.supervisor.cache[self.length])
+        return len(self._get_perms())
 
     def __next__(self):
         return next(self._iter)
 
     def __str__(self):
-        return "The set of all perms of length {} avoiding {}".format(self.length, self.basis)
+        perms_string = ", ".join(map(str, self._basis))
+        return "The set of all perms of length {} avoiding {}".format(self._length, perms_string)
 
     def __repr__(self):
-        return "<PermSet of all perms of length {} avoiding {}>".format(self.length, self.basis)
+        return "<PermSet of all perms of length {} avoiding {}>".format(self._length, repr(self._basis))
