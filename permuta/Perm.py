@@ -85,8 +85,8 @@ class Perm(tuple,
                     while number != 0:
                         digit_list.append(number % 10)
                         number //= 10
-                    iterable = reversed(digit_list)
-                return tuple.__new__(cls, iterable)
+                    digit_list.reverse()
+                return tuple.__new__(cls, digit_list)
             else:
                 raise
 
@@ -116,10 +116,12 @@ class Perm(tuple,
     def to_standard(cls, iterable):
         """Return the perm corresponding to iterable.
 
-        Duplicate elements are allowed and become consecutive elements (see example).
+        Duplicate elements are allowed and become consecutive elements (see
+        example).
 
-        The standardize alias is supplied for backwards compatibility with permpy.
-        However, the permpy version did not allow for duplicate elements.
+        The standardize alias is supplied for backwards compatibility with
+        permpy.  However, the permpy version did not allow for duplicate
+        elements.
 
         Examples:
             >>> Perm.to_standard("a2gsv3")
@@ -155,6 +157,7 @@ class Perm(tuple,
         """
         if isinstance(string, str):
             return cls(map(int, string))
+        # TODO: throw exception when not a string
 
     @classmethod
     def one_based(cls, iterable):
@@ -164,7 +167,7 @@ class Perm(tuple,
             >>> Perm.one_based((4, 1, 3, 2))
             Perm((3, 0, 2, 1))
         """
-        return cls(((element-1) for element in iterable))
+        return cls((element - 1 for element in iterable))
 
     one = one_based
     proper = one_based
@@ -458,7 +461,8 @@ class Perm(tuple,
         Args:
             selected: <int>
                 The element selected to be removed. It is an integer in the
-                range of 0 to len(self) inclusive. If None, it defaults to len(self).
+                range of 0 to len(self) inclusive. If None, it defaults to
+                len(self) - 1.
 
         Returns: <permuta.Perm>
             The perm with the selected element removed (and other
@@ -489,6 +493,7 @@ class Perm(tuple,
     def inflate(self, components, indices=None):
         """Inflate element(s)."""
         # TODO: Discuss implementation: GOOD: Dict or complete list
+        self.__inflate_shifts(None)
         pass
 
     def __inflate_shifts(self, component):
@@ -496,31 +501,28 @@ class Perm(tuple,
         pass
 
     def contract_inc_bonds(self):
-        P = Perm(self)
-        while P.num_inc_bonds() > 0:
-            for i in range(0,len(P)-1):
-                if P[i+1] == P[i]+1:
-                    P = Perm(P[:i]+P[i+1:])
-                    break
+        # TODO: reimplement or remove, does not make sense(wrong)
+        # P = Perm(self)
+        # while P.num_inc_bonds() > 0:
+            # for i in range(0,len(P)-1):
+                # if P[i+1] == P[i]+1:
+                    # P = Perm(P[:i]+P[i+1:])
+                    # break
         return P
 
     def contract_dec_bonds(self):
-        P = Perm(self)
-        while P.num_dec_bonds() > 0:
-            for i in range(0,len(P)-1):
-                if P[i+1] == P[i]-1:
-                    P = Perm(P[:i]+P[i+1:])
-                    break
+        # TODO: reimplement or remove, does not make sense(wrong)
+        # P = Perm(self)
+        # while P.num_dec_bonds() > 0:
+            # for i in range(0,len(P)-1):
+                # if P[i+1] == P[i]-1:
+                    # P = Perm(P[:i]+P[i+1:])
+                    # break
         return P
 
     def contract_bonds(self):
-        P = Perm(self)
-        while P.num_bonds() > 0:
-            for i in range(0,len(P)-1):
-                if P[i+1] == P[i]+1 or P[i+1] == P[i]-1:
-                    P = Perm(P[:i]+P[i+1:])
-                    break
-        return P
+        # TODO: reimplement by calling contract_{inc,dec}_bonds or remove
+        pass
     #
     # Methods for basic Perm transforming
     #
@@ -729,14 +731,17 @@ class Perm(tuple,
         return self.reverse_complement()
 
     def all_syms(self):
-        S = permset.PermSet([self])
-        S = S.union(permset.PermSet([P.reverse() for P in S]))
-        S = S.union(permset.PermSet([P.complement() for P in S]))
-        S = S.union(permset.PermSet([P.inverse() for P in S]))
-        return S
+        # TODO: finish PermSet
+        # S = PermSet([self])
+        # S = S.union(PermSet([P.reverse() for P in S]))
+        # S = S.union(PermSet([P.complement() for P in S]))
+        # S = S.union(PermSet([P.inverse() for P in S]))
+        # return S
+        pass
 
     def is_representative(self):
-        return self == sorted(self.all_syms())[0]
+        # return self == sorted(self.all_syms())[0]
+        pass
 
     #
     # Statistical methods
