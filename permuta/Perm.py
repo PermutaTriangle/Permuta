@@ -1,5 +1,6 @@
 # pylint: disable=too-many-lines,missing-docstring
 
+import collections
 import itertools
 import math
 import numbers
@@ -490,15 +491,48 @@ class Perm(tuple,
         return Perm(element if element < selected else element-1
                     for element in self if element != selected)
 
-    def inflate(self, components, indices=None):
-        """Inflate element(s)."""
-        # TODO: Discuss implementation: GOOD: Dict or complete list
-        self.__inflate_shifts(None)
-        pass
+    def inflate(self, components):
+        """Inflate elements of the permutation to create a new one.
 
-    def __inflate_shifts(self, component):
-        """ """
-        pass
+        Args:
+            component: <collections.Iterable> of <permuta.Perm>
+                This can also be a dict with keys and perms...
+
+        Returns: <permuta.Perm>
+
+        Examples:
+            >>> Perm((0, 1)).inflate([Perm((1, 0)), Perm((2, 1, 0))])
+            Perm((1, 0, 4, 3, 2))
+            >>> Perm((1, 0, 2)).inflate([None, Perm((0, 1)), Perm((0, 1))])
+            Perm((2, 0, 1, 3, 4))
+            >>> Perm((0, 2, 1)).inflate({2: Perm((0, 1, 2))})
+            Perm((1, 0, 4, 3, 2))
+            >>> # Can also deflate points
+            >>> Perm((0, 1)).inflate([Perm(), Perm()])
+            Perm(())
+        """
+        # TODO: Spitshine method and docstring
+        if isinstance(components, collections.Mapping):
+            raise NotImplementedError
+        elif isinstance(components, collections.Iterable):
+            components = tuple(components)
+            assert len(components) == len(self)
+            shift = 0
+            shifts = [0]*len(self)
+            for index in self:
+                shifts[index] = shift
+                component = components[index]
+                shift += 1 if component is None else len(component)
+            perm_elements = []
+            for index, component in enumerate(components):
+                if component is None:
+                    perm_elements.append(shifts[index])
+                else:
+                    shift = shifts[index]
+                    perm_elements.extend(element + shift for element in component)
+            return Perm(perm_elements)
+        else:
+            raise TypeError
 
     def contract_inc_bonds(self):
         # TODO: reimplement or remove, does not make sense(wrong)
