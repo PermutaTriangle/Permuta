@@ -501,19 +501,19 @@ def test_count_descents():
 
 def test_ascents():
     assert list(Perm().ascents()) == []
-    assert list(Perm((0, 1, 2, 3)).ascents()) == [1, 2, 3]
+    assert list(Perm((0, 1, 2, 3)).ascents()) == [0, 1, 2]
     assert list(Perm(3210).ascents()) == []
-    assert list(Perm(210435).ascents()) == [3, 5]
-    assert list(Perm(1230654).ascents()) == [1, 2, 4]
-    assert list(Perm(31450762).ascents()) == [2, 3, 5]
+    assert list(Perm(210435).ascents()) == [2, 4]
+    assert list(Perm(1230654).ascents()) == [0, 1, 3]
+    assert list(Perm(31450762).ascents()) == [1, 2, 4]
 
 def test_ascent_set():
     assert Perm().ascent_set() == []
-    assert Perm((0, 1, 2, 3)).ascent_set() == [1, 2, 3]
+    assert Perm((0, 1, 2, 3)).ascent_set() == [0, 1, 2]
     assert Perm(3210).ascent_set() == []
-    assert Perm(210435).ascent_set() == [3, 5]
-    assert Perm(1230654).ascent_set() == [1, 2, 4]
-    assert Perm(31450762).ascent_set() == [2, 3, 5]
+    assert Perm(210435).ascent_set() == [2, 4]
+    assert Perm(1230654).ascent_set() == [0, 1, 3]
+    assert Perm(31450762).ascent_set() == [1, 2, 4]
 
 def test_count_ascents():
     assert Perm().count_ascents() == 0
