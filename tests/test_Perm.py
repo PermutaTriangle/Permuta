@@ -483,21 +483,13 @@ def test_is_sum_decomposable():
     assert not p3.is_sum_decomposable()
     assert not Perm((4, 3, 2, 1, 0)).is_sum_decomposable()
 
-def test_descents():
-    assert list(Perm().descents()) == []
-    assert list(Perm((0, 1, 2, 3)).descents()) == []
-    assert list(Perm(3210).descents()) == [1, 2, 3]
-    assert list(Perm(210435).descents()) == [1, 2, 4]
-    assert list(Perm(1230654).descents()) == [3, 5, 6]
-    assert list(Perm(31450762).descents()) == [1, 4, 6, 7]
-
 def test_descent_set():
     assert Perm().descent_set() == []
     assert Perm((0, 1, 2, 3)).descent_set() == []
-    assert Perm(3210).descent_set() == [1, 2, 3]
-    assert Perm(210435).descent_set() == [1, 2, 4]
-    assert Perm(1230654).descent_set() == [3, 5, 6]
-    assert Perm(31450762).descent_set() == [1, 4, 6, 7]
+    assert Perm(3210).descent_set() == [0, 1, 2]
+    assert Perm(210435).descent_set() == [0, 1, 3]
+    assert Perm(1230654).descent_set() == [2, 4, 5]
+    assert Perm(31450762).descent_set() == [0, 3, 5, 6]
 
 def test_count_descents():
     assert Perm().count_descents() == 0
@@ -703,7 +695,7 @@ def test_count_bonds():
 def test_majorindex():
     assert Perm(()).majorindex() == 0
     assert Perm((0)).majorindex() == 0
-    assert Perm((0, 2, 1)).majorindex() == 1
+    assert Perm((0, 2, 1)).majorindex() == 2
     assert Perm((3, 1, 2, 4, 0)).majorindex() == 5
     assert Perm((3, 0, 7, 4, 1, 2, 5, 6)).majorindex() == 8
     assert Perm((7, 0, 4, 3, 1, 5, 2, 6)).majorindex() == 14
