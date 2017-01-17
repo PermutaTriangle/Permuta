@@ -1,6 +1,7 @@
 # pylint: disable=too-many-lines,missing-docstring
 
 import collections
+import fractions
 import itertools
 import math
 import numbers
@@ -1036,25 +1037,63 @@ class Perm(tuple,
 
     num_valleys = count_valleys  # permpy backwards compatibility
 
+    def bends(self):
+        """Yield the indices at which the permutation changes direction. That
+        is, the number of non-monotone consecutive triples of the permutation.
+        A permutation p can be expressed as the concatenation of len(p.bends())
+        + 1 monotone segments.
+
+        Examples:
+            >>> list(Perm((5, 3, 4, 0, 2, 1)).bends())
+            [1, 2, 3, 4,]
+            >>> list(Perm((2, 0, 1)).bends())
+            [1]
+        """
+        if len(self) <= 2:
+            return
+        ascent = self[0] < self[1]
+        for index in range(1, len(self) - 1):
+            if self[index] > self[index + 1] and ascent:
+                yield index
+            elif self[index] < self[index + 1] and not ascent:
+                yield index
+            ascent = self[index] < self[index + 1]
+
     def bend_list(self):
         """Returns the list of indices at which the permutation changes
         direction. That is, the number of non-monotone consecutive triples of
         the permutation. A permutation p can be expressed as the concatenation
-        of len(p.bend_list()) + 1 monotone segments."""
-        raise NotImplementedError
+        of len(p.bend_list()) + 1 monotone segments.
 
-        # this isn't quite correct....
-        return len([i for i in range(1, len(self)-1) if (self[i-1] > self[i] and self[i+1] > self[i]) or (self[i-1] < self[i] and self[i+1] < self[i])])
+        Examples:
+            >>> Perm((5, 3, 4, 0, 2, 1)).bend_list()
+            [1, 2, 3, 4,]
+            >>> Perm((2, 0, 1)).bend_list()
+            [1]
+        """
+        return list(self.bends())
 
     def order(self):
-        L = map(len, self.cycle_decomp())
-        return reduce(lambda x,y: x*y // fractions.gcd(x,y), L)
+        """Returns the order of the permutation.
 
+        Examples:
+            >>> Perm((4, 3, 5, 0, 2, 1)).order()
+            6
+            >>> Perm((0, 1, 2)).order()
+
+        """
+        acc = 1
+        for l in map(len, self.cycle_decomp()):
+            acc = (acc * l) // fractions.gcd(acc, l)
+        return acc
+
+    # TODO: reimplement the following four functions to return generators
     def ltrmin(self):
         """Returns the positions of the left-to-right minima.
 
-        >>> Perm(24301).ltrmin()
-        [0, 3]
+        Examples:
+            >>> Perm(24301).ltrmin()
+            [0, 3]
         """
 
         n = self.__len__()
@@ -1067,21 +1106,40 @@ class Perm(tuple,
         return L
 
     def rtlmin(self):
-        """Returns the positions of the left-to-right minima.
+        """Returns the positions of the right-to-left minima.
 
-        >>> Perm(204153).rtlmin()
-        [5, 3, 1]
+        Examples:
+            >>> Perm(204153).rtlmin()
+            [1, 3, 5]
         """
         rev_perm = self.reverse()
-        return [len(self) - val - 1 for val in rev_perm.ltrmin()]
+        return [len(self) - val - 1 for val in rev_perm.ltrmin()][::-1]
 
     def ltrmax(self):
+        """Returns the positions of the left-to-right maxima.
+
+        Examples:
+            >>> Perm(204153).ltrmax()
+            [0, 2, 4]
+        """
         return [len(self)-i-1 for i in Perm(self[::-1]).rtlmax()][::-1]
 
     def rtlmax(self):
+        """Returns the positions of the right-to-left maxima.
+
+        Examples:
+            >>> Perm(24301).rtlmax()
+            [4, 2, 1]
+        """
         return [len(self)-i-1 for i in self.complement().reverse().ltrmin()][::-1]
 
     def count_ltrmin(self):
+        """Counts the number of left-to-right minimas.
+
+        Example:
+            >>> Perm((2, 4, 3, 0, 1)).count_ltrmin()
+            2
+        """
         return len(self.ltrmin())
 
     num_ltrmin = count_ltrmin
@@ -1113,9 +1171,15 @@ class Perm(tuple,
 
     # TODO: Implement function that returns list of inversions.
 
+    # TODO: Reimplement using count_inversions.
     def count_noninversions(self):
-        """
-        TODO: Reimplement using count_inversions.
+        """Returns the number of noninversions of the permutation, i.e., the
+        number of pairs i,j such that i < j and self[i] < self[j].
+
+        >>> Perm((3, 0, 2, 1, 4)).count_noninversions()
+        5
+        >>> Perm.monotone_increasing(7).count_noninversions() == (6 * 7) / 2
+        True
         """
         p = list(self)
         n = self.__len__()
@@ -1132,8 +1196,9 @@ class Perm(tuple,
 
         TODO: currently uses the naive algorithm --- can be improved 
 
-        >>> Perm(2031).min_gapsize()
-        3
+        Examples:
+            >>> Perm(2031).min_gapsize()
+            3
         """
         min_dist = len(self)
         for i, j in itertools.combinations(range(len(self)), 2):
@@ -1147,25 +1212,67 @@ class Perm(tuple,
     def count_bonds(self):
         """Counts the number of bonds, that is the number of adjacent locations
         with adjacent values.
+
+        Examples:
+            >>> Perm((0, 1, 2))
+            2
+            >>> Perm((2, 1, 0))
+            2
+            >>> Perm((4, 0, 3, 2, 1, 5))
+            2
         """
-        # numbonds = 0
-        # p = list(self)
-        # for i in range(1,len(p)):
-            # if p[i] - p[i-1] == 1 or p[i] - p[i-1] == -1:
-                # numbonds+=1
-        # return numbonds
-        return len([i for i in range(len(self)-1) if self[i+1] == self[i]+1 or self[i+1] == self[i]-1])
+        return self.count_dec_bonds() + self.count_inc_bonds()
 
     num_bonds = count_bonds
     bonds = count_bonds # permpy backwards compatibility
 
+    def inc_bonds(self):
+        """Yields the indices of the increasing bonds, that is the indices of
+        the ascents with adjacent values.
+
+        Examples:
+            >>> list(Perm((2, 3, 4, 5, 0, 1)))
+            [0, 1, 2, 4]
+        """
+        for i in range(len(self) - 1):
+            if self[i + 1] == self[i] + 1:
+                yield i
+
     def count_inc_bonds(self):
-        return len([i for i in range(len(self)-1) if self[i+1] == self[i]+1])
+        """Counts the number of increasing bonds.
+
+        Examples:
+            >>> Perm((0, 2, 3, 1))
+            1
+            >>> Perm((2, 3, 4, 5, 0, 1))
+            4
+        """
+        return len(list(self.inc_bonds()))
 
     num_inc_bonds = count_inc_bonds
 
+    def dec_bonds(self):
+        """Yields the indices of the decreasing bonds, that is the indices of
+        the descents with adjacent values.
+
+        Examples:
+            >>> list(Perm((1, 0, 3, 2, 5, 4))
+            [0, 2, 3]
+        """
+        for i in range(len(self) - 1):
+            if self[i] == self[i + 1] + 1:
+                yield i
+
     def count_dec_bonds(self):
-        return len([i for i in range(len(self)-1) if self[i+1] == self[i]-1])
+        """Counts the number of decreasing bonds.
+
+        Examples:
+            >>> Perm((2, 1, 0, 3))
+            3
+            >>> list(Perm((1, 0, 3, 2, 5, 4))
+            3
+        """
+        return len(list(self.dec_bonds()))
 
     num_dec_bonds = count_dec_bonds
 
