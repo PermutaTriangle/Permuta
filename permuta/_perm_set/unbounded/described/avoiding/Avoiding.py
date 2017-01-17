@@ -9,18 +9,22 @@ from permuta._perm_set.finite import PermSetFiniteSpecificLength
 
 
 class Avoiding(PermSetDescribed):
-    __slots__ = ("cache", "basis")
     descriptor = Basis
+
+
+class AvoidingGeneric(Avoiding):
+    __slots__ = ("cache", "basis")
+    descriptor = None
     __CLASS_CACHE = {}  # Empty basis is dispatched to correct/another class (AvoidingEmpty)
 
     def __new__(cls, basis):
-        if basis in Avoiding.__CLASS_CACHE:
-            return Avoiding.__CLASS_CACHE[basis]
+        if basis in AvoidingGeneric.__CLASS_CACHE:
+            return AvoidingGeneric.__CLASS_CACHE[basis]
         else:
-            instance = super(Avoiding, cls).__new__(cls)
+            instance = super(AvoidingGeneric, cls).__new__(cls)
             instance.cache = [set([Perm()])]  # Generic case includes empty permutation
             instance.basis = basis
-            Avoiding.__CLASS_CACHE[basis] = instance
+            AvoidingGeneric.__CLASS_CACHE[basis] = instance
             return instance
 
     def _ensure_level(self, level_number):
@@ -121,8 +125,15 @@ class AvoidingSpecificLength(PermSetFiniteSpecificLength):
         return next(self._iter)
 
     def __str__(self):
+        format_string = "The set of all perms of length {} avoiding {}"
         perms_string = ", ".join(map(str, self._basis))
-        return "The set of all perms of length {} avoiding {}".format(self._length, perms_string)
+        result = format_string.format(self._length, perms_string)
+        return result
 
     def __repr__(self):
-        return "<PermSet of all perms of length {} avoiding {}>".format(self._length, repr(self._basis))
+        format_string = "<PermSet of all perms of length {} avoiding {}>"
+        result = format_string.format(self._length, repr(self._basis))
+        return result
+
+
+Avoiding.default = AvoidingGeneric  # Set default Avoiding class to be dispatched

@@ -297,8 +297,6 @@ def test_remove_element():
 def test_inflate():
     # TODO: make proper tests when the Perm.inflate has been implemented.
     perm = Perm(())
-    perm.inflate(None)
-    assert perm == Perm(())
 
 # TODO: The following three functions have yet to be implemented
 @pytest.mark.xfail
