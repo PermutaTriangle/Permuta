@@ -9,7 +9,7 @@ from permuta._perm_set.finite import PermSetFiniteSpecificLength
 
 
 class Avoiding(PermSetDescribed):
-    descriptor = Basis
+    descriptor_class = Basis
 
 
 class AvoidingGeneric(Avoiding):
@@ -136,4 +136,4 @@ class AvoidingSpecificLength(PermSetFiniteSpecificLength):
         return result
 
 
-Avoiding.default = AvoidingGeneric  # Set default Avoiding class to be dispatched
+Avoiding.default_subclass = AvoidingGeneric  # Set default Avoiding class to be dispatched

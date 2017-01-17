@@ -24,26 +24,25 @@ class PermSet(object, metaclass=PermSetMetaclass):
             # Descriptor is actually just a number
             return PermSetAll().of_length(descriptor)
         elif isinstance(descriptor, Descriptor):
-            cls._dispatch_described(descriptor)
+            return cls._dispatch_described(descriptor)
         else:
             # Descriptor might just be a set of perms
             return PermSetStatic(descriptor)
 
     @classmethod
     def _dispatch_described(cls, descriptor):
-        described_class = cls._find_described_class(descriptor, PermSetDescribed)
-        if described_class is None:
-            raise RuntimeError("PermSet for descriptor {} not found".format(repr(descriptor)))  # TODO: Something else?
-        else:
-            return described_class(descriptor)
+        for described_superclass in PermSetDescribed.__subclasses__():
+            if isinstance(descriptor, described_superclass.descriptor_class):
+                described_class = cls._find_described_class(descriptor, PermSetDescribed)
+                if described_class is None:
+                    return described_superclass.default_subclass(descriptor)
+                else:
+                    return described_class(descriptor)
+        raise RuntimeError("PermSet for descriptor {} not found".format(repr(descriptor)))  # TODO: Something else?
 
     @classmethod
     def _find_described_class(cls, descriptor, current_class):
         # TODO: Use metaclasses to track subclasses
-        print(current_class)
-        print("\t", current_class.descriptor)
-        print("\t", descriptor)
-        print("\t", current_class.descriptor == descriptor)
         if current_class.descriptor == descriptor:
             return current_class
         else:
@@ -51,7 +50,7 @@ class PermSet(object, metaclass=PermSetMetaclass):
                 described_class = cls._find_described_class(descriptor, subclass)
                 if described_class is not None:
                     return described_class
-        return None
+            return None
 
     @classmethod
     def avoiding(cls, basis):
