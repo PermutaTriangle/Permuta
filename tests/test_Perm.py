@@ -702,6 +702,14 @@ def test_count_bonds():
                 bons += 1
         assert bons == perm.count_bonds()
 
+def test_majorindex():
+    assert Perm(()).majorindex() == 0
+    assert Perm((0)).majorindex() == 0
+    assert Perm((0, 2, 1)).majorindex() == 1
+    assert Perm((3, 1, 2, 4, 0)).majorindex() == 5
+    assert Perm((3, 0, 7, 4, 1, 2, 5, 6)).majorindex() == 8
+    assert Perm((7, 0, 4, 3, 1, 5, 2, 6)).majorindex() == 14
+
 def test_minimum_gapsize():
     assert Perm((0, 1)).min_gapsize() == 2
     assert Perm((2, 0, 3, 1)).min_gapsize() == 3

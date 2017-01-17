@@ -839,7 +839,7 @@ class Perm(tuple,
         """
         for index in range(1, len(self)):
             if self[index-1] > self[index]:
-                yield index
+                yield index - 1
 
     def descent_set(self):
         """Return the list of descents of self.
@@ -1243,13 +1243,17 @@ class Perm(tuple,
     num_dec_bonds = count_dec_bonds
 
     def majorindex(self):
-        sum = 0
-        p = list(self)
-        n = self.__len__()
-        for i in range(0,n-1):
-            if p[i] > p[i+1]:
-                sum += i + 1
-        return sum
+        """Returns the major index of the permutation, that is the sum of the
+        positions of the descents of the permutation.
+
+        Examples:
+            >>> Perm((3, 1, 2, 4, 0)).majorindex()
+            5
+            >>> Perm((0, 2, 1)).majorindex()
+            1
+        """
+        desc = list(self.descents())
+        return sum(desc) + len(desc)
 
     def longestruns_ascending(self):
         n = self.__len__()
