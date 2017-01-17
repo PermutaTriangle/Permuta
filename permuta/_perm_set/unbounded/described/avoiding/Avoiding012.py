@@ -6,16 +6,16 @@ class Avoiding012(AvoidingGeneric, CatalanAvoidingClass):
     descriptor = Basis(Perm((0, 1, 2)))
 
     def _ensure_level(self, level_number):
-        # Ensure level is available
-        patts = self.basis
+        raise NotImplementedError
         while len(self.cache) <= level_number:
             new_level = set()
-
             for perm in self.cache[-1]:
                 first_ascent_location = 0
-                while first_ascent_location < level_number - 2 and perm[first_ascent_location] > perm[first_ascent_location+1]:
+                while first_ascent_location < level_number - 2 and perm[first_ascent_location] < perm[first_ascent_location+1]:
                     first_ascent_location += 1
-                
+                for index in range(first_ascent_location + 2):
+                    new_perm = perm.insert(index, level_number)
+                    new_level.add(new_perm)
             self.cache.append(new_level)
 
     def _ensure_level(self, level_number):

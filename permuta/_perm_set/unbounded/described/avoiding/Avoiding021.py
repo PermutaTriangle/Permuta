@@ -14,5 +14,5 @@ class Avoiding021(AvoidingGeneric, CatalanAvoidingClass):
                 for left_perm in self.cache[left_length]:
                     for right_perm in self.cache[right_length]:
                         new_perm = frame.inflate([left_perm, None, right_perm])
-                        new_level.append(new_perm)
+                        new_level.add(new_perm)
             self.cache.append(new_level)
