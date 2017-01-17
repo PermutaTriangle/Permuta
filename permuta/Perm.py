@@ -871,9 +871,9 @@ class Perm(tuple,
             >>> tuple(Perm((0, 1, 2)).descents())
             ()
         """
-        for index in range(1, len(self)):
-            if self[index-1] > self[index]:
-                yield index - 1
+        for index in range(len(self) - 1):
+            if self[index] > self[index + 1]:
+                yield index
 
     def descent_set(self):
         """Return the list of descents of self.
