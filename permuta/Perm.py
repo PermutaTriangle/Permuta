@@ -1299,7 +1299,8 @@ class Perm(tuple,
         for i in range(1,n):
             if p[i-1] < p[i]:
                 if (i - cur + 1) > maxi:
-                    res.clear()
+                    del res
+                    res = []
                     maxi = i - cur + 1
             else:
                 if (i - cur) == maxi:

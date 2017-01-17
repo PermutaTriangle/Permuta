@@ -16,7 +16,7 @@ class PermSetMetaclass(type):
     def __subclasscheck__(self, subclass):
         return issubclass(subclass, PermSetBase)
 
-class PermSet(metaclass=PermSetMetaclass):
+class PermSet(object, metaclass=PermSetMetaclass):
     def __new__(_cls, descriptor=None):
         if descriptor is None:
             return PermSetAll()
