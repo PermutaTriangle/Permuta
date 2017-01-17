@@ -861,7 +861,7 @@ class Perm(tuple,
     sum_decomposable = is_sum_decomposable # permpy backwards compatibility
 
     def descents(self):
-        """Yield the 0-based indices of the descents of self.
+        """Yield the 0-based descents of self.
 
         Examples:
             >>> tuple(Perm((0, 1, 3, 2, 4)).descents())
@@ -897,18 +897,18 @@ class Perm(tuple,
     num_descents = count_descents  # permpy backwards compatibility
 
     def ascents(self):
-        """Yield the indices of the ascent of self.
+        """Yield the 0-based ascent of self.
 
         Examples:
             >>> tuple(Perm((0, 1, 3, 2, 4)).ascents())
-            (1, 2, 4)
+            (0, 1, 3)
             >>> tuple(Perm((0, 4, 3, 2, 1)).ascents())
-            (1,)
+            (0,)
             >>> tuple(Perm((3, 2, 1, 0)).ascents())
             ()
         """
-        for index in range(1, len(self)):
-            if self[index-1] < self[index]:
+        for index in range(len(self) - 1):
+            if self[index] < self[index + 1]:
                 yield index
 
     def ascent_set(self):
