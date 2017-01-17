@@ -1,0 +1,119 @@
+## Functions to move from `permutation.py` to the `Perm` class(to start with):
+- [X] monotone_increasing
+- [X] monotone_decreasing
+- [X] identity
+- [X] random
+- [ ] random_avoider : will probably be moved to PermSet.py (RAGGI)
+- [ ] listall : will probably be moved to PermSet.py or removed (RAGGI)
+- [X] standardize
+- [ ] change_repr : needs discussion
+- [X] ind2perm : called `unrank`
+- [X] swap : subroutine of ind2perm
+- [ ] plentiful : ask JAY
+- [X] segment : subroutine of plentiful
+- [X] \_is_iterable : not needed
+- [X] \_\_call\_\_
+- [X] oneline : standard representation of the permutations as a tuple
+- [X] cycles : copied as `cycle_notation`
+- [X] \_\_repr_\_
+- [X] \_\_mul_\_
+- [X] \_\_add_\_
+- [X] \_\_sub\_\_
+- [X] \_\_pow\_\_
+- [ ] perm2ind : TODO implement as `rank` (RAGGI?)
+- [X] delete : implemented as `remove`
+- [X] insert
+- [X] complement
+- [X] reverse
+- [X] inverse
+- [X] \_\_ascii_plot
+- [X] cycle_decomp
+- [X] direct_sum
+- [X] skew_sum
+- [X] fixed_points
+- [X] skew_decomposable : copied as `is_skew_decomposable` RAGGI
+- [X] sum_decomposable : copied as `is_sum_decomposable` RAGGI
+- [X] num_cycles : copied as `count_cycles`
+- [X] descent_set
+- [X] num_descents : copied as `count_descents`
+- [X] ascent_set
+- [X] num_ascents : copied as `count_ascents`
+- [X] peak_list
+- [X] check
+- [X] num_peaks : copied as count_peaks
+- [X] valley_list
+- [X] num_valleys : copied as `conut_valleys`
+- [X] bend_list : not implemented in `permpy` anyways
+- [X] trivial : this is stupid
+- [X] order
+- [X] ltrmin
+- [X] rtlmin
+- [X] ltrmax
+- [X] rtlmax
+- [X] num_ltrmin
+- [X] inversions : should be reimplemnted in N*logN as `count_inversions`
+- [X] min_gapsize
+- [X] noninversions : should be reimplemented as count_noninversions using inversions
+- [X] bonds : should be copied as count_bonds
+- [X] majorindex
+- [X] fixedptsplusbonds : returns sum of fixed points and bonds, should just call the two functions
+- [X] longestrunA : maybe change name? maybe return indices instead of length? copied as `longestrun_ascending`
+- [X] longestrunD : maybe change name? maybe return indeces instead of length? copied as `longestrun_descending`
+- [X] longestrun : maybe return indices instead of length, then add `count_longestrun`
+- [ ] christiecycles : ask JAY
+- [ ] othercycles : ask JAY
+- [ ] sumcycles : ask JAY
+- [ ] maxcycles : ask JAY
+- [X] is_involution
+- [X] is_identity
+- [X] threepats
+- [X] fourpats
+- [X] num_consecutive_3214 : makes no freakin sense to have here
+- [X] coveredby : TODO: reimplement in Permuta
+- [X] buildupset : looks weird
+- [ ] set_up_bounds : ask JAY
+- [X] avoids
+- [X] avoids_set
+- [X] involves
+- [X] involved_in
+- [ ] involvement_check_final : probably these three are not needed, (RAGGI)
+- [ ] involvement_check (RAGGI)
+- [ ] involvement_fits (RAGGI)
+- [X] occurrences
+- [X] all_intervals : a substition(block/interval) decomposition of the permutation, with all possible blocks(all sizes, also non-maximal), copied as `block_decomposition`
+- [X] all_monotone_intervals : a substitution(block/interval) decomposition of the permutation where the blocks are monotone increasing or decreasing, copied as `monotone_block_decomposition`
+- [X] monotone_quotient : values of the first elements of the blocks in the monotone substitution(block/interval) decomposition
+- [X] maximal_interval : finds the biggest interval in the permutation
+- [X] simple_location : finds some interval of length at least 2
+- [X] is_simple : checks if the permutation is simple
+- [X] is_strongly_simple : checks if the permutation is strongly? simple
+- [X] decomposition : another function to do a substitution(block/interval) decomposition, TODO this name is to general
+- [X] inflate : TODO implement, review permpy implementations
+- [ ] right_extensions : WTF
+- [ ] all_right_extensions : WTF
+- [ ] all_extensions : WTF
+- [ ] all_extensions_track_index : WTF
+- [X] plot
+- [X] \_show
+- [X] to_tikz
+- [X] shrink_by_one : gives a PermSet of all permutations with one element removed
+- [X] children : alias for `shrink_by_one`
+- [X] downset
+- [X] sum_indecomposable_sequence
+- [ ] sum_indec_bdd_by : ask JAY
+- [X] contains_locations : same as the `occurrences_of` function
+- [X] rank_val : number of inversions by value at index
+- [X] rank_encoding : `rank_val` of each position in permutation
+- [X] num_rtlmax_ltrmin_layers
+- [X] rtlmax_ltrmin_decomposition
+- [X] num_inc_bonds : should be copied as `count_inc_bonds`
+- [X] num_dec_bonds : should be copied as count_dec_bonds
+- [X] num_bonds : same as `bonds`, should be copied as `count_bonds`
+- [X] contract_inc_bonds
+- [X] contract_dec_bonds
+- [X] contract_bonds
+- [X] all_syms
+- [X] is_representative
+- [ ] greedy_sum : TODO ask JAY
+- [ ] chom_sum : TODO ask JAY
+- [ ] chom_skew : TODO ask JAY
