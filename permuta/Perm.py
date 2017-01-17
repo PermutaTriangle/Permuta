@@ -520,7 +520,7 @@ class Perm(tuple,
             assert len(components) == len(self)
             shift = 0
             shifts = [0]*len(self)
-            for index in self:
+            for index in self.inverse():
                 shifts[index] = shift
                 component = components[index]
                 shift += 1 if component is None else len(component)
@@ -1190,10 +1190,10 @@ class Perm(tuple,
         return inv
 
     def min_gapsize(self):
-        """Returns the minimum gap between any two entries in the permutation 
+        """Returns the minimum gap between any two entries in the permutation
         (computed with the taxicab metric).
 
-        TODO: currently uses the naive algorithm --- can be improved 
+        TODO: currently uses the naive algorithm --- can be improved
 
         Examples:
             >>> Perm(2031).min_gapsize()
