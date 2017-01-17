@@ -8,3 +8,13 @@ class Avoiding210(AvoidingGeneric, CatalanAvoidingClass):
 
     def _ensure_level(self, level_number):
         raise NotImplementedError
+        while len(self.cache) <= level_number:
+            new_level = set()
+            for perm in self.cache[-1]:
+                first_descent_location = 0
+                while first_descent_location < level_number - 2 and perm[first_descent_location] > perm[first_descent_location+1]:
+                    first_descent_location += 1
+                for index in range(first_descent_location + 2):
+                    new_perm = perm.insert(index, 0)
+                    new_level.add(new_perm)
+            self.cache.append(new_level)
