@@ -861,13 +861,13 @@ class Perm(tuple,
     sum_decomposable = is_sum_decomposable # permpy backwards compatibility
 
     def descents(self):
-        """Yield the indices of the descents of self.
+        """Yield the 0-based indices of the descents of self.
 
         Examples:
             >>> tuple(Perm((0, 1, 3, 2, 4)).descents())
-            (3,)
+            (2,)
             >>> tuple(Perm((3, 2, 1, 0)).descents())
-            (1, 2, 3)
+            (0, 1, 2)
             >>> tuple(Perm((0, 1, 2)).descents())
             ()
         """
@@ -1045,7 +1045,7 @@ class Perm(tuple,
 
         Examples:
             >>> list(Perm((5, 3, 4, 0, 2, 1)).bends())
-            [1, 2, 3, 4,]
+            [1, 2, 3, 4]
             >>> list(Perm((2, 0, 1)).bends())
             [1]
         """
@@ -1067,7 +1067,7 @@ class Perm(tuple,
 
         Examples:
             >>> Perm((5, 3, 4, 0, 2, 1)).bend_list()
-            [1, 2, 3, 4,]
+            [1, 2, 3, 4]
             >>> Perm((2, 0, 1)).bend_list()
             [1]
         """
@@ -1080,7 +1080,7 @@ class Perm(tuple,
             >>> Perm((4, 3, 5, 0, 2, 1)).order()
             6
             >>> Perm((0, 1, 2)).order()
-
+            1
         """
         acc = 1
         for l in map(len, self.cycle_decomp()):
@@ -1129,7 +1129,7 @@ class Perm(tuple,
 
         Examples:
             >>> Perm(24301).rtlmax()
-            [4, 2, 1]
+            [1, 2, 4]
         """
         return [len(self)-i-1 for i in self.complement().reverse().ltrmin()][::-1]
 
@@ -1176,18 +1176,17 @@ class Perm(tuple,
         """Returns the number of noninversions of the permutation, i.e., the
         number of pairs i,j such that i < j and self[i] < self[j].
 
-        >>> Perm((3, 0, 2, 1, 4)).count_noninversions()
-        5
-        >>> Perm.monotone_increasing(7).count_noninversions() == (6 * 7) / 2
-        True
+        Examples:
+            >>> Perm((3, 0, 2, 1, 4)).count_noninversions()
+            6
+            >>> Perm.monotone_increasing(7).count_noninversions() == (6 * 7) / 2
+            True
         """
-        p = list(self)
-        n = self.__len__()
         inv = 0
-        for i in range(n):
-            for j in range(i+1,n):
-                if p[i]<p[j]:
-                    inv+=1
+        for i in range(len(self)):
+            for j in range(i + 1, len(self)):
+                if self[i] < self[j]:
+                    inv += 1
         return inv
 
     def min_gapsize(self):
@@ -1214,11 +1213,11 @@ class Perm(tuple,
         with adjacent values.
 
         Examples:
-            >>> Perm((0, 1, 2))
+            >>> Perm((0, 1, 2)).count_bonds()
             2
-            >>> Perm((2, 1, 0))
+            >>> Perm((2, 1, 0)).count_bonds()
             2
-            >>> Perm((4, 0, 3, 2, 1, 5))
+            >>> Perm((4, 0, 3, 2, 1, 5)).count_bonds()
             2
         """
         return self.count_dec_bonds() + self.count_inc_bonds()
@@ -1231,7 +1230,7 @@ class Perm(tuple,
         the ascents with adjacent values.
 
         Examples:
-            >>> list(Perm((2, 3, 4, 5, 0, 1)))
+            >>> list(Perm((2, 3, 4, 5, 0, 1)).inc_bonds())
             [0, 1, 2, 4]
         """
         for i in range(len(self) - 1):
@@ -1242,9 +1241,9 @@ class Perm(tuple,
         """Counts the number of increasing bonds.
 
         Examples:
-            >>> Perm((0, 2, 3, 1))
+            >>> Perm((0, 2, 3, 1)).count_inc_bonds()
             1
-            >>> Perm((2, 3, 4, 5, 0, 1))
+            >>> Perm((2, 3, 4, 5, 0, 1)).count_inc_bonds()
             4
         """
         return len(list(self.inc_bonds()))
@@ -1256,8 +1255,8 @@ class Perm(tuple,
         the descents with adjacent values.
 
         Examples:
-            >>> list(Perm((1, 0, 3, 2, 5, 4))
-            [0, 2, 3]
+            >>> list(Perm((1, 0, 3, 2, 5, 4)).dec_bonds())
+            [0, 2, 4]
         """
         for i in range(len(self) - 1):
             if self[i] == self[i + 1] + 1:
@@ -1267,9 +1266,9 @@ class Perm(tuple,
         """Counts the number of decreasing bonds.
 
         Examples:
-            >>> Perm((2, 1, 0, 3))
-            3
-            >>> list(Perm((1, 0, 3, 2, 5, 4))
+            >>> Perm((2, 1, 0, 3)).count_dec_bonds()
+            2
+            >>> Perm((1, 0, 3, 2, 5, 4)).count_dec_bonds()
             3
         """
         return len(list(self.dec_bonds()))
@@ -1284,7 +1283,7 @@ class Perm(tuple,
             >>> Perm((3, 1, 2, 4, 0)).majorindex()
             5
             >>> Perm((0, 2, 1)).majorindex()
-            1
+            2
         """
         desc = list(self.descents())
         return sum(desc) + len(desc)
