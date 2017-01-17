@@ -29,8 +29,7 @@ class PermSet(object, metaclass=PermSetMetaclass):
                     for cls in described.__subclasses__():
                         if cls.descriptor == descriptor:
                             return cls(descriptor)
-                    return described(descriptor)
-                    break  # Shouldn't continue looking
+                    return described.default(descriptor)
             raise RuntimeError("PermSet for descriptor {} not found".format(repr(descriptor)))  # TODO: Something else?
         else:
             # Descriptor might just be a set of perms
@@ -43,25 +42,3 @@ class PermSet(object, metaclass=PermSetMetaclass):
     @classmethod
     def filtered(cls, predicate):
         return cls(Predicate(predicate))
-
-
-##
-## Creating a new Descriptor and PermSetDescribed
-##
-#
-#
-#class VeeDescriptor(Descriptor):
-#    def __init__(self):
-#        pass
-#    def __eq__(self, other):
-#        return True
-#
-#
-#class Vee(PermSetDescribed):
-#    descriptor = VeeDescriptor
-#    def contains(self, perm):
-#        raise NotImplementedError
-#    def up_to(self, perm):
-#        raise NotImplementedError
-#    def __getitem__(self, perm):
-#        raise NotImplementedError
