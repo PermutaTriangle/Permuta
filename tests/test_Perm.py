@@ -818,7 +818,7 @@ def test_block_decomposition():
                 assert Perm.to_standard(perm[start:start + length]) in patts
 
 def test_monotone_block_decomposition():
-    assert Perm(()).monotone_block_decomposition() == []
+    assert Perm(()).monotone_block_decomposition(True) == []
     assert Perm((0)).monotone_block_decomposition() == []
     assert Perm((0)).monotone_block_decomposition(True) == [(0,0)]
     assert Perm((6, 7, 5, 3, 0, 1, 2, 4)).monotone_block_decomposition() == [(0, 1), (4, 6)]
@@ -831,6 +831,31 @@ def test_monotone_block_decomposition():
             assert block[0] == last + 1
             last = block[1]
             assert all(perm[i] - perm[i - 1] == perm[block[0] + 1] - perm[block[0]] for i in range(block[0] + 2, block[1]))
+
+def test_monotone_quotient():
+    assert Perm(()).monotone_quotient() == Perm(())
+    assert Perm((0)).monotone_quotient() == Perm((0))
+    assert Perm((0, 2, 1, 5, 6, 7, 4, 3)).monotone_quotient() == Perm((0, 1, 3, 2))
+    for _ in range(20):
+        perm = Perm.random(random.randint(0, 20))
+        monblocks = tuple(start for (start,end) in perm.monotone_block_decomposition(True))
+        assert monblocks in list(perm.occurrences_of(perm.monotone_quotient()))
+
+def test_maximum_block():
+    assert Perm(()).maximum_block() == (0, 0)
+    assert Perm(()).maximum_block() == (0, 0)
+    assert Perm((0, 2, 1, 5, 6, 7, 4, 3)).maximum_block() == (7, 1)
+    assert Perm((3, 4, 0, 7, 2, 6, 1, 5)).maximum_block() == (2, 0)
+    for _ in range(20):
+        perm = Perm.random(random.randint(0, 20))
+        length, start = perm.maximum_block()
+        if length != 0:
+            assert max(perm[start:start + length]) - min(perm[start:start + length]) == length - 1
+        else:
+            length = 2
+        for bigger in range(length + 1, len(perm) - 1):
+            for start in range(len(perm) - bigger - 1):
+                assert max(perm[start:start + bigger]) - min(perm[start:start + bigger]) != bigger - 1
 
 def test_call_1():
     p = Perm((0, 1, 2, 3))

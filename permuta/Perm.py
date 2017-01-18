@@ -1511,7 +1511,8 @@ class Perm(tuple,
                 c_start = i
                 c_length = 0
                 diff = 0
-        blocks.append((c_start, c_start + c_length))
+        if len(self):
+            blocks.append((c_start, c_start + c_length))
 
         if with_ones:
             return blocks
@@ -1530,7 +1531,7 @@ class Perm(tuple,
             >>> Perm((0, 2, 1, 5, 6, 7, 4, 3)).monotone_quotient()
             Perm((0, 1, 3, 2))
         """
-        return Perm.to_standard([self[k[0]] for k in self.all_monotone_intervals(with_ones=True)])
+        return Perm.to_standard([self[start] for (start, end) in self.monotone_block_decomposition(with_ones=True)])
 
     def maximum_block(self):
         ''' Finds the biggest interval, and returns (i,j) is one is found,
@@ -1539,12 +1540,17 @@ class Perm(tuple,
 
         Returns (0,0) if no interval is found, i.e., if the permutation is
         simple.
+
+        Example:
+            >>> Perm((0, 2, 1, 5, 6, 7, 4, 3)).maximum_block()
+            (7, 1)
         '''
-        for i in range(2, len(self))[::-1]:
-            for j in range (0,len(self)-i+1):
-                if max(self[j:j+i]) - min(self[j:j+i]) == i-1:
-                    return (i,j)
-        return (0,0)
+        blocks = self.block_decomposition()
+        for length, indexlist in reversed(list(enumerate(blocks))):
+            if len(indexlist):
+                return (length, indexlist[0])
+        return (0, 0)
+
 
     maximal_interval = maximum_block # permpy backwards compatibility
 
