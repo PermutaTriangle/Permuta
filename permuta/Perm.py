@@ -1798,7 +1798,7 @@ class Perm(tuple,
             #   - lfi: Left Floor Index
             #   - lci: Left Ceiling Index
             #   - lbp: Lower Bound Pre-computation
-            #   - ubp: Upper Bound pre-computation
+            #   - ubp: Upper Bound Pre-computation
             lfi, lci, lbp, ubp = pattern_details[k]
 
             # Set the bounds for the new element
@@ -1817,7 +1817,7 @@ class Perm(tuple,
                 # The new element of the occurrence must be at least as less
                 # than its maximum possible element---i.e., len(perm)---as
                 # self[k] is to its maximum possible element---i.e., len(self)
-                # ubp = len(self) - self[k]
+                # In this case, ubp = len(self) - self[k]
                 upper_bound = len(perm) - ubp
             else:
                 # The new element of the occurrence must be at least as less
