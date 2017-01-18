@@ -296,7 +296,12 @@ def test_remove_element():
     with pytest.raises(TypeError): Perm((2, 1, 0, 3)).remove_element([0])
 def test_inflate():
     # TODO: make proper tests when the Perm.inflate has been implemented.
-    perm = Perm(())
+    assert Perm((0, 1)).inflate([Perm((1, 0)), Perm((2, 1, 0))]) ==  Perm((1, 0, 4, 3, 2))
+    assert Perm((1, 0, 2)).inflate([None, Perm((0, 1)), Perm((0, 1))]) == Perm((2, 0, 1, 3, 4))
+    assert Perm((0, 1)).inflate([Perm(), Perm()]) ==  Perm(())
+
+    with pytest.raises(TypeError): Perm((0, 1, 2, 3)).inflate(237)
+    with pytest.raises(TypeError): Perm((0, 1, 2, 3)).inflate("hehe")
 
 # TODO: The following three functions have yet to be implemented
 @pytest.mark.xfail
@@ -785,6 +790,18 @@ def test_fourpats():
         fourpatdict = perm.fourpats()
         for key, val in fourpatdict.items():
             assert key.count_occurrences_in(perm) == val
+
+def test_rank_encoding():
+    assert Perm(()).rank_encoding() == []
+    assert Perm((0)).rank_encoding() == [0]
+    for _ in range(20):
+        perm = Perm.random(random.randint(0, 20))
+        for index, val in enumerate(perm.rank_encoding()):
+            invs = 0
+            for i in range(index + 1, len(perm)):
+                if perm[i] < perm[index]:
+                    invs += 1
+            assert invs == val
 
 def test_call_1():
     p = Perm((0, 1, 2, 3))

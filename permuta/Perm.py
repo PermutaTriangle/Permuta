@@ -1420,27 +1420,46 @@ class Perm(tuple,
         return patnums
 
     def rank_val(self, i):
-        return len([j for j in range(i+1,len(self)) if self[j] < self[i]])
+        """Returns the 'rank value'(?) of index i, the number of inversions
+        with the value at i being the greater element.
+
+
+        Examples:
+            >>> Perm((3, 0, 2, 1)).rank_val(0)
+            3
+            >>> Perm((0, 2, 4, 3, 1)).rank_val(1)
+            1
+        """
+        return len([j for j in range(i + 1, len(self)) if self[j] < self[i]])
 
     def rank_encoding(self):
+        """Returns the 'rank value'(?) of each index in the permutation, the number of inversions 'caused' by the values at each index.
+
+        Examples:
+            >>> Perm((3, 0, 2, 1)).rank_encoding(0)
+            [3, 0, 1, 0]
+            >>> Perm((0, 2, 4, 3, 1)).rank_encoding(1)
+            [0, 1, 2, 1, 0]
+        """
         return [self.rank_val(i) for i in range(len(self))]
 
     #
     # Decomposition and generation from self methods
     #
 
+    # TODO: maybe reimplement this someday with dp
     def block_decomposition(self, return_patterns=False):
-        blocks = [[],[]]
+        blocks = [[], []]
         for i in range(2, len(self)):
             blocks.append([])
-            for j in range (0,len(self)-i+1):
-                if max(self[j:j+i]) - min(self[j:j+i]) == i-1:
+            for j in range (0, len(self) - i + 1):
+                if max(self[j:j + i]) - min(self[j:j + i]) == i - 1:
                     blocks[i].append(j)
         if return_patterns:
             patterns = []
             for length in range(0, len(blocks)):
                 for start_index in blocks[length]:
-                    patterns.append(Perm(self[start_index:start_index+length]))
+                    patterns.append(Perm(self[start_index:start_index + length]))
             return patterns
         else:
             return blocks
