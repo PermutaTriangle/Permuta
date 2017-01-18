@@ -1329,7 +1329,7 @@ class Perm(tuple,
         """Calculates the cycle decomposition of the permutation. Returns a list
         of cycles, each of which is represented as a list.
 
-        >>> Perm(42703165).cycle_decomp()
+        >>> Perm((4, 2, 7, 0, 3, 1, 6, 5)).cycle_decomp()
         [[4, 3, 0], [6], [7, 5, 1, 2]]
         """
         n = self.__len__()
@@ -1351,17 +1351,23 @@ class Perm(tuple,
     def count_cycles(self):
         """Returns the number of cycles in the permutation.
 
-        >>> Perm(538104276).count_cycles()
+        >>> Perm((5, 3, 8, 1, 0, 4, 2, 7, 6)).count_cycles()
         4
         """
-
         return len(self.cycle_decomp())
 
     num_cycles = count_cycles # permpy backwards compatibility
 
     def is_involution(self):
         """Checks if the permutation is an involution, i.e., is equal to it's
-        own inverse. """
+        own inverse.
+
+        Examples:
+            >>> Perm((2, 1, 0)).is_involution()
+            True
+            >>> Perm((3, 0, 2, 4, 1, 5)).is_involution()
+            False
+        """
 
         return self == self.inverse()
 
@@ -1379,33 +1385,38 @@ class Perm(tuple,
     #perm2ind = rank  # permpy backwards compatibility
 
     def threepats(self):
-        p = list(self)
-        n = self.__len__()
-        patnums = {'123' : 0, '132' : 0, '213' : 0,
-                             '231' : 0, '312' : 0, '321' : 0}
-        for i in range(n-2):
-            for j in range(i+1,n-1):
-                for k in range(j+1,n):
-                    patnums[''.join(map(lambda x: str(x+1),Permutation([p[i], p[j], p[k]])))] += 1
+        """Returns a dictionary of the number of occurrences of each
+        permutation pattern of length 3.
+
+        Examples:
+            >>> Perm((2, 1, 0, 3)).threepats()
+            {Perm((0, 1, 2)): 0, Perm((0, 2, 1)): 0, Perm((1, 0, 2)): 3, Perm((1, 2, 0)): 0, Perm((2, 0, 1)): 0, Perm((2, 1, 0)): 1}
+        """
+        patnums = { Perm((0, 1, 2)) : 0, Perm((0, 2, 1)) : 0, Perm((1, 0, 2)) : 0,
+                    Perm((1, 2, 0)) : 0, Perm((2, 0, 1)) : 0, Perm((2, 1, 0)) : 0 }
+        for i, j, k in itertools.combinations(range(len(self)), 3):
+            patnums[Perm.to_standard((self[i], self[j], self[k]))] += 1
         return patnums
 
     def fourpats(self):
-        p = list(self)
-        n = self.__len__()
-        patnums = {'1234' : 0, '1243' : 0, '1324' : 0,
-                             '1342' : 0, '1423' : 0, '1432' : 0,
-                             '2134' : 0, '2143' : 0, '2314' : 0,
-                             '2341' : 0, '2413' : 0, '2431' : 0,
-                             '3124' : 0, '3142' : 0, '3214' : 0,
-                             '3241' : 0, '3412' : 0, '3421' : 0,
-                             '4123' : 0, '4132' : 0, '4213' : 0,
-                             '4231' : 0, '4312' : 0, '4321' : 0 }
+        """Returns a dictionary of the number of occurrences of each
+        permutation pattern of length 4.
 
-        for i in range(n-3):
-            for j in range(i+1,n-2):
-                for k in range(j+1,n-1):
-                    for m in range(k+1,n):
-                        patnums[''.join(map(lambda x: str(x+1),list(Permutation([p[i], p[j], p[k], p[m]]))))] += 1
+        Examples:
+            >>> Perm((1, 0, 3, 5, 2, 4)).fourpats()
+            {Perm((0, 1, 2, 3)): 0, Perm((0, 1, 3, 2)): 2, Perm((0, 2, 1, 3)): 2, Perm((0, 2, 3, 1)): 2, Perm((0, 3, 1, 2)): 2, Perm((0, 3, 2, 1)): 0, Perm((1, 0, 2, 3)): 3, Perm((1, 0, 3, 2)): 3, Perm((1, 2, 0, 3)): 0, Perm((1, 2, 3, 0)): 0, Perm((1, 3, 0, 2)): 1, Perm((1, 3, 2, 0)): 0, Perm((2, 0, 1, 3)): 0, Perm((2, 0, 3, 1)): 0, Perm((2, 1, 0, 3)): 0, Perm((2, 1, 3, 0)): 0, Perm((2, 3, 0, 1)): 0, Perm((2, 3, 1, 0)): 0, Perm((3, 0, 1, 2)): 0, Perm((3, 0, 2, 1)): 0, Perm((3, 1, 0, 2)): 0, Perm((3, 1, 2, 0)): 0, Perm((3, 2, 0, 1)): 0, Perm((3, 2, 1, 0)): 0}
+        """
+        patnums = { Perm((0, 1, 2, 3)): 0, Perm((0, 1, 3, 2)): 0, Perm((0, 2, 1, 3)): 0,
+            Perm((0, 2, 3, 1)): 0, Perm((0, 3, 1, 2)): 0, Perm((0, 3, 2, 1)): 0,
+            Perm((1, 0, 2, 3)): 0, Perm((1, 0, 3, 2)): 0, Perm((1, 2, 0, 3)): 0,
+            Perm((1, 2, 3, 0)): 0, Perm((1, 3, 0, 2)): 0, Perm((1, 3, 2, 0)): 0,
+            Perm((2, 0, 1, 3)): 0, Perm((2, 0, 3, 1)): 0, Perm((2, 1, 0, 3)): 0,
+            Perm((2, 1, 3, 0)): 0, Perm((2, 3, 0, 1)): 0, Perm((2, 3, 1, 0)): 0,
+            Perm((3, 0, 1, 2)): 0, Perm((3, 0, 2, 1)): 0, Perm((3, 1, 0, 2)): 0,
+            Perm((3, 1, 2, 0)): 0, Perm((3, 2, 0, 1)): 0, Perm((3, 2, 1, 0)): 0}
+
+        for i, j, k, l in itertools.combinations(range(len(self)), 4):
+            patnums[Perm.to_standard((self[i], self[j], self[k], self[l]))] += 1
         return patnums
 
     def rank_val(self, i):

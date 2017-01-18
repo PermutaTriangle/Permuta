@@ -707,13 +707,6 @@ def test_minimum_gapsize():
     assert Perm((5, 2, 0, 3, 6, 4, 7, 1)).min_gapsize() == 3
     assert Perm((7, 2, 0, 4, 9, 5, 8, 1, 6, 3)).min_gapsize() == 3
 
-def test_longestruns_ascending():
-    assert Perm().longestruns_ascending() == (0, [])
-    assert Perm((0, 1, 2, 3)).longestruns_ascending() == (4, [0])
-    assert Perm((4, 3, 2, 1, 0)).longestruns_ascending() == (1, [0, 1, 2, 3, 4])
-    assert Perm((8, 1, 7, 5, 6, 2, 9, 3, 0, 4)).longestruns_ascending() == (2, [1, 3, 5, 8])
-    assert Perm((1, 2, 3, 4, 6, 0, 9, 7, 8, 5)).longestruns_ascending() == (5, [0])
-
 def test_longestruns_descending():
     assert Perm().longestruns_descending() == (0, [])
     assert Perm((3, 2, 1, 0)).longestruns_descending() == (4, [0])
@@ -722,12 +715,11 @@ def test_longestruns_descending():
     assert Perm((0, 3, 1, 4, 7, 2, 8, 5, 6, 9)).longestruns_descending() == (2, [1, 4, 6])
 
 def test_longestruns():
-    assert Perm().longestruns_ascending() == (0, [])
-    assert Perm((0, 1, 2, 3)).longestruns_ascending() == (4, [0])
-    assert Perm((4, 3, 2, 1, 0)).longestruns_ascending() == (1, [0, 1, 2, 3, 4])
-    assert Perm((8, 1, 7, 5, 6, 2, 9, 3, 0, 4)).longestruns_ascending() == (2, [1, 3, 5, 8])
-    assert Perm((1, 2, 3, 4, 6, 0, 9, 7, 8, 5)).longestruns_ascending() == (5, [0])
-
+    assert Perm().longestruns() == (0, [])
+    assert Perm((0, 1, 2, 3)).longestruns() == (4, [0])
+    assert Perm((4, 3, 2, 1, 0)).longestruns() == (1, [0, 1, 2, 3, 4])
+    assert Perm((8, 1, 7, 5, 6, 2, 9, 3, 0, 4)).longestruns() == (2, [1, 3, 5, 8])
+    assert Perm((1, 2, 3, 4, 6, 0, 9, 7, 8, 5)).longestruns() == (5, [0])
 
 def test_length_of_longestrun_ascending():
     assert Perm().length_of_longestrun_ascending() == 0
@@ -748,6 +740,21 @@ def test_length_of_longestrun():
     assert Perm((4, 0, 9, 5, 3, 7, 1, 6, 8, 2)).length_of_longestrun() == 3
     assert Perm((1, 9, 4, 6, 0, 8, 2, 7, 5, 3)).length_of_longestrun() == 2
     assert Perm((2, 5, 8, 6, 0, 1, 3, 7, 9, 4)).length_of_longestrun() == 5
+
+def test_count_cycles():
+    for i in range(10):
+        assert Perm.identity(i).count_cycles() == i
+    assert Perm((2, 0, 1)).count_cycles() == 1
+    assert Perm((4, 2, 7, 0, 3, 1, 6, 5)).count_cycles() == 3
+    assert Perm((5, 3, 8, 1, 0, 4, 2, 7, 6)).count_cycles() == 4
+
+def test_is_involution():
+    assert Perm(()).is_involution()
+    assert Perm((0)).is_involution()
+    for _ in range(30):
+        perm = Perm.random(random.randint(0, 20))
+        cyclelist = perm.cycle_decomp()
+        assert perm.is_involution() == all(map(lambda x: len(x) <= 2, cyclelist))
 
 def test_call_1():
     p = Perm((0, 1, 2, 3))
