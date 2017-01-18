@@ -841,14 +841,14 @@ def test_monotone_quotient():
         monblocks = tuple(start for (start,end) in perm.monotone_block_decomposition(True))
         assert monblocks in list(perm.occurrences_of(perm.monotone_quotient()))
 
-def test_maximum_block():
-    assert Perm(()).maximum_block() == (0, 0)
-    assert Perm(()).maximum_block() == (0, 0)
-    assert Perm((0, 2, 1, 5, 6, 7, 4, 3)).maximum_block() == (7, 1)
-    assert Perm((3, 4, 0, 7, 2, 6, 1, 5)).maximum_block() == (2, 0)
+def test_simple_location():
+    assert Perm(()).simple_location() == (0, 0)
+    assert Perm((0)).simple_location() == (0, 0)
+    assert Perm((0, 2, 1, 5, 6, 7, 4, 3)).simple_location() == (7, 1)
+    assert Perm((3, 4, 0, 7, 2, 6, 1, 5)).simple_location() == (2, 0)
     for _ in range(20):
         perm = Perm.random(random.randint(0, 20))
-        length, start = perm.maximum_block()
+        length, start = perm.simple_location()
         if length != 0:
             assert max(perm[start:start + length]) - min(perm[start:start + length]) == length - 1
         else:

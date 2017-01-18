@@ -1561,15 +1561,7 @@ class Perm(tuple,
         Returns (0,0) if no interval is found, i.e., if the permutation is
         simple.
         '''
-        mins = list(self)
-        maxs = list(self)
-        for i in range(1,len(self)-1):
-            for j in reversed(range(i,len(self))):
-                mins[j] = min(mins[j-1], self[j])
-                maxs[j] = max(maxs[j-1], self[j])
-                if maxs[j] - mins[j] == i:
-                    return (i,j)
-        return (0,0)
+        return self.maximum_block()
 
     def is_simple(self):
         ''' returns True is this permutation is simple, False otherwise'''
