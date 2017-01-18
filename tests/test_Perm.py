@@ -189,20 +189,20 @@ def test_direct_sum():
     p4 = Perm((0, ))
     p5 = Perm()
     # All together
-    result = p1.direct_sum(p2, p3, p4, p5)
+    result = p1 + p2 + p3 + p4 + p5
     expected = Perm((0, 1, 3, 2, 4, 8, 6, 5, 7, 11, 9, 10, 12))
     assert result == expected
     # Two
-    result = p1.direct_sum(p3)
+    result = p1 + p3
     expected = Perm((0, 1, 3, 2, 6, 4, 5))
     assert result == expected
     # None
     assert p1.direct_sum() == p1
     # Arguments not a permutation
-    with pytest.raises(TypeError): p1.direct_sum(None)
+    with pytest.raises(TypeError): p1 + None
     with pytest.raises(TypeError): p1.direct_sum(p2, None)
     with pytest.raises(TypeError): p1.direct_sum(1237)
-    with pytest.raises(TypeError): p5.direct_sum("hahaha")
+    with pytest.raises(TypeError): p5 + 'hahaha'
 
 def test_skew_sum():
     p1 = Perm((0, 1, 3, 2))
