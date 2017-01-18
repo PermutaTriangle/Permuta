@@ -242,17 +242,19 @@ def test_compose():
     assert p1.compose() == p1
     assert p4.compose() == p4
 
-    assert p1.compose(p2) == p3
-    assert p1.compose(p3) == Perm((3, 2, 0, 1))
-    assert p2.compose(p1) == Perm((2, 3, 1, 0))
+    assert p1 * p2 == p3
+    assert p1 * p3 == Perm((3, 2, 0, 1))
+    assert p2 * p1 == Perm((2, 3, 1, 0))
 
-    assert p4.compose(p5, p6) == p7
-    assert p5.compose(p6, p7, p4) == p7
+    assert p4 * p5 * p6 == p7
+    assert p5 * p6 * p7 * p4 == p7
 
     with pytest.raises(TypeError): p1.compose(None)
+    with pytest.raises(TypeError): p1 * None
     with pytest.raises(TypeError): p2.compose(p2, None)
     with pytest.raises(TypeError): p3.compose(1237)
-    with pytest.raises(TypeError): p5.compose("hahaha")
+    with pytest.raises(TypeError): p5 * ("hahaha")
+    with pytest.raises(TypeError): p5 * (p1,)
 
     with pytest.raises(ValueError): p1.compose(p0)
     with pytest.raises(ValueError): p0.compose(p5)
@@ -997,6 +999,34 @@ def test_lt():
             assert not (Perm(l1) < Perm(l2))
         assert not (Perm(l1) < Perm(l1))
         assert not (Perm(l2) < Perm(l2))
+
+def test_gt():
+    # TODO: No length testing is done here
+    for _ in range(30):
+        l1 = list(range(10))
+        l2 = list(range(10))
+        random.shuffle(l1)
+        random.shuffle(l2)
+        if l1 > l2:
+            assert Perm(l1) > Perm(l2)
+        else:
+            assert not (Perm(l1) > Perm(l2))
+        assert not (Perm(l1) > Perm(l1))
+        assert not (Perm(l2) > Perm(l2))
+
+def test_ge():
+    # TODO: No length testing is done here
+    for _ in range(30):
+        l1 = list(range(10))
+        l2 = list(range(10))
+        random.shuffle(l1)
+        random.shuffle(l2)
+        if l1 >= l2:
+            assert Perm(l1) >= Perm(l2)
+        else:
+            assert not (Perm(l1) >= Perm(l2))
+        assert (Perm(l1) >= Perm(l1))
+        assert (Perm(l2) >= Perm(l2))
 
 def test_bool():
     assert Perm([0, 1, 2, 3])

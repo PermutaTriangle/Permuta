@@ -2070,7 +2070,7 @@ class Perm(tuple,
 
     def __mul__(self, other):
         """Return the composition of two perms."""
-        return self.multiply(other)
+        return self.compose(other)
 
     def __repr__(self):
         return "Perm({})".format(super(Perm, self).__repr__())
