@@ -117,6 +117,7 @@ def test_contained_in():
         return Perm(perm)
 
     assert Perm([3, 7, 0, 8, 1, 6, 5, 2, 4]).contained_in(Perm([3, 7, 0, 8, 1, 6, 5, 2, 4]))
+    assert Perm([3, 7, 0, 8, 1, 6, 5, 2, 4]).contains(Perm([3, 7, 0, 8, 1, 6, 5, 2, 4]))
     assert Perm([]).contained_in(Perm([]))
     assert Perm([]).contained_in(Perm([3, 7, 0, 8, 1, 6, 5, 2, 4]))
     assert Perm([0]).contained_in(Perm([0]))
@@ -127,6 +128,7 @@ def test_contained_in():
         patt = PermSet(n).random()
         perm = generate_contained(random.randint(n, 8), list(patt))
         assert patt.contained_in(perm)
+        assert perm.contains(patt)
 
     assert not Perm([0]).contained_in(Perm([]))
     assert not Perm([0, 1]).contained_in(Perm([]))
