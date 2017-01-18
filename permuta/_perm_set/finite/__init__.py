@@ -1,2 +1,3 @@
 from .PermSetFinite import PermSetFinite
 from .PermSetFiniteSpecificLength import PermSetFiniteSpecificLength
+from .PermSetStatic import PermSetStatic

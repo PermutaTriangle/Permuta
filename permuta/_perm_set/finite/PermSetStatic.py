@@ -3,9 +3,33 @@ import random
 from .PermSetFinite import PermSetFinite
 
 
-class PermSetStatic(set, PermSetFinite):
+class PermSetStatic(PermSetFinite):
+    __slots__ = ("_set", "_generating_function", "_iter")
     def __init__(self, iterable):
-        return super(PermSetStatic, self).__init__(iterable)
+        self._set = set(iterable)
+        self._tuple = tuple(self._set)
+        self._generating_function = "X"
+        self._iter = None
+
+    @property
+    def generating_function(self):
+        return self._generating_function  # TODO Replace with symbolic variables and stuff
 
     def random(self):
-        return random.choice(self)  # TODO
+        return random.choice(self._tuple)
+
+    def __contains__(self, item):
+        return isinstance(item, Perm) and self._set.contains(item)
+
+    def __getitem__(self, key):
+        return self._tuple[key]
+
+    def __iter__(self):
+        self._iter = iter(self._tuple)
+        return self
+
+    def __next__(self):
+        return next(self._iter)
+
+    def __repr__(self):
+        return "<A set of {} perms>".format(len(self._tuple))
