@@ -803,6 +803,35 @@ def test_rank_encoding():
                     invs += 1
             assert invs == val
 
+def test_block_decomposition():
+    assert Perm(()).block_decomposition() == []
+    assert Perm((0)).block_decomposition() == [[]]
+    assert Perm((5, 3, 0, 1, 2, 4, 7, 6)).block_decomposition() == [[], [], [2, 3, 6], [2], [1], [1], [0], []]
+    assert Perm((4, 1, 0, 5, 2, 3)).block_decomposition(True) == [Perm((0, 1)), Perm((1, 0))]
+    for _ in range(20):
+        perm = Perm.random(random.randint(0,20))
+        blocks = perm.block_decomposition()
+        patts = set(perm.block_decomposition(True))
+        for length in range(len(blocks)):
+            for start in blocks[length]:
+                assert max(perm[start:start + length]) - min(perm[start:start + length]) == length - 1
+                assert Perm.to_standard(perm[start:start + length]) in patts
+
+def test_monotone_block_decomposition():
+    assert Perm(()).monotone_block_decomposition() == []
+    assert Perm((0)).monotone_block_decomposition() == []
+    assert Perm((0)).monotone_block_decomposition(True) == [(0,0)]
+    assert Perm((6, 7, 5, 3, 0, 1, 2, 4)).monotone_block_decomposition() == [(0, 1), (4, 6)]
+    assert Perm((0, 2, 1, 5, 6, 7, 4, 3)).monotone_block_decomposition() == [(1, 2), (3, 5), (6, 7)]
+    for _ in range(20):
+        perm = Perm.random(random.randint(0, 20))
+        monblocks = perm.monotone_block_decomposition(True)
+        last = -1
+        for block in monblocks:
+            assert block[0] == last + 1
+            last = block[1]
+            assert all(perm[i] - perm[i - 1] == perm[block[0] + 1] - perm[block[0]] for i in range(block[0] + 2, block[1]))
+
 def test_call_1():
     p = Perm((0, 1, 2, 3))
     for i in range(len(p)):

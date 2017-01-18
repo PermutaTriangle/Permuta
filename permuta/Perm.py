@@ -1492,9 +1492,9 @@ class Perm(tuple,
 
         Examples:
             >>> Perm((2, 6, 3, 7, 4, 5, 1, 0)).monotone_block_decomposition()
-            [(4, 5)]
+            [(4, 5), (6, 7)]
             >>> Perm((2, 6, 3, 7, 4, 5, 1, 0)).monotone_block_decomposition(True)
-            [(0, 0), (1, 1), (2, 2), (3, 3), (4, 5), (6, 6)]
+            [(0, 0), (1, 1), (2, 2), (3, 3), (4, 5), (6, 7)]
             >>> Perm((0, 1, 2, 3, 4, 5)).monotone_block_decomposition()
             [(0, 5)]
         """
@@ -1520,7 +1520,17 @@ class Perm(tuple,
     all_monotone_intervals = monotone_block_decomposition # permpy backwards compatibility
 
     def monotone_quotient(self):
-        return Perm([self[k[0]] for k in self.all_monotone_intervals(with_ones=True)])
+        """Return the permutation pattern consisting of the starting values of
+        the monotone blocks in the permutation. Simply contracts the monotone
+        blocks.
+
+        Examples:
+            >>> Perm((0, 2, 1, 5, 6, 7, 4, 3)).monotone_block_decomposition(True)
+            [(0, 0), (1, 2), (3, 5), (6, 7)]
+            >>> Perm((0, 2, 1, 5, 6, 7, 4, 3)).monotone_quotient()
+            Perm((0, 1, 3, 2))
+        """
+        return Perm.to_standard([self[k[0]] for k in self.all_monotone_intervals(with_ones=True)])
 
     def maximum_block(self):
         ''' Finds the biggest interval, and returns (i,j) is one is found,
