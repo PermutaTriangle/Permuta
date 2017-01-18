@@ -215,16 +215,16 @@ def test_skew_sum():
     expected = Perm((9, 10, 12, 11, 4, 8, 6, 5, 7, 3, 1, 2, 0))
     assert result == expected
     # Two
-    result = p1.skew_sum(p3)
+    result = p1 - p3
     expected = Perm((3, 4, 6, 5, 2, 0, 1))
     assert result == expected
     # None
     assert p1.skew_sum(), p1
 
-    with pytest.raises(TypeError): p1.skew_sum(None)
+    with pytest.raises(TypeError): p1 - None
     with pytest.raises(TypeError): p2.skew_sum(p2, None)
     with pytest.raises(TypeError): p3.skew_sum(1237)
-    with pytest.raises(TypeError): p5.skew_sum("hahaha")
+    with pytest.raises(TypeError): p5 - "hahaha"
 
 def test_compose():
     p0 = Perm()
