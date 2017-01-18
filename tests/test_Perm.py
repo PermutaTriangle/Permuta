@@ -171,6 +171,9 @@ def test_occurrences_in():
     assert list(Perm([4, 1, 2, 3, 0]).occurrences_in(Perm([1, 0]))) == []
 
 def test_apply():
+    with pytest.raises(ValueError): Perm((1, 2, 4, 0, 3, 5)).apply(Perm((0, 2, 1, 3)))
+    with pytest.raises(ValueError): Perm(()).apply(Perm((0)))
+
     for i in range(100):
         n = random.randint(0, 20)
         lst = [random.randint(0, 10000) for _ in range(n)]

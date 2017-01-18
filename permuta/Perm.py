@@ -1933,7 +1933,7 @@ class Perm(tuple,
         """
         iterable = tuple(iterable)
         if len(iterable) != len(self):
-            raise TypeError("Length mismatch")
+            raise ValueError("Length mismatch")
         return tuple(iterable[index] for index in self)
 
     permute = apply  # Alias of Perm.apply
