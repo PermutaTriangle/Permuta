@@ -1581,14 +1581,24 @@ class Perm(tuple,
         """Checks if the permutation is strongly simple, that is if the
         permutation is simple and any of permutation of one less length in the
         downset is simple.
+
+        Example:
+            >>> Perm((4, 1, 6, 3, 0, 7, 2, 5)).is_strongly_simple()
+            True
         """
         return self.is_simple() and all([p.is_simple() for p in self.children()])
 
     def children(self):
         """Returns all patterns of length one less than the permutation. One
         layer of the downset, also called the shadow.
+
+        Example:
+            >>> Perm((2, 0, 1)).children()
+            [Perm((0, 1)), Perm((1, 0))]
+            >>> Perm((4, 1, 6, 3, 0, 7, 2, 5)).children()
+            [Perm((3, 1, 5, 2, 0, 6, 4)), Perm((3, 0, 5, 2, 6, 1, 4)), Perm((4, 1, 6, 3, 0, 2, 5)), Perm((3, 5, 2, 0, 6, 1, 4)), Perm((4, 1, 3, 0, 6, 2, 5)), Perm((1, 5, 3, 0, 6, 2, 4)), Perm((3, 1, 5, 0, 6, 2, 4)), Perm((4, 1, 5, 3, 0, 6, 2))]
         """
-        return PermSet([Perm(p) for p in [self[:i]+self[i+1:] for i in range(0,len(self))]])
+        return list(set(self.remove(i) for i in range(len(self))))
 
     shrink_by_one = children
 
