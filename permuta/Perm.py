@@ -1560,15 +1560,28 @@ class Perm(tuple,
 
         Returns (0,0) if no interval is found, i.e., if the permutation is
         simple.
+
+        Simply calls the Perm.maximum_block(), the maximum block is any block.
         '''
         return self.maximum_block()
 
     def is_simple(self):
-        ''' returns True is this permutation is simple, False otherwise'''
+        """Checks if the permutation is simple.
+
+        Example:
+            >>> Perm((2, 0, 3, 1)).is_simple()
+            True
+            >>> Perm((2, 0, 1)).is_simple()
+            False
+        """
         (i,j) = self.simple_location()
         return i == 0
 
     def is_strongly_simple(self):
+        """Checks if the permutation is strongly simple, that is if the
+        permutation is simple and any of permutation of one less length in the
+        downset is simple.
+        """
         return self.is_simple() and all([p.is_simple() for p in self.children()])
 
     def children(self):
@@ -1584,21 +1597,25 @@ class Perm(tuple,
 
     # TODO: discuss return value conventions, should this return PermSet instead of set of Perm? maybe list of Perm?
     def coveredby(self):
+        """Returns one layer of the upset of the permutation.
+        """
         S = set()
         n = len(self)
-        for i in range(n+1):
-            for j in range(n+1):
-                S.add(self.insert(i,j))
+        for i in range(n + 1):
+            for j in range(n + 1):
+                S.add(self.insert(i, j))
         return S
 
     # TODO: discuss return value conventions, should this return PermSet instead of set of Perm? maybe list of Perm?
     def buildupset(self, height):
+        """Returns height-th layer of the upset of the permutation
+        """
         n = len(self)
         L = [set() for i in range(n)]
         L.append( set([self]) )
         for i in range(n + 1, height):
-            oldS = list(L[i-1])
-            newS    = set()
+            oldS = list(L[ i- 1])
+            new = set()
             for perm in oldS:
                 newS = newS.union(perm.coveredby())
             L.append(newS)

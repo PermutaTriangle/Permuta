@@ -857,6 +857,20 @@ def test_simple_location():
             for start in range(len(perm) - bigger - 1):
                 assert max(perm[start:start + bigger]) - min(perm[start:start + bigger]) != bigger - 1
 
+def test_is_simple():
+    assert Perm(()).is_simple()
+    assert Perm((0)).is_simple()
+    assert not Perm((0, 1, 2)).is_simple()
+    assert not Perm((0, 2, 1)).is_simple()
+    assert not Perm((1, 0, 2)).is_simple()
+    assert not Perm((1, 2, 0)).is_simple()
+    assert not Perm((2, 0, 1)).is_simple()
+    assert not Perm((2, 1, 0)).is_simple()
+    assert Perm((2, 0, 3, 1)).is_simple()
+    assert not Perm((3, 2, 0, 1)).is_simple()
+    assert Perm((1, 3, 0, 2)).is_simple()
+    assert Perm((3, 7, 2, 6, 1, 5, 0, 4)).is_simple()
+
 def test_call_1():
     p = Perm((0, 1, 2, 3))
     for i in range(len(p)):
