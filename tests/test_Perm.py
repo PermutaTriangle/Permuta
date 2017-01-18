@@ -148,6 +148,17 @@ def test_count_occurrences_in():
     assert Perm([4, 1, 2, 3, 0]).count_occurrences_in(Perm([])) == 0
     assert Perm([4, 1, 2, 3, 0]).count_occurrences_in(Perm([1, 0])) == 0
 
+def test_count_occurrences_of():
+    assert Perm([4, 1, 2, 3, 0]).count_occurrences_of(Perm([1, 0])) == 7
+    assert Perm([4, 1, 2, 3, 0]).count_occurrences_of(Perm([0, 1])) == 3
+    assert Perm((1, 3, 4, 0, 2, 5)).count_occurrences_of(Perm((0, 2, 1))) == 2
+    for _ in range(20):
+        perm = Perm.random(random.randint(0, 20))
+        for key, val in perm.threepats().items():
+            assert perm.count_occurrences_of(key) == val
+        for key, val in perm.fourpats().items():
+            assert perm.count_occurrences_of(key) == val
+
 def test_occurrences_in():
     assert list(Perm([]).occurrences_in(Perm([4, 1, 2, 3, 0]))) == [()]
     assert (sorted(Perm([0]).occurrences_in(Perm([4, 1, 2, 3, 0]))) 
@@ -879,6 +890,15 @@ def test_is_strongly_simple():
     assert not Perm((1, 0, 2)).is_strongly_simple()
     assert Perm((4, 1, 6, 3, 0, 7, 2, 5)).is_strongly_simple()
 
+def test_coveredby():
+    assert Perm(()).coveredby() == [Perm((0))]
+    assert Perm((0)).coveredby() == [Perm((0, 1)), Perm((1, 0))]
+    assert Perm((0, 1)).coveredby() == [Perm((0, 2, 1)), Perm((1, 2, 0)), Perm((0, 1, 2)), Perm((2, 0, 1)), Perm((1, 0, 2))]
+    for _ in range(10):
+        perm = Perm.random(random.randint(0, 12))
+        for p in perm.coveredby():
+            assert perm in p.children()
+
 def test_call_1():
     p = Perm((0, 1, 2, 3))
     for i in range(len(p)):
@@ -923,8 +943,8 @@ def test_avoids():
     assert not (Perm([4, 0, 1, 2, 3]).avoids(Perm([0, 1, 2])))
     assert not (Perm([4, 0, 1, 2, 3]).avoids(Perm([1, 0])))
     assert Perm([4, 0, 1, 2, 3]).avoids(Perm([2, 1, 0]))
-    assert not (Perm([4, 0, 1, 2, 3]).avoids(Perm([2, 1, 0]), Perm([1, 0])))
-    assert Perm([4, 0, 1, 2, 3]).avoids(Perm([2, 1, 0]), Perm([1, 2, 0]))
+    assert not (Perm([4, 0, 1, 2, 3]).avoids_set([Perm([2, 1, 0]), Perm([1, 0])]))
+    assert Perm([4, 0, 1, 2, 3]).avoids_set([Perm([2, 1, 0]), Perm([1, 2, 0])])
 
 def test_avoids_2():
     bound = 6

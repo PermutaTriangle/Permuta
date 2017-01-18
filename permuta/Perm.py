@@ -1602,19 +1602,20 @@ class Perm(tuple,
 
     shrink_by_one = children
 
-    def downset(self):
-        return permset.PermSet([self]).downset()
-
     # TODO: discuss return value conventions, should this return PermSet instead of set of Perm? maybe list of Perm?
     def coveredby(self):
         """Returns one layer of the upset of the permutation.
+
+        Examples:
+            >>> Perm((0, 1)).coveredby()
+            [Perm((0, 2, 1)), Perm((1, 2, 0)), Perm((0, 1, 2)), Perm((2, 0, 1)), Perm((1, 0, 2))]
         """
         S = set()
         n = len(self)
         for i in range(n + 1):
             for j in range(n + 1):
                 S.add(self.insert(i, j))
-        return S
+        return list(S)
 
     # TODO: discuss return value conventions, should this return PermSet instead of set of Perm? maybe list of Perm?
     def buildupset(self, height):
@@ -1624,7 +1625,7 @@ class Perm(tuple,
         L = [set() for i in range(n)]
         L.append( set([self]) )
         for i in range(n + 1, height):
-            oldS = list(L[ i- 1])
+            oldS = list(L[i - 1])
             new = set()
             for perm in oldS:
                 newS = newS.union(perm.coveredby())
