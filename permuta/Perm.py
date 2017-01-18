@@ -1436,9 +1436,9 @@ class Perm(tuple,
         """Returns the 'rank value'(?) of each index in the permutation, the number of inversions 'caused' by the values at each index.
 
         Examples:
-            >>> Perm((3, 0, 2, 1)).rank_encoding(0)
+            >>> Perm((3, 0, 2, 1)).rank_encoding()
             [3, 0, 1, 0]
-            >>> Perm((0, 2, 4, 3, 1)).rank_encoding(1)
+            >>> Perm((0, 2, 4, 3, 1)).rank_encoding()
             [0, 1, 2, 1, 0]
         """
         return [self.rank_val(i) for i in range(len(self))]
@@ -1447,20 +1447,37 @@ class Perm(tuple,
     # Decomposition and generation from self methods
     #
 
-    # TODO: maybe reimplement this someday with dp
     def block_decomposition(self, return_patterns=False):
-        blocks = [[], []]
-        for i in range(2, len(self)):
-            blocks.append([])
-            for j in range (0, len(self) - i + 1):
-                if max(self[j:j + i]) - min(self[j:j + i]) == i - 1:
-                    blocks[i].append(j)
+        """Returns the list of all blocks(intervals) in the permutation that
+        are of length at least 2. The returned list of lists contains the
+        indices of blocks of length i in index i.
+
+        When return_patterns is set to True, a list of patterns is returned
+        instead of list of list of indices.
+
+        Examples:
+            >>> Perm((5, 3, 0, 1, 2, 4, 7, 6)).block_decomposition()
+            [[], [], [2, 3, 6], [2], [1], [1], [0], []]
+            >>> Perm((4, 1, 0, 5, 2, 3)).block_decomposition(True)
+            [Perm((0, 1)), Perm((1, 0))]
+        """
+        blocks = [ [] for i in range(len(self))]
+        for start in range(0, len(self)):
+            mn, mx = self[start], self[start]
+            for length in range(2, len(self) - start + 1):
+                if length == len(self):
+                    continue
+                end = start + length - 1
+                mn, mx = min(mn, self[end]), max(mx, self[end])
+                if mx - mn == length - 1:
+                    blocks[length].append(start)
+
         if return_patterns:
-            patterns = []
+            patterns = set()
             for length in range(0, len(blocks)):
-                for start_index in blocks[length]:
-                    patterns.append(Perm(self[start_index:start_index + length]))
-            return patterns
+                for start in blocks[length]:
+                    patterns.add(Perm.to_standard(self[start:start + length]))
+            return list(patterns)
         else:
             return blocks
 
@@ -1468,39 +1485,42 @@ class Perm(tuple,
     decomposition = block_decomposition
 
     def monotone_block_decomposition(self, with_ones=False):
-        mi = []
-        difference = 0
+        """Returns the list of all monotone blocks(intervals) in the
+        permutation. Depending on the with_ones parameter it will return the
+        length 1 blocks. The blocks are pairs of indices, the start and end
+        index.
+
+        Examples:
+            >>> Perm((2, 6, 3, 7, 4, 5, 1, 0)).monotone_block_decomposition()
+            [(4, 5)]
+            >>> Perm((2, 6, 3, 7, 4, 5, 1, 0)).monotone_block_decomposition(True)
+            [(0, 0), (1, 1), (2, 2), (3, 3), (4, 5), (6, 6)]
+            >>> Perm((0, 1, 2, 3, 4, 5)).monotone_block_decomposition()
+            [(0, 5)]
+        """
+        blocks = []
+        diff = 0
         c_start = 0
         c_length = 0
-        for i in range(0,len(self)-1):
-            if math.fabs(self[i] - self[i+1]) == 1 and (c_length == 0 or self[i] - self[i+1] == difference):
-                if c_length == 0:
-                    c_start = i
+        for i in range(1,len(self)):
+            if math.fabs(self[i] - self[i - 1]) == 1 and (c_length == 0 or self[i] - self[i - 1] == diff):
                 c_length += 1
-                difference = self[i] - self[i+1]
+                diff = self[i] - self[i - 1]
             else:
-                if c_length != 0:
-                    mi.append((c_start, c_start+c_length))
-                c_start = 0
+                blocks.append((c_start, c_start + c_length))
+                c_start = i
                 c_length = 0
-                difference = 0
-        if c_length != 0:
-            mi.append((c_start, c_start+c_length))
+                diff = 0
+        blocks.append((c_start, c_start + c_length))
 
         if with_ones:
-            in_int = []
-            for (start,end) in mi:
-                in_int.extend(range(start, end+1))
-            for i in range(len(self)):
-                if i not in in_int:
-                    mi.append((i,i))
-            mi.sort(key=lambda x : x[0])
-        return mi
+            return blocks
+        return [ block for block in blocks if block[1] - block[0] > 0 ]
 
     all_monotone_intervals = monotone_block_decomposition # permpy backwards compatibility
 
     def monotone_quotient(self):
-        return Permutation([self[k[0]] for k in self.all_monotone_intervals(with_ones=True)])
+        return Perm([self[k[0]] for k in self.all_monotone_intervals(with_ones=True)])
 
     def maximum_block(self):
         ''' Finds the biggest interval, and returns (i,j) is one is found,
