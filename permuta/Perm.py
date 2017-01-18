@@ -1954,6 +1954,8 @@ class Perm(tuple,
 
     def cycle_notation(self):
         """Returns the cycle notation representation of the permutation."""
+        if len(self) == 0:
+            return '( )'
         base = 0
         stringlist = ['( ' + ' '.join([str(x + base) for x in cyc]) + ' )'
                             for cyc in self.cycle_decomp()]

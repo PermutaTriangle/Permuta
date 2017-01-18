@@ -1043,3 +1043,9 @@ def test_ascii_plot():
         plot = perm.ascii_plot().split('\n')
         for i in range(len(perm)):
             assert plot[len(perm) - perm[i] - 1][2*i] == '*'
+
+def test_cycle_notation():
+    assert Perm(()).cycle_notation() == '( )'
+    assert Perm((0)).cycle_notation() == '( 0 )'
+    assert Perm((0, 1)).cycle_notation() == '( 0 ) ( 1 )'
+    assert Perm((7, 0, 1, 2, 5, 4, 3, 6)).cycle_notation() == '( 5 4 ) ( 7 6 3 2 1 0 )'
