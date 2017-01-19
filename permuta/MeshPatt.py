@@ -1,7 +1,8 @@
 
-import numbers
-import sys
 import collections
+import numbers
+import random
+import sys
 
 from permuta import Perm
 from permuta.interfaces import Patt, Rotatable, Shiftable, Flippable
@@ -61,6 +62,17 @@ class MeshPatt(MeshPatternBase, Patt, Rotatable, Shiftable, Flippable):
     def unrank(pattern, number):
         """Return the number-th shading of pattern.
 
+        Args:
+            pattern: <permuta.Perm> or <collections.Iterable>
+                An perm or an iterable corresponding to a legal perm.
+            number: <numbers.Integral>
+                An integer of which binary representation corresponds to a
+                legal shading.
+        Raises:
+            TypeError:
+                Bad argument type.
+            ValueError:
+                Bad argument, but correct type.
         Examples:
             >>> bin(22563)
             '0b101100000100011'
@@ -80,6 +92,23 @@ class MeshPatt(MeshPatternBase, Patt, Rotatable, Shiftable, Flippable):
             if bit == '1':
                 shading.add((index // bound, index % bound))
         return MeshPatt(pattern, shading)
+
+    @staticmethod
+    def random(length):
+        """Return a random mesh pattern of the specified length.
+
+        Args:
+            length: <numbers.Integral>
+                The length of the random pattern.
+
+        Examples:
+            >>> MeshPatt.random(1) in set(MeshPatt.unrank(Perm((0)), i) for i in range(0, 16))
+            True
+            >>> len(MeshPatt.random(4))
+            4
+        """
+        return MeshPatt.unrank(Perm.random(length),
+                random.randint(0, 2**((length + 1)**2) - 1))
 
     #
     # Dunder methods

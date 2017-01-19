@@ -56,6 +56,15 @@ def test_unrank():
     with pytest.raises(ValueError):
         MeshPatt.unrank(Perm.random(10), 2**((10 + 1)**2) + 1)
 
+def test_random():
+    assert MeshPatt.random(0) in set([MeshPatt(Perm(()), []), MeshPatt(Perm(()), [(0, 0)])])
+    assert MeshPatt.random(1) in set(MeshPatt.unrank(Perm((0)), i) for i in range(0, 16))
+    assert MeshPatt.random(2) in (
+            set(MeshPatt.unrank(Perm((0, 1)), i) for i in range(0, 512))
+            | set(MeshPatt.unrank(Perm((1, 0)), i) for i in range(0, 512)))
+    for length in range(3, 20):
+        assert len(MeshPatt.random(length)) == length
+
 def test_repr():
     for _ in range(20):
         length = random.randint(0, 20)
