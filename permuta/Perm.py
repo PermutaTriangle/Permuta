@@ -104,7 +104,7 @@ class Perm(tuple,
         used = [False]*len(self)
         for value in self:
             if not isinstance(value, numbers.Integral):
-                message = "{} object is not an integer".format(repr(value))
+                message = "'{}' object is not an integer".format(repr(value))
                 raise TypeError(message)
             if not 0 <= value < len(self):
                 raise ValueError("Element out of range: {}".format(value))
@@ -417,7 +417,7 @@ class Perm(tuple,
             new_element = len(self)
         else:
             if not isinstance(new_element, numbers.Integral):
-                raise TypeError("{} object is not an integer".format(repr(new_element)))
+                raise TypeError("'{}' object is not an integer".format(repr(new_element)))
             if not 0 <= new_element <= len(self):
                 raise ValueError("Element out of range: {}".format(new_element))
         slice_1 = (element if element < new_element else element+1
@@ -486,7 +486,7 @@ class Perm(tuple,
             selected = len(self)-1
         else:
             if not isinstance(selected, numbers.Integral):
-                raise TypeError("{} object is not an integer".format(repr(selected)))
+                raise TypeError("'{}' object is not an integer".format(repr(selected)))
             if not 0 <= selected < len(self):
                 raise ValueError("Element out of range: {}".format(selected))
         return Perm(element if element < selected else element-1
@@ -2117,7 +2117,7 @@ class Perm(tuple,
             0
         """
         if not isinstance(value, numbers.Integral):
-            raise TypeError("{} object is not an integer".format(repr(value)))
+            raise TypeError("'{}' object is not an integer".format(repr(value)))
         if not 0 <= value < len(self):
             raise ValueError("Element out of range: {}".format(value))
         return self[value]
