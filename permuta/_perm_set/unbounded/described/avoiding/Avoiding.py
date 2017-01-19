@@ -10,6 +10,23 @@ from permuta._perm_set.finite import PermSetFiniteSpecificLength
 
 class Avoiding(PermSetDescribed):
     descriptor_class = Basis
+    # Look into this basis thing and slots and whatnot because this could be hella wrong
+    __slots__ = ("cache", "basis")
+
+    def __init__(self, basis):
+        super(Avoiding, self).__init__(basis)
+        self.basis = basis
+
+    def __str__(self):
+        result = ["Av("]
+        for perm in self.basis:
+            result.append(str(perm))
+            result.append(", ")
+        result[-1] = ")"
+        return "".join(result)
+
+    def __repr__(self):
+        return "<PermSet of all perms avoiding {}>".format(self.basis)
 
 
 class AvoidingGeneric(Avoiding):
@@ -23,7 +40,6 @@ class AvoidingGeneric(Avoiding):
         else:
             instance = super(AvoidingGeneric, cls).__new__(cls)
             instance.cache = [set([Perm()])]  # Generic case includes empty permutation
-            instance.basis = basis
             AvoidingGeneric.__CLASS_CACHE[basis] = instance
             return instance
 
@@ -85,13 +101,6 @@ class AvoidingGeneric(Avoiding):
         else:
             raise TypeError  # TODO
 
-    def __str__(self):
-        perms_string = ", ".join(map(str, self.basis))
-        return "The set of all perms avoiding {}".format(perms_string)
-
-    def __repr__(self):
-        return "<PermSet of all perms avoiding {}>".format(self.basis)
-
 
 class AvoidingSpecificLength(PermSetFiniteSpecificLength):
     """Class for iterating through all perms of a specific length avoiding a basis."""
@@ -125,10 +134,12 @@ class AvoidingSpecificLength(PermSetFiniteSpecificLength):
         return next(self._iter)
 
     def __str__(self):
-        format_string = "The set of all perms of length {} avoiding {}"
-        perms_string = ", ".join(map(str, self._basis))
-        result = format_string.format(self._length, perms_string)
-        return result
+        result = ["Av", str(self._length), "("]
+        for perm in self._basis:
+            result.append(str(perm))
+            result.append(", ")
+        result[-1] = ")"
+        return "".join(result)
 
     def __repr__(self):
         format_string = "<PermSet of all perms of length {} avoiding {}>"
