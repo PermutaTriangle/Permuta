@@ -1929,7 +1929,7 @@ class Perm(tuple,
             >>> Perm((1, 2, 0, 3)).apply("abcde")
             Traceback (most recent call last):
                 ...
-            TypeError: Length mismatch
+            ValueError: Length mismatch
         """
         iterable = tuple(iterable)
         if len(iterable) != len(self):
