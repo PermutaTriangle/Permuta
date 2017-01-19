@@ -55,6 +55,21 @@ class MeshPatt(MeshPatternBase, Patt, Rotatable, Shiftable, Flippable):
                 raise ValueError(message)
 
     #
+    # Methods returning new permutations
+    #
+
+    def complement(self):
+        """Returns the complement of the mesh pattern, which has the complement
+        of the underlying pattern and every shading flipped across the
+        horizontal axis.
+
+        Examples:
+
+        """
+        return MeshPatt(self.pattern.complement(),
+                           [(x, len(self.pattern)-y) for (x, y) in self.shading])
+
+    #
     # Static methods
     #
 

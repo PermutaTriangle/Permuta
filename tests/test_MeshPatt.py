@@ -37,6 +37,19 @@ def test_init():
     finally:
         Perm.toggle_check()
 
+def test_complement():
+    assert MeshPatt(Perm(), []).complement() ==  MeshPatt(Perm(), [])
+    assert MeshPatt(Perm(0), []).complement() == MeshPatt(Perm(0), [])
+    assert MeshPatt(Perm(0), [(0, 0)]).complement() == MeshPatt(Perm(0), [(0, 1)])
+    assert MeshPatt(Perm(0), [(0, 1)]).complement() == MeshPatt(Perm(0), [(0, 0)])
+    assert MeshPatt(Perm(0), [(1, 0)]).complement() == MeshPatt(Perm(0), [(1, 1)])
+    assert MeshPatt(Perm(0), [(1, 1)]).complement() == MeshPatt(Perm(0), [(1, 0)])
+    for _ in range(20):
+        mpatt = MeshPatt.random(10)
+        comp = mpatt.complement()
+        assert len(mpatt.pattern) == len(comp.pattern)
+        assert comp.complement() == mpatt
+
 def test_unrank():
     assert MeshPatt.unrank(Perm((0, 1)), 498) == MeshPatt( Perm((0, 1)),
             frozenset({(0, 1), (1, 2), (2, 1), (2, 0), (2, 2), (1, 1)}))
