@@ -1958,7 +1958,12 @@ class Perm(tuple,
         return s
 
     def cycle_notation(self):
-        """Returns the cycle notation representation of the permutation."""
+        """Returns the cycle notation representation of the permutation.
+
+        Examples:
+            >>> Perm((5, 3, 0, 1, 2, 4)).cycle_notation()
+            '( 3 1 ) ( 5 4 2 0 )'
+            """
         if len(self) == 0:
             return '( )'
         base = 0
