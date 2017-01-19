@@ -37,11 +37,30 @@ def test_init():
     finally:
         Perm.toggle_check()
 
+def test_unrank():
+    assert MeshPatt.unrank(Perm((0, 1)), 498) == MeshPatt( Perm((0, 1)),
+            frozenset({(0, 1), (1, 2), (2, 1), (2, 0), (2, 2), (1, 1)}))
+    assert MeshPatt.unrank(Perm((1, 0, 2)), 59731) == MeshPatt( Perm((1, 0, 2)),
+            frozenset({(3, 2), (0, 0), (2, 3), (1, 0), (0, 1), (1, 2), (3, 3), (3, 1), (2, 0)}))
+    assert MeshPatt.unrank(Perm((0, 3, 2, 1)), 23077382) == MeshPatt(
+            Perm((0, 3, 2, 1)),
+            frozenset({(0, 1), (4, 4), (1, 4), (2, 3), (4, 2), (4, 1), (0, 2)}))
+    for length in range(20):
+        m = MeshPatt.unrank(Perm.random(length), 0)
+        assert not m.shading
+    for length in range(20):
+        m = MeshPatt.unrank(Perm.random(length), 2**((length + 1)**2) - 1)
+        assert len(m.shading) == (length + 1)**2
+
+    with pytest.raises(TypeError): MeshPatt.unrank(Perm.random(length), 'haha')
+    with pytest.raises(ValueError):
+        MeshPatt.unrank(Perm.random(10), 2**((10 + 1)**2) + 1)
+
 def test_repr():
     for _ in range(20):
         length = random.randint(0, 20)
         m = MeshPatt(Perm.random(length), random.choices([ (i,j) for i in range(length + 1) for j in range(length + 1)], k=length))
-        assert m.__repr__()[:11] == "MeshPattern"
+        assert m.__repr__()[:8] == "MeshPatt"
 
 def test_len():
     for _ in range(20):

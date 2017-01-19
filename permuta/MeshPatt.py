@@ -54,11 +54,39 @@ class MeshPatt(MeshPatternBase, Patt, Rotatable, Shiftable, Flippable):
                 raise ValueError(message)
 
     #
+    # Static methods
+    #
+
+    @staticmethod
+    def unrank(pattern, number):
+        """Return the number-th shading of pattern.
+
+        Examples:
+            >>> bin(22563)
+            '0b101100000100011'
+            >>> MeshPatt.unrank((0, 1, 2), 22563)
+            MeshPatt(Perm((0, 1, 2)), frozenset({(0, 1), (3, 2), (0, 0), (3, 0), (2, 3), (1, 1)}))
+        """
+        if not isinstance(number, numbers.Integral):
+            message = "'{}' object is not an integer".format(repr(number))
+            raise TypeError(message)
+        if not (0 <= number < 2**((len(pattern) + 1)**2)):
+            message = "Element out of range: '{}'".format(number)
+            raise ValueError(message)
+        bound = len(pattern) + 1
+        shading = set()
+        binary = reversed(bin(number)[2:])
+        for index, bit in enumerate(reversed(bin(number)[2:])):
+            if bit == '1':
+                shading.add((index // bound, index % bound))
+        return MeshPatt(pattern, shading)
+
+    #
     # Dunder methods
     #
 
     def __repr__(self):
-        return "MeshPattern({self.pattern}, {self.shading})".format(self=self)
+        return "MeshPatt({self.pattern}, {self.shading})".format(self=self)
 
     def __len__(self):
         return len(self.pattern)
