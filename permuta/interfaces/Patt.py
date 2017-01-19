@@ -3,7 +3,7 @@ import abc
 ABC = abc.ABCMeta("ABC", (object,), {})
 
 
-class Pattern(ABC):
+class Patt(ABC):
 
     def avoided_by(self, *perms):
         """Check if self is avoided by perms.

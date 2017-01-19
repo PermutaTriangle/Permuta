@@ -9,7 +9,7 @@ import operator
 import random
 import sys
 
-from permuta.interfaces import Pattern, Flippable, Rotatable, Shiftable
+from permuta.interfaces import Patt, Flippable, Rotatable, Shiftable
 from permuta.misc import checking
 from permuta.misc import left_floor_and_ceiling
 
@@ -18,7 +18,7 @@ if sys.version_info.major == 2:
 
 
 class Perm(tuple,
-           Pattern,
+           Patt,
            Rotatable,
            Shiftable,
            Flippable
@@ -1711,7 +1711,7 @@ class Perm(tuple,
         Args:
             self:
                 A perm.
-            patts: <permuta.Pattern> argument list
+            patts: <permuta.Patt> argument list
                 Classical/mesh patterns.
 
         Returns: <bool>
@@ -1740,7 +1740,7 @@ class Perm(tuple,
         Args:
             self:
                 A perm.
-            patts: <permuta.Pattern> argument list
+            patts: <permuta.Patt> argument list
                 Classical/mesh patterns.
 
         Returns: <bool>
@@ -1779,7 +1779,7 @@ class Perm(tuple,
         Args:
             self:
                 A perm.
-            patt: <permuta.Pattern>
+            patt: <permuta.Patt>
                 A classical/mesh pattern.
 
         Returns: <int>
@@ -1906,7 +1906,7 @@ class Perm(tuple,
         Args:
             self:
                 A perm.
-            patt: <permuta.Pattern>
+            patt: <permuta.Patt>
                 A classical/mesh pattern.
 
         Yields: <tuple> of <int>
@@ -2155,7 +2155,7 @@ class Perm(tuple,
         Args:
             self:
                 A perm.
-            patt: <permuta.Pattern>
+            patt: <permuta.Patt>
                 A classical/mesh pattern.
 
         Returns: <bool>
