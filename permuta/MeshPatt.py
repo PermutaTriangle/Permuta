@@ -1,5 +1,6 @@
 
 import numbers
+import sys
 import collections
 
 from permuta import Perm
@@ -8,7 +9,6 @@ from permuta.misc import DIR_EAST, DIR_NORTH, DIR_WEST, DIR_SOUTH, DIR_NONE
 
 MeshPatternBase = collections.namedtuple("MeshPatternBase",
                                          ["pattern", "shading"])
-
 class MeshPatt(MeshPatternBase, Patt, Rotatable, Shiftable, Flippable):
     """A mesh pattern class."""
 
@@ -52,3 +52,16 @@ class MeshPatt(MeshPatternBase, Patt, Rotatable, Shiftable, Flippable):
             if (not 0 <= x <= len(self.pattern)) or (not 0 <= y <= len(self.pattern)):
                 message = "Element out of range: '{}'".format(coordinate)
                 raise ValueError(message)
+
+    #
+    # Dunder methods
+    #
+
+    def __repr__(self):
+        return "MeshPattern({self.pattern}, {self.shading})".format(self=self)
+
+    def __len__(self):
+        return len(self.pattern)
+
+    def __bool__(self):
+        return bool(self.pattern)

@@ -36,3 +36,22 @@ def test_init():
         MeshPatt(set([3, 0, 2, 1]), [(0, 2), (0, 3), (0, 4)])
     finally:
         Perm.toggle_check()
+
+def test_repr():
+    for _ in range(20):
+        length = random.randint(0, 20)
+        m = MeshPatt(Perm.random(length), random.choices([ (i,j) for i in range(length + 1) for j in range(length + 1)], k=length))
+        assert m.__repr__()[:11] == "MeshPattern"
+
+def test_len():
+    for _ in range(20):
+        length = random.randint(0, 20)
+        m = MeshPatt(Perm.random(length), random.choices([ (i,j) for i in range(length + 1) for j in range(length + 1)], k=length))
+        assert len(m) == length
+
+def test_bool():
+    assert MeshPatt(Perm([0, 1, 2, 3]), ())
+    assert MeshPatt(Perm([0, 1, 2, 3]), ((0, 0),))
+    assert MeshPatt(Perm([0]), ())
+    assert not (MeshPatt(Perm([]), ()))
+    assert not (MeshPatt(Perm(), ()))
