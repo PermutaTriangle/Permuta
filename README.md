@@ -38,8 +38,8 @@ The library is by default zero-based so the permutation 1324 becomes the
 permutation 0213. There are several ways of doing this
 
 ```python
->>> Perm((0,2,1,3))
- Perm((0,2,1,3))
+>>> Perm((0, 2, 1, 3))
+ Perm((0, 2, 1, 3))
 >>> Perm([0,2,1,3])
  Perm((0, 2, 1, 3))
 >>> Perm.from_string('0213')
@@ -76,7 +76,7 @@ The basic symmetries are implemented
 To take direct sums and skew sums we use `+` and `-`
 
 ```python
->>> q = Perm((0,1,2,3,4))
+>>> q = Perm((0, 1, 2, 3, 4))
 >>> p + q
  Perm((0, 2, 1, 3, 4, 5, 6, 7, 8))
 >>> p - q
@@ -119,14 +119,14 @@ Given a list of pattern `L` we can create the permutation class representing all
 permutations that avoid every pattern in `L`
 
 ```python
->>> B = PermSet.avoiding([Perm((0,1,2)), Perm((0,2,1))])
+>>> B = PermSet.avoiding([Perm((0, 1, 2)), Perm((0, 2, 1))])
 >>> B
  <The set of all perms avoiding <Basis: (Perm((0, 1, 2)), Perm((0, 2, 1)))>>
 ```
 
 We can ask whether a specific permutation `q` belongs to B
 ```python
->>> B.contains(Perm((2,0,1,3)))
+>>> B.contains(Perm((2, 0, 1, 3)))
  False
 ```
 
@@ -179,7 +179,7 @@ To get a feeling for what an average permutation looks like you can create a
 heatmap
 
 ```python
->>> C = PermSet.avoiding(Permutation((0,2,1,3)))[9]
+>>> C = PermSet.avoiding(Permutation((0, 2, 1, 3)))[9]
 >>> C.heatmap()
 ```
 
