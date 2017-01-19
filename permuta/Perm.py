@@ -9,7 +9,7 @@ import operator
 import random
 import sys
 
-from permuta.interfaces import Pattern, Flippable, Rotatable, Shiftable
+from permuta.interfaces import Patt, Flippable, Rotatable, Shiftable
 from permuta.misc import checking
 from permuta.misc import left_floor_and_ceiling
 
@@ -18,7 +18,7 @@ if sys.version_info.major == 2:
 
 
 class Perm(tuple,
-           Pattern,
+           Patt,
            Rotatable,
            Shiftable,
            Flippable
@@ -104,7 +104,7 @@ class Perm(tuple,
         used = [False]*len(self)
         for value in self:
             if not isinstance(value, numbers.Integral):
-                message = "{} object is not an integer".format(repr(value))
+                message = "'{}' object is not an integer".format(repr(value))
                 raise TypeError(message)
             if not 0 <= value < len(self):
                 raise ValueError("Element out of range: {}".format(value))
@@ -417,7 +417,7 @@ class Perm(tuple,
             new_element = len(self)
         else:
             if not isinstance(new_element, numbers.Integral):
-                raise TypeError("{} object is not an integer".format(repr(new_element)))
+                raise TypeError("'{}' object is not an integer".format(repr(new_element)))
             if not 0 <= new_element <= len(self):
                 raise ValueError("Element out of range: {}".format(new_element))
         slice_1 = (element if element < new_element else element+1
@@ -486,7 +486,7 @@ class Perm(tuple,
             selected = len(self)-1
         else:
             if not isinstance(selected, numbers.Integral):
-                raise TypeError("{} object is not an integer".format(repr(selected)))
+                raise TypeError("'{}' object is not an integer".format(repr(selected)))
             if not 0 <= selected < len(self):
                 raise ValueError("Element out of range: {}".format(selected))
         return Perm(element if element < selected else element-1
@@ -536,24 +536,14 @@ class Perm(tuple,
             raise TypeError
 
     def contract_inc_bonds(self):
-        # TODO: reimplement or remove, does not make sense(wrong)
-        # P = Perm(self)
-        # while P.num_inc_bonds() > 0:
-            # for i in range(0,len(P)-1):
-                # if P[i+1] == P[i]+1:
-                    # P = Perm(P[:i]+P[i+1:])
-                    # break
-        return P
+        # TODO: test
+        monblocks = self.monotone_block_decompositon_ascending(with_ones=True)
+        return Perm.to_standard([start for (start,end) in monblocks])
 
     def contract_dec_bonds(self):
-        # TODO: reimplement or remove, does not make sense(wrong)
-        # P = Perm(self)
-        # while P.num_dec_bonds() > 0:
-            # for i in range(0,len(P)-1):
-                # if P[i+1] == P[i]-1:
-                    # P = Perm(P[:i]+P[i+1:])
-                    # break
-        return P
+        # TODO: test
+        monblocks = self.monotone_block_decompositon_descending(with_ones=True)
+        return Perm.to_standard([start for (start,end) in monblocks])
 
     def contract_bonds(self):
         # TODO: reimplement by calling contract_{inc,dec}_bonds or remove
@@ -766,6 +756,9 @@ class Perm(tuple,
         return self.reverse_complement()
 
     def all_syms(self):
+        """Returns all symmetries of the permutation in a PermSet, all possible
+        combinations of revers, complement and inverse.
+        """
         # TODO: finish PermSet
         # S = PermSet([self])
         # S = S.union(PermSet([P.reverse() for P in S]))
@@ -775,6 +768,9 @@ class Perm(tuple,
         pass
 
     def is_representative(self):
+        """Checks if the permutation is representative, that is, all the
+        symmetries of the permutation are the same.
+        """
         # return self == sorted(self.all_syms())[0]
         pass
 
@@ -1289,6 +1285,9 @@ class Perm(tuple,
         return sum(desc) + len(desc)
 
     def longestruns_ascending(self):
+        """Returns the longest ascending runs in the permutation as a pair of
+        the length and a list of the starting indices.
+        """
         n = self.__len__()
         if n == 0:
             return (0,[])
@@ -1311,18 +1310,30 @@ class Perm(tuple,
         return (maxi, res)
 
     def longestruns_descending(self):
+        """Returns the longest descending runs in the permutation as a pair of
+        the length and a list of the starting indices.
+        """
         return self.complement().longestruns_ascending()
 
     def longestruns(self):
+        """Returns the longest ascending runs in the permutation as a pair of
+        the length and a list of the starting indices.
+        """
         return self.longestruns_ascending()
 
     def length_of_longestrun_ascending(self):
+        """Returns the length of the longest ascending run in the permutation.
+        """
         return self.longestruns_ascending()[0]
 
     def length_of_longestrun_descending(self):
+        """Returns the length of the longest descending run in the permutation.
+        """
         return self.complement().length_of_longestrun_ascending()
 
     def length_of_longestrun(self):
+        """Returns the length of the longest ascending run in the permutation.
+        """
         return self.length_of_longestrun_ascending()
 
     def cycle_decomp(self):
@@ -1420,9 +1431,28 @@ class Perm(tuple,
         return patnums
 
     def rank_val(self, i):
-        return len([j for j in range(i+1,len(self)) if self[j] < self[i]])
+        """Returns the 'rank value'(?) of index i, the number of inversions
+        with the value at i being the greater element.
+
+
+        Examples:
+            >>> Perm((3, 0, 2, 1)).rank_val(0)
+            3
+            >>> Perm((0, 2, 4, 3, 1)).rank_val(1)
+            1
+        """
+        return len([j for j in range(i + 1, len(self)) if self[j] < self[i]])
 
     def rank_encoding(self):
+        """Returns the 'rank value'(?) of each index in the permutation, the
+        number of inversions 'caused' by the values at each index.
+
+        Examples:
+            >>> Perm((3, 0, 2, 1)).rank_encoding()
+            [3, 0, 1, 0]
+            >>> Perm((0, 2, 4, 3, 1)).rank_encoding()
+            [0, 1, 2, 1, 0]
+        """
         return [self.rank_val(i) for i in range(len(self))]
 
     #
@@ -1430,18 +1460,36 @@ class Perm(tuple,
     #
 
     def block_decomposition(self, return_patterns=False):
-        blocks = [[],[]]
-        for i in range(2, len(self)):
-            blocks.append([])
-            for j in range (0,len(self)-i+1):
-                if max(self[j:j+i]) - min(self[j:j+i]) == i-1:
-                    blocks[i].append(j)
+        """Returns the list of all blocks(intervals) in the permutation that
+        are of length at least 2. The returned list of lists contains the
+        indices of blocks of length i in index i.
+
+        When return_patterns is set to True, a list of patterns is returned
+        instead of list of list of indices.
+
+        Examples:
+            >>> Perm((5, 3, 0, 1, 2, 4, 7, 6)).block_decomposition()
+            [[], [], [2, 3, 6], [2], [1], [1], [0], []]
+            >>> Perm((4, 1, 0, 5, 2, 3)).block_decomposition(True)
+            [Perm((0, 1)), Perm((1, 0))]
+        """
+        blocks = [ [] for i in range(len(self))]
+        for start in range(0, len(self)):
+            mn, mx = self[start], self[start]
+            for length in range(2, len(self) - start + 1):
+                if length == len(self):
+                    continue
+                end = start + length - 1
+                mn, mx = min(mn, self[end]), max(mx, self[end])
+                if mx - mn == length - 1:
+                    blocks[length].append(start)
+
         if return_patterns:
-            patterns = []
+            patterns = set()
             for length in range(0, len(blocks)):
-                for start_index in blocks[length]:
-                    patterns.append(Perm(self[start_index:start_index+length]))
-            return patterns
+                for start in blocks[length]:
+                    patterns.add(Perm.to_standard(self[start:start + length]))
+            return list(patterns)
         else:
             return blocks
 
@@ -1449,39 +1497,78 @@ class Perm(tuple,
     decomposition = block_decomposition
 
     def monotone_block_decomposition(self, with_ones=False):
-        mi = []
-        difference = 0
-        c_start = 0
-        c_length = 0
-        for i in range(0,len(self)-1):
-            if math.fabs(self[i] - self[i+1]) == 1 and (c_length == 0 or self[i] - self[i+1] == difference):
-                if c_length == 0:
-                    c_start = i
-                c_length += 1
-                difference = self[i] - self[i+1]
+        """Returns the list of all monotone blocks(intervals) in the
+        permutation. Depending on the with_ones parameter it will return the
+        length 1 blocks. The blocks are pairs of indices, the start and end
+        index.
+
+        Examples:
+            >>> Perm((2, 6, 3, 7, 4, 5, 1, 0)).monotone_block_decomposition()
+            [(4, 5), (6, 7)]
+            >>> Perm((2, 6, 3, 7, 4, 5, 1, 0)).monotone_block_decomposition(True)
+            [(0, 0), (1, 1), (2, 2), (3, 3), (4, 5), (6, 7)]
+            >>> Perm((0, 1, 2, 3, 4, 5)).monotone_block_decomposition()
+            [(0, 5)]
+        """
+        blocks = []
+        diff = 0
+        start = 0
+        length = 0
+        for i in range(1,len(self)):
+            if math.fabs(self[i] - self[i - 1]) == 1 and (length == 0 or self[i] - self[i - 1] == diff):
+                length += 1
+                diff = self[i] - self[i - 1]
             else:
-                if c_length != 0:
-                    mi.append((c_start, c_start+c_length))
-                c_start = 0
-                c_length = 0
-                difference = 0
-        if c_length != 0:
-            mi.append((c_start, c_start+c_length))
+                blocks.append((start, start + length))
+                start = i
+                length = 0
+                diff = 0
+        if len(self):
+            blocks.append((start, start + length))
 
         if with_ones:
-            in_int = []
-            for (start,end) in mi:
-                in_int.extend(range(start, end+1))
-            for i in range(len(self)):
-                if i not in in_int:
-                    mi.append((i,i))
-            mi.sort(key=lambda x : x[0])
-        return mi
+            return blocks
+        return [ block for block in blocks if block[1] - block[0] > 0 ]
+
+    def monotone_block_decompositon_ascending(self, with_ones=False):
+        # TODO: test, untested
+        # TODO: rename to refer to runs, which this function basically computes, brakes the permutation up into its runs.
+        blocks = []
+        start = 0
+        length = 0
+        for i in range(1,len(self)):
+            if self[i] + 1 == self[i - 1]:
+                length += 1
+            else:
+                blocks.append((start, start + length))
+                start = i
+                length = 0
+        if len(self):
+            blocks.append((start, start + length))
+
+        if with_ones:
+            return blocks
+        return [ block for block in blocks if block[1] - block[0] > 0 ]
+
+    def monotone_block_decompositon_descending(self, with_ones=False):
+        # TODO: test, untested
+        return self.complement().monotone_block_decomposition_ascending(with_ones)
+
 
     all_monotone_intervals = monotone_block_decomposition # permpy backwards compatibility
 
     def monotone_quotient(self):
-        return Permutation([self[k[0]] for k in self.all_monotone_intervals(with_ones=True)])
+        """Return the permutation pattern consisting of the starting values of
+        the monotone blocks in the permutation. Simply contracts the monotone
+        blocks.
+
+        Examples:
+            >>> Perm((0, 2, 1, 5, 6, 7, 4, 3)).monotone_block_decomposition(True)
+            [(0, 0), (1, 2), (3, 5), (6, 7)]
+            >>> Perm((0, 2, 1, 5, 6, 7, 4, 3)).monotone_quotient()
+            Perm((0, 1, 3, 2))
+        """
+        return Perm.to_standard([self[start] for (start, end) in self.monotone_block_decomposition(with_ones=True)])
 
     def maximum_block(self):
         ''' Finds the biggest interval, and returns (i,j) is one is found,
@@ -1490,12 +1577,17 @@ class Perm(tuple,
 
         Returns (0,0) if no interval is found, i.e., if the permutation is
         simple.
+
+        Example:
+            >>> Perm((0, 2, 1, 5, 6, 7, 4, 3)).maximum_block()
+            (7, 1)
         '''
-        for i in range(2, len(self))[::-1]:
-            for j in range (0,len(self)-i+1):
-                if max(self[j:j+i]) - min(self[j:j+i]) == i-1:
-                    return (i,j)
-        return (0,0)
+        blocks = self.block_decomposition()
+        for length, indexlist in reversed(list(enumerate(blocks))):
+            if len(indexlist):
+                return (length, indexlist[0])
+        return (0, 0)
+
 
     maximal_interval = maximum_block # permpy backwards compatibility
 
@@ -1505,53 +1597,73 @@ class Perm(tuple,
 
         Returns (0,0) if no interval is found, i.e., if the permutation is
         simple.
+
+        Simply calls the Perm.maximum_block(), the maximum block is any block.
         '''
-        mins = list(self)
-        maxs = list(self)
-        for i in range(1,len(self)-1):
-            for j in reversed(range(i,len(self))):
-                mins[j] = min(mins[j-1], self[j])
-                maxs[j] = max(maxs[j-1], self[j])
-                if maxs[j] - mins[j] == i:
-                    return (i,j)
-        return (0,0)
+        return self.maximum_block()
 
     def is_simple(self):
-        ''' returns True is this permutation is simple, False otherwise'''
+        """Checks if the permutation is simple.
+
+        Example:
+            >>> Perm((2, 0, 3, 1)).is_simple()
+            True
+            >>> Perm((2, 0, 1)).is_simple()
+            False
+        """
         (i,j) = self.simple_location()
         return i == 0
 
     def is_strongly_simple(self):
+        """Checks if the permutation is strongly simple, that is if the
+        permutation is simple and any of permutation of one less length in the
+        downset is simple.
+
+        Example:
+            >>> Perm((4, 1, 6, 3, 0, 7, 2, 5)).is_strongly_simple()
+            True
+        """
         return self.is_simple() and all([p.is_simple() for p in self.children()])
 
     def children(self):
         """Returns all patterns of length one less than the permutation. One
         layer of the downset, also called the shadow.
+
+        Example:
+            >>> Perm((2, 0, 1)).children()
+            [Perm((0, 1)), Perm((1, 0))]
+            >>> Perm((4, 1, 6, 3, 0, 7, 2, 5)).children()
+            [Perm((3, 1, 5, 2, 0, 6, 4)), Perm((3, 0, 5, 2, 6, 1, 4)), Perm((4, 1, 6, 3, 0, 2, 5)), Perm((3, 5, 2, 0, 6, 1, 4)), Perm((4, 1, 3, 0, 6, 2, 5)), Perm((1, 5, 3, 0, 6, 2, 4)), Perm((3, 1, 5, 0, 6, 2, 4)), Perm((4, 1, 5, 3, 0, 6, 2))]
         """
-        return PermSet([Perm(p) for p in [self[:i]+self[i+1:] for i in range(0,len(self))]])
+        return list(set(self.remove(i) for i in range(len(self))))
 
     shrink_by_one = children
 
-    def downset(self):
-        return permset.PermSet([self]).downset()
-
     # TODO: discuss return value conventions, should this return PermSet instead of set of Perm? maybe list of Perm?
     def coveredby(self):
+        """Returns one layer of the upset of the permutation.
+
+        Examples:
+            >>> Perm((0, 1)).coveredby()
+            [Perm((0, 2, 1)), Perm((1, 2, 0)), Perm((0, 1, 2)), Perm((2, 0, 1)), Perm((1, 0, 2))]
+        """
         S = set()
         n = len(self)
-        for i in range(n+1):
-            for j in range(n+1):
-                S.add(self.insert(i,j))
-        return S
+        for i in range(n + 1):
+            for j in range(n + 1):
+                S.add(self.insert(i, j))
+        return list(S)
 
     # TODO: discuss return value conventions, should this return PermSet instead of set of Perm? maybe list of Perm?
     def buildupset(self, height):
+        """Returns height-th layer of the upset of the permutation
+        """
         n = len(self)
         L = [set() for i in range(n)]
         L.append( set([self]) )
         for i in range(n + 1, height):
-            oldS = list(L[i-1])
-            newS    = set()
+            oldS = list(L[i - 1])
+            new = set()
             for perm in oldS:
                 newS = newS.union(perm.coveredby())
             L.append(newS)
@@ -1562,11 +1674,23 @@ class Perm(tuple,
         return [len([p for p in S if len(p)==i and not p.sum_decomposable()]) for i in range(1,max([len(p) for p in S])+1)]
 
     def count_rtlmax_ltrmin_layers(self):
+        """Counts the layers in the right-to-left maxima, left-to-right minima
+        decomposition.
+        """
         return len(self.rtlmax_ltrmin_decomposition())
 
     num_rtlmax_ltrmin_layers = count_rtlmax_ltrmin_layers
 
     def rtlmax_ltrmin_decomposition(self):
+        """Returns the right-to-left maxima, left-to-right minima
+        decomposition. The decomposition consists of layers, starting with the
+        first layer which is union of the right-to-left maximas and the
+        left-to-right minimas and the next layer is defined similarly for the
+        permutation with the first layer removed and so on.
+
+        TODO: If this function is to be kept, then it probably should return
+        the layers as indices in the original permutation.
+        """
         P = Perm(self)
         num_layers = 0
         layers = []
@@ -1587,7 +1711,7 @@ class Perm(tuple,
         Args:
             self:
                 A perm.
-            patts: <permuta.Pattern> argument list
+            patts: <permuta.Patt> argument list
                 Classical/mesh patterns.
 
         Returns: <bool>
@@ -1616,7 +1740,7 @@ class Perm(tuple,
         Args:
             self:
                 A perm.
-            patts: <permuta.Pattern> argument list
+            patts: <permuta.Patt> argument list
                 Classical/mesh patterns.
 
         Returns: <bool>
@@ -1655,7 +1779,7 @@ class Perm(tuple,
         Args:
             self:
                 A perm.
-            patt: <permuta.Pattern>
+            patt: <permuta.Patt>
                 A classical/mesh pattern.
 
         Returns: <int>
@@ -1782,7 +1906,7 @@ class Perm(tuple,
         Args:
             self:
                 A perm.
-            patt: <permuta.Pattern>
+            patt: <permuta.Patt>
                 A classical/mesh pattern.
 
         Yields: <tuple> of <int>
@@ -1854,11 +1978,11 @@ class Perm(tuple,
             >>> Perm((1, 2, 0, 3)).apply("abcde")
             Traceback (most recent call last):
                 ...
-            TypeError: Length mismatch
+            ValueError: Length mismatch
         """
         iterable = tuple(iterable)
         if len(iterable) != len(self):
-            raise TypeError("Length mismatch")
+            raise ValueError("Length mismatch")
         return tuple(iterable[index] for index in self)
 
     permute = apply  # Alias of Perm.apply
@@ -1867,8 +1991,13 @@ class Perm(tuple,
     #
     # Visualization methods
     #
-    def ascii_plot(self):
-        """Prints a simple plot of the given Permutation."""
+    def _ascii_plot(self):
+        """Prints a simple plot of the given Permutation.
+
+        Examples:
+            >>> Perm((1, 2, 4, 0, 3, 5)).ascii_plot()
+            '          *\n    *      \n        *  \n  *        \n*          \n      *    '
+        """
         n = self.__len__()
         array = [[' ' for i in range(n)] for j in range(n)]
         for i in range(n):
@@ -1878,7 +2007,14 @@ class Perm(tuple,
         return s
 
     def cycle_notation(self):
-        """Returns the cycle notation representation of the permutation."""
+        """Returns the cycle notation representation of the permutation.
+
+        Examples:
+            >>> Perm((5, 3, 0, 1, 2, 4)).cycle_notation()
+            '( 3 1 ) ( 5 4 2 0 )'
+            """
+        if len(self) == 0:
+            return '( )'
         base = 0
         stringlist = ['( ' + ' '.join([str(x + base) for x in cyc]) + ' )'
                             for cyc in self.cycle_decomp()]
@@ -1894,7 +2030,8 @@ class Perm(tuple,
         back to an ascii_plot if matplotlib isn't found, or if use_mpl is set to
         False.
         """
-        if not mpl_imported or not use_mpl:
+        # TODO: check if matplotlib is imported
+        if not use_mpl:
             return self._ascii_plot()
         xs = [val for val in range(len(self))]
         ys = [val for val in self]
@@ -1980,7 +2117,7 @@ class Perm(tuple,
             0
         """
         if not isinstance(value, numbers.Integral):
-            raise TypeError("{} object is not an integer".format(repr(value)))
+            raise TypeError("'{}' object is not an integer".format(repr(value)))
         if not 0 <= value < len(self):
             raise ValueError("Element out of range: {}".format(value))
         return self[value]
@@ -1995,7 +2132,7 @@ class Perm(tuple,
 
     def __mul__(self, other):
         """Return the composition of two perms."""
-        return self.multiply(other)
+        return self.compose(other)
 
     def __repr__(self):
         return "Perm({})".format(super(Perm, self).__repr__())
@@ -2018,7 +2155,7 @@ class Perm(tuple,
         Args:
             self:
                 A perm.
-            patt: <permuta.Pattern>
+            patt: <permuta.Patt>
                 A classical/mesh pattern.
 
         Returns: <bool>

@@ -28,6 +28,7 @@ like any other Python library:
 
 ```python
 >>> from permuta import *
+
 ```
 
 or instead of `*` just import the things you need.
@@ -38,8 +39,8 @@ The library is by default zero-based so the permutation 1324 becomes the
 permutation 0213. There are several ways of doing this
 
 ```python
->>> Perm((0,2,1,3))
- Perm((0,2,1,3))
+>>> Perm((0, 2, 1, 3))
+ Perm((0, 2, 1, 3))
 >>> Perm([0,2,1,3])
  Perm((0, 2, 1, 3))
 >>> Perm.from_string('0213')
@@ -53,8 +54,9 @@ not create `0213` in this way, but any permutation not starting with `0`:
 You can visualize a permutation
 
 ```python
-import matplotlib.pyplot as plt #TODO Does this work?
-p = Perm((0, 2, 1, 3))
+>>> import matplotlib.pyplot as plt #TODO Does this work?
+>>> p = Perm((0, 2, 1, 3))
+ Perm((0, 2, 1, 3))
 >>> p.plot(title='plot of a permutation', xlabel='position', ylabel='value') # TODO WHY NOT WORK RAGGI?
 ```
 
@@ -63,8 +65,8 @@ p = Perm((0, 2, 1, 3))
 You can also get an ascii picture
 
 ```python
->>> p.plot(use_mpl=False) # TODO No work
- XXX
+>>> p.plot(use_mpl=False)
+ '      *\n  *    \n    *  \n*      '
 ```
 
 The basic symmetries are implemented
@@ -76,7 +78,7 @@ The basic symmetries are implemented
 To take direct sums and skew sums we use `+` and `-`
 
 ```python
->>> q = Perm((0,1,2,3,4))
+>>> q = Perm((0, 1, 2, 3, 4))
 >>> p + q
  Perm((0, 2, 1, 3, 4, 5, 6, 7, 8))
 >>> p - q
@@ -92,7 +94,7 @@ permutations
 ```
 
 ```python
->>>  [p.count_peaks(), p.count_ltrmin(), p.count_bonds(), p.count_valleys()]
+>>> [p.count_peaks(), p.count_ltrmin(), p.count_bonds(), p.count_valleys()]
  [1, 1, 1, 1]
 ```
 
@@ -119,14 +121,14 @@ Given a list of pattern `L` we can create the permutation class representing all
 permutations that avoid every pattern in `L`
 
 ```python
->>> B = PermSet.avoiding([Perm((0,1,2)), Perm((0,2,1))])
+>>> B = PermSet.avoiding([Perm((0, 1, 2)), Perm((0, 2, 1))])
 >>> B
- <The set of all perms avoiding <Basis: (Perm((0, 1, 2)), Perm((0, 2, 1)))>>
+ <The set of all perms avoiding Basis((Perm((0, 1, 2)), Perm((0, 2, 1))))>
 ```
 
 We can ask whether a specific permutation `q` belongs to B
 ```python
->>> B.contains(Perm((2,0,1,3)))
+>>> B.contains(Perm((2, 0, 1, 3)))
  False
 ```
 
@@ -135,7 +137,7 @@ If you want all permutations of length six in B you can do
 ```python
 >>> C = B.of_length(6)
 >>> C
- <PermSet of all perms of length 6 avoiding <Basis: (Perm((0, 1)),)>>
+ <PermSet of all perms of length 6 avoiding Basis((Perm((0, 1)),))>
 ```
 
 If you want permutations of length up to and including six you can do
@@ -179,7 +181,7 @@ To get a feeling for what an average permutation looks like you can create a
 heatmap
 
 ```python
->>> C = PermSet.avoiding(Permutation((0,2,1,3)))[9]
+>>> C = PermSet.avoiding(Permutation((0, 2, 1, 3)))[9]
 >>> C.heatmap()
 ```
 
