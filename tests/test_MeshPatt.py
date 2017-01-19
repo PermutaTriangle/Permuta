@@ -136,13 +136,13 @@ def test_random():
 def test_repr():
     for _ in range(20):
         length = random.randint(0, 20)
-        m = MeshPatt(Perm.random(length), random.choices([ (i,j) for i in range(length + 1) for j in range(length + 1)], k=length))
+        m = MeshPatt(Perm.random(length), random.sample([ (i,j) for i in range(length + 1) for j in range(length + 1)], k=length))
         assert m.__repr__()[:8] == "MeshPatt"
 
 def test_len():
     for _ in range(20):
         length = random.randint(0, 20)
-        m = MeshPatt(Perm.random(length), random.choices([ (i,j) for i in range(length + 1) for j in range(length + 1)], k=length))
+        m = MeshPatt(Perm.random(length), random.sample([ (i,j) for i in range(length + 1) for j in range(length + 1)], k=length))
         assert len(m) == length
 
 def test_bool():
