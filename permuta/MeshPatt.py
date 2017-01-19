@@ -150,6 +150,48 @@ class MeshPatt(MeshPatternBase, Patt, Rotatable, Shiftable, Flippable):
             MeshPatt(Perm((0,)), frozenset({(1, 0)}))
         """
         return self.inverse()
+
+    def _rotate_right(self):
+        """Return the pattern rotated 90 degrees to the right.
+
+        Returns: <permuta.MeshPatt>
+            The meshpatt rotated 90 degrees to the right.
+
+        Examples:
+            >>> MeshPatt(Perm((0,)), frozenset({(0, 1), (1, 1)}))._rotate_right()
+            MeshPatt(Perm((0,)), frozenset({(1, 0), (1, 1)}))
+        """
+        return MeshPatt(self.pattern.rotate(),
+                           set([_rotate_right(len(self.pattern), coordinate)
+                                for coordinate in self.shading]))
+
+    def _rotate_left(self):
+        """Return the pattern rotated 90 degrees to the left.
+
+        Returns: <permuta.MeshPatt>
+            The meshpatt rotated 90 degrees to the left.
+
+        Examples:
+            >>> MeshPatt(Perm((0,)), frozenset({(0, 1), (1, 1)}))._rotate_left()
+            MeshPatt(Perm((0,)), frozenset({(0, 1), (0, 0)}))
+        """
+        return MeshPatt(self.pattern.rotate(3),
+                           set([_rotate_left(len(self.pattern), coordinate)
+                                for coordinate in self.shading]))
+
+    def _rotate_180(self):
+        """Return the pattern rotated 180 degrees.
+
+        Returns: <permuta.MeshPatt>
+            The meshpatt rotated 180 degrees.
+
+        Examples:
+            >>> MeshPatt(Perm((0,)), frozenset({(0, 1), (1, 1)}))._rotate_right()
+            MeshPatt(Perm((0,)), frozenset({(1, 0), (0, 0)}))
+        """
+        return MeshPatt(self.pattern.rotate(2),
+                           set([_rotate_180(len(self.pattern), coordinate)
+                                for coordinate in self.shading]))
     #
     # Static methods
     #
@@ -218,3 +260,19 @@ class MeshPatt(MeshPatternBase, Patt, Rotatable, Shiftable, Flippable):
 
     def __bool__(self):
         return bool(self.pattern)
+
+
+def _rotate_right(length, element):
+    """Rotate an element of the Cartesian product of {0,...,length} right."""
+    x, y = element
+    return (y, length - x)
+
+def _rotate_left(length, element):
+    """Rotate an element of the Cartesian product of {0,...,length} left."""
+    x, y = element
+    return (length - y, x)
+
+def _rotate_180(length, element):
+    """Rotate an element of the Cartesian product of {0,...,length} 180 degrees."""
+    x, y = element
+    return (length - x, length - y)
