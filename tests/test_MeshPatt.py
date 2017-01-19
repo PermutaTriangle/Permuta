@@ -50,6 +50,10 @@ def test_complement():
         assert len(mpatt.pattern) == len(comp.pattern)
         assert comp.complement() == mpatt
 
+def test_flip_horizontal():
+    assert MeshPatt(Perm(), []).flip_vertical() ==  MeshPatt(Perm(), [])
+    assert MeshPatt(Perm(0), [(0, 1)]).flip_horizontal() == MeshPatt(Perm(0), [(0, 0)])
+
 def test_reverse():
     assert MeshPatt(Perm(), []).reverse() ==  MeshPatt(Perm(), [])
     assert MeshPatt(Perm(0), []).reverse() == MeshPatt(Perm(0), [])
@@ -62,6 +66,27 @@ def test_reverse():
         comp = mpatt.reverse()
         assert len(mpatt.pattern) == len(comp.pattern)
         assert comp.reverse() == mpatt
+
+def test_flip_vertical():
+    assert MeshPatt(Perm(), []).flip_vertical() ==  MeshPatt(Perm(), [])
+    assert MeshPatt(Perm(0), [(0, 0)]).flip_vertical() == MeshPatt(Perm(0), [(1, 0)])
+
+def test_inverse():
+    assert MeshPatt(Perm(), []).inverse() ==  MeshPatt(Perm(), [])
+    assert MeshPatt(Perm(0), []).inverse() == MeshPatt(Perm(0), [])
+    assert MeshPatt(Perm(0), [(0, 0)]).inverse() == MeshPatt(Perm(0), [(0, 0)])
+    assert MeshPatt(Perm(0), [(0, 1)]).inverse() == MeshPatt(Perm(0), [(1, 0)])
+    assert MeshPatt(Perm(0), [(1, 0)]).inverse() == MeshPatt(Perm(0), [(0, 1)])
+    assert MeshPatt(Perm(0), [(1, 1)]).inverse() == MeshPatt(Perm(0), [(1, 1)])
+    for _ in range(20):
+        mpatt = MeshPatt.random(10)
+        comp = mpatt.inverse()
+        assert len(mpatt.pattern) == len(comp.pattern)
+        assert comp.inverse() == mpatt
+
+def test_flip_diagonal():
+    assert MeshPatt(Perm(), []).flip_diagonal() ==  MeshPatt(Perm(), [])
+    assert MeshPatt(Perm(0), [(0, 1)]).flip_diagonal() == MeshPatt(Perm(0), [(1, 0)])
 
 def test_unrank():
     assert MeshPatt.unrank(Perm((0, 1)), 498) == MeshPatt( Perm((0, 1)),

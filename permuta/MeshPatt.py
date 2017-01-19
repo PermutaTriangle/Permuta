@@ -90,6 +90,66 @@ class MeshPatt(MeshPatternBase, Patt, Rotatable, Shiftable, Flippable):
         """
         return MeshPatt(self.pattern.reverse(),
                            [(len(self)-x, y) for (x, y) in self.shading])
+
+
+    def inverse(self):
+        """Returns the inverse of the meshpatt, that is the meshpatt with the
+        underlying classical pattern as the inverse and the shadings hold the
+        same relation between the points. This is equivalent to flipping the
+        pattern over the diagonal.
+
+        Returns: <permuta.MeshPatt>
+            The 'inverse' of the meshpatt.
+
+        Examples:
+            >>> MeshPatt(Perm((0,)), frozenset({(0, 1)})).inverse()
+            MeshPatt(Perm((0,)), frozenset({(1, 0)}))
+        """
+        return MeshPatt(self.pattern.inverse(),
+                           [(y, x) for (x, y) in self.shading])
+
+    def flip_horizontal(self):
+        """Return self flipped horizontally which is equivalent to the
+        complement.
+
+        Returns: <permuta.MeshPatt>
+            The complement of the meshpatt.
+
+        Examples:
+            >>> MeshPatt(Perm((0,)), frozenset({(0, 1)})).flip_horizontal()
+            MeshPatt(Perm((0,)), frozenset({(0, 0)}))
+            >>> MeshPatt(Perm((0, 2, 1)), frozenset({(0, 1), (0, 0), (1, 0), (0, 2), (0, 3)})).flip_horizontal()
+            MeshPatt(Perm((2, 0, 1)), frozenset({(0, 1), (1, 3), (0, 0), (0, 3), (0, 2)}))
+        """
+        return self.complement()
+
+    def flip_vertical(self):
+        """Return self flipped vertically which is equivalent to the
+        meshpatt reversed.
+
+        Returns: <permuta.MeshPatt>
+            The meshpatt reversed.
+
+        Examples:
+            >>> MeshPatt(Perm((0,)), frozenset({(0, 1)})).flip_vertical()
+            MeshPatt(Perm((0,)), frozenset({(1, 1)}))
+            >>> MeshPatt(Perm((2, 1, 0)), frozenset({(3, 2), (3, 3), (0, 2), (2, 2), (1, 1)})).flip_vertical()
+            MeshPatt(Perm((0, 1, 2)), frozenset({(1, 2), (3, 2), (2, 1), (0, 3), (0, 2)}))
+        """
+        return self.reverse()
+
+    def flip_diagonal(self):
+        """Return self flipped along the diagonal which is equivalent to the
+        'inverse' of the pattern.
+
+        Returns: <permuta.MeshPatt>
+            The 'inverse' of the meshpatt.
+
+        Examples:
+            >>> MeshPatt(Perm((0,)), frozenset({(0, 1)})).inverse()
+            MeshPatt(Perm((0,)), frozenset({(1, 0)}))
+        """
+        return self.inverse()
     #
     # Static methods
     #
