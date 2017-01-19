@@ -50,6 +50,19 @@ def test_complement():
         assert len(mpatt.pattern) == len(comp.pattern)
         assert comp.complement() == mpatt
 
+def test_reverse():
+    assert MeshPatt(Perm(), []).reverse() ==  MeshPatt(Perm(), [])
+    assert MeshPatt(Perm(0), []).reverse() == MeshPatt(Perm(0), [])
+    assert MeshPatt(Perm(0), [(0, 0)]).reverse() == MeshPatt(Perm(0), [(1, 0)])
+    assert MeshPatt(Perm(0), [(0, 1)]).reverse() == MeshPatt(Perm(0), [(1, 1)])
+    assert MeshPatt(Perm(0), [(1, 0)]).reverse() == MeshPatt(Perm(0), [(0, 0)])
+    assert MeshPatt(Perm(0), [(1, 1)]).reverse() == MeshPatt(Perm(0), [(0, 1)])
+    for _ in range(20):
+        mpatt = MeshPatt.random(10)
+        comp = mpatt.reverse()
+        assert len(mpatt.pattern) == len(comp.pattern)
+        assert comp.reverse() == mpatt
+
 def test_unrank():
     assert MeshPatt.unrank(Perm((0, 1)), 498) == MeshPatt( Perm((0, 1)),
             frozenset({(0, 1), (1, 2), (2, 1), (2, 0), (2, 2), (1, 1)}))

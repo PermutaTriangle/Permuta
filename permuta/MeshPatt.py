@@ -63,12 +63,33 @@ class MeshPatt(MeshPatternBase, Patt, Rotatable, Shiftable, Flippable):
         of the underlying pattern and every shading flipped across the
         horizontal axis.
 
-        Examples:
+        Returns: <permuta.MeshPatt>
+            The complement of the meshpatt.
 
+        Examples:
+            >>> MeshPatt(Perm((0,)), frozenset({(0, 1)})).complement()
+            MeshPatt(Perm((0,)), frozenset({(0, 0)}))
+            >>> MeshPatt(Perm((0, 2, 1)), frozenset({(0, 1), (0, 0), (1, 0), (0, 2), (0, 3)})).complement()
+            MeshPatt(Perm((2, 0, 1)), frozenset({(0, 1), (1, 3), (0, 0), (0, 3), (0, 2)}))
         """
         return MeshPatt(self.pattern.complement(),
-                           [(x, len(self.pattern)-y) for (x, y) in self.shading])
+                           [(x, len(self)-y) for (x, y) in self.shading])
 
+    def reverse(self):
+        """Returns the reversed mesh patterns, which has the underlying pattern
+        reversed and every shading flipped across the vertical axis.
+
+        Returns: <permuta.MeshPatt>
+            The meshpatt reversed.
+
+        Examples:
+            >>> MeshPatt(Perm((0,)), frozenset({(0, 1)})).reverse()
+            MeshPatt(Perm((0,)), frozenset({(1, 1)}))
+            >>> MeshPatt(Perm((2, 1, 0)), frozenset({(3, 2), (3, 3), (0, 2), (2, 2), (1, 1)})).reverse()
+            MeshPatt(Perm((0, 1, 2)), frozenset({(1, 2), (3, 2), (2, 1), (0, 3), (0, 2)}))
+        """
+        return MeshPatt(self.pattern.reverse(),
+                           [(len(self)-x, y) for (x, y) in self.shading])
     #
     # Static methods
     #
