@@ -536,24 +536,14 @@ class Perm(tuple,
             raise TypeError
 
     def contract_inc_bonds(self):
-        # TODO: reimplement or remove, does not make sense(wrong)
-        # P = Perm(self)
-        # while P.num_inc_bonds() > 0:
-            # for i in range(0,len(P)-1):
-                # if P[i+1] == P[i]+1:
-                    # P = Perm(P[:i]+P[i+1:])
-                    # break
-        return P
+        # TODO: test
+        monblocks = self.monotone_block_decompositon_ascending(with_ones=True)
+        return Perm.to_standard([start for (start,end) in monblocks])
 
     def contract_dec_bonds(self):
-        # TODO: reimplement or remove, does not make sense(wrong)
-        # P = Perm(self)
-        # while P.num_dec_bonds() > 0:
-            # for i in range(0,len(P)-1):
-                # if P[i+1] == P[i]-1:
-                    # P = Perm(P[:i]+P[i+1:])
-                    # break
-        return P
+        # TODO: test
+        monblocks = self.monotone_block_decompositon_descending(with_ones=True)
+        return Perm.to_standard([start for (start,end) in monblocks])
 
     def contract_bonds(self):
         # TODO: reimplement by calling contract_{inc,dec}_bonds or remove
@@ -766,6 +756,9 @@ class Perm(tuple,
         return self.reverse_complement()
 
     def all_syms(self):
+        """Returns all symmetries of the permutation in a PermSet, all possible
+        combinations of revers, complement and inverse.
+        """
         # TODO: finish PermSet
         # S = PermSet([self])
         # S = S.union(PermSet([P.reverse() for P in S]))
@@ -775,6 +768,9 @@ class Perm(tuple,
         pass
 
     def is_representative(self):
+        """Checks if the permutation is representative, that is, all the
+        symmetries of the permutation are the same.
+        """
         # return self == sorted(self.all_syms())[0]
         pass
 
@@ -1289,6 +1285,9 @@ class Perm(tuple,
         return sum(desc) + len(desc)
 
     def longestruns_ascending(self):
+        """Returns the longest ascending runs in the permutation as a pair of
+        the length and a list of the starting indices.
+        """
         n = self.__len__()
         if n == 0:
             return (0,[])
@@ -1311,18 +1310,30 @@ class Perm(tuple,
         return (maxi, res)
 
     def longestruns_descending(self):
+        """Returns the longest descending runs in the permutation as a pair of
+        the length and a list of the starting indices.
+        """
         return self.complement().longestruns_ascending()
 
     def longestruns(self):
+        """Returns the longest ascending runs in the permutation as a pair of
+        the length and a list of the starting indices.
+        """
         return self.longestruns_ascending()
 
     def length_of_longestrun_ascending(self):
+        """Returns the length of the longest ascending run in the permutation.
+        """
         return self.longestruns_ascending()[0]
 
     def length_of_longestrun_descending(self):
+        """Returns the length of the longest descending run in the permutation.
+        """
         return self.complement().length_of_longestrun_ascending()
 
     def length_of_longestrun(self):
+        """Returns the length of the longest ascending run in the permutation.
+        """
         return self.length_of_longestrun_ascending()
 
     def cycle_decomp(self):
@@ -1433,7 +1444,8 @@ class Perm(tuple,
         return len([j for j in range(i + 1, len(self)) if self[j] < self[i]])
 
     def rank_encoding(self):
-        """Returns the 'rank value'(?) of each index in the permutation, the number of inversions 'caused' by the values at each index.
+        """Returns the 'rank value'(?) of each index in the permutation, the
+        number of inversions 'caused' by the values at each index.
 
         Examples:
             >>> Perm((3, 0, 2, 1)).rank_encoding()
@@ -1500,23 +1512,48 @@ class Perm(tuple,
         """
         blocks = []
         diff = 0
-        c_start = 0
-        c_length = 0
+        start = 0
+        length = 0
         for i in range(1,len(self)):
-            if math.fabs(self[i] - self[i - 1]) == 1 and (c_length == 0 or self[i] - self[i - 1] == diff):
-                c_length += 1
+            if math.fabs(self[i] - self[i - 1]) == 1 and (length == 0 or self[i] - self[i - 1] == diff):
+                length += 1
                 diff = self[i] - self[i - 1]
             else:
-                blocks.append((c_start, c_start + c_length))
-                c_start = i
-                c_length = 0
+                blocks.append((start, start + length))
+                start = i
+                length = 0
                 diff = 0
         if len(self):
-            blocks.append((c_start, c_start + c_length))
+            blocks.append((start, start + length))
 
         if with_ones:
             return blocks
         return [ block for block in blocks if block[1] - block[0] > 0 ]
+
+    def monotone_block_decompositon_ascending(self, with_ones=False):
+        # TODO: test, untested
+        # TODO: rename to refer to runs, which this function basically computes, brakes the permutation up into its runs.
+        blocks = []
+        start = 0
+        length = 0
+        for i in range(1,len(self)):
+            if self[i] + 1 == self[i - 1]:
+                length += 1
+            else:
+                blocks.append((start, start + length))
+                start = i
+                length = 0
+        if len(self):
+            blocks.append((start, start + length))
+
+        if with_ones:
+            return blocks
+        return [ block for block in blocks if block[1] - block[0] > 0 ]
+
+    def monotone_block_decompositon_descending(self, with_ones=False):
+        # TODO: test, untested
+        return self.complement().monotone_block_decomposition_ascending(with_ones)
+
 
     all_monotone_intervals = monotone_block_decomposition # permpy backwards compatibility
 
@@ -1637,11 +1674,23 @@ class Perm(tuple,
         return [len([p for p in S if len(p)==i and not p.sum_decomposable()]) for i in range(1,max([len(p) for p in S])+1)]
 
     def count_rtlmax_ltrmin_layers(self):
+        """Counts the layers in the right-to-left maxima, left-to-right minima
+        decomposition.
+        """
         return len(self.rtlmax_ltrmin_decomposition())
 
     num_rtlmax_ltrmin_layers = count_rtlmax_ltrmin_layers
 
     def rtlmax_ltrmin_decomposition(self):
+        """Returns the right-to-left maxima, left-to-right minima
+        decomposition. The decomposition consists of layers, starting with the
+        first layer which is union of the right-to-left maximas and the
+        left-to-right minimas and the next layer is defined similarly for the
+        permutation with the first layer removed and so on.
+
+        TODO: If this function is to be kept, then it probably should return
+        the layers as indices in the original permutation.
+        """
         P = Perm(self)
         num_layers = 0
         layers = []
