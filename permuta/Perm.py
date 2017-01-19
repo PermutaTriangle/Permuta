@@ -1942,7 +1942,7 @@ class Perm(tuple,
     #
     # Visualization methods
     #
-    def ascii_plot(self):
+    def _ascii_plot(self):
         """Prints a simple plot of the given Permutation.
 
         Examples:
@@ -1976,7 +1976,8 @@ class Perm(tuple,
         back to an ascii_plot if matplotlib isn't found, or if use_mpl is set to
         False.
         """
-        if not mpl_imported or not use_mpl:
+        # TODO: check if matplotlib is imported
+        if not use_mpl:
             return self._ascii_plot()
         xs = [val for val in range(len(self))]
         ys = [val for val in self]
