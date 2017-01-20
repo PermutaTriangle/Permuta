@@ -232,6 +232,33 @@ class MeshPatt(MeshPatternBase, Patt, Rotatable, Shiftable, Flippable):
         return MeshPatt(self.pattern.rotate(2),
                            set([_rotate_180(len(self.pattern), coordinate)
                                 for coordinate in self.shading]))
+
+    def shade(self, positions):
+        """Returns the mesh pattern with the added shadings given by positions.
+
+        Args:
+            positions: tuple or collections.Iterable
+                The shading given as a single coordinate or as an iterable of
+                coordinates.
+
+        Raises:
+            ValueError:
+                Bad argument, but correct type.
+
+        Returns: <permuta.MeshPatt>
+            The new meshpatt with the added shadings.
+        """
+        if isinstance(positions, tuple):
+            if len(positions) == 0:
+                message = "Element is not a valid shading coordinate: '{}'".format(positions)
+                raise ValueError(message)
+            if isinstance(positions[0], numbers.Integral):
+                positions = set([positions])
+            else:
+                positions = set(positions)
+
+        return MeshPatt(self.pattern, self.shading | positions)
+
     #
     # Other methods
     #
@@ -347,7 +374,7 @@ class MeshPatt(MeshPatternBase, Patt, Rotatable, Shiftable, Flippable):
         return len(self.pattern)
 
     def __bool__(self):
-        return bool(self.pattern)
+        return bool(self.pattern) or bool(self.shading)
 
 
 def _rotate_right(length, element):

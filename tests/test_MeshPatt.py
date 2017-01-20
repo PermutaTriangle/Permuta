@@ -3,6 +3,16 @@ import pytest
 import itertools
 from permuta import Perm, MeshPatt
 
+patt1 = Perm([0, 1, 2, 3, 4])  # Avoids as well
+patt2 = Perm([1, 2, 4, 3, 0])  # Two occurrences
+patt3 = Perm((2, 3, 0, 1))
+shad1 = frozenset([(5, 0), (5, 1), (5, 2), (3, 2), (2, 1), (3, 3), (0, 0), (1, 0), (2, 0)])
+shad2 = frozenset([(3, 3), (2, 2), (1, 1), (0, 2)])
+shad3 = frozenset([(1, 3), (4, 4), (2, 1), (2, 2), (0, 4), (4, 0)])
+mesh1 = MeshPatt(patt1, shad1)
+mesh2 = MeshPatt(patt2, shad2)
+mesh3 = MeshPatt(patt3, shad3)
+
 def test_init():
     Perm.toggle_check()
     try:
@@ -86,15 +96,6 @@ def test_inverse():
         assert comp.inverse() == mpatt
 
 def test_sub_mesh_pattern():
-    patt1 = Perm([0, 1, 2, 3, 4])  # Avoids as well
-    patt2 = Perm([1, 2, 4, 3, 0])  # Two occurrences
-    patt3 = Perm((2, 3, 0, 1))
-    shad1 = frozenset([(5, 0), (5, 1), (5, 2), (3, 2), (2, 1), (3, 3), (0, 0), (1, 0), (2, 0)])
-    shad2 = frozenset([(3, 3), (2, 2), (1, 1), (0, 2)])
-    shad3 = frozenset([(1, 3), (4, 4), (2, 1), (2, 2), (0, 4), (4, 0)])
-    mesh1 = MeshPatt(patt1, shad1)
-    mesh2 = MeshPatt(patt2, shad2)
-    mesh3 = MeshPatt(patt3, shad3)
     # Empty pattern
     assert mesh1.sub_mesh_pattern(()) == MeshPatt((), ())
     # Sub mesh pattern from indices 1, 2, and 3 of mesh1
@@ -142,6 +143,25 @@ def test_rotate():
         assert mpatt._rotate_right()._rotate_left() == mpatt
         assert mpatt._rotate_left()._rotate_right() == mpatt
         assert mpatt._rotate_180()._rotate_180() == mpatt
+
+def test_shade():
+    mpatt = MeshPatt()
+    assert MeshPatt().shade((0, 0)).is_shaded((0, 0))
+    assert MeshPatt().shade([(0, 0)]).is_shaded((0, 0))
+
+    newshad = [(1, 2), (3, 3), (4, 4)]
+    mesh1shaded = mesh1.shade((1, 2))
+    for shading in shad1:
+        assert mesh1shaded.is_shaded(shading)
+    for shading in newshad:
+        assert mesh1shaded.is_shaded((shading))
+
+    newshad = [(2, 2), (1, 1), (0, 2), (1, 2), (3, 3), (4, 4)]
+    mesh2shaded = mesh2.shade((1, 2))
+    for shading in shad1:
+        assert mesh1shaded.is_shaded(shading)
+    for shading in newshad:
+        assert mesh1shaded.is_shaded((shading))
 
 def test_is_shaded():
     mpatt = MeshPatt(Perm(), ((0, 0),))
@@ -197,14 +217,41 @@ def test_repr():
         assert m.__repr__()[:8] == "MeshPatt"
 
 def test_len():
+    assert len(mesh1) == 5
+    assert len(mesh2) == 5
+    assert len(mesh3) == 4
+    assert len(MeshPatt()) == 0
+    assert len(MeshPatt((1,))) == 1
     for _ in range(20):
         length = random.randint(0, 20)
         m = MeshPatt(Perm.random(length), random.sample([ (i,j) for i in range(length + 1) for j in range(length + 1)], k=length))
         assert len(m) == length
 
 def test_bool():
+    assert mesh1
+    assert mesh2
+    assert mesh3
+    assert MeshPatt(Perm((1,)))
+    assert MeshPatt((), set([(0,0)]))
     assert MeshPatt(Perm([0, 1, 2, 3]), ())
     assert MeshPatt(Perm([0, 1, 2, 3]), ((0, 0),))
     assert MeshPatt(Perm([0]), ())
     assert not (MeshPatt(Perm([]), ()))
     assert not (MeshPatt(Perm(), ()))
+
+def test_eq():
+    assert not (mesh1 == mesh2)
+    assert not (mesh1 == mesh3)
+    assert not (mesh2 == mesh1)
+    assert not (mesh2 == mesh3)
+    assert not (mesh3 == mesh1)
+    assert not (mesh3 == mesh2)
+    mesh1copy = MeshPatt(patt1, shad1)
+    mesh2copy = MeshPatt(patt2, shad2)
+    mesh3copy = MeshPatt(patt3, shad3)
+    assert mesh1 == mesh1copy
+    assert mesh2 == mesh2copy
+    assert mesh3 == mesh3copy
+    assert mesh1copy == mesh1copy
+    assert mesh2copy == mesh2copy
+    assert mesh3copy == mesh3copy
