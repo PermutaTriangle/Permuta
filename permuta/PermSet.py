@@ -17,23 +17,40 @@ class PermSetMetaclass(type):
         return issubclass(subclass, PermSetBase)
 
 class PermSet(object, metaclass=PermSetMetaclass):
-    def __new__(_cls, descriptor=None):
+    def __new__(cls, descriptor=None):
         if descriptor is None:
             return PermSetAll()
         elif isinstance(descriptor, numbers.Integral):
             # Descriptor is actually just a number
             return PermSetAll().of_length(descriptor)
         elif isinstance(descriptor, Descriptor):
-            for described in PermSetDescribed.__subclasses__():
-                if isinstance(descriptor, described.descriptor):
-                    for cls in described.__subclasses__():
-                        if cls.descriptor == descriptor:
-                            return cls(descriptor)
-                    return described.default(descriptor)
-            raise RuntimeError("PermSet for descriptor {} not found".format(repr(descriptor)))  # TODO: Something else?
+            return cls._dispatch_described(descriptor)
         else:
             # Descriptor might just be a set of perms
             return PermSetStatic(descriptor)
+
+    @classmethod
+    def _dispatch_described(cls, descriptor):
+        for described_superclass in PermSetDescribed.__subclasses__():
+            if isinstance(descriptor, described_superclass.descriptor_class):
+                described_class = cls._find_described_class(descriptor, PermSetDescribed)
+                if described_class is None:
+                    return described_superclass.default_subclass(descriptor)
+                else:
+                    return described_class(descriptor)
+        raise RuntimeError("PermSet for descriptor {} not found".format(repr(descriptor)))  # TODO: Something else?
+
+    @classmethod
+    def _find_described_class(cls, descriptor, current_class):
+        # TODO: Use metaclasses to track subclasses
+        if current_class.descriptor == descriptor:
+            return current_class
+        else:
+            for subclass in current_class.__subclasses__():
+                described_class = cls._find_described_class(descriptor, subclass)
+                if described_class is not None:
+                    return described_class
+            return None
 
     @classmethod
     def avoiding(cls, basis):

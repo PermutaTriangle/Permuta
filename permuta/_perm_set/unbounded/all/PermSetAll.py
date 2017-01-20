@@ -9,6 +9,7 @@ from math import factorial
 
 from permuta import Perm
 from permuta._perm_set.finite import PermSetFinite
+from permuta._perm_set.finite import PermSetStatic
 from permuta._perm_set.finite import PermSetFiniteSpecificLength
 from permuta._perm_set.unbounded import PermSetUnbounded
 
@@ -71,6 +72,12 @@ class PermSetAllSpecificLength(PermSetFiniteSpecificLength):
     @property
     def domain(self):
         return list(range(self.length))  # tuple instead?
+
+    def of_length(self, length):
+        if length != self._length:
+            return PermSetStatic()
+        else:
+            return self
 
     def random(self):
         """Return a random perm of the length."""
