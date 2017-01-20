@@ -121,6 +121,13 @@ class MeshPatt(MeshPatternBase, Patt, Rotatable, Shiftable, Flippable):
             A mesh pattern where the pattern is the permutation induced by the
             indices and a region is shaded if and only if the corresponding
             region of self is fully shaded.
+
+        Exampes:
+            >>> shading = frozenset({(3, 2), (1, 3), (4, 2), (0, 3), (1, 2), (4, 3), (3, 4), (4, 1)})
+            >>> MeshPatt(Perm((3, 2, 1, 0)), shading).sub_mesh_pattern((0, 1, 3))
+            MeshPatt(Perm((2, 1, 0)), frozenset({(1, 2), (3, 2), (3, 1), (0, 2)}))
+            >>> MeshPatt(Perm((2, 3, 1, 0)), shading).sub_mesh_pattern((1, 2, 3))
+            MeshPatt(Perm((2, 1, 0)), frozenset({(3, 2), (3, 1), (2, 3)}))
         """
         indices = sorted(indices)
         if not indices:
@@ -219,7 +226,7 @@ class MeshPatt(MeshPatternBase, Patt, Rotatable, Shiftable, Flippable):
             The meshpatt rotated 180 degrees.
 
         Examples:
-            >>> MeshPatt(Perm((0,)), frozenset({(0, 1), (1, 1)}))._rotate_right()
+            >>> MeshPatt(Perm((0,)), frozenset({(0, 1), (1, 1)}))._rotate_180()
             MeshPatt(Perm((0,)), frozenset({(1, 0), (0, 0)}))
         """
         return MeshPatt(self.pattern.rotate(2),
