@@ -108,6 +108,39 @@ class MeshPatt(MeshPatternBase, Patt, Rotatable, Shiftable, Flippable):
         return MeshPatt(self.pattern.inverse(),
                            [(y, x) for (x, y) in self.shading])
 
+    def sub_mesh_pattern(self, indices):
+        """Return the mesh pattern induced by indices.
+
+        Args:
+            self:
+                A mesh pattern.
+            indices: <collections.Iterable> of <numbers.Integral>
+                A list of unique indices of elements in self.
+
+        Returns: <permuta.MeshPattern>
+            A mesh pattern where the pattern is the permutation induced by the
+            indices and a region is shaded if and only if the corresponding
+            region of self is fully shaded.
+        """
+        indices = sorted(indices)
+        if not indices:
+            return MeshPatt()
+        pattern = Perm.to_standard(self.pattern[index] for index in indices)
+        vertical = [0]
+        vertical.extend(index + 1 for index in indices)
+        vertical.append(len(self) + 1)
+        horizontal = [0]
+        horizontal.extend(sorted(self.pattern[index] + 1 for index in indices))
+        horizontal.append(len(self) + 1)
+        shading = frozenset((x, y)
+                            for x in range(len(pattern) + 1)
+                            for y in range(len(pattern) + 1)
+                            if self.is_shaded((vertical[x],
+                                               horizontal[y]),
+                                              (vertical[x + 1] - 1,
+                                               horizontal[y + 1] - 1)))
+        return MeshPatt(pattern, shading)
+
     def flip_horizontal(self):
         """Return self flipped horizontally which is equivalent to the
         complement.
@@ -192,6 +225,54 @@ class MeshPatt(MeshPatternBase, Patt, Rotatable, Shiftable, Flippable):
         return MeshPatt(self.pattern.rotate(2),
                            set([_rotate_180(len(self.pattern), coordinate)
                                 for coordinate in self.shading]))
+    #
+    # Other methods
+    #
+
+    def is_shaded(self, lower_left, upper_right=None):
+        """Check if a region of the grid is shaded.
+
+        Args:
+            self:
+                A mesh pattern.
+            lower_left: (int, int)
+                A shading coordinate of self.
+            upper_right: (int, int)
+                A shading coordinate of self.
+
+        Raises:
+            ValueError:
+                Bad argument, but correct type.
+
+        Returns: bool
+            If upper_right is None, then True if and only if lower_left is
+            shaded; otherwise, True if and only if all regions (x, y)
+            for x in the range lower_left[0] to upper_right[0] (inclusive) and
+            for y in the range lower_left[1] to upper_right[1] (inclusive) are
+            shaded.
+        """
+        if ((lower_left[0] < 0 or lower_left[1] < 0)
+                or (lower_left[0] > len(self) or lower_left[1] > len(self))):
+            message = "Element out of range: '{}'".format(lower_left)
+            raise ValueError(message)
+        elif upper_right is None:
+            return lower_left in self.shading
+        elif ((upper_right[0] < 0 or upper_right[1] < 0)
+                or (upper_right[0] > len(self) or upper_right[1] > len(self))):
+            message = "Element out of range: '{}'".format(upper_right)
+            raise ValueError(message)
+        elif lower_left[0] > upper_right[0] or lower_left[1] > upper_right[1]:
+            message = "Elements do not correspond to lower left and upper right of a non-empty rectangle: '{}' '{}'".format(lower_left, upper_right)
+            raise ValueError(message)
+        else:
+            left, lower = lower_left
+            right, upper = upper_right
+            for x in range(left, right + 1):
+                for y in range(lower, upper + 1):
+                    if (x, y) not in self.shading:
+                        return False
+            return True
+
     #
     # Static methods
     #
