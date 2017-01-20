@@ -17,10 +17,11 @@ run the following instead:
 # ./setup.py develop
 ```
 
-To run the unit tests, you can run the following command:
+To run the unit tests using pytest run
 ```
-./setup.py test
+pytest --cov permuta tests
 ```
+This requires `pytest` and `pytest-cov`.
 
 ## Usage
 Once you've installed Permuta, it can be imported into a Python script just
