@@ -150,18 +150,21 @@ def test_shade():
     assert MeshPatt().shade([(0, 0)]).is_shaded((0, 0))
 
     newshad = [(1, 2), (3, 3), (4, 4)]
-    mesh1shaded = mesh1.shade((1, 2))
+    mesh1shaded = mesh1.shade(newshad)
     for shading in shad1:
         assert mesh1shaded.is_shaded(shading)
     for shading in newshad:
         assert mesh1shaded.is_shaded((shading))
 
     newshad = [(2, 2), (1, 1), (0, 2), (1, 2), (3, 3), (4, 4)]
-    mesh2shaded = mesh2.shade((1, 2))
-    for shading in shad1:
-        assert mesh1shaded.is_shaded(shading)
+    mesh2shaded = mesh2.shade(newshad)
+    for shading in shad2:
+        assert mesh2shaded.is_shaded(shading)
     for shading in newshad:
-        assert mesh1shaded.is_shaded((shading))
+        assert mesh2shaded.is_shaded(shading)
+
+    with pytest.raises(ValueError): mesh2.shade(())
+    with pytest.raises(ValueError): mesh1.shade(())
 
 def test_is_shaded():
     mpatt = MeshPatt(Perm(), ((0, 0),))

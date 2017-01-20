@@ -254,8 +254,7 @@ class MeshPatt(MeshPatternBase, Patt, Rotatable, Shiftable, Flippable):
                 raise ValueError(message)
             if isinstance(positions[0], numbers.Integral):
                 positions = set([positions])
-            else:
-                positions = set(positions)
+        positions = set(positions)
 
         return MeshPatt(self.pattern, self.shading | positions)
 
