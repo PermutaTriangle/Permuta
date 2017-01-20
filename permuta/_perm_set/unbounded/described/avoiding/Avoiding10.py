@@ -11,7 +11,7 @@ class Avoiding10(Avoiding):
         return perm.is_increasing()
 
 
-class Avoiding10SpecificLength(PermSetFiniteSpecificLength):
+class Avoiding10SpecificLength(AvoidingSpecificLength):
     __slots__ = ("_length", "_iter")
 
     def __init__(self, length):

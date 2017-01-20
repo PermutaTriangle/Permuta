@@ -12,7 +12,7 @@ class Avoiding01(Avoiding):
         return perm.is_decreasing()
 
 
-class Avoiding01SpecificLength(PermSetFiniteSpecificLength):
+class Avoiding01SpecificLength(AvoidingSpecificLength):
     __slots__ = ("_length", "_iter")
 
     def __init__(self, length):

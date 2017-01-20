@@ -5,6 +5,7 @@ from ..PermSetDescribed import PermSetDescribed
 
 from permuta import Perm
 from permuta.descriptors import Basis
+from permuta._perm_set.finite import PermSetStatic
 from permuta._perm_set.finite import PermSetFiniteSpecificLength
 
 
@@ -112,6 +113,12 @@ class AvoidingSpecificLength(PermSetFiniteSpecificLength):
         self._basis = basis
         self._get_perms = get_perms
         self._iter = None
+
+    def of_length(self, length):
+        if length != self._length:
+            return PermSetStatic()
+        else:
+            return self
 
     def random(self):
         return random.choice(self._get_perms())

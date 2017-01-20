@@ -15,6 +15,9 @@ class PermSetStatic(PermSetFinite):
     def generating_function(self):
         return self._generating_function  # TODO Replace with symbolic variables and stuff
 
+    def of_length(self, length):
+        return PermSetStatic(perm for perm in self if len(perm) == length)
+
     def random(self):
         return random.choice(self._tuple)
 
