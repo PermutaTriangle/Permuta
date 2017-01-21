@@ -11,7 +11,15 @@ from permuta.misc import DIR_EAST, DIR_NORTH, DIR_WEST, DIR_SOUTH, DIR_NONE
 MeshPatternBase = collections.namedtuple("MeshPatternBase",
                                          ["pattern", "shading"])
 class MeshPatt(MeshPatternBase, Patt, Rotatable, Shiftable, Flippable):
-    """A mesh pattern class."""
+    """A mesh pattern class.
+
+    Attributes:
+        pattern: <permuta.Perm>
+            The underlying classical pattern.
+        shading: frozenset
+            The shading as a immutable set of coordinates, with lower-left as
+            origin.
+    """
 
     def __new__(cls, pattern=Perm(), shading=frozenset()):
         """Return a MeshPatt instance.
@@ -112,8 +120,6 @@ class MeshPatt(MeshPatternBase, Patt, Rotatable, Shiftable, Flippable):
         """Return the mesh pattern induced by indices.
 
         Args:
-            self:
-                A mesh pattern.
             indices: <collections.Iterable> of <numbers.Integral>
                 A list of unique indices of elements in self.
 
@@ -237,7 +243,7 @@ class MeshPatt(MeshPatternBase, Patt, Rotatable, Shiftable, Flippable):
         """Returns the mesh pattern with the added shadings given by positions.
 
         Args:
-            positions: tuple or collections.Iterable
+            positions: tuple or <collections.Iterable>
                 The shading given as a single coordinate or as an iterable of
                 coordinates.
 
@@ -257,6 +263,72 @@ class MeshPatt(MeshPatternBase, Patt, Rotatable, Shiftable, Flippable):
         positions = set(positions)
 
         return MeshPatt(self.pattern, self.shading | positions)
+
+    def add_point(self, box, shade_dir=DIR_NONE, safe=True):
+        """Returns a mesh pattern with a point added in box.  If shade_dir is
+        specified adds shading in that direction.
+
+        Args:
+            box: tuple
+                Coordinates corresponding to a box in the pattern.
+            shade_dir: int
+                The direction which to shade within the box.
+            safe: bool, oboxional
+                True to check if box must not be shaded.
+
+        Raises:
+            ValueError:
+                Bad box argument, if it is already shaded.
+            TypeError:
+                Bad argument type.
+
+        Returns: <permuta.MeshPatt>
+            The mesh pattern with a point added in box.
+        """
+        x,y = box
+        if not isinstance(x, numbers.Integral) or not isinstance(y, numbers.Integral):
+            message = "Element is not a tuple of integers: '{}'".format(box)
+            raise TypeError(message)
+        if safe and (x, y) in self.shading:
+            message = "Can not add point to shaded box: '{}'"
+            raise ValueError(message)
+
+        perm = [v if v < y else (v + 1) for v in self.pattern]
+        nperm = perm[:x] + [y] + perm[x:]
+        nshading = set()
+        for (a, b) in self.shading:
+            if a < x:
+                nx = [a]
+            elif a == x:
+                nx = [a, a+1]
+            else:
+                nx = [a+1]
+
+            if b < y:
+                ny = [b]
+            elif b == y:
+                ny = [b, b+1]
+            else:
+                ny = [b+1]
+
+            for na in nx:
+                for nb in ny:
+                    nshading.add((na, nb))
+
+        if shade_dir == DIR_EAST:
+            nshading.add((x+1, y))
+            nshading.add((x+1, y+1))
+        elif shade_dir == DIR_NORTH:
+            nshading.add((x, y+1))
+            nshading.add((x+1, y+1))
+        elif shade_dir == DIR_WEST:
+            nshading.add((x, y))
+            nshading.add((x, y+1))
+        elif shade_dir == DIR_SOUTH:
+            nshading.add((x, y))
+            nshading.add((x+1, y))
+
+        return MeshPatt(Perm(nperm), nshading)
 
     #
     # Other methods
@@ -305,6 +377,32 @@ class MeshPatt(MeshPatternBase, Patt, Rotatable, Shiftable, Flippable):
                     if (x, y) not in self.shading:
                         return False
             return True
+
+    def latex(self,scale=0.3): # pragma: no cover
+        """Returns the LaTeX code for the TikZ figure of the mesh pattern. The
+        LaTeX code requires the TikZ library 'patterns'.
+
+        Args:
+            scale: <numbers.Real>
+                The scale of the image.
+
+        Returns: str
+            The LaTeX code for the TikZ figure of the pattern.
+        """
+        # TODO: Review
+        return ("\\raisebox{{0.6ex}}{{\n"
+        "\\begin{{tikzpicture}}[baseline=(current bounding box.center),scale={0}]\n"
+        "\\useasboundingbox (0.0,-0.1) rectangle ({1}+1.4,{1}+1.1);\n"
+        "\\foreach \\x/\\y in {{{3}}}\n"
+        "  \\fill[pattern color = black!65, pattern=north east lines] (\\x,\\y) rectangle +(1,1);\n"
+        "\\draw (0.01,0.01) grid ({1}+0.99,{1}+0.99);\n"
+        "\\foreach [count=\\x] \\y in {{{2}}}\n"
+        "  \\filldraw (\\x,\\y) circle (6pt);\n"
+        "\\end{{tikzpicture}}}}").format(scale,
+                                         len(self.pattern),
+                                         ','.join(map(str, self.pattern)),
+                                         ','.join(["{}/{}".format(p[0],p[1])
+                                                   for p in self.shading]))
 
     #
     # Static methods
@@ -366,15 +464,49 @@ class MeshPatt(MeshPatternBase, Patt, Rotatable, Shiftable, Flippable):
     # Dunder methods
     #
 
-    def __repr__(self):
+    def __repr__(self): # pragma: no cover
         return "MeshPatt({self.pattern}, {self.shading})".format(self=self)
+
+    def __str__(self): # pragma: no cover
+        result = []
+        for line_number in range(2*len(self), -1, -1):
+            if line_number % 2 == 0:
+                # The regions defined by, and the columns of, the mesh grid
+                y = line_number//2
+                for x in range(len(self) + 1):
+                    if (x, y) in self.shading:
+                        result.append("#")
+                    else:
+                        result.append(" ")
+                    result.append("|")
+                else:
+                    # Remove extra "|"
+                    result.pop()
+            else:
+                # The rows of the mesh grid
+                row_index = line_number//2
+                for column_index in range(0, len(self)):
+                    if self.pattern[column_index] == row_index+1:
+                        result.append("-")
+                        if len(self) > 9:
+                            result.append("o")
+                        else:
+                            result.append(str(self.pattern[column_index]))
+                    else:
+                        result.append("-+")
+                else:
+                    result.append("-")
+            result.append("\n")
+        else:
+            # Remove extra "\n"
+            result.pop()
+        return "".join(result)
 
     def __len__(self):
         return len(self.pattern)
 
     def __bool__(self):
         return bool(self.pattern) or bool(self.shading)
-
 
 def _rotate_right(length, element):
     """Rotate an element of the Cartesian product of {0,...,length} right."""

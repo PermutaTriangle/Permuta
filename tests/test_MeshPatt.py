@@ -2,11 +2,12 @@ import random
 import pytest
 import itertools
 from permuta import Perm, MeshPatt
+from permuta.misc import DIR_EAST, DIR_NORTH, DIR_WEST, DIR_SOUTH, DIR_NONE
 
 patt1 = Perm([0, 1, 2, 3, 4])  # Avoids as well
 patt2 = Perm([1, 2, 4, 3, 0])  # Two occurrences
 patt3 = Perm((2, 3, 0, 1))
-shad1 = frozenset([(5, 0), (5, 1), (5, 2), (3, 2), (2, 1), (3, 3), (0, 0), (1, 0), (2, 0)])
+shad1 = frozenset([(0, 0), (1, 0), (2, 0), (2, 1), (3, 2), (3, 3), (5, 0), (5, 1), (5, 2)])
 shad2 = frozenset([(3, 3), (2, 2), (1, 1), (0, 2)])
 shad3 = frozenset([(1, 3), (4, 4), (2, 1), (2, 2), (0, 4), (4, 0)])
 mesh1 = MeshPatt(patt1, shad1)
@@ -166,6 +167,25 @@ def test_shade():
     with pytest.raises(ValueError): mesh2.shade(())
     with pytest.raises(ValueError): mesh1.shade(())
 
+def test_add_point():
+    mpatt = MeshPatt()
+    assert mpatt.add_point((0, 0)) == MeshPatt((0,))
+    assert mpatt.add_point((0, 0), shade_dir=DIR_EAST) == MeshPatt((0,), [(1, 0), (1, 1)])
+    assert mpatt.add_point((0, 0), shade_dir=DIR_NORTH) == MeshPatt((0,), [(0, 1), (1, 1)])
+    assert mpatt.add_point((0, 0), shade_dir=DIR_WEST) == MeshPatt((0,), [(0, 0), (0, 1)])
+    assert mpatt.add_point((0, 0), shade_dir=DIR_SOUTH) == MeshPatt((0,), [(0, 0), (1, 0)])
+
+    mpatt = MeshPatt((0, 1, 2), [(1, 0), (2, 1), (3, 2)])
+    assert mpatt.add_point((2, 0), shade_dir=DIR_SOUTH) == MeshPatt((1, 2, 0, 3),
+            [(1, 0), (1, 1), (2, 0), (2, 2), (3, 0), (3, 2), (4, 3)])
+    assert mpatt.add_point((1, 2), shade_dir=DIR_WEST) == MeshPatt((0, 2, 1, 3),
+            [(1, 0), (1, 2), (1, 3), (2, 0), (3, 1), (4, 2), (4, 3)])
+    assert mesh1.add_point((2, 3), shade_dir=DIR_NORTH) == MeshPatt((0, 1, 3, 2, 4, 5),
+            [(0, 0), (1, 0), (2, 0), (2, 1), (2, 4), (3, 0), (3, 1), (3, 4), (4, 2), (4, 3), (4, 4), (6, 0), (6, 1), (6, 2)])
+
+    with pytest.raises(TypeError): mpatt.add_point(('a', (0,)))
+    with pytest.raises(ValueError): mpatt.add_point((2, 1))
+
 def test_is_shaded():
     mpatt = MeshPatt(Perm(), ((0, 0),))
     assert mpatt.is_shaded((0, 0))
@@ -212,12 +232,6 @@ def test_random():
             | set(MeshPatt.unrank(Perm((1, 0)), i) for i in range(0, 512)))
     for length in range(3, 20):
         assert len(MeshPatt.random(length)) == length
-
-def test_repr():
-    for _ in range(20):
-        length = random.randint(0, 20)
-        m = MeshPatt(Perm.random(length), random.sample([ (i,j) for i in range(length + 1) for j in range(length + 1)], k=length))
-        assert m.__repr__()[:8] == "MeshPatt"
 
 def test_len():
     assert len(mesh1) == 5
