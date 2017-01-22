@@ -10,6 +10,17 @@ from permuta.misc import DIR_EAST, DIR_NORTH, DIR_WEST, DIR_SOUTH, DIR_NONE
 
 MeshPatternBase = collections.namedtuple("MeshPatternBase",
                                          ["pattern", "shading"])
+
+# TODO:
+#   add_increase
+#   add_decrease
+#   occurrences_in
+#   can_shade
+#   can_shade2
+#   _can_shade
+#   _can_shade2
+#   rank
+
 class MeshPatt(MeshPatternBase, Patt, Rotatable, Shiftable, Flippable):
     """A mesh pattern class.
 
