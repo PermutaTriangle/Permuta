@@ -205,6 +205,16 @@ def test_is_shaded():
     with pytest.raises(ValueError): mpatt.is_shaded((-1, 2))
     with pytest.raises(ValueError): mpatt.is_shaded((0, 0), (0, 4))
 
+def test_non_pointless_boxes():
+    assert MeshPatt(Perm()).non_pointless_boxes() == set()
+    assert MeshPatt((0,)).non_pointless_boxes() == set([(0, 0), (0, 1), (1, 0), (1, 1)])
+    assert (MeshPatt((0, 1, 2), [(0, 0), (1, 2,), (0, 2), (2, 0), (2, 1)]).non_pointless_boxes() ==
+            set([(0, 0), (0, 1), (1, 0), (1, 1), (1, 2), (2, 1), (2, 2), (2, 3), (3, 2), (3, 3)]))
+    print(mesh2)
+    assert (mesh2.non_pointless_boxes() == set([(0, 1), (0, 2), (1, 1), (1, 2),
+        (1, 3), (2, 2), (2, 3), (2, 4), (2, 5), (3, 3), (3, 4), (3, 5), (4, 0),
+        (4, 1), (4, 3), (4, 4), (5, 0), (5, 1)]))
+
 def test_unrank():
     assert MeshPatt.unrank(Perm((0, 1)), 498) == MeshPatt( Perm((0, 1)),
             frozenset({(0, 1), (1, 2), (2, 1), (2, 0), (2, 2), (1, 1)}))

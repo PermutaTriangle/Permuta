@@ -378,6 +378,18 @@ class MeshPatt(MeshPatternBase, Patt, Rotatable, Shiftable, Flippable):
                         return False
             return True
 
+    def non_pointless_boxes(self):
+        """ Returns the set of points that have a point on their boundaries in
+        one of their four corners.
+
+        Returns: set
+            The set of boxes with points in one of the corners.
+        """
+        res = []
+        for i,v in enumerate(self.pattern):
+            res.extend([(i + 1, v + 1), (i, v + 1), (i, v), (i + 1, v)])
+        return set(res)
+
     def latex(self,scale=0.3): # pragma: no cover
         """Returns the LaTeX code for the TikZ figure of the mesh pattern. The
         LaTeX code requires the TikZ library 'patterns'.
@@ -486,7 +498,7 @@ class MeshPatt(MeshPatternBase, Patt, Rotatable, Shiftable, Flippable):
                 # The rows of the mesh grid
                 row_index = line_number//2
                 for column_index in range(0, len(self)):
-                    if self.pattern[column_index] == row_index+1:
+                    if self.pattern[column_index] == row_index:
                         result.append("-")
                         if len(self) > 9:
                             result.append("o")
