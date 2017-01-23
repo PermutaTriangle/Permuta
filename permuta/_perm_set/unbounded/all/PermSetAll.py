@@ -75,7 +75,7 @@ class PermSetAllSpecificLength(PermSetFiniteSpecificLength):
 
     def of_length(self, length):
         if length != self._length:
-            return PermSetStatic()
+            return PermSetStatic([])
         else:
             return self
 
