@@ -1,5 +1,3 @@
-import abc
-
 from ..PermSetBase import PermSetBase
 
 

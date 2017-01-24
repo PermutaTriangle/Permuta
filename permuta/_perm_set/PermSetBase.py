@@ -19,6 +19,10 @@ class PermSetBase(metaclass=abc.ABCMeta):
     def __getitem__(self, key):
         pass
 
+    @abc.abstractmethod
+    def __len__(self, key):
+        pass
+
     def __str__(self):
         # Base __str__ which subclasses should override
         return "a perm set"

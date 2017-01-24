@@ -31,19 +31,23 @@ class PermSet(object, metaclass=PermSetMetaclass):
 
     @classmethod
     def _dispatch_described(cls, descriptor):
+        # Loop through all the described superclasses; e.g. Avoiding
         for described_superclass in PermSetDescribed.__subclasses__():
-            if isinstance(descriptor, described_superclass.descriptor_class):
+            # Check if descriptor's class is of that of the superclasses' descriptor
+            if isinstance(descriptor, described_superclass.DESCRIPTOR_CLASS):
+                # The correct superclass has been found!
+                # Try to find subclass specifically for this descriptor
                 described_class = cls._find_described_class(descriptor, PermSetDescribed)
                 if described_class is None:
-                    return described_superclass.default_subclass(descriptor)
+                    return described_superclass.DEFAULT_CLASS(descriptor)
                 else:
                     return described_class(descriptor)
         raise RuntimeError("PermSet for descriptor {} not found".format(repr(descriptor)))  # TODO: Something else?
 
     @classmethod
     def _find_described_class(cls, descriptor, current_class):
-        # TODO: Use metaclasses to track subclasses
-        if current_class.descriptor == descriptor:
+        # TODO: Use metaclasses to track subclasses, rather than this mess
+        if descriptor == current_class.DESCRIPTOR:
             return current_class
         else:
             for subclass in current_class.__subclasses__():
@@ -57,5 +61,5 @@ class PermSet(object, metaclass=PermSetMetaclass):
         return cls(Basis(basis))
 
     @classmethod
-    def filtered(cls, predicate):
+    def filtering(cls, predicate):
         return cls(Predicate(predicate))
