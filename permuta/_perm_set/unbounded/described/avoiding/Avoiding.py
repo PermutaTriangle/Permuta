@@ -1,12 +1,12 @@
 import random
 import functools
 
-from ..PermSetDescribed import PermSetDescribed
-
 from permuta import Perm
 from permuta.descriptors import Basis
 from permuta._perm_set.finite import PermSetStatic
 from permuta._perm_set.finite import PermSetFiniteSpecificLength
+
+from ..PermSetDescribed import PermSetDescribed
 
 
 class Avoiding(PermSetDescribed):
@@ -81,7 +81,10 @@ class AvoidingGeneric(Avoiding):
     def __next__(self):
         if self._iter is None:
             self._ensure_level(self._iter_number)
-            self._iter = iter(self.cache[self._iter_number])
+            cached_perms = self.cache[self._iter_number]
+            if len(cached_perms) == 0:
+                raise StopIteration
+            self._iter = iter(cached_perms)
         try:
             return next(self._iter)
         except StopIteration:
