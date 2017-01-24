@@ -424,6 +424,47 @@ class MeshPatt(MeshPatternBase, Patt, Rotatable, Shiftable, Flippable):
                         return False
             return True
 
+    def _can_shade(self, pos):
+        i, j = pos
+        if (i, j) in self.shading:
+            return False
+        if i-1 < 0 or self.pattern[i-1] != j:
+            return False
+        if (i-1, j-1) in self.shading:
+            return False
+        c = 0
+        if (i, j-1) in self.shading:
+            c += 1
+        if (i-1, j) in self.shading:
+            c += 1
+        if c == 2:
+            return False
+        for l in range(len(self.pattern)+1):
+            if l == i-1 or l == i:
+                continue
+            if (l, j-1) in self.shading and (l, j) not in self.shading:
+                return False
+        for l in range(len(self.pattern)+1):
+            if l == j-1 or l == j:
+                continue
+            if (i-1, l) in self.shading and (i, l) not in self.shading:
+                return False
+        return (i-1, j-1)
+
+    def can_shade(self, pos):
+        """Returns whether it is possible to shade the box pos"""
+        mp = self
+        poss = []
+        for i in range(4):
+            ans = mp._can_shade(pos)
+            if ans:
+                for j in range((-i) % 4):
+                    ans = _rot_right(len(self.pattern)-1, ans)
+                poss.append(ans[1]+1)
+            mp = mp.rotate_right()
+            pos = _rot_right(len(self.pattern), pos)
+        return poss
+
     def non_pointless_boxes(self):
         """ Returns the set of points that have a point on their boundaries in
         one of their four corners.
