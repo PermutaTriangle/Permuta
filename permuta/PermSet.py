@@ -8,6 +8,7 @@ from permuta._perm_set import PermSetBase
 from permuta._perm_set.finite import PermSetStatic
 from permuta._perm_set.unbounded.all import PermSetAll
 from permuta._perm_set.unbounded.described import PermSetDescribed
+from permuta._perm_set.unbounded.described.avoiding import Avoiding
 
 
 __all__ = [
@@ -76,4 +77,13 @@ class PermSet(object, metaclass=PermSetMetaclass):
 # Syntactic sugar
 #
 
-Av = AvoidanceClass = PermSet.avoiding  # pylint: disable=invalid-name
+
+class Av(object, metaclass=PermSetMetaclass):
+    def __new__(cls, basis=None):
+        if basis is None:
+            return PermSetAll()
+        return PermSet.avoiding(basis)
+
+
+class AvoidanceClass(Av):
+    pass
