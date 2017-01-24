@@ -65,8 +65,11 @@ You can visualize a permutation
 You can also get an ascii picture
 
 ```python
->>> p.plot(use_mpl=False)
- '      *\n  *    \n    *  \n*      '
+>>> print(p.plot(use_mpl=False))
+       *
+   *    
+     *  
+ *      
 ```
 
 The basic symmetries are implemented
