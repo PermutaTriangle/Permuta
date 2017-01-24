@@ -4,8 +4,14 @@ import itertools
 from permuta import Perm, MeshPatt
 from permuta.misc import DIR_EAST, DIR_NORTH, DIR_WEST, DIR_SOUTH, DIR_NONE
 
-patt1 = Perm([0, 1, 2, 3, 4])  # Avoids as well
-patt2 = Perm([1, 2, 4, 3, 0])  # Two occurrences
+mesh_pattern = MeshPatt([1, 3, 2, 0], set([(0, 0), (4, 0), (2, 1), (4, 1), (2, 2), (4, 2), (3, 3), (0, 4)]))
+perm1 = Perm([5, 2, 8, 6, 7, 9, 4, 3, 1, 0])  # Occurrence: E.g., [1, 3, 6, 9]
+perm2 = Perm([1, 2, 8, 6, 5, 9, 4, 3, 7, 0])  # Occurrence: E.g., [1, 6, 7, 9]
+perm3 = Perm([9, 8, 7, 6, 2, 5, 3, 4, 0, 1])  # Occurrence: None (avoids)
+perm4 = Perm([0, 1, 2, 3, 4])  # Avoids as well
+perm5 = Perm([1, 2, 4, 3, 0])  # Two occurrences
+patt1 = perm4
+patt2 = perm5
 patt3 = Perm((2, 3, 0, 1))
 shad1 = frozenset([(0, 0), (1, 0), (2, 0), (2, 1), (3, 2), (3, 3), (5, 0), (5, 1), (5, 2)])
 shad2 = frozenset([(3, 3), (2, 2), (1, 1), (0, 2)])
@@ -204,10 +210,33 @@ def test_add_decrease():
     assert mpatt.add_decrease((1, 2)) == MeshPatt((0, 3, 2, 1, 4),
             [(1, 0), (2, 0), (3, 0), (4, 1), (5, 2), (5, 3), (5, 4)])
 
+def test_contained_in():
+    assert Perm([0, 1, 2]).contains(MeshPatt([0, 1], set([(1, 0), (1, 1), (1, 2)])))
+    assert mesh_pattern.contained_in(perm1)
+    assert mesh_pattern.contained_in(perm2)
+    assert not (mesh_pattern.contained_in(perm3))
+    assert mesh_pattern.contained_in(perm1, perm2)
+    assert not (mesh_pattern.contained_in(perm1, perm3))
+
+def test_avoided_by():
+    assert not (mesh_pattern.avoided_by(perm1))
+    assert not (mesh_pattern.avoided_by(perm2))
+    assert mesh_pattern.avoided_by(perm3)
+    assert mesh_pattern.avoided_by(perm4)
+    assert mesh_pattern.avoided_by(perm3, perm4)
+    assert not (mesh_pattern.avoided_by(perm4, perm1, perm3))
+
+def test_count_occurrences_in():
+    assert mesh_pattern.count_occurrences_in(perm1) == 8
+    assert mesh_pattern.count_occurrences_in(perm2) == 12
+    assert mesh_pattern.count_occurrences_in(perm3) == 0
+    assert mesh_pattern.count_occurrences_in(perm4) == 0
+    assert mesh_pattern.count_occurrences_in(perm5) == 2
+
 def test_is_shaded():
     mpatt = MeshPatt(Perm(), ((0, 0),))
     assert mpatt.is_shaded((0, 0))
-    mpatt = MeshPatt((0, 2, 1), [(0,0), (0,2), (1,1), (1,3), (2,0), (2,2), (3,1), (3,3)])
+    mpatt = MeshPatt((0, 2, 1), [(0, 0), (0, 2), (1, 1), (1, 3), (2, 0), (2, 2), (3, 1), (3, 3)])
     for (x0, y0) in itertools.combinations(range(len(mpatt) + 1), 2):
         for (x1, y1) in itertools.combinations(range(len(mpatt) + 1), 2):
             if x0 > x1 or y0 > y1:
@@ -222,6 +251,20 @@ def test_is_shaded():
     with pytest.raises(ValueError): mpatt.is_shaded((0, 4))
     with pytest.raises(ValueError): mpatt.is_shaded((-1, 2))
     with pytest.raises(ValueError): mpatt.is_shaded((0, 0), (0, 4))
+
+def test_can_shade():
+    assert not (MeshPatt().can_shade((0, 0)))
+    assert MeshPatt((0,)).can_shade((0, 0)) == [0]
+    assert MeshPatt((0,)).can_shade((1, 0)) == [0]
+    assert not (MeshPatt((0,),[(0, 0)]).can_shade((0, 0)))
+    assert not (MeshPatt((0,),[(0, 0)]).can_shade((1, 1)))
+    assert not mesh_pattern.can_shade((1, 1))
+    assert not mesh_pattern.can_shade((3, 2))
+    assert not mesh_pattern.can_shade((1, 2))
+    assert mesh_pattern.can_shade((0, 1)) == [1]
+    mpatt = MeshPatt((1, 2, 0), [(2,2),(3,0),(3,2),(3,3)])
+    assert list(sorted(mpatt.can_shade((1, 2)))) == [1, 2]
+    assert mpatt.can_shade((3, 1)) == [0]
 
 def test_non_pointless_boxes():
     assert MeshPatt(Perm()).non_pointless_boxes() == set()
