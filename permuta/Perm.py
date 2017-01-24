@@ -17,6 +17,9 @@ if sys.version_info.major == 2:
     range = xrange  #pylint: disable=redefined-builtin,invalid-name,undefined-variable
 
 
+__all__ = ["Perm"]
+
+
 class Perm(tuple,
            Patt,
            Rotatable,

@@ -10,6 +10,13 @@ from permuta._perm_set.unbounded.all import PermSetAll
 from permuta._perm_set.unbounded.described import PermSetDescribed
 
 
+__all__ = [
+    "PermSet",
+    "Av",
+    "AvoidanceClass",
+    ]
+
+
 class PermSetMetaclass(type):
     def __instancecheck__(self, instance):
         return isinstance(instance, PermSetBase)
@@ -63,3 +70,10 @@ class PermSet(object, metaclass=PermSetMetaclass):
     @classmethod
     def filtering(cls, predicate):
         return cls(Predicate(predicate))
+
+
+#
+# Syntactic sugar
+#
+
+Av = AvoidanceClass = PermSet.avoiding  # pylint: disable=invalid-name
