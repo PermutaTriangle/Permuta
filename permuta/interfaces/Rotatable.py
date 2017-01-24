@@ -32,11 +32,11 @@ class Rotatable(ABC):
         return self._rotate_right()._rotate_right()
 
     def _rotate_left(self):
-        """Return self rotated 90 degrees right."""
+        """Return self rotated 90 degrees left."""
         return self._rotate_180()._rotate_right()
         pass
 
     @abc.abstractmethod
     def _rotate_right(self):
-        """Return self rotated 90 degrees left."""
+        """Return self rotated 90 degrees right."""
         pass

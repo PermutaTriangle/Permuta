@@ -899,8 +899,8 @@ def test_is_strongly_simple():
 
 def test_coveredby():
     assert Perm(()).coveredby() == [Perm((0))]
-    assert Perm((0)).coveredby() == [Perm((0, 1)), Perm((1, 0))]
-    assert Perm((0, 1)).coveredby() == [Perm((0, 2, 1)), Perm((1, 2, 0)), Perm((0, 1, 2)), Perm((2, 0, 1)), Perm((1, 0, 2))]
+    assert sorted(Perm((0)).coveredby()) == sorted([Perm((0, 1)), Perm((1, 0))])
+    assert sorted(Perm((0, 1)).coveredby()) == sorted([Perm((0, 2, 1)), Perm((1, 2, 0)), Perm((0, 1, 2)), Perm((2, 0, 1)), Perm((1, 0, 2))])
     for _ in range(10):
         perm = Perm.random(random.randint(0, 12))
         for p in perm.coveredby():
