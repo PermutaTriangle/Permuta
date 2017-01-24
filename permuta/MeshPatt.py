@@ -12,14 +12,12 @@ MeshPatternBase = collections.namedtuple("MeshPatternBase",
                                          ["pattern", "shading"])
 
 # TODO:
-#   add_increase
 #   add_decrease
 #   occurrences_in
 #   can_shade
 #   can_shade2
 #   _can_shade
 #   _can_shade2
-#   rank
 
 class MeshPatt(MeshPatternBase, Patt, Rotatable, Shiftable, Flippable):
     """A mesh pattern class.
@@ -340,6 +338,25 @@ class MeshPatt(MeshPatternBase, Patt, Rotatable, Shiftable, Flippable):
             nshading.add((x+1, y))
 
         return MeshPatt(Perm(nperm), nshading)
+
+    def add_increase(self,box):
+        """Adds an increasing pattern (1, 2) into the given coordinate.
+
+        Args:
+            box: tuple
+                The coordinate of the box to insert (1, 2) into.
+
+        Returns: <permuta.MeshPatt>
+            The new pattern with the increased pattern inserted into box.
+
+        Examples:
+            >>> MeshPatt((0,)).add_increase((0, 0))
+            MeshPatt(Perm((0, 1, 2)), frozenset())
+            >>> MeshPatt((0, 1, 2), [(1, 0), (2, 1), (3, 2)]).add_increase((2, 0))
+            MeshPatt(Perm((2, 3, 0, 1, 4)), frozenset({(1, 2), (5, 4), (3, 3), (2, 3), (4, 3), (1, 0), (1, 1)}))
+        """
+        x, y = box
+        return self.add_point((x, y)).add_point((x + 1,y + 1))
 
     #
     # Other methods
