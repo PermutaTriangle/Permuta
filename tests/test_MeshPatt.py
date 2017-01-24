@@ -215,6 +215,28 @@ def test_non_pointless_boxes():
         (1, 3), (2, 2), (2, 3), (2, 4), (2, 5), (3, 3), (3, 4), (3, 5), (4, 0),
         (4, 1), (4, 3), (4, 4), (5, 0), (5, 1)]))
 
+def test_rank():
+    assert MeshPatt(Perm((0, 1)), [(0, 1), (1, 2), (2, 1), (2, 0), (2, 2), (1, 1)]).rank() == 498
+    assert MeshPatt(Perm((1, 0, 2)), [(3, 2), (0, 0), (2, 3), (1, 0), (0, 1), 
+        (1, 2), (3, 3), (3, 1), (2, 0)]).rank() == 59731
+    assert MeshPatt(Perm((0, 3, 2, 1)),
+            [(0, 1), (4, 4), (1, 4), (2, 3), (4, 2), (4, 1), (0, 2)]).rank() == 23077382
+
+    pattern = Perm([1,2])
+    mesh = MeshPatt(pattern, set([(0,1), (0,2), (1,2), (2,0), (2,1)]))
+    assert mesh.rank() == 230
+
+    pattern = Perm([3,1,2])
+    mesh = MeshPatt(pattern, set([(0,0), (0,1), (0,2), (1,0), (1,2), (2,0),
+        (2,1), (2,2), (2,3), (3,0)]))
+    assert mesh.rank() == 8023
+
+    assert mesh1.rank() == 0b111000000001100000011000001000001
+
+    for _ in range(50):
+        mesh = MeshPatt.random(random.randint(0, 20))
+        assert MeshPatt.unrank(mesh.pattern, mesh.rank()) == mesh
+
 def test_unrank():
     assert MeshPatt.unrank(Perm((0, 1)), 498) == MeshPatt( Perm((0, 1)),
             frozenset({(0, 1), (1, 2), (2, 1), (2, 0), (2, 2), (1, 1)}))
@@ -223,6 +245,18 @@ def test_unrank():
     assert MeshPatt.unrank(Perm((0, 3, 2, 1)), 23077382) == MeshPatt(
             Perm((0, 3, 2, 1)),
             frozenset({(0, 1), (4, 4), (1, 4), (2, 3), (4, 2), (4, 1), (0, 2)}))
+
+    pattern = Perm([1,2])
+    mesh = MeshPatt(pattern, set([(0,1), (0,2), (1,2), (2,0), (2,1)]))
+    assert MeshPatt.unrank(pattern, 230) == mesh
+
+    pattern = Perm([3,1,2])
+    mesh = MeshPatt(pattern, set([(0,0), (0,1), (0,2), (1,0), (1,2), (2,0),
+        (2,1), (2,2), (2,3), (3,0)]))
+    assert MeshPatt.unrank(pattern, 8023) == mesh
+
+    assert MeshPatt.unrank(patt1, 0b111000000001100000011000001000001) ==  mesh1
+
     for length in range(20):
         m = MeshPatt.unrank(Perm.random(length), 0)
         assert not m.shading
@@ -230,7 +264,11 @@ def test_unrank():
         m = MeshPatt.unrank(Perm.random(length), 2**((length + 1)**2) - 1)
         assert len(m.shading) == (length + 1)**2
 
+    with pytest.raises(ValueError): MeshPatt.unrank([1,2,3], -1)
+    with pytest.raises(ValueError): MeshPatt.unrank(Perm([1]), 16)
+    with pytest.raises(ValueError): MeshPatt.unrank(Perm([1]), -1)
     with pytest.raises(TypeError): MeshPatt.unrank(Perm.random(length), 'haha')
+    with pytest.raises(TypeError): MeshPatt.unrank(Perm([1]), "1")
     with pytest.raises(ValueError):
         MeshPatt.unrank(Perm.random(10), 2**((10 + 1)**2) + 1)
 

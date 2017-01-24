@@ -395,11 +395,33 @@ class MeshPatt(MeshPatternBase, Patt, Rotatable, Shiftable, Flippable):
 
         Returns: set
             The set of boxes with points in one of the corners.
+
+        Examples:
+            TODO
         """
         res = []
         for i,v in enumerate(self.pattern):
             res.extend([(i + 1, v + 1), (i, v + 1), (i, v), (i + 1, v)])
         return set(res)
+
+    def rank(self):
+        """Computes the rank of the mesh pattern, the bit string of the
+        shadings interpreted as an integer.
+
+        Returns: numbers.Integral
+            The rank of the mesh pattern.
+
+        Examples:
+            >>> rank = MeshPatt(Perm((1, 0, 2)), frozenset({(0, 0), (3, 0), (0, 2), (2, 1), (2, 3), (1, 2), (3, 3), (3, 1), (1, 1)})).rank()
+            >>> rank
+            47717
+            >>> bin(rank)
+            '0b1011101001100101'
+        """
+        res = 0
+        for (x, y) in self.shading:
+            res |= 1 << (x * (len(self.pattern)+1) + y)
+        return res
 
     def latex(self,scale=0.3): # pragma: no cover
         """Returns the LaTeX code for the TikZ figure of the mesh pattern. The
