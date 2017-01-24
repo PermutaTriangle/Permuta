@@ -195,6 +195,15 @@ def test_add_increase():
     assert mpatt.add_increase((1, 2)) == MeshPatt((0, 2, 3, 1, 4),
             [(1, 0), (2, 0), (3, 0), (4, 1), (5, 2), (5, 3), (5, 4)])
 
+def test_add_decrease():
+    mpatt = MeshPatt()
+    assert mpatt.add_decrease((0, 0)) == MeshPatt((1, 0))
+    mpatt = MeshPatt((0, 1, 2), [(1, 0), (2, 1), (3, 2)])
+    assert mpatt.add_decrease((2, 0)) == MeshPatt(Perm((2, 3, 1, 0, 4)),
+            [(1, 2), (5, 4), (3, 3), (2, 3), (4, 3), (1, 0), (1, 1)])
+    assert mpatt.add_decrease((1, 2)) == MeshPatt((0, 3, 2, 1, 4),
+            [(1, 0), (2, 0), (3, 0), (4, 1), (5, 2), (5, 3), (5, 4)])
+
 def test_is_shaded():
     mpatt = MeshPatt(Perm(), ((0, 0),))
     assert mpatt.is_shaded((0, 0))
