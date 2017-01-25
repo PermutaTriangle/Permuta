@@ -1,4 +1,3 @@
-
 import collections
 import itertools
 import numbers
@@ -11,10 +10,6 @@ from permuta.misc import DIR_EAST, DIR_NORTH, DIR_WEST, DIR_SOUTH, DIR_NONE
 
 MeshPatternBase = collections.namedtuple("MeshPatternBase",
                                          ["pattern", "shading"])
-
-# TODO:
-#   _can_shade
-#   _can_shade2
 
 class MeshPatt(MeshPatternBase, Patt, Rotatable, Shiftable, Flippable):
     """A mesh pattern class.
@@ -538,16 +533,92 @@ class MeshPatt(MeshPatternBase, Patt, Rotatable, Shiftable, Flippable):
             pos = _rotate_right(len(self.pattern), pos)
         return poss
 
+    def _can_simul_shade(self, pos1, pos2):
+        if pos1[1] < pos2[1]:
+            pos1, pos2 = pos2, pos1
+        # There must be a point at (pos1[0]-1, pos1[1]-1)
+        if pos1[0] == 0 or self.pattern[pos1[0] - 1] != pos1[1] - 1:
+            return False
+        if pos1[0] != pos2[0] or pos1[1] - 1 != pos2[1]:
+            # the pos1 must be directly above pos2
+            return False
+
+        if pos1 in self.shading:
+            return False
+        if pos2 in self.shading:
+            return False
+        # The boxes surrounding the point (pos1[0]-1, pos1[1] - 1) must be
+        # empty
+        if (pos1[0]-1, pos1[1]) in self.shading:
+            return False
+        if (pos2[0]-1, pos2[1]) in self.shading:
+            return False
+
+        # Check the boxes on each side of the vertical line of pos1[0], if the
+        # box on the left side is shaded then the box on the right side must be
+        # shaded.
+        for y in range(len(self.pattern) + 1):
+            if y == pos1[1] or y == pos1[1] - 1:
+                continue
+            if (pos1[0] - 1, y) in self.shading and (pos1[0], y) not in self.shading:
+                return False
+
+        # Check the boxes on each side of the horizontal line of pos1[1]-1,
+        # they must match.
+        for x in range(len(self.pattern) + 1):
+            if x == pos1[0] or x == pos1[0] - 1:
+                continue
+            if ((x, pos1[1]) in self.shading) != ((x, pos2[1]) in self.shading):
+                return False
+        return (pos1[0] - 1, pos1[1] - 1)
+
+    def can_simul_shade(self, pos1, pos2):
+        """Returns whether it is possible to shade the box at position pos
+        according to the Shading Lemma. Every direction is checked and the list
+        of the values of the adjacent points to the box that can be used is
+        returned.
+
+        Args:
+            pos1: tuple
+                The position of the first box to check.
+            pos2: tuple
+                The position of the second box to check.
+
+        Returns: list
+            The values of the points in the permutation adjacent to the boxes at
+            pos1 and pos2 that can be used to shade the box.
+
+        Examples:
+
+        """
+        mp = self
+        poss = []
+        for i in range(4):
+            ans = mp._can_simul_shade(pos1, pos2)
+            if ans:
+                for j in range((-i) % 4):
+                    ans = _rotate_right(len(self.pattern) - 1, ans)
+                poss.append(ans[1])
+            mp = mp.rotate_right()
+            pos1 = _rotate_right(len(self.pattern), pos1)
+            pos2 = _rotate_right(len(self.pattern), pos2)
+        return poss
+
+    can_shade2 = can_simul_shade
+
     def non_pointless_boxes(self):
-        """ Returns the set of points that have a point on their boundaries in
-        one of their four corners.
+        """ Returns the coordinates of the boxes that have a point on their
+        boundaries in one of their four corners.
 
         Returns: set
             The set of boxes with points in one of the corners.
 
         Examples:
+            >>> MeshPatt(Perm((0, 1)), frozenset({(0, 1), (2, 0), (0, 2)})).non_pointless_boxes()
+            {(0, 1), (1, 2), (0, 0), (2, 1), (2, 2), (1, 0), (1, 1)}
+            >>> MeshPatt(Perm((1, 0, 2)), frozenset({(1, 3), (3, 0), (0, 3), (0, 1), (1, 2), (3, 1), (2, 0), (1, 1)})).non_pointless_boxes()
+            {(1, 2), (0, 1), (3, 2), (3, 3), (0, 2), (2, 1), (2, 0), (2, 3), (2, 2), (1, 0), (1, 1)}
         """
-        # TODO: add Examples
         res = []
         for i,v in enumerate(self.pattern):
             res.extend([(i + 1, v + 1), (i, v + 1), (i, v), (i + 1, v)])
@@ -703,16 +774,48 @@ class MeshPatt(MeshPatternBase, Patt, Rotatable, Shiftable, Flippable):
         return bool(self.pattern) or bool(self.shading)
 
 def _rotate_right(length, element):
-    """Rotate an element of the Cartesian product of {0,...,length} right."""
+    """Rotate an element of the Cartesian product of {0,...,length} clockwise.
+
+    Args:
+        length: numbers.Integral
+            The size of the area(of mesh).
+        element: tuple
+            A cartesiean coordinate within [0,...,length]x[0,...,length]
+
+    Returns: tuple
+        The input point rotated within the box of size length x length.
+    """
     x, y = element
     return (y, length - x)
 
 def _rotate_left(length, element):
-    """Rotate an element of the Cartesian product of {0,...,length} left."""
+    """Rotate an element of the Cartesian product of {0,...,length}
+    counterclockwise.
+
+    Args:
+        length: numbers.Integral
+            The size of the area(of mesh).
+        element: tuple
+            A cartesiean coordinate within [0,...,length]x[0,...,length]
+
+    Returns: tuple
+        The input point rotated within the box of size length x length.
+    """
     x, y = element
     return (length - y, x)
 
 def _rotate_180(length, element):
-    """Rotate an element of the Cartesian product of {0,...,length} 180 degrees."""
+    """Rotate an element of the Cartesian product of {0,...,length}
+    180-degrees.
+
+    Args:
+        length: numbers.Integral
+            The size of the area(of mesh).
+        element: tuple
+            A cartesiean coordinate within [0,...,length]x[0,...,length]
+
+    Returns: tuple
+        The input point rotated within the box of size length x length.
+    """
     x, y = element
     return (length - x, length - y)

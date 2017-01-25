@@ -266,6 +266,25 @@ def test_can_shade():
     assert list(sorted(mpatt.can_shade((1, 2)))) == [1, 2]
     assert mpatt.can_shade((3, 1)) == [0]
 
+def test_can_simul_shade():
+    assert not (MeshPatt().can_simul_shade((0, 0), (0, 0)))
+    assert MeshPatt((0,)).can_simul_shade((0, 0), (0, 1)) == [0]
+    assert not (MeshPatt((0, 1, 2)).can_simul_shade((2, 0), (2, 2)))
+    assert not mesh1.can_simul_shade((2, 2), (3, 2))
+    assert not mesh1.can_simul_shade((1, 2), (2, 2))
+    assert not mesh2.can_simul_shade((3, 3), (4, 3))
+    assert not mesh2.can_simul_shade((3, 4), (4, 4))
+    assert not mesh1.can_simul_shade((4, 4), (4, 5))
+    assert not mesh1.can_simul_shade((4, 5), (5, 5))
+    assert mesh1.can_simul_shade((5, 4), (5, 5)) == [4]
+
+    mpatt = MeshPatt((2, 3, 0, 1), [(0, 4), (1, 3), (2, 1), (2, 2), (3, 4), (4, 0), (4, 4)])
+    assert mpatt.can_simul_shade((4, 1), (4, 2)) == [1]
+    mpatt = MeshPatt((1, 2, 0), [(0, 2), (0, 3), (1, 1), (2, 0), (2, 1), (3, 2), (3, 3)])
+    assert mpatt.can_simul_shade((2, 2), (2, 3)) == [2]
+    assert not mpatt.can_simul_shade((1, 2), (2, 2))
+    assert not mpatt.can_simul_shade((1, 2), (1, 3))
+
 def test_non_pointless_boxes():
     assert MeshPatt(Perm()).non_pointless_boxes() == set()
     assert MeshPatt((0,)).non_pointless_boxes() == set([(0, 0), (0, 1), (1, 0), (1, 1)])
