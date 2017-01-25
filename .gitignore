@@ -8,3 +8,7 @@ docs/build/*
 /dist
 /permenv
 .coverage
+
+*.xml
+
+*.iml
