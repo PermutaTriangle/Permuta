@@ -13,8 +13,6 @@ MeshPatternBase = collections.namedtuple("MeshPatternBase",
                                          ["pattern", "shading"])
 
 # TODO:
-#   can_shade
-#   can_shade2
 #   _can_shade
 #   _can_shade2
 
