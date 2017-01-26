@@ -1,5 +1,5 @@
-
 import collections
+import itertools
 import numbers
 import random
 import sys
@@ -10,13 +10,6 @@ from permuta.misc import DIR_EAST, DIR_NORTH, DIR_WEST, DIR_SOUTH, DIR_NONE
 
 MeshPatternBase = collections.namedtuple("MeshPatternBase",
                                          ["pattern", "shading"])
-
-# TODO:
-#   occurrences_in
-#   can_shade
-#   can_shade2
-#   _can_shade
-#   _can_shade2
 
 class MeshPatt(MeshPatternBase, Patt, Rotatable, Shiftable, Flippable):
     """A mesh pattern class.
@@ -272,16 +265,16 @@ class MeshPatt(MeshPatternBase, Patt, Rotatable, Shiftable, Flippable):
 
         return MeshPatt(self.pattern, self.shading | positions)
 
-    def add_point(self, box, shade_dir=DIR_NONE, safe=True):
-        """Returns a mesh pattern with a point added in box.  If shade_dir is
+    def add_point(self, pos, shade_dir=DIR_NONE, safe=True):
+        """Returns a mesh pattern with a point added in the box at position pos.  If shade_dir is
         specified adds shading in that direction.
 
         Args:
-            box: tuple
+            pos: tuple
                 Coordinates corresponding to a box in the pattern.
             shade_dir: int
                 The direction which to shade within the box.
-            safe: bool, oboxional
+            safe: bool, optional
                 True to check if box must not be shaded.
 
         Raises:
@@ -291,14 +284,14 @@ class MeshPatt(MeshPatternBase, Patt, Rotatable, Shiftable, Flippable):
                 Bad argument type.
 
         Returns: <permuta.MeshPatt>
-            The mesh pattern with a point added in box.
+            The mesh pattern with a point added in pos.
         """
-        x,y = box
+        x,y = pos
         if not isinstance(x, numbers.Integral) or not isinstance(y, numbers.Integral):
-            message = "Element is not a tuple of integers: '{}'".format(box)
+            message = "Element is not a tuple of integers: '{}'".format(pos)
             raise TypeError(message)
         if safe and (x, y) in self.shading:
-            message = "Can not add point to shaded box: '{}'"
+            message = "Can not add point to shaded pos: '{}'"
             raise ValueError(message)
 
         perm = [v if v < y else (v + 1) for v in self.pattern]
@@ -338,15 +331,15 @@ class MeshPatt(MeshPatternBase, Patt, Rotatable, Shiftable, Flippable):
 
         return MeshPatt(Perm(nperm), nshading)
 
-    def add_increase(self,box):
+    def add_increase(self, pos):
         """Adds an increasing pattern (0, 1) into the given coordinate.
 
         Args:
-            box: tuple
-                The coordinate of the box to insert (0, 1) into.
+            pos: tuple
+                The coordinate of the position to insert (0, 1) into.
 
         Returns: <permuta.MeshPatt>
-            The new pattern with the increased pattern inserted into box.
+            The new pattern with the increased pattern inserted into pos.
 
         Examples:
             >>> MeshPatt((0,)).add_increase((0, 0))
@@ -354,18 +347,18 @@ class MeshPatt(MeshPatternBase, Patt, Rotatable, Shiftable, Flippable):
             >>> MeshPatt((0, 1, 2), [(1, 0), (2, 1), (3, 2)]).add_increase((2, 0))
             MeshPatt(Perm((2, 3, 0, 1, 4)), frozenset({(1, 2), (5, 4), (3, 3), (2, 3), (4, 3), (1, 0), (1, 1)}))
         """
-        x, y = box
+        x, y = pos
         return self.add_point((x, y)).add_point((x + 1,y + 1))
 
-    def add_decrease(self,box):
+    def add_decrease(self, pos):
         """Adds an decreasing pattern (1, 0) into the given coordinate.
 
         Args:
-            box: tuple
-                The coordinate of the box to insert (1, 0) into.
+            pos: tuple
+                The coordinate of the position to insert (1, 0) into.
 
         Returns: <permuta.MeshPatt>
-            The new pattern with the decreasing pattern inserted into box.
+            The new pattern with the decreasing pattern inserted into pos.
 
         Examples:
             >>> MeshPatt((0,)).add_decrease((0, 0))
@@ -373,8 +366,45 @@ class MeshPatt(MeshPatternBase, Patt, Rotatable, Shiftable, Flippable):
             >>> MeshPatt((0, 1, 2), [(1, 0), (2, 1), (3, 2)]).add_decrease((2, 0))
             MeshPatt(Perm((2, 3, 1, 0, 4)), frozenset({(1, 2), (5, 4), (3, 3), (2, 3), (4, 3), (1, 0), (1, 1)}))
         """
-        x, y = box
+        x, y = pos
         return self.add_point((x, y)).add_point((x + 1, y))
+
+    #
+    # Occurrence/Avoidance/Containment methods
+    #
+
+    def occurrences_in(self, perm):
+        """Find all indices of occurrences of self in perm.
+
+        Args:
+            self:
+                The mesh pattern whose occurrences are to be found.
+            perm: <permuta.Perm>
+                The permutation to search for occurrences in.
+
+        Yields: numbers.Integral
+            The indices of the occurrences of self in perm. Each yielded
+            element l is a list of integer indices of the permutation perm such
+            that self.pattern == permuta.Perm.to_standard([perm[i] for i in l])
+            and that no element not in the occurrence falls within
+            self.shading.
+        """
+        # TODO: Implement all nice
+        indices = list(range(len(perm)))
+        for candidate_indices in self.pattern.occurrences_in(perm):
+            candidate = [perm[index] for index in candidate_indices]
+            x = 0
+            for element in perm:
+                if element in candidate:
+                    x += 1
+                    continue
+                y = sum(1 for candidate_element in candidate
+                        if candidate_element < element)
+                if (x, y) in self.shading:
+                    break
+            else:
+                # No unused point fell within shading
+                yield list(candidate_indices)
 
     #
     # Other methods
@@ -397,10 +427,9 @@ class MeshPatt(MeshPatternBase, Patt, Rotatable, Shiftable, Flippable):
 
         Returns: bool
             If upper_right is None, then True if and only if lower_left is
-            shaded; otherwise, True if and only if all regions (x, y)
-            for x in the range lower_left[0] to upper_right[0] (inclusive) and
-            for y in the range lower_left[1] to upper_right[1] (inclusive) are
-            shaded.
+            shaded; otherwise, True if and only if all regions (x, y) for x in
+            the range lower_left[0] to upper_right[0] (inclusive) and for y in
+            the range lower_left[1] to upper_right[1] (inclusive) are shaded.
         """
         if ((lower_left[0] < 0 or lower_left[1] < 0)
                 or (lower_left[0] > len(self) or lower_left[1] > len(self))):
@@ -425,25 +454,44 @@ class MeshPatt(MeshPatternBase, Patt, Rotatable, Shiftable, Flippable):
             return True
 
     def _can_shade(self, pos):
+        """Checks if the box at pos can be shaded according to the Shading
+        Lemma(northeast).
+
+        Args:
+            pos: tuple
+                The coordinates of the box to check.
+
+        Returns: tuple
+            The point that is 'moved' to shade the box at pos.
+        """
         i, j = pos
+        # if pos is shaded
         if (i, j) in self.shading:
             return False
-        if i-1 < 0 or self.pattern[i-1] != j:
+        # if pos does not have point in lower-left
+        if i - 1 < 0 or self.pattern[i - 1] != j - 1:
             return False
-        if (i-1, j-1) in self.shading:
+        # if box in south-west direction is shaded
+        if (i - 1, j - 1) in self.shading:
             return False
         c = 0
+        # only one of the boxes to the left and down can be shaded
         if (i, j-1) in self.shading:
             c += 1
         if (i-1, j) in self.shading:
             c += 1
         if c == 2:
             return False
+
+        # if the box on the lower side of the horizontal line is shaded then
+        # the upper one must be shaded
         for l in range(len(self.pattern)+1):
-            if l == i-1 or l == i:
+            if l == i - 1 or l == i:
                 continue
-            if (l, j-1) in self.shading and (l, j) not in self.shading:
+            if (l, j - 1) in self.shading and (l, j) not in self.shading:
                 return False
+        # if the box on the left side of the horizontal line is shaded then the
+        # upper one must be shaded
         for l in range(len(self.pattern)+1):
             if l == j-1 or l == j:
                 continue
@@ -452,28 +500,122 @@ class MeshPatt(MeshPatternBase, Patt, Rotatable, Shiftable, Flippable):
         return (i-1, j-1)
 
     def can_shade(self, pos):
-        """Returns whether it is possible to shade the box pos"""
+        """Returns whether it is possible to shade the box at position pos
+        according to the Shading Lemma. Every direction is checked and the list
+        of the values of the adjacent points to the box that can be used is
+        returned.
+
+        Args:
+            pos: tuple
+                The position of the box to check.
+
+        Returns: list
+            The values of the points in the permutation adjacent to the box at
+            pos that can be used to shade the box.
+
+        Examples:
+            >>> MeshPatt((0,),[(0, 0)]).can_shade((1, 1))
+            []
+            >>> MeshPatt((1, 2, 0), [(2,2),(3,0),(3,2),(3,3)]).can_shade((1, 2))
+            [1, 2]
+        """
         mp = self
         poss = []
         for i in range(4):
             ans = mp._can_shade(pos)
             if ans:
                 for j in range((-i) % 4):
-                    ans = _rot_right(len(self.pattern)-1, ans)
-                poss.append(ans[1]+1)
+                    ans = _rotate_right(len(self.pattern)-1, ans)
+                poss.append(ans[1])
             mp = mp.rotate_right()
-            pos = _rot_right(len(self.pattern), pos)
+            pos = _rotate_right(len(self.pattern), pos)
         return poss
 
+    def _can_simul_shade(self, pos1, pos2):
+        if pos1[1] < pos2[1]:
+            pos1, pos2 = pos2, pos1
+        # There must be a point at (pos1[0]-1, pos1[1]-1)
+        if pos1[0] == 0 or self.pattern[pos1[0] - 1] != pos1[1] - 1:
+            return False
+        if pos1[0] != pos2[0] or pos1[1] - 1 != pos2[1]:
+            # the pos1 must be directly above pos2
+            return False
+
+        if pos1 in self.shading:
+            return False
+        if pos2 in self.shading:
+            return False
+        # The boxes surrounding the point (pos1[0]-1, pos1[1] - 1) must be
+        # empty
+        if (pos1[0]-1, pos1[1]) in self.shading:
+            return False
+        if (pos2[0]-1, pos2[1]) in self.shading:
+            return False
+
+        # Check the boxes on each side of the vertical line of pos1[0], if the
+        # box on the left side is shaded then the box on the right side must be
+        # shaded.
+        for y in range(len(self.pattern) + 1):
+            if y == pos1[1] or y == pos1[1] - 1:
+                continue
+            if (pos1[0] - 1, y) in self.shading and (pos1[0], y) not in self.shading:
+                return False
+
+        # Check the boxes on each side of the horizontal line of pos1[1]-1,
+        # they must match.
+        for x in range(len(self.pattern) + 1):
+            if x == pos1[0] or x == pos1[0] - 1:
+                continue
+            if ((x, pos1[1]) in self.shading) != ((x, pos2[1]) in self.shading):
+                return False
+        return (pos1[0] - 1, pos1[1] - 1)
+
+    def can_simul_shade(self, pos1, pos2):
+        """Returns whether it is possible to shade the box at position pos
+        according to the Shading Lemma. Every direction is checked and the list
+        of the values of the adjacent points to the box that can be used is
+        returned.
+
+        Args:
+            pos1: tuple
+                The position of the first box to check.
+            pos2: tuple
+                The position of the second box to check.
+
+        Returns: list
+            The values of the points in the permutation adjacent to the boxes at
+            pos1 and pos2 that can be used to shade the box.
+
+        Examples:
+
+        """
+        mp = self
+        poss = []
+        for i in range(4):
+            ans = mp._can_simul_shade(pos1, pos2)
+            if ans:
+                for j in range((-i) % 4):
+                    ans = _rotate_right(len(self.pattern) - 1, ans)
+                poss.append(ans[1])
+            mp = mp.rotate_right()
+            pos1 = _rotate_right(len(self.pattern), pos1)
+            pos2 = _rotate_right(len(self.pattern), pos2)
+        return poss
+
+    can_shade2 = can_simul_shade
+
     def non_pointless_boxes(self):
-        """ Returns the set of points that have a point on their boundaries in
-        one of their four corners.
+        """ Returns the coordinates of the boxes that have a point on their
+        boundaries in one of their four corners.
 
         Returns: set
             The set of boxes with points in one of the corners.
 
         Examples:
-            TODO
+            >>> MeshPatt(Perm((0, 1)), frozenset({(0, 1), (2, 0), (0, 2)})).non_pointless_boxes()
+            {(0, 1), (1, 2), (0, 0), (2, 1), (2, 2), (1, 0), (1, 1)}
+            >>> MeshPatt(Perm((1, 0, 2)), frozenset({(1, 3), (3, 0), (0, 3), (0, 1), (1, 2), (3, 1), (2, 0), (1, 1)})).non_pointless_boxes()
+            {(1, 2), (0, 1), (3, 2), (3, 3), (0, 2), (2, 1), (2, 0), (2, 3), (2, 2), (1, 0), (1, 1)}
         """
         res = []
         for i,v in enumerate(self.pattern):
@@ -630,16 +772,48 @@ class MeshPatt(MeshPatternBase, Patt, Rotatable, Shiftable, Flippable):
         return bool(self.pattern) or bool(self.shading)
 
 def _rotate_right(length, element):
-    """Rotate an element of the Cartesian product of {0,...,length} right."""
+    """Rotate an element of the Cartesian product of {0,...,length} clockwise.
+
+    Args:
+        length: numbers.Integral
+            The size of the area(of mesh).
+        element: tuple
+            A cartesiean coordinate within [0,...,length]x[0,...,length]
+
+    Returns: tuple
+        The input point rotated within the box of size length x length.
+    """
     x, y = element
     return (y, length - x)
 
 def _rotate_left(length, element):
-    """Rotate an element of the Cartesian product of {0,...,length} left."""
+    """Rotate an element of the Cartesian product of {0,...,length}
+    counterclockwise.
+
+    Args:
+        length: numbers.Integral
+            The size of the area(of mesh).
+        element: tuple
+            A cartesiean coordinate within [0,...,length]x[0,...,length]
+
+    Returns: tuple
+        The input point rotated within the box of size length x length.
+    """
     x, y = element
     return (length - y, x)
 
 def _rotate_180(length, element):
-    """Rotate an element of the Cartesian product of {0,...,length} 180 degrees."""
+    """Rotate an element of the Cartesian product of {0,...,length}
+    180-degrees.
+
+    Args:
+        length: numbers.Integral
+            The size of the area(of mesh).
+        element: tuple
+            A cartesiean coordinate within [0,...,length]x[0,...,length]
+
+    Returns: tuple
+        The input point rotated within the box of size length x length.
+    """
     x, y = element
     return (length - x, length - y)
