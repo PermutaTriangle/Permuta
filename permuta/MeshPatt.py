@@ -383,17 +383,16 @@ class MeshPatt(MeshPatternBase, Patt, Rotatable, Shiftable, Flippable):
                 The permutation to search for occurrences in.
 
         Yields: numbers.Integral
-            The indices of the occurrences of self in perm. Each yielded element
-            l is a list of integer indices of the permutation perm such that
-            self.pattern == permuta.Perm.to_standard([perm[i] for i in l])
-            and that no element not in the occurrence falls within self.shading.
+            The indices of the occurrences of self in perm. Each yielded
+            element l is a list of integer indices of the permutation perm such
+            that self.pattern == permuta.Perm.to_standard([perm[i] for i in l])
+            and that no element not in the occurrence falls within
+            self.shading.
         """
         # TODO: Implement all nice
         indices = list(range(len(perm)))
-        for candidate_indices in itertools.combinations(indices, len(self)):
+        for candidate_indices in self.pattern.occurrences_in(perm):
             candidate = [perm[index] for index in candidate_indices]
-            if Perm.to_standard(candidate) != self.pattern:
-                continue
             x = 0
             for element in perm:
                 if element in candidate:
@@ -428,10 +427,9 @@ class MeshPatt(MeshPatternBase, Patt, Rotatable, Shiftable, Flippable):
 
         Returns: bool
             If upper_right is None, then True if and only if lower_left is
-            shaded; otherwise, True if and only if all regions (x, y)
-            for x in the range lower_left[0] to upper_right[0] (inclusive) and
-            for y in the range lower_left[1] to upper_right[1] (inclusive) are
-            shaded.
+            shaded; otherwise, True if and only if all regions (x, y) for x in
+            the range lower_left[0] to upper_right[0] (inclusive) and for y in
+            the range lower_left[1] to upper_right[1] (inclusive) are shaded.
         """
         if ((lower_left[0] < 0 or lower_left[1] < 0)
                 or (lower_left[0] > len(self) or lower_left[1] > len(self))):
