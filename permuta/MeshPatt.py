@@ -4,7 +4,7 @@ import numbers
 import random
 import sys
 
-from permuta import Perm
+from permuta import Perm, PermSet
 from permuta.interfaces import Patt, Rotatable, Shiftable, Flippable
 from permuta.misc import DIR_EAST, DIR_NORTH, DIR_WEST, DIR_SOUTH, DIR_NONE
 
@@ -775,7 +775,7 @@ def _rotate_right(length, element):
     """Rotate an element of the Cartesian product of {0,...,length} clockwise.
 
     Args:
-        length: numbers.Integral
+        length: <numbers.Integral>
             The size of the area(of mesh).
         element: tuple
             A cartesiean coordinate within [0,...,length]x[0,...,length]
@@ -791,7 +791,7 @@ def _rotate_left(length, element):
     counterclockwise.
 
     Args:
-        length: numbers.Integral
+        length: <numbers.Integral>
             The size of the area(of mesh).
         element: tuple
             A cartesiean coordinate within [0,...,length]x[0,...,length]
@@ -807,7 +807,7 @@ def _rotate_180(length, element):
     180-degrees.
 
     Args:
-        length: numbers.Integral
+        length: <numbers.Integral>
             The size of the area(of mesh).
         element: tuple
             A cartesiean coordinate within [0,...,length]x[0,...,length]
@@ -817,3 +817,45 @@ def _rotate_180(length, element):
     """
     x, y = element
     return (length - x, length - y)
+
+def gen_meshpatts(length, patt = None):
+    """Generates all mesh patterns of length n. If the classical pattern is
+    specified then only the mesh patterns with the classical pattern as the
+    underlying pattern are generated.
+
+    Args:
+        length: <numbers.Integral>
+            The length(size) of the mesh pattern.
+        patt: <permutation.Permutation>, <numbers.Integral> or <collections.Iterable>
+
+    Yields: <permuta.MeshPatt>
+        Every permutation of the specified length with the specified classical
+        pattern or each of them if the pattern is not specified.
+
+    Examples:
+        >>> list(gen_meshpatts(0))
+        [MeshPatt(Perm(()), frozenset()), MeshPatt(Perm(()), frozenset({(0, 0)}))]
+        >>> len(list(gen_meshpatts(2, (1, 2))))
+        512
+    """
+    def gen(perm, col, row, shad):
+        if col == length + 1:
+            for r in gen(perm, 0, row + 1, shad):
+                yield r
+        elif row == length + 1:
+            yield MeshPatt(perm, shad)
+        else:
+            for r in gen(perm, col + 1, row, shad):
+                yield r
+            for r in gen(perm, col + 1, row, shad + [(col, row)]):
+                yield r
+
+    if patt is None:
+        for p in PermSet(length):
+            for r in gen(p, 0, 0, []):
+                yield r
+    else:
+        if not isinstance(patt, Perm):
+            patt = Perm(patt)
+        for r in gen(Perm(patt), 0, 0, []):
+            yield r
