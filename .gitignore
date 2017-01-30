@@ -53,6 +53,10 @@ coverage.xml
 *.mo
 *.pot
 
+# PyCharm stuff
+*.xml
+*.iml
+
 # Django stuff:
 *.log
 local_settings.py
