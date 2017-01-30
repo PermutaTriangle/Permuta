@@ -41,8 +41,13 @@ def reverse_set(perms):
 def all_symmetry_sets(input_perms):
     if type(input_perms) == Perm:
         perms = (input_perms,)
+    elif type(input_perms) in [list, set, tuple]:
+        if all([type(p) == Perm for p in input_perms]):
+            perms = input_perms
+        else:
+            raise TypeError("All elements of input_perms parameter must be of type permuta.Perm")
     else:
-        perms = input_perms
+        raise TypeError("input_perms parameter must be of type list, set, tuple or permuta.Perms")
 
     answer = set()
     for i in range(4):
@@ -57,13 +62,10 @@ def all_symmetry_sets(input_perms):
 def lex_min(perms):
     if type(perms) == Perm:
         return sorted(all_symmetry_sets(perms))[0][0]
-    if type(perms) == dict:
-        perms = list(perms)
-    try:
-        return perms.__class__(sorted(all_symmetry_sets(perms))[0])
-    except ValueError:
-        return list(sorted(all_symmetry_sets(perms))[0])
-    except TypeError as te:
-        te.args += ("Argument must be of type permuta.Perm or an iterable",)
-        raise
-
+    elif type(perms) in [list, set, tuple]:
+        if all([type(p) == Perm for p in perms]):
+            return perms.__class__(sorted(all_symmetry_sets(perms))[0])
+        else:
+            raise TypeError("All elements of perms parameter must be of type permuta.Perm")
+    else:
+        raise TypeError("perms parameter must be of type list, set, tuple or permuta.Perms")
