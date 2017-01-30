@@ -78,12 +78,18 @@ class PermSet(object, metaclass=PermSetMetaclass):
 #
 
 
-class Av(object, metaclass=PermSetMetaclass):
+class AvoidanceClassMetaclass(type):
+    def __instancecheck__(self, instance):
+        return isinstance(instance, Avoiding)
+    def __subclasscheck__(self, subclass):
+        return issubclass(subclass, Avoiding)
+
+
+class Av(object, metaclass=AvoidanceClassMetaclass):
     def __new__(cls, basis=None):
         if basis is None:
             return PermSetAll()
         return PermSet.avoiding(basis)
 
 
-class AvoidanceClass(Av):
-    pass
+AvoidanceClass = Av
