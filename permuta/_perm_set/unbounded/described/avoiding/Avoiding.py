@@ -1,24 +1,27 @@
 import random
 import functools
 
-from ..PermSetDescribed import PermSetDescribed
-
 from permuta import Perm
 from permuta.descriptors import Basis
 from permuta._perm_set.finite import PermSetStatic
 from permuta._perm_set.finite import PermSetFiniteSpecificLength
 
+from ..PermSetDescribed import PermSetDescribed
+
 
 class Avoiding(PermSetDescribed):
-    descriptor_class = Basis
-    # Look into this basis thing and slots and whatnot because this could be hella wrong
-    __slots__ = ("cache", "basis")
+    """The base class for all avoidance classes."""
+    # NOTE: Monkey patching of default subclass happens at end of file
+    DESCRIPTOR_CLASS = Basis
 
-    def __init__(self, basis):
-        super(Avoiding, self).__init__(basis)
-        self.basis = basis
+    @property
+    def basis(self):
+        return self._descriptor
 
-    def __str__(self):
+    def __len__(self):
+        raise NotImplementedError  # This is a hard task!
+
+    def __repr__(self):
         result = ["Av("]
         for perm in self.basis:
             result.append(str(perm))
@@ -26,13 +29,11 @@ class Avoiding(PermSetDescribed):
         result[-1] = ")"
         return "".join(result)
 
-    def __repr__(self):
-        return "<PermSet of all perms avoiding {}>".format(self.basis)
+    def __str__(self):
+        return "perm set of all perms avoiding {!s}".format(self.basis)
 
 
 class AvoidingGeneric(Avoiding):
-    __slots__ = ("cache", "basis")
-    descriptor = None
     __CLASS_CACHE = {}  # Empty basis is dispatched to correct/another class (AvoidingEmpty)
 
     def __new__(cls, basis):
@@ -65,7 +66,7 @@ class AvoidingGeneric(Avoiding):
     def of_length(self, length):
         # TODO: Cache of instances?
         getter = functools.partial(self._get_level, length)
-        return AvoidingSpecificLength(length, self.basis, getter)
+        return AvoidingGenericSpecificLength(length, self.basis, getter)
 
     def __getitem__(self, key):
         level_number = 0
@@ -80,7 +81,10 @@ class AvoidingGeneric(Avoiding):
     def __next__(self):
         if self._iter is None:
             self._ensure_level(self._iter_number)
-            self._iter = iter(self.cache[self._iter_number])
+            cached_perms = self.cache[self._iter_number]
+            if len(cached_perms) == 0:
+                raise StopIteration
+            self._iter = iter(cached_perms)
         try:
             return next(self._iter)
         except StopIteration:
@@ -103,10 +107,10 @@ class AvoidingGeneric(Avoiding):
             raise TypeError  # TODO
 
 
-class AvoidingSpecificLength(PermSetFiniteSpecificLength):
+class AvoidingGenericSpecificLength(PermSetFiniteSpecificLength):
     """Class for iterating through all perms of a specific length avoiding a basis."""
 
-    __slots__ = ("_length", "_basis", "_get_perms", "_iter")
+    #__slots__ = ("_length", "_basis", "_get_perms", "_iter")
 
     def __init__(self, length, basis, get_perms):
         self._length = length
@@ -154,4 +158,5 @@ class AvoidingSpecificLength(PermSetFiniteSpecificLength):
         return result
 
 
-Avoiding.default_subclass = AvoidingGeneric  # Set default Avoiding class to be dispatched
+# Set default Avoiding class to be dispatched
+Avoiding.DEFAULT_CLASS = AvoidingGeneric

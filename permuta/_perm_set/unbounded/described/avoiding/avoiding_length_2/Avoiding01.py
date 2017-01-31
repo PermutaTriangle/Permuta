@@ -1,20 +1,22 @@
-from .Avoiding import *
-from permuta import Perm
+from permuta._perm_set.finite import PermSetFiniteStaticLength
+
+from .Avoiding import Avoiding
 
 
 class Avoiding01(Avoiding):
-    descriptor = Basis(Perm((0, 1)))
+    DESCRIPTOR = Basis(Perm((0, 1)))
+
     def of_length(self, length):
         return Avoiding01SpecificLength(length)
+
     def __getitem__(self, key):
         return Perm.monotone_decreasing(key)
+
     def __contains__(self, perm):
         return perm.is_decreasing()
 
 
-class Avoiding01SpecificLength(AvoidingSpecificLength):
-    __slots__ = ("_length", "_iter")
-
+class Avoiding01SpecificLength(AvoidingGenericSpecificLength):
     def __init__(self, length):
         self._length = length
         self._iter = None

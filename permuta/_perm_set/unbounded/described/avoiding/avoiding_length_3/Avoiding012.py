@@ -1,9 +1,10 @@
-from .Avoiding import *
+from .Avoiding import AvoidingGeneric
+from .CatalanAvoidingSpecificLength import CatalanAvoidingSpecificLength
+
 from permuta import Perm
-from .CatalanAvoiding import CatalanAvoidingClass
 
 
-class Avoiding012(AvoidingGeneric, CatalanAvoidingClass):
+class Avoiding012(AvoidingGeneric):
     descriptor = Basis(Perm((0, 1, 2)))
 
     def _ensure_level(self, level_number):

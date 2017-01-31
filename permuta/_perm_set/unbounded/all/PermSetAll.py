@@ -32,6 +32,9 @@ class PermSetAll(PermSetUnbounded):
     def range(self, stop):
         raise NotImplementedError
 
+    def __len__(self):
+        raise NotImplementedError
+
     def __getitem__(self, key):
         return Perm.unrank(key)
 
