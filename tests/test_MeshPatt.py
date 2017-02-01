@@ -2,6 +2,7 @@ import random
 import pytest
 import itertools
 from permuta import Perm, MeshPatt
+from permuta.MeshPatt import gen_meshpatts
 from permuta.misc import DIR_EAST, DIR_NORTH, DIR_WEST, DIR_SOUTH, DIR_NONE
 
 mesh_pattern = MeshPatt([1, 3, 2, 0], set([(0, 0), (4, 0), (2, 1), (4, 1), (2, 2), (4, 2), (3, 3), (0, 4)]))
@@ -400,3 +401,14 @@ def test_eq():
     assert mesh1copy == mesh1copy
     assert mesh2copy == mesh2copy
     assert mesh3copy == mesh3copy
+
+def test_gen_meshpatts():
+    assert list(gen_meshpatts(0)) == [MeshPatt(), MeshPatt((), [(0, 0)])]
+    assert len(list(gen_meshpatts(1))) == 2**4
+    for i in range(2, 4):
+        patt = Perm.random(i)
+        len_i = list(gen_meshpatts(i, patt))
+        assert(len(set(len_i))) == 2**((i + 1) ** 2)
+        for mpatt in len_i:
+            assert mpatt.pattern == patt
+
