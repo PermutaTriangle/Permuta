@@ -71,9 +71,15 @@ def lex_min(perms):
         raise TypeError("perms parameter must be of type list, set, tuple or permuta.Perms")
 
 
-def reduced_set(perms):
+def reduced_set(input_perms):
+    if type(input_perms) not in [list, set, tuple]:
+        raise TypeError("perms parameter must be of type list, set, tuple or permuta.Perms")
+    else:
+        if not all([type(p) == Perm for p in input_perms]):
+            raise TypeError("All elements of perms parameter must be of type permuta.Perm")
+    perms = sorted(input_perms)
     output_set = set()
-    for i, perm in enumerate(sorted(perms)[::-1]):
+    for i, perm in enumerate(perms[::-1]):
         if not any([perm.contains(x) for x in perms[:-i - 1]]):
             output_set.add(perm)
-    return sorted(lex_min(output_set))
+    return input_perms.__class__(sorted(output_set))
