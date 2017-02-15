@@ -2,7 +2,9 @@ import random
 import pytest
 import itertools
 from permuta import Perm, MeshPatt
+from permuta.MeshPatt import gen_meshpatts, gen_meshpatts2
 from permuta.misc import DIR_EAST, DIR_NORTH, DIR_WEST, DIR_SOUTH, DIR_NONE
+from permuta.misc import factorial
 
 mesh_pattern = MeshPatt([1, 3, 2, 0], set([(0, 0), (4, 0), (2, 1), (4, 1), (2, 2), (4, 2), (3, 3), (0, 4)]))
 perm1 = Perm([5, 2, 8, 6, 7, 9, 4, 3, 1, 0])  # Occurrence: E.g., [1, 3, 6, 9]
@@ -400,3 +402,19 @@ def test_eq():
     assert mesh1copy == mesh1copy
     assert mesh2copy == mesh2copy
     assert mesh3copy == mesh3copy
+
+def test_gen_meshpatts():
+    assert list(gen_meshpatts(0)) == [MeshPatt(), MeshPatt((), [(0, 0)])]
+    assert len(list(gen_meshpatts(1))) == 2**4
+    for i in range(2, 4):
+        patt = Perm.random(i)
+        len_i = list(gen_meshpatts(i, patt))
+        assert(len(set(len_i))) == 2**((i + 1) ** 2)
+        for mpatt in len_i:
+            assert mpatt.pattern == patt
+    len_i = list(gen_meshpatts(2))
+    assert(len(set(len_i)) == (2**((2 + 1) ** 2)*factorial(2)))
+    patt = tuple(Perm.random(3))
+    len_i = list(gen_meshpatts(3, patt))
+    assert(len(set(len_i))) == 2**((3 + 1) ** 2)
+
