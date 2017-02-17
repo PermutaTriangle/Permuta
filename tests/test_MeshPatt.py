@@ -2,11 +2,7 @@ import random
 import pytest
 import itertools
 from permuta import Perm, MeshPatt
-<<<<<<< HEAD
-from permuta.MeshPatt import gen_meshpatts, gen_meshpatts2
-=======
 from permuta.MeshPatt import gen_meshpatts
->>>>>>> fada50b370faa4ded42c29d0791f7192e2df9afe
 from permuta.misc import DIR_EAST, DIR_NORTH, DIR_WEST, DIR_SOUTH, DIR_NONE
 from permuta.misc import factorial
 
