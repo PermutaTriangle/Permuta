@@ -1,4 +1,4 @@
-from ..Perm import *
+from ..Perm import Perm
 
 
 def rotate_set(perms):
