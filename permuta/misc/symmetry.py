@@ -1,4 +1,4 @@
-from ..Perm import Perm
+from permuta import Perm
 
 
 def rotate_set(perms):
