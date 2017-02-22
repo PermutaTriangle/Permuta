@@ -490,8 +490,8 @@ class MeshPatt(MeshPatternBase, Patt, Rotatable, Shiftable, Flippable):
                 continue
             if (l, j - 1) in self.shading and (l, j) not in self.shading:
                 return False
-        # if the box on the left side of the horizontal line is shaded then the
-        # upper one must be shaded
+        # if the box on the left side of the vertical line is shaded then the
+        # right one must be shaded
         for l in range(len(self.pattern)+1):
             if l == j-1 or l == j:
                 continue
