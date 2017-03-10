@@ -11,7 +11,6 @@ from .progressbar import ProgressBar
 from .ranges import cyclic_range, modulo_range
 from .triemap import TrieMap
 from .union_find import UnionFind
-from .symmetry import lex_min, reduced_set
 
 DIR_EAST = 0
 DIR_NORTH = 1

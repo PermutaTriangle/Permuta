@@ -1,8 +1,10 @@
 import random
+
 import pytest
 
 from permuta import PermSet
-from permuta.misc.symmetry import *
+from permuta.permutils.symmetry import *
+
 
 def get_inp():
     return [
