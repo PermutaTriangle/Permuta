@@ -287,6 +287,12 @@ def test_can_simul_shade():
     assert not mpatt.can_simul_shade((1, 2), (2, 2))
     assert not mpatt.can_simul_shade((1, 2), (1, 3))
 
+def test_shadable_boxes():
+    assert not (MeshPatt().shadable_boxes())
+    assert len(MeshPatt((0,)).shadable_boxes()[0]) == 8
+    assert len(MeshPatt((0, 1)).shadable_boxes()[0]) == 8
+    assert len(MeshPatt((0, 1)).shadable_boxes()[1]) == 8
+
 def test_non_pointless_boxes():
     assert MeshPatt(Perm()).non_pointless_boxes() == set()
     assert MeshPatt((0,)).non_pointless_boxes() == set([(0, 0), (0, 1), (1, 0), (1, 1)])
@@ -296,6 +302,34 @@ def test_non_pointless_boxes():
     assert (mesh2.non_pointless_boxes() == set([(0, 1), (0, 2), (1, 1), (1, 2),
         (1, 3), (2, 2), (2, 3), (2, 4), (2, 5), (3, 3), (3, 4), (3, 5), (4, 0),
         (4, 1), (4, 3), (4, 4), (5, 0), (5, 1)]))
+
+def test_has_anchered_point():
+    assert not any(MeshPatt(Perm()).has_anchored_point())
+    assert all(MeshPatt(Perm(), [(0,0)]).has_anchored_point())
+    assert not any(MeshPatt(Perm.random(5)).has_anchored_point())
+    assert all(MeshPatt.unrank((1,2,0), 65535))
+    right, top, left, bottom = MeshPatt((0, 1, 2), [(0,i) for i in range(4)]).has_anchored_point()
+    assert left and not (right or top or bottom)
+    right, top, left, bottom = MeshPatt((0, 1, 2), [(3,i) for i in range(4)]).has_anchored_point()
+    assert right and not (left or top or bottom)
+    right, top, left, bottom = MeshPatt((0, 1, 2), [(i,0) for i in range(4)]).has_anchored_point()
+    assert bottom and not (left or top or right)
+    right, top, left, bottom = MeshPatt((0, 1, 2), [(i,3) for i in range(4)]).has_anchored_point()
+    assert top and not (left or bottom or right)
+
+    mpatt = MeshPatt.random(5)
+    leftshad = [(0,i) for i in range(len(mpatt) + 1)]
+    rightshad = [(len(mpatt),i) for i in range(len(mpatt) + 1)]
+    upshad = [(i,len(mpatt)) for i in range(len(mpatt) + 1)]
+    bottomshad = [(i,0) for i in range(len(mpatt) + 1)]
+    right, top, left, bottom = mpatt.shade(leftshad).has_anchored_point()
+    assert left
+    right, top, left, bottom = mpatt.shade(rightshad).has_anchored_point()
+    assert right
+    right, top, left, bottom = mpatt.shade(upshad).has_anchored_point()
+    assert top
+    right, top, left, bottom = mpatt.shade(bottomshad).has_anchored_point()
+    assert bottom
 
 def test_rank():
     assert MeshPatt(Perm((0, 1)), [(0, 1), (1, 2), (2, 1), (2, 0), (2, 2), (1, 1)]).rank() == 498
@@ -403,7 +437,8 @@ def test_eq():
     assert mesh2copy == mesh2copy
     assert mesh3copy == mesh3copy
 
-def test_gen_meshpatts():
+# def test_gen_meshpatts():
+def gen_meshpatts():
     assert list(gen_meshpatts(0)) == [MeshPatt(), MeshPatt((), [(0, 0)])]
     assert len(list(gen_meshpatts(1))) == 2**4
     for i in range(2, 4):

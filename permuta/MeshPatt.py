@@ -571,10 +571,10 @@ class MeshPatt(MeshPatternBase, Patt, Rotatable, Shiftable, Flippable):
         return (pos1[0] - 1, pos1[1] - 1)
 
     def can_simul_shade(self, pos1, pos2):
-        """Returns whether it is possible to shade the box at position pos
-        according to the Shading Lemma. Every direction is checked and the list
-        of the values of the adjacent points to the box that can be used is
-        returned.
+        """Returns whether it is possible to shade the boxes at positions pos1,
+        pos2 according to the Shading Lemma. Every direction is checked and the
+        list of the values of the adjacent points to the box that can be used
+        is returned.
 
         Args:
             pos1: tuple
@@ -604,6 +604,35 @@ class MeshPatt(MeshPatternBase, Patt, Rotatable, Shiftable, Flippable):
 
     can_shade2 = can_simul_shade
 
+    def shadable_boxes(self):
+        """Returns a dictionary of all tuples of shadable boxes with the
+        shading lemma, with the keys as the points used to shade the tuples of
+        boxes.
+
+        Returns: dict
+            Dictionary with keys as points and values as tuples of boxes.
+
+        Examples:
+        >>> dict(MeshPatt(Perm((0, 3, 1, 2)), frozenset({(3, 2), (3, 0), (4, 2), (1, 0), (0, 3), (1, 2), (2, 0), (0, 4), (0, 2)})).shadable_boxes())
+        {0: [((0, 0),)], 3: [((1, 3),), ((1, 3), (1, 4)), ((1, 4),)], 1: [((2, 2),)]}
+
+        """
+        shadable = collections.defaultdict(list)
+        for i in range(len(self) + 1):
+            for j in range(len(self) + 1):
+                points = self.can_shade((i,j))
+                for p in points:
+                    shadable[p].append(((i,j),))
+                if i < len(self):
+                    points = self.can_simul_shade((i,j), (i+1,j))
+                    for p in points:
+                        shadable[p].append(((i,j), (i+1,j)))
+                if j < len(self):
+                    points = self.can_simul_shade((i,j), (i, j+1))
+                    for p in points:
+                        shadable[p].append(((i,j), (i,j+1)))
+        return shadable
+
     def non_pointless_boxes(self):
         """ Returns the coordinates of the boxes that have a point on their
         boundaries in one of their four corners.
@@ -621,6 +650,26 @@ class MeshPatt(MeshPatternBase, Patt, Rotatable, Shiftable, Flippable):
         for i,v in enumerate(self.pattern):
             res.extend([(i + 1, v + 1), (i, v + 1), (i, v), (i + 1, v)])
         return set(res)
+
+    def has_anchored_point(self):
+        """Checks if the mesh pattern has any point anchored to the boundary.
+        Returns a tuple (right, top, left, bottom) where each value represent
+        whether the point is anchored to the corresponding direction.
+
+        Returns: tuple
+            Each boolean in the tuple tells whether the mesh pattern is anchored to the corresponding direction.
+
+        Examples:
+            >>> MeshPatt(Perm((0, 1)), frozenset({(0, 0), (1, 0), (2, 0), (1, 1)})).has_anchored_point()
+            (False, False, False, True)
+        """
+
+
+        right = all((len(self),i) in self.shading for i in range(len(self) + 1))
+        top = all((i,len(self)) in self.shading for i in range(len(self) + 1))
+        left = all((0,i) in self.shading for i in range(len(self) + 1))
+        bottom = all((i,0) in self.shading for i in range(len(self) + 1))
+        return (right, top, left, bottom)
 
     def rank(self):
         """Computes the rank of the mesh pattern, the bit string of the
