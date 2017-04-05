@@ -1,6 +1,7 @@
 import random
 
 from .PermSetFinite import PermSetFinite
+from permuta import Perm
 
 
 class PermSetStatic(PermSetFinite):
@@ -23,7 +24,7 @@ class PermSetStatic(PermSetFinite):
         return random.choice(self._tuple)
 
     def __contains__(self, item):
-        return isinstance(item, Perm) and self._set.contains(item)
+        return isinstance(item, Perm) and item in self._set
 
     def __getitem__(self, key):
         return self._tuple[key]

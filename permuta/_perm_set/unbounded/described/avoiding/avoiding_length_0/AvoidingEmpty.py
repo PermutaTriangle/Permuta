@@ -8,6 +8,15 @@ from ..Avoiding import Avoiding
 class AvoidingEmpty(Avoiding):
     """The empty perm set class."""
     DESCRIPTOR = Basis(Perm())
+    __CLASS_CACHE = None
+
+    def __new__(cls, basis):
+        if AvoidingEmpty.__CLASS_CACHE is None:
+            instance = super(AvoidingEmpty, cls).__new__(cls)
+            AvoidingEmpty.__CLASS_CACHE = instance
+            return instance
+        else:
+            return AvoidingEmpty.__CLASS_CACHE
 
     def of_length(self, _length):
         return PermSetStatic()

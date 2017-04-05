@@ -18,6 +18,9 @@ class Avoiding(PermSetDescribed):
     def basis(self):
         return self._descriptor
 
+    def __hash__(self):
+        return id(self)  # Requires the singleton property
+
     def __len__(self):
         raise NotImplementedError  # This is a hard task!
 
