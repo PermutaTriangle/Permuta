@@ -2147,10 +2147,10 @@ class Perm(tuple,
         return (len(self), tuple(self)) <= (len(other), tuple(other))
 
     def __gt__(self, other):
-        return other < self
+        return other.__lt__(self)
 
     def __ge__(self, other):
-        return other <= self
+        return other.__le__(self)
 
     def __contains__(self, patt):
         """Check if self contains patt.
