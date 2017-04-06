@@ -18,30 +18,6 @@ class Basis(Descriptor, tuple):  # pylint: disable=too-few-public-methods
     def __new__(cls, perms):
         return tuple.__new__(cls).union(perms)
 
-    @classmethod
-    def old_new(cls, perms):
-        # Make sure we're working with a sorted list of perms
-        if isinstance(perms, Perm):
-            perms = (perms,)
-        else:
-            perms = tuple(sorted(perms))
-
-        if len(perms) > 1:
-            # Remove superfluous elements from basis
-            # TODO: This can be smarter, I guess
-            not_needed = set()
-            for i in range(len(perms)):
-                if i in not_needed:
-                    continue
-                for j in range(i + 1, len(perms)):
-                    if j in not_needed:
-                        continue
-                    if perms[i].contained_in(perms[j]):
-                        not_needed.add(j)
-            if not_needed:
-                perms = tuple(perms[i] for i in range(len(perms)) if i not in not_needed)
-        return tuple.__new__(cls, perms)
-
     def union(self, perms):
         if not isinstance(perms, Iterable):
             raise TypeError("Non-iterable argument cannot be unified with basis")
