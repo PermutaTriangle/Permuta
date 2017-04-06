@@ -1,4 +1,4 @@
-from permuta import Perm
+from permuta.Perm import *
 
 
 def rotate_set(perms):
@@ -69,3 +69,17 @@ def lex_min(perms):
             raise TypeError("All elements of perms parameter must be of type permuta.Perm")
     else:
         raise TypeError("perms parameter must be of type list, set, tuple or permuta.Perms")
+
+
+def reduced_set(input_perms):
+    if type(input_perms) not in [list, set, tuple]:
+        raise TypeError("perms parameter must be of type list, set, tuple or permuta.Perms")
+    else:
+        if not all([type(p) == Perm for p in input_perms]):
+            raise TypeError("All elements of perms parameter must be of type permuta.Perm")
+    perms = sorted(input_perms)
+    output_set = set()
+    for i, perm in enumerate(perms[::-1]):
+        if not any([perm.contains(x) for x in perms[:-i - 1]]):
+            output_set.add(perm)
+    return input_perms.__class__(sorted(output_set))

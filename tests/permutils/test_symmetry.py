@@ -1,8 +1,10 @@
 import random
+
 import pytest
 
-from permuta import PermSet
-from permuta.misc.symmetry import *
+from permuta import PermSet, Perm
+from permuta.permutils.symmetry import *
+
 
 def get_inp():
     return [
@@ -278,3 +280,77 @@ def test_lex_min_raise_TypeError():
     for i in inp:
         with pytest.raises(TypeError):
             lex_min(i)
+
+
+def test_input_reduced_set():
+    inp = [
+        {"input":{Perm(())}, "output":{Perm(())}},
+        {"input": {Perm((0, 1)), Perm((1, 0))}, "output": {Perm((0, 1)), Perm((1, 0))}},
+        {"input": {Perm((0, 1, 2)), Perm((0, 1))}, "output": {Perm((0, 1))}},
+        {"input": {Perm((0, 1, 2, 3)), Perm((0, 1))}, "output": {Perm((0, 1))}},
+        {"input": {Perm((1, 0)), Perm((4, 3, 2, 1, 0))}, "output": {Perm((1, 0))}},
+        {"input": {Perm((0)), Perm((5, 4, 3, 2, 1, 0))}, "output": {Perm((0))}},
+        {"input": {Perm((0, 2, 1)), Perm((1, 2, 0)), Perm((1, 0, 2)), Perm((2, 0, 1)), Perm((1, 0))}, "output": {Perm((1, 0))}},
+        {
+            "input":
+                {
+                    Perm((0, 2, 3, 1)), Perm((2, 1, 3, 0)), Perm((2, 0, 1, 3)), Perm((3, 0, 2, 1)),
+                    Perm((1, 3, 2, 0)), Perm((0, 3, 1, 2)), Perm((3, 1, 0, 2)), Perm((1, 2, 0, 3)), Perm((0, 2, 1))
+                },
+            "output":
+                {
+                    Perm((2, 1, 3, 0)), Perm((2, 0, 1, 3)), Perm((3, 1, 0, 2)), Perm((1, 2, 0, 3)), Perm((0, 2, 1))
+                }
+        },
+        {
+            "input":
+                {
+                    Perm((0, 3, 1, 2)), Perm((2, 1, 3, 0)), Perm((0, 2, 3, 1)), Perm((3, 1, 0, 2)),
+                    Perm((1, 3, 2, 0)), Perm((2, 0, 1, 3)), Perm((1, 2, 0, 3)), Perm((3, 0, 2, 1)), Perm((2, 1, 0))
+                },
+            "output":
+                {
+                    Perm((0, 3, 1, 2)), Perm((0, 2, 3, 1)), Perm((2, 0, 1, 3)), Perm((1, 2, 0, 3)), Perm((2, 1, 0))
+                }
+        },
+        {
+            "input":
+                {
+                    Perm((0, 2, 3, 1)), Perm((1, 3, 0, 2)), Perm((1, 3, 0, 2)), Perm((2, 1, 3, 0)),
+                    Perm((1, 3, 0, 2)), Perm((2, 0, 1, 3)), Perm((1, 3, 0, 2)), Perm((3, 0, 2, 1)),
+                    Perm((1, 3, 2, 0)), Perm((2, 0, 3, 1)), Perm((0, 3, 1, 2)), Perm((2, 0, 3, 1)),
+                    Perm((2, 0, 3, 1)), Perm((3, 1, 0, 2)), Perm((1, 2, 0, 3)), Perm((2, 0, 3, 1)), Perm((2, 0, 1))
+                },
+            "output":
+                {
+                    Perm((0, 2, 3, 1)), Perm((2, 1, 3, 0)), Perm((1, 3, 2, 0)),
+                    Perm((1, 2, 0, 3)), Perm((2, 0, 1))
+                }
+        }
+    ]
+
+    for x in inp:
+        assert reduced_set(x["input"]) == x["output"]
+
+
+def test_lex_reduced_set_TypeError():
+    inp = (2,
+           2.04,
+           1.0,
+           0,
+           True,
+           None,
+           "Hello World",
+           [""],
+           [Perm((1, 0, 3, 2)), 0],
+           [Perm((1, 0, 3, 2)), "Hello"],
+           [Perm((1, 0, 3, 2)), 0.4],
+           [Perm((1, 0, 3, 2)), False],
+           {Perm((1, 0, 3, 2)), 0},
+           (Perm((1, 0, 3, 2)), 0))
+    for i in inp:
+        with pytest.raises(TypeError):
+            reduced_set(i)
+
+if __name__ == "__main__":
+    print(Perm)
