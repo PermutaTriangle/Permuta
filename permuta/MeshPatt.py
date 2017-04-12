@@ -240,6 +240,23 @@ class MeshPatt(MeshPatternBase, Patt, Rotatable, Shiftable, Flippable):
                            set([_rotate_180(len(self.pattern), coordinate)
                                 for coordinate in self.shading]))
 
+    def all_symmetries(self):
+        """Return the set of all symmetries of the mesh pattern.
+
+        Returns: <set>
+            All the symmetries of a mesh pattern.
+        """
+        symmetries = set()
+        current = self
+        symmetries.add(current)
+        symmetries.add(current.inverse())
+        for i in range(3):
+            current = current._rotate_left()
+            symmetries.add(current)
+            symmetries.add(current.inverse())
+        return symmetries
+
+
     def shade(self, positions):
         """Returns the mesh pattern with the added shadings given by positions.
 
