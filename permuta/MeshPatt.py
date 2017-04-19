@@ -152,6 +152,10 @@ class MeshPatt(MeshPatternBase, Patt, Rotatable, Shiftable, Flippable):
                             if self.is_shaded((vertical[x],
                                                horizontal[y]),
                                               (vertical[x + 1] - 1,
+                                               horizontal[y + 1] - 1))
+                            and self.is_pointfree((vertical[x],
+                                               horizontal[y]),
+                                              (vertical[x + 1] - 1,
                                                horizontal[y + 1] - 1)))
         return MeshPatt(pattern, shading)
 
@@ -452,6 +456,46 @@ class MeshPatt(MeshPatternBase, Patt, Rotatable, Shiftable, Flippable):
                     if (x, y) not in self.shading:
                         return False
             return True
+
+    def is_pointfree(self, lower_left, upper_right):
+        """Check if a region in the grid has no points.
+
+        Args:
+            self:
+                A mesh pattern.
+            lower_left: (int, int)
+                A point coordinate of self.
+            upper_right: (int, int)
+                A point coordinate of self.
+
+        Raises:
+            ValueError:
+                Bad argument, but correct type.
+
+        Returns: bool
+            True if and only if all points self[x] for x in the range
+            lower_left[0] + 1 to upper_right[0] - 1 (inclusive) have values
+            less than lower_left[1] or greater than or equal to upper_right[1].
+        """
+        if ((lower_left[0] < 0 or lower_left[1] < 0)
+                or (lower_left[0] > len(self) or lower_left[1] > len(self))):
+            message = "Element out of range: '{}'".format(lower_left)
+            raise ValueError(message)
+        elif ((upper_right[0] < 0 or upper_right[1] < 0)
+                or (upper_right[0] > len(self) or upper_right[1] > len(self))):
+            message = "Element out of range: '{}'".format(upper_right)
+            raise ValueError(message)
+        elif lower_left[0] > upper_right[0] or lower_left[1] > upper_right[1]:
+            message = "Elements do not correspond to lower left and upper right of a non-empty rectangle: '{}' '{}'".format(lower_left, upper_right)
+            raise ValueError(message)
+        else:
+            left, lower = lower_left
+            right, upper = upper_right
+            for x in range(left, right):
+                if lower <= self.pattern[x] < upper:
+                    return False
+        return True
+
 
     def _can_shade(self, pos):
         """Checks if the box at pos can be shaded according to the Shading

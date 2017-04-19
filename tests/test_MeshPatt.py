@@ -132,6 +132,14 @@ def test_sub_mesh_pattern():
     assert mesh2.sub_mesh_pattern(range(len(mesh2))) == mesh2
     assert mesh3.sub_mesh_pattern(range(len(mesh3))) == mesh3
 
+    mpatt = MeshPatt((0,1), [(0,0), (0,1), (1,0), (1,1)])
+    assert mpatt.sub_mesh_pattern([0]) == MeshPatt((0,), [(0,0)])
+    assert mpatt.sub_mesh_pattern([1]) == MeshPatt((0,))
+
+    mpatt = MeshPatt((0,1,2), [(0,1), (1,1), (1,2), (2,1), (2,2), (3,1)])
+    mpatt.sub_mesh_pattern([0, 1]) == MeshPatt((0,1), [(0,1), (1,1), (2,1)])
+    mpatt.sub_mesh_pattern([0, 2]) == MeshPatt((0,1), [])
+
 def test_flip_diagonal():
     assert MeshPatt(Perm(), []).flip_diagonal() ==  MeshPatt(Perm(), [])
     assert MeshPatt(Perm(0), [(0, 1)]).flip_diagonal() == MeshPatt(Perm(0), [(1, 0)])
@@ -253,6 +261,16 @@ def test_is_shaded():
     with pytest.raises(ValueError): mpatt.is_shaded((0, 4))
     with pytest.raises(ValueError): mpatt.is_shaded((-1, 2))
     with pytest.raises(ValueError): mpatt.is_shaded((0, 0), (0, 4))
+
+def test_is_pointfree():
+    mpatt = MeshPatt((0,1), [(0,0), (0,1), (1,0), (1,1)])
+    assert not mpatt.is_pointfree((0,0), (1,1))
+    assert not mpatt.is_pointfree((1,1), (2,2))
+    assert not mpatt.is_pointfree((0,1), (2,2))
+    assert mpatt.is_pointfree((0,1), (2,1))
+    assert not mpatt.is_pointfree((0,1), (2,2))
+    mpatt = MeshPatt((0,1,2), [(0,1), (1,1), (1,2), (2,1), (2,2), (3,1)])
+    assert not mpatt.is_pointfree((1,1), (2,2))
 
 def test_can_shade():
     assert not (MeshPatt().can_shade((0, 0)))
