@@ -37,6 +37,28 @@ def reverse_set(perms):
     else:
         raise TypeError("perms parameter must be of type list, set, tuple or permuta.Perms")
 
+def complement_set(perms):
+    if type(perms) == Perm:
+        return perms.complement()
+    if type(perms) in [list, set, tuple]:
+        if all([type(p) == Perm for p in perms]):
+            return perms.__class__([p.complement() for p in perms])
+        else:
+            raise TypeError("All elements of perms parameter must be of type permuta.Perm")
+    else:
+        raise TypeError("perms parameter must be of type list, set, tuple or permuta.Perms")
+
+def antidiagonal_set(perms):
+    if type(perms) == Perm:
+        return perms.flip_antidiagonal()
+    if type(perms) in [list, set, tuple]:
+        if all([type(p) == Perm for p in perms]):
+            return perms.__class__([p.flip_antidiagonal() for p in perms])
+        else:
+            raise TypeError("All elements of perms parameter must be of type permuta.Perm")
+    else:
+        raise TypeError("perms parameter must be of type list, set, tuple or permuta.Perms")
+
 
 def all_symmetry_sets(input_perms):
     if type(input_perms) == Perm:
