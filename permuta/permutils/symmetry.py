@@ -1,6 +1,42 @@
 from permuta.Perm import *
 
 
+def rotate_90_clockwise_set(perms):
+    if type(perms) == Perm:
+        return perms.rotate_right()
+    if type(perms) in [list, set, tuple]:
+        if all([type(p) == Perm for p in perms]):
+            return perms.__class__([p._rotate_right() for p in perms])
+        else:
+            raise TypeError("All elements of perms parameter must be of type permuta.Perm")
+    else:
+        raise TypeError("perms parameter must be of type list, set, tuple or permuta.Perms")
+
+
+def rotate_180_clockwise_set(perms):
+    if type(perms) == Perm:
+        return perms.rotate_180()
+    if type(perms) in [list, set, tuple]:
+        if all([type(p) == Perm for p in perms]):
+            return perms.__class__([p._rotate_180() for p in perms])
+        else:
+            raise TypeError("All elements of perms parameter must be of type permuta.Perm")
+    else:
+        raise TypeError("perms parameter must be of type list, set, tuple or permuta.Perms")
+
+
+def rotate_270_clockwise_set(perms):
+    if type(perms) == Perm:
+        return perms.rotate_left()
+    if type(perms) in [list, set, tuple]:
+        if all([type(p) == Perm for p in perms]):
+            return perms.__class__([p._rotate_left() for p in perms])
+        else:
+            raise TypeError("All elements of perms parameter must be of type permuta.Perm")
+    else:
+        raise TypeError("perms parameter must be of type list, set, tuple or permuta.Perms")
+
+
 def rotate_set(perms):
     if type(perms) == Perm:
         return perms.rotate()
