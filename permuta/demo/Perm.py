@@ -46,19 +46,19 @@ class Perm:
     # Methods modifying/combining Perm instances
     #
 
-    def direct_sum(self, *others):
+    def direct_sum(self, *perms):
         """Return the direct sum of two or more perms."""
-        zb_perm = self._zb_perm.direct_sum(other._zb_perm for other in others)
+        zb_perm = self._zb_perm.direct_sum(*(other._zb_perm for other in perms))
         return Perm(zb_perm)
 
-    def skew_sum(self, *others):
+    def skew_sum(self, *perms):
         """Return the skew sum of two or more perms."""
-        zb_perm = self._zb_perm.skew_sum(other._zb_perm for other in others)
+        zb_perm = self._zb_perm.skew_sum(*(other._zb_perm for other in perms))
         return Perm(zb_perm)
 
-    def compose(self, *others):
+    def compose(self, *perms):
         """Return the composition of two or more perms."""
-        zb_perm = self._zb_perm.compose(other._zb_perm for other in others)
+        zb_perm = self._zb_perm.compose(*(other._zb_perm for other in perms))
         return Perm(zb_perm)
 
     multiply = compose
@@ -84,36 +84,36 @@ class Perm:
         return Perm(self._zb_perm.reverse_complement())
 
     def shift_right(self, times=1):
-        """Return self shifted times steps to the right."""
+        """Return the perm shifted times steps to the right."""
         return Perm(self._zb_perm.shift_right(times))
 
     def shift_left(self, times=1):
-        """Return self shifted times steps to the left."""
+        """Return the perm shifted times steps to the left."""
         return Perm(self._zb_perm.shift_left(times))
 
     def shift_up(self, times=1):
-        """Return self shifted times steps up."""
+        """Return the perm shifted times steps up."""
         return Perm(self._zb_perm.shift_up(times))
 
     def shift_down(self, times=1):
-        """Return self shifted times steps down."""
+        """Return the perm shifted times steps down."""
         return Perm(self._zb_perm.shift_down(times))
 
     def flip_horizontally(self):
-        """Return self flipped horizontally."""
+        """Return the perm flipped horizontally."""
         return Perm(self._zb_perm.flip_horizontal())
 
     def flip_vertically(self):
-        """Return self flipped vertically."""
-        return Perm(self._zb_perm.flip_vertically())
+        """Return the perm flipped vertically."""
+        return Perm(self._zb_perm.flip_vertical())
 
     def flip_diagonally(self):
-        """Return self flipped diagonally."""
-        return Perm(self._zb_perm.flip_diagonally())
+        """Return the perm flipped diagonally."""
+        return Perm(self._zb_perm.flip_diagonal())
 
     def flip_antidiagonally(self):
-        """Return self flipped antidiagonally."""
-        return Perm(self._zb_perm.flip_antidiagonally())
+        """Return the perm flipped antidiagonally."""
+        return Perm(self._zb_perm.flip_antidiagonal())
 
     #
     # Statistical methods
@@ -159,7 +159,7 @@ class Perm:
 
     def apply(self, iterable):
         """Permute an iterable using the perm."""
-        return self._zb_perm.apply(iterable)
+        return list(self._zb_perm.apply(iterable))
 
     def __call__(self, value):
         """Map value to its image defined by the perm."""
@@ -176,6 +176,9 @@ class Perm:
     def __mul__(self, other):
         """Return the composition of two perms."""
         return self.compose(other)
+
+    def __eq__(self, other):
+        return self._zb_perm == other._zb_perm
 
     def __lt__(self, other):
         return self._zb_perm < other._zb_perm
