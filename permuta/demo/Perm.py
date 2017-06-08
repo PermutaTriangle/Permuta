@@ -47,18 +47,18 @@ class Perm:
     #
 
     def direct_sum(self, *perms):
-        """Return the direct sum of two or more perms."""
-        zb_perm = self._zb_perm.direct_sum(*(other._zb_perm for other in perms))
+        """Return the direct sum of the two perms."""
+        zb_perm = self._zb_perm.direct_sum(perm._zb_perm)
         return Perm(zb_perm)
 
-    def skew_sum(self, *perms):
-        """Return the skew sum of two or more perms."""
-        zb_perm = self._zb_perm.skew_sum(*(other._zb_perm for other in perms))
+    def skew_sum(self, perm):
+        """Return the skew sum of the two perms."""
+        zb_perm = self._zb_perm.skew_sum(perm._zb_perm)
         return Perm(zb_perm)
 
-    def compose(self, *perms):
-        """Return the composition of two or more perms."""
-        zb_perm = self._zb_perm.compose(*(other._zb_perm for other in perms))
+    def compose(self, perm):
+        """Return the composition of the two perms."""
+        zb_perm = self._zb_perm.compose(perm._zb_perm)
         return Perm(zb_perm)
 
     multiply = compose
@@ -129,29 +129,55 @@ class Perm:
 
     def ascents(self):
         """Return the indices of elements where the next element is greater."""
-        return list(i + 1 for i in self._zb_perm.ascents())
+        return list(element + element for element in self._zb_perm.ascents())
 
     def descents(self):
         """Return the indices of elements where the next element is greater."""
-        return list(i + 1 for i in self._zb_perm.descents())
+        return list(element + 1 for element in self._zb_perm.descents())
 
     def peaks(self):
         """Return the indices of the peaks of the perm."""
-        return list(i + 1 for i in self._zb_perm.peaks())
+        return list(element + 1 for element in self._zb_perm.peaks())
 
     def valleys(self):
         """Return the indices of the valleys of the perm."""
-        return list(i + 1 for i in self._zb_perm.valleys())
+        return list(element + 1 for element in self._zb_perm.valleys())
 
     def cycle_decomposition(self):
         """Return the cycle decomposition of the perm."""
-        return list(list(i + 1 for i in cycle) for cycle in self._zb_perm.cycle_decomp())
+        return list(list(element + 1 for element in cycle) for cycle in self._zb_perm.cycle_decomp())
 
     #
     # Pattern matching methods
     #
 
-    # TODO
+    def contains(self, patt):
+        """Check if the perm contains the patt."""
+        return self._zb_perm.contains(patt._zb_perm)
+
+    def avoids(self, patt):
+        """Check if the perm avoids the patt."""
+        return self._zb_perm.avoids(patt._zb_perm)
+
+    def occurrences_in(self, perm):
+        """Find all occurrences of the patt self in perm."""
+        return list(list(perm[index + 1] for index in occurrence_indices)
+                    for occurrence_indices
+                    in self._zb_perm.occurrences_in(perm._zb_perm))
+
+    def occurrences_of(self, patt):
+        """Find all occurrences of patt in the perm self."""
+        return patt.occurrences_in(self)
+
+    def occurrence_indices_in(self, perm):
+        """Find all indices of occurrences of the patt self in perm."""
+        return list(list(index + 1 for index in occurrence)
+                    for occurrence
+                    in self._zb_perm.occurrences_in(perm._zb_perm))
+
+    def occurrence_indices_of(self, patt):
+        """Find all indices of occurrences of patt in the perm self."""
+        return patt.occurrence_indices_in(self)
 
     #
     # General methods
@@ -160,6 +186,27 @@ class Perm:
     def apply(self, iterable):
         """Permute an iterable using the perm."""
         return list(self._zb_perm.apply(iterable))
+
+    def __len__(self):
+        """Return the length of the perm."""
+        return len(self._zb_perm)
+
+    def __iter__(self):
+        for element in self._zb_perm:
+            yield element + 1
+
+    def __getitem__(self, index):
+        """Return the element at the one-based index specified."""
+        format_string = "The indices of the perm {} are [{}{}{}]"
+        if index < 1 or index > len(self):
+            if len(self) == 0:
+                message = format_string.format(self, "", "", "")
+            elif len(self) == 1:
+                message = format_string.format(self, 1, "", "")
+            else:
+                message = format_string.format(self, 1, ", ..., ", len(self))
+            raise IndexError(message)
+        return self._zb_perm[index - 1] + 1
 
     def __call__(self, value):
         """Map value to its image defined by the perm."""
@@ -176,6 +223,51 @@ class Perm:
     def __mul__(self, other):
         """Return the composition of two perms."""
         return self.compose(other)
+
+    def __bytes__(self):
+        return bytes(str(self), "ascii")
+
+    def __hash__(self):
+        return hash(self._zb_perm)
+
+    def __bool__(self):
+        return bool(self._zb_perm)
+
+    def __reversed__(self):
+        return self.reverse()
+
+    def __contains__(self, patt):
+        return self.contains(patt)
+    
+    def __pow__(self, power):
+        perm = self
+        for _ in range(power - 1):
+            perm *= self
+        return perm
+
+    def __iadd__(self, perm):
+        return self + perm
+
+    def __isub__(self, perm):
+        return self - perm
+
+    def __imul__(self, perm):
+        return self*perm
+
+    def __ipow__(self, power):
+        return self**power
+
+    def __ilshift__(self, times):
+        return self << times
+
+    def __irshift__(self, times):
+        return self >> times
+
+    def __lshift__(self, times):
+        return self.shift_left(times)
+
+    def __rshift__(self, times):
+        return self.shift_right(times)
 
     def __eq__(self, other):
         return self._zb_perm == other._zb_perm
@@ -196,7 +288,7 @@ class Perm:
         if self._zb_perm == _ZBPerm((0,)):
             return "(1)"
         else:
-            return str(tuple(n + 1 for n in self._zb_perm))
+            return str(tuple(self))
 
 
 Permutation = Perm  # Alias for the more traditional user
