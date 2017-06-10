@@ -46,7 +46,7 @@ class Perm:
     # Methods modifying/combining Perm instances
     #
 
-    def direct_sum(self, *perms):
+    def direct_sum(self, perm):
         """Return the direct sum of the two perms."""
         zb_perm = self._zb_perm.direct_sum(perm._zb_perm)
         return Perm(zb_perm)
