@@ -1,4 +1,8 @@
 import numbers
+import tempfile
+import webbrowser
+
+import seaborn
 
 from ..Perm import Perm as _ZBPerm
 
@@ -178,6 +182,72 @@ class Perm:
     def occurrence_indices_of(self, patt):
         """Find all indices of occurrences of patt in the perm self."""
         return patt.occurrence_indices_in(self)
+
+    #
+    # Visualization methods
+    #
+
+    def plot(self, *, browser=False, filename=None, file_format="svg", **kwargs):
+        """Display or save the perm.
+
+        Keyword arguments:
+            browser: If True, sends the image to a browser for viewing.
+            filename: Where to save the image.
+            file_format: The file format if one wishes to force one.
+
+        Other keyword arguments are passed to seaborn.heatmap.
+        The default keyword arguments passed are:
+            cbar=False
+            cmap="Greys"
+            square=True
+            vmax=1
+            vmin=0
+            xticklabels=False
+            yticklabels=False
+
+        Tips:
+            Set the "xticklabels" kwarg as range(len(self)) for a labelled
+            x-axis and the "yticklabels kwarg as range(len(self), -1, -1) for
+            a labelled y-axis.
+        """
+        # Compile the data
+        n = len(self)
+        data = [[0]*n for _ in range(n)]
+        for index, value in enumerate(self):
+            data[n - value][index] += 1
+
+        # Create the figure
+        axes = seaborn.heatmap(data,
+                               **(dict(self.plot.default_kwargs, **kwargs)
+                                  if kwargs else
+                                  self.plot.default_kwargs))
+        figure = axes.get_figure()
+
+        # Possibly display and/or save the figure
+        if filename:
+            figure.savefig(filename,
+                           format=file_format,
+                           bbox_inches="tight",
+                           pad_inches=0)
+            if browser:
+                webbrowser.open(filename)
+        elif browser:
+            with tempfile.NamedTemporaryFile(delete=False) as file_pointer:
+                figure.savefig(file_pointer, format=file_format, bbox_inches="tight")
+                file_pointer.flush()
+                webbrowser.open(file_pointer.name)
+
+        return axes, figure
+
+    plot.default_kwargs = {  # TODO: Good place for default kwargs?
+        "cbar": False,
+        "cmap": "Greys",
+        "square": True,
+        "vmax": 1,
+        "vmin": 0,
+        "xticklabels": False,
+        "yticklabels": False
+    }
 
     #
     # General methods

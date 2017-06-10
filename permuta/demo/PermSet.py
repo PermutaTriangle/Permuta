@@ -69,7 +69,7 @@ class PermutationClass:
                                   self.heatmap.default_kwargs))
         figure = axes.get_figure()
 
-        # Possibly display or save the figure
+        # Possibly display and/or save the figure
         if filename:
             figure.savefig(filename,
                            format=file_format,
