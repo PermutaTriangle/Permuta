@@ -196,6 +196,13 @@ The iterating, indexing, and containment functionality is the same as with `av`.
 False
 ```
 
+Additionally, you can now ask for its size.
+
+```python
+>>> len(av_8)
+14
+```
+
 To get a feeling for the perm class, you can plot a heatmap of this subset.
 
 ```python

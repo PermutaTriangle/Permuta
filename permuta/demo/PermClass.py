@@ -171,6 +171,9 @@ class _PermClassOfLength:
         perm = Perm(perm)
         return perm._zb_perm in self._zb_perm_subset
 
+    def __len__(self):
+        return len(self._zb_perm_subset)
+
     def __repr__(self):
         parent_repr = repr(self._parent)
         if parent_repr == "<All perms>":
