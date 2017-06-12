@@ -80,6 +80,10 @@ class PermClass:
     def __getitem__(self, index):
         return Perm(self._zb_perm_set[index])
 
+    def __contains__(self, perm):
+        perm = Perm(perm)
+        return perm._zb_perm in self._zb_perm_set
+
 
 Av = PermClass
 
@@ -162,6 +166,10 @@ class _PermClassOfLength:
 
     def __getitem__(self, index):
         return Perm(self._zb_perm_subset[index])
+
+    def __contains__(self, perm):
+        perm = Perm(perm)
+        return perm._zb_perm in self._zb_perm_subset
 
     def __repr__(self):
         parent_repr = repr(self._parent)

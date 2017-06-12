@@ -13,6 +13,15 @@ from ..Perm import Perm as _ZBPerm
 __all__ = ("Perm", "Permutation")
 
 
+def _assert_perm(perm):
+    """Helper function for this module."""
+    # TODO: Do we want to use this function anyway?
+    if not isinstance(perm, Perm):
+        raise TypeError("Not a perm: {}".format(perm))
+    else:
+        return True
+
+
 class Perm:
     """A perm(utation) object.
 
@@ -38,6 +47,11 @@ class Perm:
         (1, 2, 4, 3)
         >>> Perm("Ragnar", "Christian", "Henning")
         (3, 1, 2)
+        >>> Perm.monotone_increasing(4)
+        (1, 2, 3, 4)
+        >>> Perm.monotone_decreasing(3)
+        (3, 2, 1)
+        >>> random_perm = Perm.random(7)
     """
 
     #
@@ -86,16 +100,19 @@ class Perm:
 
     def direct_sum(self, perm):
         """Return the direct sum of the two perms."""
+        perm = Perm(perm)
         zb_perm = self._zb_perm.direct_sum(perm._zb_perm)
         return Perm(zb_perm)
 
     def skew_sum(self, perm):
         """Return the skew sum of the two perms."""
+        perm = Perm(perm)
         zb_perm = self._zb_perm.skew_sum(perm._zb_perm)
         return Perm(zb_perm)
 
     def compose(self, perm):
         """Return the composition of the two perms."""
+        perm = Perm(perm)
         zb_perm = self._zb_perm.compose(perm._zb_perm)
         return Perm(zb_perm)
 
@@ -167,23 +184,71 @@ class Perm:
 
     def ascents(self):
         """Return the indices of elements where the next element is greater."""
-        return list(element + element for element in self._zb_perm.ascents())
+        return list(element + 1 for element in self._zb_perm.ascents())
+
+    def total_ascents(self):
+        """Return the number of ascents in the perm."""
+        return sum(1 for _ in self._zb_perm.ascents())
 
     def descents(self):
         """Return the indices of elements where the next element is greater."""
         return list(element + 1 for element in self._zb_perm.descents())
 
+    def total_descents(self):
+        """Return the number of descents in the perm."""
+        return sum(1 for _ in self._zb_perm.descents())
+
     def peaks(self):
         """Return the indices of the peaks of the perm."""
         return list(element + 1 for element in self._zb_perm.peaks())
+
+    def total_peaks(self):
+        """Return the number of peaks in the perm."""
+        return sum(1 for _ in self._zb_perm.peaks())
 
     def valleys(self):
         """Return the indices of the valleys of the perm."""
         return list(element + 1 for element in self._zb_perm.valleys())
 
-    def cycle_decomposition(self):
+    def total_valleys(self):
+        """Return the number of valleys in the perm."""
+        return sum(1 for _ in self._zb_perm.valleys())
+
+    def cycles(self):
         """Return the cycle decomposition of the perm."""
         return list(list(element + 1 for element in cycle) for cycle in self._zb_perm.cycle_decomp())
+
+    cycle_decomposition = cycles
+
+    def total_cycles(self):
+        """Return the number of cycles in the perm."""
+        return sum(1 for _ in self._zb_perm.cycle_decomp())
+
+    def inversions(self):
+        """Return the list of the inversions of the perm."""
+        return self.occurrences_of(21)
+
+    def total_inversions(self):
+        """Return the number of inversions in the perm."""
+        return len(self.inversions())
+
+    def fixed_points(self):
+        """Return the fixed points of the perm."""
+        return [value
+                for index, value
+                in enumerate(self, 1)
+                if index == value]
+
+    def total_fixed_points(self):
+        """Return the number of fixed points in the perm."""
+        return sum(1
+                   for index, value
+                   in enumerate(self, 1)
+                   if index == value)
+
+    def major_index(self):
+        """Return the major index of the perm."""
+        return self._zb_perm.majorindex()
 
     #
     # Pattern matching methods
@@ -191,30 +256,36 @@ class Perm:
 
     def contains(self, patt):
         """Check if the perm contains the patt."""
+        patt = Perm(patt)
         return self._zb_perm.contains(patt._zb_perm)
 
     def avoids(self, patt):
         """Check if the perm avoids the patt."""
+        patt = Perm(patt)
         return self._zb_perm.avoids(patt._zb_perm)
 
     def occurrences_in(self, perm):
         """Find all occurrences of the patt self in perm."""
+        perm = Perm(perm)
         return list(list(perm[index + 1] for index in occurrence_indices)
                     for occurrence_indices
                     in self._zb_perm.occurrences_in(perm._zb_perm))
 
     def occurrences_of(self, patt):
         """Find all occurrences of patt in the perm self."""
+        patt = Perm(patt)
         return patt.occurrences_in(self)
 
     def occurrence_indices_in(self, perm):
         """Find all indices of occurrences of the patt self in perm."""
+        perm = Perm(perm)
         return list(list(index + 1 for index in occurrence)
                     for occurrence
                     in self._zb_perm.occurrences_in(perm._zb_perm))
 
     def occurrence_indices_of(self, patt):
         """Find all indices of occurrences of patt in the perm self."""
+        patt = Perm(patt)
         return patt.occurrence_indices_in(self)
 
     #
@@ -352,42 +423,47 @@ class Perm:
         return perm
 
     def __iadd__(self, perm):
-        return self + perm
+        return self + Perm(perm)
 
     def __isub__(self, perm):
-        return self - perm
+        return self - Perm(perm)
 
     def __imul__(self, perm):
-        return self*perm
+        return self*Perm(perm)
 
     def __ipow__(self, power):
         return self**power
 
-    def __ilshift__(self, times):
-        return self << times
-
-    def __irshift__(self, times):
-        return self >> times
-
     def __lshift__(self, times):
         return self.shift_left(times)
+
+    def __ilshift__(self, times):
+        return self << times
 
     def __rshift__(self, times):
         return self.shift_right(times)
 
+    def __irshift__(self, times):
+        return self >> times
+
     def __eq__(self, other):
+        _assert_perm(other)
         return self._zb_perm == other._zb_perm
 
     def __lt__(self, other):
+        _assert_perm(other)
         return self._zb_perm < other._zb_perm
 
     def __le__(self, other):
+        _assert_perm(other)
         return self._zb_perm <= other._zb_perm
 
     def __gt__(self, other):
+        _assert_perm(other)
         return self._zb_perm > other._zb_perm
 
     def __ge__(self, other):
+        _assert_perm(other)
         return self._zb_perm >= other._zb_perm
 
     def __repr__(self):

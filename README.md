@@ -2,13 +2,12 @@
 
 [![Build Status](https://travis-ci.org/PermutaTriangle/Permuta.svg?branch=master)](https://travis-ci.org/PermutaTriangle/Permuta)
 
-Permuta is a Python library for working with perms (short for permutations) and
-mesh patts (short for mesh patterns).
+Permuta is a Python library for working with perms (short for permutations),
+patts (patterns), and mesh patts.
 
 ## Installing
 
-To install Permuta on your system, simply run the following command as a
-superuser:
+To install Permuta on your system, simply run the following command as a superuser:
 
 ```
 # ./setup.py install
@@ -21,7 +20,7 @@ run the following instead:
 # ./setup.py develop
 ```
 
-To run the unit tests using pytest run
+To run the unit tests using pytest run:
 
 ```
 pytest --cov permuta tests
@@ -44,7 +43,7 @@ classes (and their aliases Permutation and Av).
 
 ### Creating a single perm
 
-There are several ways of creating a perm:
+There are several ways of creating a perm.
 
 ```python
 >>> Perm()  # Empty perm
@@ -65,9 +64,14 @@ There are several ways of creating a perm:
 (1, 2, 4, 3)
 >>> Perm("Ragnar", "Christian", "Henning")
 (3, 1, 2)
+>>> Perm.monotone_increasing(4)
+(1, 2, 3, 4)
+>>> Perm.monotone_decreasing(3)
+(3, 2, 1)
+>>> random_perm = Perm.random(7)
 ```
 
-You can visualize a perm:
+You can visualize a perm.
 
 ```python
 >>> import matplotlib.pyplot as plt
@@ -78,14 +82,14 @@ You can visualize a perm:
 
 ![alt text](https://github.com/PermutaTriangle/Permuta/img/american-mink.jpg "Plot of a perm")
 
-The basic symmetries are implemented:
+The basic symmetries are implemented.
 
 ```python
 >>> [p.reverse(), p.complement(), p.inverse()]
  [Perm((4, 2, 3, 1), Perm((4, 2, 3, 1)), Perm((1, 3, 2, 4))]
 ```
 
-To take direct sums and skew sums we use `+` and `-`:
+To take direct sums and skew sums we use `+` and `-`.
 
 ```python
 >>> q = Perm((1, 2, 3, 4, 5))
@@ -95,103 +99,108 @@ To take direct sums and skew sums we use `+` and `-`:
 (6, 8, 7, 9, 1, 2, 3, 4, 5)
 ```
 
-There are several functions, or perm statistics, you can apply t
+There are numerous practical methods available.
 
 ```python
->>> [p.count_ascents(), p.count_inversions(), p.count_fixed_points(), p.length_of_longestrun(), p.majorindex(), p.count_cycles()]
- [2, 1, 2, 2, 2, 3]
+>>> p.total_fixed_points()
+2
+>>> p.fixed_points()
+[1, 4]
 ```
 
 ```python
->>> [p.count_peaks(), p.count_ltrmin(), p.count_bonds(), p.count_valleys()]
- [1, 1, 1, 1]
+>>> [p.total_ascents(), p.total_descents()]
+[2, 1]
+>>> p.ascents()
+[1, 3]
+>>> p.descents()
+[2]
 ```
 
-### Creating the set of permutations of a specific length
-Typing
-
 ```python
->>> A = PermSet(6)
->>> A
- <PermSet of all perms of length 6>
+>>> p.total_inversions()
+1
+>>> p.inversions()
+[[3, 2]]
 ```
 
-creates the set of permutations of six elements. You can choose a random
-permutation by doing
-
 ```python
->>> p = A.random()
->>> p
- Perm((3, 2, 5, 0, 4, 1))
+>>> p.total_cycles()
+3
+>>> p.cycles()
+[[1], [3, 2], [4]]
 ```
 
-### Avoiding patterns
-Given a list of pattern `L` we can create the permutation class representing all
-permutations that avoid every pattern in `L`
-
 ```python
->>> B = PermSet.avoiding([Perm((0, 1, 2)), Perm((0, 2, 1))])
->>> B
- <The set of all perms avoiding Basis((Perm((0, 1, 2)), Perm((0, 2, 1))))>
+>>> p.major_index()
+2
 ```
 
-We can ask whether a specific permutation `q` belongs to B
+### Creating a perm class
+
+Perm classes can be created.
+
 ```python
->>> B.contains(Perm((2, 0, 1, 3)))
- False
+>>> all_perms = PermClass()
+>>> all_perms
+<All perms>
 ```
 
-If you want all permutations of length six in B you can do
+Perm classes can be specified with a basis.
 
 ```python
->>> C = B.of_length(6)
->>> C
- <PermSet of all perms of length 6 avoiding Basis((Perm((0, 1)),))>
+>>> basis = [Perm(1, 2, 3), "4312", 231]
+>>> av = Av(basis)
+>>> av
+<Perms avoiding: (1, 2, 3), (2, 3, 1), and (4, 3, 1, 2)>
 ```
 
-If you want permutations of length up to and including six you can do
+Recall that Av is just an alias of PermClass.
+
+You can ask whether a perm belongs to the perm class.
 
 ```python
->>> D = B.up_to(7)
+>>> 1234 in av
+False
+>>> 21543 in av
+True
 ```
 
-Note that we follow the usual range convention of Python of not including the
-last element.
+You can get the n-th perm of the class or iterate.
 
-Note that if you later want permutations up to length eight in this class you
-can do
+(BEWARE: Lexicographic order is not guaranteed at the moment!)
 
 ```python
->>> D = B.up_to(9)
+>>> [av[n] for n in range(8)]
+[(), (1), (1, 2), (2, 1), (2, 1, 3), (1, 3, 2), (3, 2, 1), (3, 1, 2)]
+>>> av_iter = iter(av)
+>>> [next(av_iter) for _ in range(8)]
+[(), (1), (1, 2), (2, 1), (2, 1, 3), (1, 3, 2), (3, 2, 1), (3, 1, 2)]
 ```
 
-and this will use the work that was done in computing `B.up_to(7)` and not do the
-work all over again.
+And in the next section we see how to isolate those of a specific length.
 
-### Statistics on sets of permutations
+### The subset of a perm class where the perms are a specific length
 
-If we have a statistic we want to apply to an entire set of permutations of a
-certain length we do
+You can create a subset of perms in the perm class.
 
 ```python
->>> E = PermSet.avoiding(Perm((0,2,1,3))) # note that we do not need to put a single pattern in a list
->>> E.of_length(8).total_statistic(Perm.inversions)
- XXX
+>>> av_8 = av.of_length(8)
+<Perms of length 8 avoiding: (1, 2, 3), (2, 3, 1), and (4, 3, 1, 2)>
 ```
 
-For the distribution (as a polynomial you can do)
+The iterating, indexing, and containment functionality is the same as with `av`.
 
 ```python
->>> E[8].distribution(Perm.inversions)
- XXX
+>>> 321 in av_8
+False
 ```
 
-To get a feeling for what an average permutation looks like you can create a
-heatmap
+To get a feeling for the perm class, you can plot a heatmap of this subset.
 
 ```python
->>> C = PermSet.avoiding(Permutation((0, 2, 1, 3)))[9]
->>> C.heatmap()
+>>> ax = av_8.plot()
+>>> plt.show()
 ```
 
 ![alt text](https://github.com/PermutaTriangle/Permuta/img/american-mink.jpg "Plot of a permutation")
