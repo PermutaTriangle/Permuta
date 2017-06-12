@@ -1,2 +1,2 @@
 from .Perm import *
-from .PermSet import *
+from .PermClass import *

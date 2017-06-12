@@ -1,3 +1,6 @@
+"""A wrapper around the permuta Perm class."""
+
+
 import numbers
 import tempfile
 import webbrowser
@@ -11,25 +14,56 @@ __all__ = ("Perm", "Permutation")
 
 
 class Perm:
-    """A perm(utation) class."""
+    """A perm(utation) object.
+
+    It attempts to interpret anything you throw at it, but it's probably best
+    to stick to giving a single sequence argument like Perm([1, 3, 2, 4]).
+    
+    Examples:
+        >>> Perm()  # Empty perm
+        ()
+        >>> Perm([])  # Another empty perm
+        ()
+        >>> Perm(132)  # From number
+        (1, 3, 2)
+        >>> Perm(248)  # Attempted interpretation
+        (1, 2, 3)
+        >>> Perm("1234")  # From string
+        (1, 2, 3, 4)
+        >>> Perm("dcab")  # This is equivalent to ...
+        (4, 3, 1, 2)
+        >>> Perm(["d", "c", "a", "b"])  # ... this
+        (4, 3, 1, 2)
+        >>> Perm(0, 0, 2, 1)  # Index is tie-breaker
+        (1, 2, 4, 3)
+        >>> Perm("Ragnar", "Christian", "Henning")
+        (3, 1, 2)
+    """
 
     #
     # Methods returning a single Perm instance (albeit __init__ doesn't really)
     #
 
     def __init__(self, *args):
-        if len(args) == 0:
-            self._zb_perm = _ZBPerm()
-        elif len(args) == 1:
-            arg = args[0]
-            if isinstance(arg, numbers.Integral):
-                self._zb_perm = _ZBPerm.to_standard(str(arg))
-            elif isinstance(arg, _ZBPerm):
-                self._zb_perm = arg
+        try:
+            if len(args) == 0:
+                self._zb_perm = _ZBPerm()
+            elif len(args) == 1:
+                arg = args[0]
+                if isinstance(arg, _ZBPerm):
+                    self._zb_perm = arg
+                elif isinstance(arg, Perm):
+                    self._zb_perm = arg._zb_perm
+                elif isinstance(arg, numbers.Integral):
+                    self._zb_perm = _ZBPerm.to_standard(str(arg))
+                else:
+                    self._zb_perm = _ZBPerm.to_standard(arg)
             else:
-                self._zb_perm = _ZBPerm.to_standard(arg)
-        else:
-            self._zb_perm = _ZBPerm.to_standard(args)
+                    self._zb_perm = _ZBPerm.to_standard(args)
+        except:
+            format_string = "Don't know how to get a perm from args: {}"
+            message = format_string.format(args)
+            raise ValueError(message)
 
     @classmethod
     def random(cls, length):
@@ -84,7 +118,7 @@ class Perm:
         return Perm(self._zb_perm.complement())
 
     def reverse_complement(self):
-        """Return the reverse_complement of the perm."""
+        """Return the reverse complement of the perm."""
         return Perm(self._zb_perm.reverse_complement())
 
     def shift_right(self, times=1):
@@ -188,7 +222,9 @@ class Perm:
     #
 
     def plot(self, *, browser=False, filename=None, file_format="svg", **kwargs):
-        """Display or save the perm.
+        """Display or save the perm with seaborn/matplotlib.
+
+        Returns an Axes object.
 
         Keyword arguments:
             browser: If True, sends the image to a browser for viewing.
@@ -237,7 +273,7 @@ class Perm:
                 file_pointer.flush()
                 webbrowser.open(file_pointer.name)
 
-        return axes, figure
+        return axes
 
     plot.default_kwargs = {  # TODO: Good place for default kwargs?
         "cbar": False,
