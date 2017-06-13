@@ -39,7 +39,7 @@ interactive Python session, just like any other Python library.
 
 For this section we focus on a subset of modified features exposed in the `demo`
 submodule. Importing `*` from it supplies you with the Perm and PermClass
-classes (and their aliases Permutation and Av).
+classes (and their respective aliases Permutation and Av).
 
 ### Creating a single perm
 
@@ -81,6 +81,19 @@ You can visualize a perm.
 ```
 
 ![alt text](https://github.com/PermutaTriangle/Permuta/img/american-mink.jpg "Plot of a perm")
+
+The avoids, contains, and occurrence\* methods enable working with patts.
+
+```python
+>>> p.contains(321)
+False
+>>> p.avoids(12)
+False
+>>> p.occurrences_of(21)
+[[3, 2]]
+>>> Perm(12).occurrences_in(p)
+[[1, 3], [1, 2], [1, 4], [3, 4], [2, 4]]
+```
 
 The basic symmetries are implemented.
 
