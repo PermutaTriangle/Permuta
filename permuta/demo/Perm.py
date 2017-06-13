@@ -154,6 +154,14 @@ class Perm:
         """Return the perm shifted times steps down."""
         return Perm(self._zb_perm.shift_down(times))
 
+    def rotate_left(self, times=1):
+        """Return the perm rotated times left."""
+        return Perm(self._zb_perm.rotate_left(times))
+
+    def rotate_right(self, times=1):
+        """Return the perm rotated times right."""
+        return Perm(self._zb_perm.rotate_right(times))
+
     def flip_horizontally(self):
         """Return the perm flipped horizontally."""
         return Perm(self._zb_perm.flip_horizontal())
