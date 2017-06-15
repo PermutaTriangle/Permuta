@@ -1,6 +1,6 @@
 # permuta
 
-[![Build Status](https://travis-ci.org/PermutaTriangle/Permuta.svg?branch=master)](https://travis-ci.org/PermutaTriangle/Permuta)
+[![Build Status](https://travis-ci.org/PermutaTriangle/Permuta.jpg?branch=master)](https://travis-ci.org/PermutaTriangle/Permuta)
 
 Permuta is a Python library for working with perms (short for permutations),
 patts (patterns), and mesh patts.
@@ -80,7 +80,7 @@ You can visualize a perm.
 >>> plt.show()
 ```
 
-![alt text](README.d/1324.svg?raw=true "Plot of the perm 1324")
+![alt text](README.d/1324.jpg?raw=true "Plot of the perm 1324")
 
 The avoids, contains, and occurrence\* methods enable working with patts.
 
