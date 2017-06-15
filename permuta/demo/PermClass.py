@@ -84,6 +84,12 @@ class PermClass:
         perm = Perm(perm)
         return perm._zb_perm in self._zb_perm_set
 
+    def __eq__(self, other):
+        return isinstance(other, PermClass) and self._zb_perm_set == other._zb_perm_set
+
+    def __hash__(self):
+        return hash(self._zb_perm_set)
+
 
 Av = PermClass
 
