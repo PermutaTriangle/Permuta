@@ -99,7 +99,7 @@ The basic symmetries are implemented.
 
 ```python
 >>> [p.reverse(), p.complement(), p.inverse()]
- [Perm((4, 2, 3, 1), Perm((4, 2, 3, 1)), Perm((1, 3, 2, 4))]
+ [(4, 2, 3, 1), (4, 2, 3, 1), (1, 3, 2, 4)]
 ```
 
 To take direct sums and skew sums we use `+` and `-`.

@@ -12,7 +12,7 @@ setup(
     author_email = "henningu@ru.is",
     description = "A comprehensive high performance permutation library.",
     license = "BSD-3",
-    keywords = "permutation mesh pattern avoid contain statistic",
+    keywords = "permutation perm mesh pattern patt avoid contain occurrence statistic",
     url = "https://github.com/PermutaTriangle/Permuta",
     install_requires = read("requirements.txt").splitlines(),
     packages=find_packages(),
