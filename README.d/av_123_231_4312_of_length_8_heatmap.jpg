@@ -1,0 +1,908 @@
+<?xml version="1.0" encoding="utf-8" standalone="no"?>
+<!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN"
+  "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
+<!-- Created with matplotlib (http://matplotlib.org/) -->
+<svg height="316pt" version="1.1" viewBox="0 0 316 316" width="316pt" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+ <defs>
+  <style type="text/css">
+*{stroke-linecap:butt;stroke-linejoin:round;stroke-miterlimit:100000;}
+  </style>
+ </defs>
+ <g id="figure_1">
+  <g id="patch_1">
+   <path d="M 0 316.8 
+L 316.8 316.8 
+L 316.8 0 
+L 0 0 
+z
+" style="fill:#ffffff;"/>
+  </g>
+  <g id="axes_1">
+   <g id="patch_2">
+    <path d="M 0 316.8 
+L 316.8 316.8 
+L 316.8 0 
+L 0 0 
+z
+" style="fill:#eaeaf2;"/>
+   </g>
+   <g id="matplotlib.axis_1"/>
+   <g id="matplotlib.axis_2"/>
+   <g id="QuadMesh_1">
+    <path clip-path="url(#pdf5711cc61)" d="M 0 316.8 
+L 39.6 316.8 
+L 39.6 277.2 
+L 0 277.2 
+L 0 316.8 
+" style="fill:#ededed;"/>
+    <path clip-path="url(#pdf5711cc61)" d="M 39.6 316.8 
+L 79.2 316.8 
+L 79.2 277.2 
+L 39.6 277.2 
+L 39.6 316.8 
+" style="fill:#d1d1d1;"/>
+    <path clip-path="url(#pdf5711cc61)" d="M 79.2 316.8 
+L 118.8 316.8 
+L 118.8 277.2 
+L 79.2 277.2 
+L 79.2 316.8 
+" style="fill:#d1d1d1;"/>
+    <path clip-path="url(#pdf5711cc61)" d="M 118.8 316.8 
+L 158.4 316.8 
+L 158.4 277.2 
+L 118.8 277.2 
+L 118.8 316.8 
+" style="fill:#d1d1d1;"/>
+    <path clip-path="url(#pdf5711cc61)" d="M 158.4 316.8 
+L 198 316.8 
+L 198 277.2 
+L 158.4 277.2 
+L 158.4 316.8 
+" style="fill:#d1d1d1;"/>
+    <path clip-path="url(#pdf5711cc61)" d="M 198 316.8 
+L 237.6 316.8 
+L 237.6 277.2 
+L 198 277.2 
+L 198 316.8 
+" style="fill:#d1d1d1;"/>
+    <path clip-path="url(#pdf5711cc61)" d="M 237.6 316.8 
+L 277.2 316.8 
+L 277.2 277.2 
+L 237.6 277.2 
+L 237.6 316.8 
+" style="fill:#d1d1d1;"/>
+    <path clip-path="url(#pdf5711cc61)" d="M 277.2 316.8 
+L 316.8 316.8 
+L 316.8 277.2 
+L 277.2 277.2 
+L 277.2 316.8 
+" style="fill:#ededed;"/>
+    <path clip-path="url(#pdf5711cc61)" d="M 0 277.2 
+L 39.6 277.2 
+L 39.6 237.6 
+L 0 237.6 
+L 0 277.2 
+" style="fill:#ededed;"/>
+    <path clip-path="url(#pdf5711cc61)" d="M 39.6 277.2 
+L 79.2 277.2 
+L 79.2 237.6 
+L 39.6 237.6 
+L 39.6 277.2 
+" style="fill:#d1d1d1;"/>
+    <path clip-path="url(#pdf5711cc61)" d="M 79.2 277.2 
+L 118.8 277.2 
+L 118.8 237.6 
+L 79.2 237.6 
+L 79.2 277.2 
+" style="fill:#d1d1d1;"/>
+    <path clip-path="url(#pdf5711cc61)" d="M 118.8 277.2 
+L 158.4 277.2 
+L 158.4 237.6 
+L 118.8 237.6 
+L 118.8 277.2 
+" style="fill:#d1d1d1;"/>
+    <path clip-path="url(#pdf5711cc61)" d="M 158.4 277.2 
+L 198 277.2 
+L 198 237.6 
+L 158.4 237.6 
+L 158.4 277.2 
+" style="fill:#d1d1d1;"/>
+    <path clip-path="url(#pdf5711cc61)" d="M 198 277.2 
+L 237.6 277.2 
+L 237.6 237.6 
+L 198 237.6 
+L 198 277.2 
+" style="fill:#d1d1d1;"/>
+    <path clip-path="url(#pdf5711cc61)" d="M 237.6 277.2 
+L 277.2 277.2 
+L 277.2 237.6 
+L 237.6 237.6 
+L 237.6 277.2 
+" style="fill:#ededed;"/>
+    <path clip-path="url(#pdf5711cc61)" d="M 277.2 277.2 
+L 316.8 277.2 
+L 316.8 237.6 
+L 277.2 237.6 
+L 277.2 277.2 
+" style="fill:#d1d1d1;"/>
+    <path clip-path="url(#pdf5711cc61)" d="M 0 237.6 
+L 39.6 237.6 
+L 39.6 198 
+L 0 198 
+L 0 237.6 
+" style="fill:#ededed;"/>
+    <path clip-path="url(#pdf5711cc61)" d="M 39.6 237.6 
+L 79.2 237.6 
+L 79.2 198 
+L 39.6 198 
+L 39.6 237.6 
+" style="fill:#d1d1d1;"/>
+    <path clip-path="url(#pdf5711cc61)" d="M 79.2 237.6 
+L 118.8 237.6 
+L 118.8 198 
+L 79.2 198 
+L 79.2 237.6 
+" style="fill:#d1d1d1;"/>
+    <path clip-path="url(#pdf5711cc61)" d="M 118.8 237.6 
+L 158.4 237.6 
+L 158.4 198 
+L 118.8 198 
+L 118.8 237.6 
+" style="fill:#d1d1d1;"/>
+    <path clip-path="url(#pdf5711cc61)" d="M 158.4 237.6 
+L 198 237.6 
+L 198 198 
+L 158.4 198 
+L 158.4 237.6 
+" style="fill:#d1d1d1;"/>
+    <path clip-path="url(#pdf5711cc61)" d="M 198 237.6 
+L 237.6 237.6 
+L 237.6 198 
+L 198 198 
+L 198 237.6 
+" style="fill:#ededed;"/>
+    <path clip-path="url(#pdf5711cc61)" d="M 237.6 237.6 
+L 277.2 237.6 
+L 277.2 198 
+L 237.6 198 
+L 237.6 237.6 
+" style="fill:#d1d1d1;"/>
+    <path clip-path="url(#pdf5711cc61)" d="M 277.2 237.6 
+L 316.8 237.6 
+L 316.8 198 
+L 277.2 198 
+L 277.2 237.6 
+" style="fill:#d1d1d1;"/>
+    <path clip-path="url(#pdf5711cc61)" d="M 0 198 
+L 39.6 198 
+L 39.6 158.4 
+L 0 158.4 
+L 0 198 
+" style="fill:#ededed;"/>
+    <path clip-path="url(#pdf5711cc61)" d="M 39.6 198 
+L 79.2 198 
+L 79.2 158.4 
+L 39.6 158.4 
+L 39.6 198 
+" style="fill:#d1d1d1;"/>
+    <path clip-path="url(#pdf5711cc61)" d="M 79.2 198 
+L 118.8 198 
+L 118.8 158.4 
+L 79.2 158.4 
+L 79.2 198 
+" style="fill:#d1d1d1;"/>
+    <path clip-path="url(#pdf5711cc61)" d="M 118.8 198 
+L 158.4 198 
+L 158.4 158.4 
+L 118.8 158.4 
+L 118.8 198 
+" style="fill:#d1d1d1;"/>
+    <path clip-path="url(#pdf5711cc61)" d="M 158.4 198 
+L 198 198 
+L 198 158.4 
+L 158.4 158.4 
+L 158.4 198 
+" style="fill:#ededed;"/>
+    <path clip-path="url(#pdf5711cc61)" d="M 198 198 
+L 237.6 198 
+L 237.6 158.4 
+L 198 158.4 
+L 198 198 
+" style="fill:#d1d1d1;"/>
+    <path clip-path="url(#pdf5711cc61)" d="M 237.6 198 
+L 277.2 198 
+L 277.2 158.4 
+L 237.6 158.4 
+L 237.6 198 
+" style="fill:#d1d1d1;"/>
+    <path clip-path="url(#pdf5711cc61)" d="M 277.2 198 
+L 316.8 198 
+L 316.8 158.4 
+L 277.2 158.4 
+L 277.2 198 
+" style="fill:#d1d1d1;"/>
+    <path clip-path="url(#pdf5711cc61)" d="M 0 158.4 
+L 39.6 158.4 
+L 39.6 118.8 
+L 0 118.8 
+L 0 158.4 
+" style="fill:#ededed;"/>
+    <path clip-path="url(#pdf5711cc61)" d="M 39.6 158.4 
+L 79.2 158.4 
+L 79.2 118.8 
+L 39.6 118.8 
+L 39.6 158.4 
+" style="fill:#d1d1d1;"/>
+    <path clip-path="url(#pdf5711cc61)" d="M 79.2 158.4 
+L 118.8 158.4 
+L 118.8 118.8 
+L 79.2 118.8 
+L 79.2 158.4 
+" style="fill:#d1d1d1;"/>
+    <path clip-path="url(#pdf5711cc61)" d="M 118.8 158.4 
+L 158.4 158.4 
+L 158.4 118.8 
+L 118.8 118.8 
+L 118.8 158.4 
+" style="fill:#ededed;"/>
+    <path clip-path="url(#pdf5711cc61)" d="M 158.4 158.4 
+L 198 158.4 
+L 198 118.8 
+L 158.4 118.8 
+L 158.4 158.4 
+" style="fill:#d1d1d1;"/>
+    <path clip-path="url(#pdf5711cc61)" d="M 198 158.4 
+L 237.6 158.4 
+L 237.6 118.8 
+L 198 118.8 
+L 198 158.4 
+" style="fill:#d1d1d1;"/>
+    <path clip-path="url(#pdf5711cc61)" d="M 237.6 158.4 
+L 277.2 158.4 
+L 277.2 118.8 
+L 237.6 118.8 
+L 237.6 158.4 
+" style="fill:#d1d1d1;"/>
+    <path clip-path="url(#pdf5711cc61)" d="M 277.2 158.4 
+L 316.8 158.4 
+L 316.8 118.8 
+L 277.2 118.8 
+L 277.2 158.4 
+" style="fill:#d1d1d1;"/>
+    <path clip-path="url(#pdf5711cc61)" d="M 0 118.8 
+L 39.6 118.8 
+L 39.6 79.2 
+L 0 79.2 
+L 0 118.8 
+" style="fill:#ededed;"/>
+    <path clip-path="url(#pdf5711cc61)" d="M 39.6 118.8 
+L 79.2 118.8 
+L 79.2 79.2 
+L 39.6 79.2 
+L 39.6 118.8 
+" style="fill:#d1d1d1;"/>
+    <path clip-path="url(#pdf5711cc61)" d="M 79.2 118.8 
+L 118.8 118.8 
+L 118.8 79.2 
+L 79.2 79.2 
+L 79.2 118.8 
+" style="fill:#ededed;"/>
+    <path clip-path="url(#pdf5711cc61)" d="M 118.8 118.8 
+L 158.4 118.8 
+L 158.4 79.2 
+L 118.8 79.2 
+L 118.8 118.8 
+" style="fill:#d1d1d1;"/>
+    <path clip-path="url(#pdf5711cc61)" d="M 158.4 118.8 
+L 198 118.8 
+L 198 79.2 
+L 158.4 79.2 
+L 158.4 118.8 
+" style="fill:#d1d1d1;"/>
+    <path clip-path="url(#pdf5711cc61)" d="M 198 118.8 
+L 237.6 118.8 
+L 237.6 79.2 
+L 198 79.2 
+L 198 118.8 
+" style="fill:#d1d1d1;"/>
+    <path clip-path="url(#pdf5711cc61)" d="M 237.6 118.8 
+L 277.2 118.8 
+L 277.2 79.2 
+L 237.6 79.2 
+L 237.6 118.8 
+" style="fill:#d1d1d1;"/>
+    <path clip-path="url(#pdf5711cc61)" d="M 277.2 118.8 
+L 316.8 118.8 
+L 316.8 79.2 
+L 277.2 79.2 
+L 277.2 118.8 
+" style="fill:#d1d1d1;"/>
+    <path clip-path="url(#pdf5711cc61)" d="M 0 79.2 
+L 39.6 79.2 
+L 39.6 39.6 
+L 0 39.6 
+L 0 79.2 
+" style="fill:#ededed;"/>
+    <path clip-path="url(#pdf5711cc61)" d="M 39.6 79.2 
+L 79.2 79.2 
+L 79.2 39.6 
+L 39.6 39.6 
+L 39.6 79.2 
+" style="fill:#ededed;"/>
+    <path clip-path="url(#pdf5711cc61)" d="M 79.2 79.2 
+L 118.8 79.2 
+L 118.8 39.6 
+L 79.2 39.6 
+L 79.2 79.2 
+" style="fill:#d1d1d1;"/>
+    <path clip-path="url(#pdf5711cc61)" d="M 118.8 79.2 
+L 158.4 79.2 
+L 158.4 39.6 
+L 118.8 39.6 
+L 118.8 79.2 
+" style="fill:#d1d1d1;"/>
+    <path clip-path="url(#pdf5711cc61)" d="M 158.4 79.2 
+L 198 79.2 
+L 198 39.6 
+L 158.4 39.6 
+L 158.4 79.2 
+" style="fill:#d1d1d1;"/>
+    <path clip-path="url(#pdf5711cc61)" d="M 198 79.2 
+L 237.6 79.2 
+L 237.6 39.6 
+L 198 39.6 
+L 198 79.2 
+" style="fill:#d1d1d1;"/>
+    <path clip-path="url(#pdf5711cc61)" d="M 237.6 79.2 
+L 277.2 79.2 
+L 277.2 39.6 
+L 237.6 39.6 
+L 237.6 79.2 
+" style="fill:#d1d1d1;"/>
+    <path clip-path="url(#pdf5711cc61)" d="M 277.2 79.2 
+L 316.8 79.2 
+L 316.8 39.6 
+L 277.2 39.6 
+L 277.2 79.2 
+" style="fill:#d1d1d1;"/>
+    <path clip-path="url(#pdf5711cc61)" d="M 0 39.6 
+L 39.6 39.6 
+L 39.6 0 
+L 0 0 
+L 0 39.6 
+"/>
+    <path clip-path="url(#pdf5711cc61)" d="M 39.6 39.6 
+L 79.2 39.6 
+L 79.2 0 
+L 39.6 0 
+L 39.6 39.6 
+" style="fill:#ededed;"/>
+    <path clip-path="url(#pdf5711cc61)" d="M 79.2 39.6 
+L 118.8 39.6 
+L 118.8 0 
+L 79.2 0 
+L 79.2 39.6 
+" style="fill:#ededed;"/>
+    <path clip-path="url(#pdf5711cc61)" d="M 118.8 39.6 
+L 158.4 39.6 
+L 158.4 0 
+L 118.8 0 
+L 118.8 39.6 
+" style="fill:#ededed;"/>
+    <path clip-path="url(#pdf5711cc61)" d="M 158.4 39.6 
+L 198 39.6 
+L 198 0 
+L 158.4 0 
+L 158.4 39.6 
+" style="fill:#ededed;"/>
+    <path clip-path="url(#pdf5711cc61)" d="M 198 39.6 
+L 237.6 39.6 
+L 237.6 0 
+L 198 0 
+L 198 39.6 
+" style="fill:#ededed;"/>
+    <path clip-path="url(#pdf5711cc61)" d="M 237.6 39.6 
+L 277.2 39.6 
+L 277.2 0 
+L 237.6 0 
+L 237.6 39.6 
+" style="fill:#ededed;"/>
+    <path clip-path="url(#pdf5711cc61)" d="M 277.2 39.6 
+L 316.8 39.6 
+L 316.8 0 
+L 277.2 0 
+L 277.2 39.6 
+" style="fill:#ededed;"/>
+   </g>
+   <g id="QuadMesh_2">
+    <path clip-path="url(#pdf5711cc61)" d="M 0 316.8 
+L 39.6 316.8 
+L 39.6 277.2 
+L 0 277.2 
+L 0 316.8 
+"/>
+    <path clip-path="url(#pdf5711cc61)" d="M 39.6 316.8 
+L 79.2 316.8 
+L 79.2 277.2 
+L 39.6 277.2 
+L 39.6 316.8 
+" style="fill:#ffffff;"/>
+    <path clip-path="url(#pdf5711cc61)" d="M 79.2 316.8 
+L 118.8 316.8 
+L 118.8 277.2 
+L 79.2 277.2 
+L 79.2 316.8 
+" style="fill:#ffffff;"/>
+    <path clip-path="url(#pdf5711cc61)" d="M 118.8 316.8 
+L 158.4 316.8 
+L 158.4 277.2 
+L 118.8 277.2 
+L 118.8 316.8 
+" style="fill:#ffffff;"/>
+    <path clip-path="url(#pdf5711cc61)" d="M 0 277.2 
+L 39.6 277.2 
+L 39.6 237.6 
+L 0 237.6 
+L 0 277.2 
+" style="fill:#ffffff;"/>
+    <path clip-path="url(#pdf5711cc61)" d="M 39.6 277.2 
+L 79.2 277.2 
+L 79.2 237.6 
+L 39.6 237.6 
+L 39.6 277.2 
+" style="fill:#ffffff;"/>
+    <path clip-path="url(#pdf5711cc61)" d="M 79.2 277.2 
+L 118.8 277.2 
+L 118.8 237.6 
+L 79.2 237.6 
+L 79.2 277.2 
+"/>
+    <path clip-path="url(#pdf5711cc61)" d="M 118.8 277.2 
+L 158.4 277.2 
+L 158.4 237.6 
+L 118.8 237.6 
+L 118.8 277.2 
+" style="fill:#ffffff;"/>
+    <path clip-path="url(#pdf5711cc61)" d="M 0 237.6 
+L 39.6 237.6 
+L 39.6 198 
+L 0 198 
+L 0 237.6 
+" style="fill:#ffffff;"/>
+    <path clip-path="url(#pdf5711cc61)" d="M 39.6 237.6 
+L 79.2 237.6 
+L 79.2 198 
+L 39.6 198 
+L 39.6 237.6 
+"/>
+    <path clip-path="url(#pdf5711cc61)" d="M 79.2 237.6 
+L 118.8 237.6 
+L 118.8 198 
+L 79.2 198 
+L 79.2 237.6 
+" style="fill:#ffffff;"/>
+    <path clip-path="url(#pdf5711cc61)" d="M 118.8 237.6 
+L 158.4 237.6 
+L 158.4 198 
+L 118.8 198 
+L 118.8 237.6 
+" style="fill:#ffffff;"/>
+    <path clip-path="url(#pdf5711cc61)" d="M 0 198 
+L 39.6 198 
+L 39.6 158.4 
+L 0 158.4 
+L 0 198 
+" style="fill:#ffffff;"/>
+    <path clip-path="url(#pdf5711cc61)" d="M 39.6 198 
+L 79.2 198 
+L 79.2 158.4 
+L 39.6 158.4 
+L 39.6 198 
+" style="fill:#ffffff;"/>
+    <path clip-path="url(#pdf5711cc61)" d="M 79.2 198 
+L 118.8 198 
+L 118.8 158.4 
+L 79.2 158.4 
+L 79.2 198 
+" style="fill:#ffffff;"/>
+    <path clip-path="url(#pdf5711cc61)" d="M 118.8 198 
+L 158.4 198 
+L 158.4 158.4 
+L 118.8 158.4 
+L 118.8 198 
+"/>
+   </g>
+   <g id="QuadMesh_3">
+    <path clip-path="url(#pdf5711cc61)" d="M 0 316.8 
+L 39.6 316.8 
+L 39.6 277.2 
+L 0 277.2 
+L 0 316.8 
+" style="fill:#ededed;"/>
+    <path clip-path="url(#pdf5711cc61)" d="M 39.6 316.8 
+L 79.2 316.8 
+L 79.2 277.2 
+L 39.6 277.2 
+L 39.6 316.8 
+" style="fill:#d1d1d1;"/>
+    <path clip-path="url(#pdf5711cc61)" d="M 79.2 316.8 
+L 118.8 316.8 
+L 118.8 277.2 
+L 79.2 277.2 
+L 79.2 316.8 
+" style="fill:#d1d1d1;"/>
+    <path clip-path="url(#pdf5711cc61)" d="M 118.8 316.8 
+L 158.4 316.8 
+L 158.4 277.2 
+L 118.8 277.2 
+L 118.8 316.8 
+" style="fill:#d1d1d1;"/>
+    <path clip-path="url(#pdf5711cc61)" d="M 158.4 316.8 
+L 198 316.8 
+L 198 277.2 
+L 158.4 277.2 
+L 158.4 316.8 
+" style="fill:#d1d1d1;"/>
+    <path clip-path="url(#pdf5711cc61)" d="M 198 316.8 
+L 237.6 316.8 
+L 237.6 277.2 
+L 198 277.2 
+L 198 316.8 
+" style="fill:#d1d1d1;"/>
+    <path clip-path="url(#pdf5711cc61)" d="M 237.6 316.8 
+L 277.2 316.8 
+L 277.2 277.2 
+L 237.6 277.2 
+L 237.6 316.8 
+" style="fill:#d1d1d1;"/>
+    <path clip-path="url(#pdf5711cc61)" d="M 277.2 316.8 
+L 316.8 316.8 
+L 316.8 277.2 
+L 277.2 277.2 
+L 277.2 316.8 
+" style="fill:#ededed;"/>
+    <path clip-path="url(#pdf5711cc61)" d="M 0 277.2 
+L 39.6 277.2 
+L 39.6 237.6 
+L 0 237.6 
+L 0 277.2 
+" style="fill:#ededed;"/>
+    <path clip-path="url(#pdf5711cc61)" d="M 39.6 277.2 
+L 79.2 277.2 
+L 79.2 237.6 
+L 39.6 237.6 
+L 39.6 277.2 
+" style="fill:#d1d1d1;"/>
+    <path clip-path="url(#pdf5711cc61)" d="M 79.2 277.2 
+L 118.8 277.2 
+L 118.8 237.6 
+L 79.2 237.6 
+L 79.2 277.2 
+" style="fill:#d1d1d1;"/>
+    <path clip-path="url(#pdf5711cc61)" d="M 118.8 277.2 
+L 158.4 277.2 
+L 158.4 237.6 
+L 118.8 237.6 
+L 118.8 277.2 
+" style="fill:#d1d1d1;"/>
+    <path clip-path="url(#pdf5711cc61)" d="M 158.4 277.2 
+L 198 277.2 
+L 198 237.6 
+L 158.4 237.6 
+L 158.4 277.2 
+" style="fill:#d1d1d1;"/>
+    <path clip-path="url(#pdf5711cc61)" d="M 198 277.2 
+L 237.6 277.2 
+L 237.6 237.6 
+L 198 237.6 
+L 198 277.2 
+" style="fill:#d1d1d1;"/>
+    <path clip-path="url(#pdf5711cc61)" d="M 237.6 277.2 
+L 277.2 277.2 
+L 277.2 237.6 
+L 237.6 237.6 
+L 237.6 277.2 
+" style="fill:#ededed;"/>
+    <path clip-path="url(#pdf5711cc61)" d="M 277.2 277.2 
+L 316.8 277.2 
+L 316.8 237.6 
+L 277.2 237.6 
+L 277.2 277.2 
+" style="fill:#d1d1d1;"/>
+    <path clip-path="url(#pdf5711cc61)" d="M 0 237.6 
+L 39.6 237.6 
+L 39.6 198 
+L 0 198 
+L 0 237.6 
+" style="fill:#ededed;"/>
+    <path clip-path="url(#pdf5711cc61)" d="M 39.6 237.6 
+L 79.2 237.6 
+L 79.2 198 
+L 39.6 198 
+L 39.6 237.6 
+" style="fill:#d1d1d1;"/>
+    <path clip-path="url(#pdf5711cc61)" d="M 79.2 237.6 
+L 118.8 237.6 
+L 118.8 198 
+L 79.2 198 
+L 79.2 237.6 
+" style="fill:#d1d1d1;"/>
+    <path clip-path="url(#pdf5711cc61)" d="M 118.8 237.6 
+L 158.4 237.6 
+L 158.4 198 
+L 118.8 198 
+L 118.8 237.6 
+" style="fill:#d1d1d1;"/>
+    <path clip-path="url(#pdf5711cc61)" d="M 158.4 237.6 
+L 198 237.6 
+L 198 198 
+L 158.4 198 
+L 158.4 237.6 
+" style="fill:#d1d1d1;"/>
+    <path clip-path="url(#pdf5711cc61)" d="M 198 237.6 
+L 237.6 237.6 
+L 237.6 198 
+L 198 198 
+L 198 237.6 
+" style="fill:#ededed;"/>
+    <path clip-path="url(#pdf5711cc61)" d="M 237.6 237.6 
+L 277.2 237.6 
+L 277.2 198 
+L 237.6 198 
+L 237.6 237.6 
+" style="fill:#d1d1d1;"/>
+    <path clip-path="url(#pdf5711cc61)" d="M 277.2 237.6 
+L 316.8 237.6 
+L 316.8 198 
+L 277.2 198 
+L 277.2 237.6 
+" style="fill:#d1d1d1;"/>
+    <path clip-path="url(#pdf5711cc61)" d="M 0 198 
+L 39.6 198 
+L 39.6 158.4 
+L 0 158.4 
+L 0 198 
+" style="fill:#ededed;"/>
+    <path clip-path="url(#pdf5711cc61)" d="M 39.6 198 
+L 79.2 198 
+L 79.2 158.4 
+L 39.6 158.4 
+L 39.6 198 
+" style="fill:#d1d1d1;"/>
+    <path clip-path="url(#pdf5711cc61)" d="M 79.2 198 
+L 118.8 198 
+L 118.8 158.4 
+L 79.2 158.4 
+L 79.2 198 
+" style="fill:#d1d1d1;"/>
+    <path clip-path="url(#pdf5711cc61)" d="M 118.8 198 
+L 158.4 198 
+L 158.4 158.4 
+L 118.8 158.4 
+L 118.8 198 
+" style="fill:#d1d1d1;"/>
+    <path clip-path="url(#pdf5711cc61)" d="M 158.4 198 
+L 198 198 
+L 198 158.4 
+L 158.4 158.4 
+L 158.4 198 
+" style="fill:#ededed;"/>
+    <path clip-path="url(#pdf5711cc61)" d="M 198 198 
+L 237.6 198 
+L 237.6 158.4 
+L 198 158.4 
+L 198 198 
+" style="fill:#d1d1d1;"/>
+    <path clip-path="url(#pdf5711cc61)" d="M 237.6 198 
+L 277.2 198 
+L 277.2 158.4 
+L 237.6 158.4 
+L 237.6 198 
+" style="fill:#d1d1d1;"/>
+    <path clip-path="url(#pdf5711cc61)" d="M 277.2 198 
+L 316.8 198 
+L 316.8 158.4 
+L 277.2 158.4 
+L 277.2 198 
+" style="fill:#d1d1d1;"/>
+    <path clip-path="url(#pdf5711cc61)" d="M 0 158.4 
+L 39.6 158.4 
+L 39.6 118.8 
+L 0 118.8 
+L 0 158.4 
+" style="fill:#ededed;"/>
+    <path clip-path="url(#pdf5711cc61)" d="M 39.6 158.4 
+L 79.2 158.4 
+L 79.2 118.8 
+L 39.6 118.8 
+L 39.6 158.4 
+" style="fill:#d1d1d1;"/>
+    <path clip-path="url(#pdf5711cc61)" d="M 79.2 158.4 
+L 118.8 158.4 
+L 118.8 118.8 
+L 79.2 118.8 
+L 79.2 158.4 
+" style="fill:#d1d1d1;"/>
+    <path clip-path="url(#pdf5711cc61)" d="M 118.8 158.4 
+L 158.4 158.4 
+L 158.4 118.8 
+L 118.8 118.8 
+L 118.8 158.4 
+" style="fill:#ededed;"/>
+    <path clip-path="url(#pdf5711cc61)" d="M 158.4 158.4 
+L 198 158.4 
+L 198 118.8 
+L 158.4 118.8 
+L 158.4 158.4 
+" style="fill:#d1d1d1;"/>
+    <path clip-path="url(#pdf5711cc61)" d="M 198 158.4 
+L 237.6 158.4 
+L 237.6 118.8 
+L 198 118.8 
+L 198 158.4 
+" style="fill:#d1d1d1;"/>
+    <path clip-path="url(#pdf5711cc61)" d="M 237.6 158.4 
+L 277.2 158.4 
+L 277.2 118.8 
+L 237.6 118.8 
+L 237.6 158.4 
+" style="fill:#d1d1d1;"/>
+    <path clip-path="url(#pdf5711cc61)" d="M 277.2 158.4 
+L 316.8 158.4 
+L 316.8 118.8 
+L 277.2 118.8 
+L 277.2 158.4 
+" style="fill:#d1d1d1;"/>
+    <path clip-path="url(#pdf5711cc61)" d="M 0 118.8 
+L 39.6 118.8 
+L 39.6 79.2 
+L 0 79.2 
+L 0 118.8 
+" style="fill:#ededed;"/>
+    <path clip-path="url(#pdf5711cc61)" d="M 39.6 118.8 
+L 79.2 118.8 
+L 79.2 79.2 
+L 39.6 79.2 
+L 39.6 118.8 
+" style="fill:#d1d1d1;"/>
+    <path clip-path="url(#pdf5711cc61)" d="M 79.2 118.8 
+L 118.8 118.8 
+L 118.8 79.2 
+L 79.2 79.2 
+L 79.2 118.8 
+" style="fill:#ededed;"/>
+    <path clip-path="url(#pdf5711cc61)" d="M 118.8 118.8 
+L 158.4 118.8 
+L 158.4 79.2 
+L 118.8 79.2 
+L 118.8 118.8 
+" style="fill:#d1d1d1;"/>
+    <path clip-path="url(#pdf5711cc61)" d="M 158.4 118.8 
+L 198 118.8 
+L 198 79.2 
+L 158.4 79.2 
+L 158.4 118.8 
+" style="fill:#d1d1d1;"/>
+    <path clip-path="url(#pdf5711cc61)" d="M 198 118.8 
+L 237.6 118.8 
+L 237.6 79.2 
+L 198 79.2 
+L 198 118.8 
+" style="fill:#d1d1d1;"/>
+    <path clip-path="url(#pdf5711cc61)" d="M 237.6 118.8 
+L 277.2 118.8 
+L 277.2 79.2 
+L 237.6 79.2 
+L 237.6 118.8 
+" style="fill:#d1d1d1;"/>
+    <path clip-path="url(#pdf5711cc61)" d="M 277.2 118.8 
+L 316.8 118.8 
+L 316.8 79.2 
+L 277.2 79.2 
+L 277.2 118.8 
+" style="fill:#d1d1d1;"/>
+    <path clip-path="url(#pdf5711cc61)" d="M 0 79.2 
+L 39.6 79.2 
+L 39.6 39.6 
+L 0 39.6 
+L 0 79.2 
+" style="fill:#ededed;"/>
+    <path clip-path="url(#pdf5711cc61)" d="M 39.6 79.2 
+L 79.2 79.2 
+L 79.2 39.6 
+L 39.6 39.6 
+L 39.6 79.2 
+" style="fill:#ededed;"/>
+    <path clip-path="url(#pdf5711cc61)" d="M 79.2 79.2 
+L 118.8 79.2 
+L 118.8 39.6 
+L 79.2 39.6 
+L 79.2 79.2 
+" style="fill:#d1d1d1;"/>
+    <path clip-path="url(#pdf5711cc61)" d="M 118.8 79.2 
+L 158.4 79.2 
+L 158.4 39.6 
+L 118.8 39.6 
+L 118.8 79.2 
+" style="fill:#d1d1d1;"/>
+    <path clip-path="url(#pdf5711cc61)" d="M 158.4 79.2 
+L 198 79.2 
+L 198 39.6 
+L 158.4 39.6 
+L 158.4 79.2 
+" style="fill:#d1d1d1;"/>
+    <path clip-path="url(#pdf5711cc61)" d="M 198 79.2 
+L 237.6 79.2 
+L 237.6 39.6 
+L 198 39.6 
+L 198 79.2 
+" style="fill:#d1d1d1;"/>
+    <path clip-path="url(#pdf5711cc61)" d="M 237.6 79.2 
+L 277.2 79.2 
+L 277.2 39.6 
+L 237.6 39.6 
+L 237.6 79.2 
+" style="fill:#d1d1d1;"/>
+    <path clip-path="url(#pdf5711cc61)" d="M 277.2 79.2 
+L 316.8 79.2 
+L 316.8 39.6 
+L 277.2 39.6 
+L 277.2 79.2 
+" style="fill:#d1d1d1;"/>
+    <path clip-path="url(#pdf5711cc61)" d="M 0 39.6 
+L 39.6 39.6 
+L 39.6 0 
+L 0 0 
+L 0 39.6 
+"/>
+    <path clip-path="url(#pdf5711cc61)" d="M 39.6 39.6 
+L 79.2 39.6 
+L 79.2 0 
+L 39.6 0 
+L 39.6 39.6 
+" style="fill:#ededed;"/>
+    <path clip-path="url(#pdf5711cc61)" d="M 79.2 39.6 
+L 118.8 39.6 
+L 118.8 0 
+L 79.2 0 
+L 79.2 39.6 
+" style="fill:#ededed;"/>
+    <path clip-path="url(#pdf5711cc61)" d="M 118.8 39.6 
+L 158.4 39.6 
+L 158.4 0 
+L 118.8 0 
+L 118.8 39.6 
+" style="fill:#ededed;"/>
+    <path clip-path="url(#pdf5711cc61)" d="M 158.4 39.6 
+L 198 39.6 
+L 198 0 
+L 158.4 0 
+L 158.4 39.6 
+" style="fill:#ededed;"/>
+    <path clip-path="url(#pdf5711cc61)" d="M 198 39.6 
+L 237.6 39.6 
+L 237.6 0 
+L 198 0 
+L 198 39.6 
+" style="fill:#ededed;"/>
+    <path clip-path="url(#pdf5711cc61)" d="M 237.6 39.6 
+L 277.2 39.6 
+L 277.2 0 
+L 237.6 0 
+L 237.6 39.6 
+" style="fill:#ededed;"/>
+    <path clip-path="url(#pdf5711cc61)" d="M 277.2 39.6 
+L 316.8 39.6 
+L 316.8 0 
+L 277.2 0 
+L 277.2 39.6 
+" style="fill:#ededed;"/>
+   </g>
+  </g>
+ </g>
+ <defs>
+  <clipPath id="pdf5711cc61">
+   <rect height="316.8" width="316.8" x="0.0" y="0.0"/>
+  </clipPath>
+ </defs>
+</svg>
