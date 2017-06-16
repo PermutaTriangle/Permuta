@@ -106,7 +106,7 @@ class _PermClassOfLength:
         self.length = length
         self._zb_perm_subset = parent._zb_perm_set.of_length(length)
 
-    def plot(self, *, browser=False, filename=None, file_format="svg", **kwargs):
+    def plot(self, *, browser=False, filename=None, file_format=None, **kwargs):
         """Display or save a heatmap with seaborn/matplotlib.
 
         Returns the Axes object or None if seaborn is unavailable.
@@ -160,7 +160,9 @@ class _PermClassOfLength:
                 webbrowser.open(filename)
         elif browser:
             with tempfile.NamedTemporaryFile(delete=False) as file_pointer:
-                figure.savefig(file_pointer, format=file_format, bbox_inches="tight")
+                figure.savefig(file_pointer,
+                               format="svg" if file_format is None else file_format,
+                               bbox_inches="tight")
                 file_pointer.flush()
                 webbrowser.open(file_pointer.name)
 
