@@ -309,7 +309,7 @@ class Perm:
     def plot(self, *, browser=False, filename=None, file_format="svg", **kwargs):
         """Display or save the perm with seaborn/matplotlib.
 
-        Returns an Axes object.
+        Returns an Axes object or None if seaborn is unavailable.
 
         Keyword arguments:
             browser: If True, sends the image to a browser for viewing.
