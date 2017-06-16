@@ -3,9 +3,15 @@
 
 import numbers
 import tempfile
+import warnings
 import webbrowser
 
-import seaborn
+try:
+    import seaborn
+    _SEABORN_AVAILABLE = True
+except ImportError:
+    _SEABORN_AVAILABLE = False
+    warnings.warn("Unable to load seaborn for PermClass plotting")
 
 from ..Perm import Perm as _ZBPerm
 
@@ -325,6 +331,9 @@ class Perm:
             x-axis and the "yticklabels kwarg as range(len(self), -1, -1) for
             a labelled y-axis.
         """
+        if not _SEABORN_AVAILABLE:
+            return None
+
         # Compile the data
         n = len(self)
         data = [[0]*n for _ in range(n)]

@@ -3,10 +3,16 @@
 
 #import numbers
 import tempfile
+import warnings
 import webbrowser
 
 #import numpy
-import seaborn
+try:
+    import seaborn
+    _SEABORN_AVAILABLE = True
+except ImportError:
+    _SEABORN_AVAILABLE = False
+    warnings.warn("Unable to load seaborn for Perm plotting")
 
 from .Perm import Perm
 from ..Perm import Perm as _ZBPerm
@@ -103,7 +109,7 @@ class _PermClassOfLength:
     def plot(self, *, browser=False, filename=None, file_format="svg", **kwargs):
         """Display or save a heatmap with seaborn/matplotlib.
 
-        Returns the Axes object.
+        Returns the Axes object or None if seaborn is unavailable.
 
         Keyword arguments:
             browser: If True, sends the image to a browser for viewing.
@@ -127,6 +133,9 @@ class _PermClassOfLength:
             that appears in all the perms gets the maximum color value.
             Set the "xticklabels" kwarg as range(self.length) for a labelled x-axis.
         """
+        if not _SEABORN_AVAILABLE:
+            return None
+
         # Compile the data
         data = [[0]*self.length for _ in range(self.length)]
         for zb_perm in self._zb_perm_subset:
