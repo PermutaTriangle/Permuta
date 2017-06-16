@@ -162,10 +162,12 @@ Perm classes can be created.
 Perm classes can be specified with a basis.
 
 ```python
->>> basis = [Perm(1, 2, 3), "4312", 231]
->>> av = Av(basis)
->>> av
-<Perms avoiding: (1, 2, 3), (2, 3, 1), and (4, 3, 1, 2)>
+>>> basis = [213, Perm((2, 3, 1))]
+>>> basis
+[213, (2, 3, 1)]
+>>> perm_class = Av(basis)
+>>> perm_class
+<Perms avoiding: (2, 1, 3) and (2, 3, 1)>
 ```
 
 Recall that Av is just an alias of PermClass.
@@ -173,10 +175,10 @@ Recall that Av is just an alias of PermClass.
 You can ask whether a perm belongs to the perm class.
 
 ```python
->>> 1234 in av
-False
->>> 21543 in av
+>>> 4321 in perm_class
 True
+>>> 1324 in perm_class
+False
 ```
 
 You can get the n-th perm of the class or iterate.
@@ -184,11 +186,11 @@ You can get the n-th perm of the class or iterate.
 (BEWARE: Lexicographic order is not guaranteed at the moment!)
 
 ```python
->>> [av[n] for n in range(8)]
-[(), (1), (1, 2), (2, 1), (2, 1, 3), (1, 3, 2), (3, 2, 1), (3, 1, 2)]
->>> av_iter = iter(av)
->>> [next(av_iter) for _ in range(8)]
-[(), (1), (1, 2), (2, 1), (2, 1, 3), (1, 3, 2), (3, 2, 1), (3, 1, 2)]
+>> [perm_class[n] for n in range(10)]
+[(), (1), (1, 2), (2, 1), (1, 2, 3), (1, 3, 2), (3, 2, 1), (3, 1, 2), (4, 3, 2, 1), (4, 1, 3, 2)]
+>>> perm_class_iter = iter(perm_class)
+>>> [next(perm_class_iter) for _ in range(10)]
+[(), (1), (1, 2), (2, 1), (1, 2, 3), (1, 3, 2), (3, 2, 1), (3, 1, 2), (4, 3, 2, 1), (4, 1, 3, 2)]
 ```
 
 And in the next section we see how to isolate those of a specific length.
@@ -198,32 +200,37 @@ And in the next section we see how to isolate those of a specific length.
 You can create a subset of perms in the perm class.
 
 ```python
->>> av_8 = av.of_length(8)
-<Perms of length 8 avoiding: (1, 2, 3), (2, 3, 1), and (4, 3, 1, 2)>
+>>> perm_class_14 = perm_class.of_length(14)
+>>> perm_class_14
+<Perms of length 14 avoiding: (2, 1, 3) and (2, 3, 1)>
 ```
 
-The iterating, indexing, and containment functionality is the same as with `av`.
+You can now ask for the size of the subset because it is perm.
 
 ```python
->>> 321 in av_8
+>>> len(perm_class_14)
+8192
+```
+
+The iterating and containment functionality is the same as with `perm_class`, but indexing has yet to be implemented.
+
+```python
+>>> 321 in perm_class_14
 False
-```
-
-Additionally, you can now ask for its size.
-
-```python
->>> len(av_8)
-14
+>>> (1, 14, 2, 13, 3, 4, 5, 12, 6, 11, 7, 8, 9, 10) in perm_class_14
+True
+>>> Perm(range(10)) - Perm(range(4)) in perm_class_14
+False
 ```
 
 To get a feeling for the perm class, you can plot a heatmap of this subset.
 
 ```python
->>> ax = av_8.plot()
+>>> ax = perm_class_14.plot()
 >>> plt.show()
 ```
 
-![A heatmap plot for the perms of length 8 avoiding 123, 231, and 4312](README.d/av_123_231_4312_of_length_8_heatmap.png?raw=true "A heatmap plot for the perms of length 8 avoiding 123, 231, and 4312")
+![A heatmap plot for the perms of length 14 avoiding 213 and 231](README.d/av_213_231_of_length_14_heatmap.png?raw=true "A heatmap plot for the perms of length 14 avoiding 213 and 231")
 
 ## License
 BSD-3: see the [LICENSE](https://github.com/PermutaTriangle/Permuta/blob/master/LICENSE) file.
