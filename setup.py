@@ -15,6 +15,7 @@ setup(
     keywords = "permutation perm mesh pattern patt avoid contain occurrence statistic",
     url = "https://github.com/PermutaTriangle/Permuta",
     install_requires = read("requirements.txt").splitlines(),
+    extras_require = {"plot": ["seaborn"]},
     packages=find_packages(),
     long_description=read("README.md"),
 )
