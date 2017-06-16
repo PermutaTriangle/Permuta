@@ -80,7 +80,7 @@ You can visualize a perm.
 >>> plt.show()
 ```
 
-![Plot of the perm 1324](README.d/1324.jpg?raw=true "Plot of the perm 1324")
+![Plot of the perm 1324](README.d/1324.png?raw=true "Plot of the perm 1324")
 
 The avoids, contains, and occurrence\* methods enable working with patts.
 
@@ -223,7 +223,7 @@ To get a feeling for the perm class, you can plot a heatmap of this subset.
 >>> plt.show()
 ```
 
-![A heatmap plot for the perms of length 8 avoiding 123, 231, and 4312](README.d/av_123_231_4312_of_length_8_heatmap.jpg?raw=true "A heatmap plot for the perms of length 8 avoiding 123, 231, and 4312")
+![A heatmap plot for the perms of length 8 avoiding 123, 231, and 4312](README.d/av_123_231_4312_of_length_8_heatmap.png?raw=true "A heatmap plot for the perms of length 8 avoiding 123, 231, and 4312")
 
 ## License
 BSD-3: see the [LICENSE](https://github.com/PermutaTriangle/Permuta/blob/master/LICENSE) file.
