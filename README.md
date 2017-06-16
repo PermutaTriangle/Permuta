@@ -31,7 +31,7 @@ This requires `pytest` and `pytest-cov`.
 ## Demo
 
 Once you've installed Permuta, it can be imported by a Python script or an
-interactive Python session, just like any other Python library.
+interactive Python session, just like any other Python library:
 
 ```python
 >>> from permuta.demo import *
@@ -43,7 +43,7 @@ classes (and their respective aliases Permutation and Av).
 
 ### Creating a single perm
 
-There are several ways of creating a perm.
+There are several ways of creating a perm:
 
 ```python
 >>> Perm()  # Empty perm
@@ -71,7 +71,7 @@ There are several ways of creating a perm.
 >>> random_perm = Perm.random(7)
 ```
 
-You can visualize a perm.
+You can visualize a perm using matplotlib/seaborn:
 
 ```python
 >>> import matplotlib.pyplot as plt
@@ -82,7 +82,7 @@ You can visualize a perm.
 
 ![Plot of the perm 1324](README.d/1324.png?raw=true "Plot of the perm 1324")
 
-The avoids, contains, and occurrence\* methods enable working with patts.
+The avoids, contains, and occurrence\* methods enable working with patts:
 
 ```python
 >>> p.contains(321)
@@ -95,14 +95,14 @@ False
 [[1, 3], [1, 2], [1, 4], [3, 4], [2, 4]]
 ```
 
-The basic symmetries are implemented.
+The basic symmetries are implemented:
 
 ```python
 >>> [p.reverse(), p.complement(), p.inverse()]
  [(4, 2, 3, 1), (4, 2, 3, 1), (1, 3, 2, 4)]
 ```
 
-To take direct sums and skew sums we use `+` and `-`.
+To take direct sums and skew sums we use `+` and `-`:
 
 ```python
 >>> q = Perm((1, 2, 3, 4, 5))
@@ -112,46 +112,26 @@ To take direct sums and skew sums we use `+` and `-`.
 (6, 8, 7, 9, 1, 2, 3, 4, 5)
 ```
 
-There are numerous practical methods available.
+There are numerous practical methods available:
 
 ```python
->>> p.total_fixed_points()
-2
 >>> p.fixed_points()
 [1, 4]
-```
-
-```python
->>> [p.total_ascents(), p.total_descents()]
-[2, 1]
 >>> p.ascents()
 [1, 3]
 >>> p.descents()
 [2]
-```
-
-```python
->>> p.total_inversions()
-1
 >>> p.inversions()
 [[3, 2]]
-```
-
-```python
->>> p.total_cycles()
-3
 >>> p.cycles()
 [[1], [3, 2], [4]]
-```
-
-```python
 >>> p.major_index()
 2
 ```
 
 ### Creating a perm class
 
-Perm classes can be created.
+You might want the set of all perms:
 
 ```python
 >>> all_perms = PermClass()
@@ -159,7 +139,7 @@ Perm classes can be created.
 <All perms>
 ```
 
-Perm classes can be specified with a basis.
+Perm classes can be specified with a basis:
 
 ```python
 >>> basis = [213, Perm((2, 3, 1))]
@@ -172,7 +152,7 @@ Perm classes can be specified with a basis.
 
 Recall that Av is just an alias of PermClass.
 
-You can ask whether a perm belongs to the perm class.
+You can ask whether a perm belongs to the perm class:
 
 ```python
 >>> 4321 in perm_class
@@ -181,9 +161,7 @@ True
 False
 ```
 
-You can get the n-th perm of the class or iterate.
-
-(BEWARE: Lexicographic order is not guaranteed at the moment!)
+You can get the n-th perm of the class or iterate:
 
 ```python
 >> [perm_class[n] for n in range(10)]
@@ -193,11 +171,11 @@ You can get the n-th perm of the class or iterate.
 [(), (1), (1, 2), (2, 1), (1, 2, 3), (1, 3, 2), (3, 2, 1), (3, 1, 2), (4, 3, 2, 1), (4, 1, 3, 2)]
 ```
 
-And in the next section we see how to isolate those of a specific length.
+(BEWARE: Lexicographic order is not guaranteed at the moment!)
 
 ### The subset of a perm class where the perms are a specific length
 
-You can create a subset of perms in the perm class.
+You can define a subset of perms of a specific length in the perm class:
 
 ```python
 >>> perm_class_14 = perm_class.of_length(14)
@@ -205,14 +183,15 @@ You can create a subset of perms in the perm class.
 <Perms of length 14 avoiding: (2, 1, 3) and (2, 3, 1)>
 ```
 
-You can now ask for the size of the subset because it is perm.
+You can ask for the size of the subset because it is guaranteed to be finite:
 
 ```python
 >>> len(perm_class_14)
 8192
 ```
 
-The iterating and containment functionality is the same as with `perm_class`, but indexing has yet to be implemented.
+The iterating and containment functionality is the same as with `perm_class`,
+but indexing has yet to be implemented:
 
 ```python
 >>> 321 in perm_class_14
@@ -221,9 +200,12 @@ False
 True
 >>> Perm(range(10)) - Perm(range(4)) in perm_class_14
 False
+>>> next(iter(perm_class_14))
+(14, 1, 2, 3, 4, 5, 13, 12, 11, 10, 6, 9, 7, 8)
 ```
 
-To get a feeling for the perm class, you can plot a heatmap of this subset.
+To get a feeling for the perm class, you can plot a heatmap of this subset
+ using matplotlib/seaborn:
 
 ```python
 >>> ax = perm_class_14.plot()
@@ -231,6 +213,17 @@ To get a feeling for the perm class, you can plot a heatmap of this subset.
 ```
 
 ![A heatmap plot for the perms of length 14 avoiding 213 and 231](README.d/av_213_231_of_length_14_heatmap.png?raw=true "A heatmap plot for the perms of length 14 avoiding 213 and 231")
+
+## Life in Permuta beyond the demo
+
+If your work has reached a place where your require functionality beyond
+that offered by the demo, it may be time to proceed to the non-demo version
+of Permuta. The first hurdle will be coming to terms with the zero based indexing.
+Here's how to get started:
+
+```python
+>>> from permuta import Perm, PermSet, MeshPatt
+```
 
 ## License
 BSD-3: see the [LICENSE](https://github.com/PermutaTriangle/Permuta/blob/master/LICENSE) file.
