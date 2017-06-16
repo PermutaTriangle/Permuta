@@ -58,6 +58,11 @@ class Perm:
         >>> Perm.monotone_decreasing(3)
         (3, 2, 1)
         >>> random_perm = Perm.random(7)
+
+    See also:
+        Perm.monotone_decreasing
+        Perm.monotone_increasing
+        Perm.random
     """
 
     #
@@ -105,19 +110,32 @@ class Perm:
     #
 
     def direct_sum(self, perm):
-        """Return the direct sum of the two perms."""
+        """Return the direct sum of the two perms.
+        
+        See also:
+            Perm.__sum__
+        """
         perm = Perm(perm)
         zb_perm = self._zb_perm.direct_sum(perm._zb_perm)
         return Perm(zb_perm)
 
     def skew_sum(self, perm):
-        """Return the skew sum of the two perms."""
+        """Return the skew sum of the two perms.
+        
+        See also:
+            Perm.__sub__
+        """
         perm = Perm(perm)
         zb_perm = self._zb_perm.skew_sum(perm._zb_perm)
         return Perm(zb_perm)
 
     def compose(self, perm):
-        """Return the composition of the two perms."""
+        """Return the composition of the two perms.
+        
+        See also:
+            Perm.multiply
+            Perm.__mul__
+        """
         perm = Perm(perm)
         zb_perm = self._zb_perm.compose(perm._zb_perm)
         return Perm(zb_perm)
@@ -197,40 +215,61 @@ class Perm:
         return self._zb_perm.is_decreasing()
 
     def ascents(self):
-        """Return the indices of elements where the next element is greater."""
-        return list(element + 1 for element in self._zb_perm.ascents())
+        """Return the indices of values where the next value is greater.
+        
+        See also:
+            Perm.total_ascents
+        """
+        return list(value + 1 for value in self._zb_perm.ascents())
 
     def total_ascents(self):
         """Return the number of ascents in the perm."""
         return sum(1 for _ in self._zb_perm.ascents())
 
     def descents(self):
-        """Return the indices of elements where the next element is greater."""
-        return list(element + 1 for element in self._zb_perm.descents())
+        """Return the indices of values where the next value is greater.
+        
+        See also:
+            Perm.total_descents
+        """
+        return list(value + 1 for value in self._zb_perm.descents())
 
     def total_descents(self):
         """Return the number of descents in the perm."""
         return sum(1 for _ in self._zb_perm.descents())
 
     def peaks(self):
-        """Return the indices of the peaks of the perm."""
-        return list(element + 1 for element in self._zb_perm.peaks())
+        """Return the indices of the peaks of the perm.
+        
+        See also:
+            Perm.total_peaks
+        """
+        return list(value + 1 for value in self._zb_perm.peaks())
 
     def total_peaks(self):
         """Return the number of peaks in the perm."""
         return sum(1 for _ in self._zb_perm.peaks())
 
     def valleys(self):
-        """Return the indices of the valleys of the perm."""
-        return list(element + 1 for element in self._zb_perm.valleys())
+        """Return the indices of the valleys of the perm.
+        
+        See also:
+            Perm.total_valleys
+        """
+        return list(value + 1 for value in self._zb_perm.valleys())
 
     def total_valleys(self):
         """Return the number of valleys in the perm."""
         return sum(1 for _ in self._zb_perm.valleys())
 
     def cycles(self):
-        """Return the cycle decomposition of the perm."""
-        return list(list(element + 1 for element in cycle) for cycle in self._zb_perm.cycle_decomp())
+        """Return the cycle decomposition of the perm.
+        
+        See also:
+            Perm.cycle_decomposition
+            Perm.total_cycles
+        """
+        return list(list(value + 1 for value in cycle) for cycle in self._zb_perm.cycle_decomp())
 
     cycle_decomposition = cycles
 
@@ -239,7 +278,11 @@ class Perm:
         return sum(1 for _ in self._zb_perm.cycle_decomp())
 
     def inversions(self):
-        """Return the list of the inversions of the perm."""
+        """Return the list of the inversions of the perm.
+        
+        See also:
+            Perm.total_inversions
+        """
         return self.occurrences_of(21)
 
     def total_inversions(self):
@@ -247,7 +290,11 @@ class Perm:
         return len(self.inversions())
 
     def fixed_points(self):
-        """Return the fixed points of the perm."""
+        """Return the fixed points of the perm.
+        
+        See also:
+            Perm.total_fixed_points
+        """
         return [value
                 for index, value
                 in enumerate(self, 1)
@@ -269,36 +316,70 @@ class Perm:
     #
 
     def contains(self, patt):
-        """Check if the perm contains the patt."""
+        """Check if the perm contains the patt.
+        
+        See also:
+            Perm.avoids
+            Perm.occurrence*
+        """
         patt = Perm(patt)
         return self._zb_perm.contains(patt._zb_perm)
 
     def avoids(self, patt):
-        """Check if the perm avoids the patt."""
+        """Check if the perm avoids the patt.
+        
+        See also:
+            Perm.contains
+            Perm.occurrence*
+        """
         patt = Perm(patt)
         return self._zb_perm.avoids(patt._zb_perm)
 
     def occurrences_in(self, perm):
-        """Find all occurrences of the patt self in perm."""
+        """Find all occurrences of the patt self in perm.
+
+        See also:
+            Perm.avoids
+            Perm.contains
+            Perm.occurrence*
+        """
         perm = Perm(perm)
         return list(list(perm[index + 1] for index in occurrence_indices)
                     for occurrence_indices
                     in self._zb_perm.occurrences_in(perm._zb_perm))
 
     def occurrences_of(self, patt):
-        """Find all occurrences of patt in the perm self."""
+        """Find all occurrences of patt in the perm self.
+
+        See also:
+                Perm.avoids
+                Perm.contains
+                Perm.occurrence*
+        """
         patt = Perm(patt)
         return patt.occurrences_in(self)
 
     def occurrence_indices_in(self, perm):
-        """Find all indices of occurrences of the patt self in perm."""
+        """Find all indices of occurrences of the patt self in perm.
+
+        See also:
+                Perm.avoids
+                Perm.contains
+                Perm.occurrence*
+        """
         perm = Perm(perm)
         return list(list(index + 1 for index in occurrence)
                     for occurrence
                     in self._zb_perm.occurrences_in(perm._zb_perm))
 
     def occurrence_indices_of(self, patt):
-        """Find all indices of occurrences of patt in the perm self."""
+        """Find all indices of occurrences of patt in the perm self.
+
+        See also:
+                Perm.avoids
+                Perm.contains
+                Perm.occurrence*
+        """
         patt = Perm(patt)
         return patt.occurrence_indices_in(self)
 
@@ -388,11 +469,11 @@ class Perm:
         return len(self._zb_perm)
 
     def __iter__(self):
-        for element in self._zb_perm:
-            yield element + 1
+        for value in self._zb_perm:
+            yield value + 1
 
     def __getitem__(self, index):
-        """Return the element at the one-based index specified."""
+        """Return the value at the one-based index specified."""
         format_string = "The indices of the perm {} are [{}{}{}]"
         if index < 1 or index > len(self):
             if len(self) == 0:
@@ -430,7 +511,8 @@ class Perm:
         return bool(self._zb_perm)
 
     def __reversed__(self):
-        return self.reverse()
+        for value in reversed(self._zb_perm):
+            yield value + 1
 
     def __contains__(self, patt):
         return self.contains(patt)
