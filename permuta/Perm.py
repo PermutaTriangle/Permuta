@@ -306,8 +306,7 @@ class Perm(tuple,
         """
         result = list(self)
         shift = len(self)
-        for index in range(len(others)):
-            other = others[index]
+        for other in others:
             if not isinstance(other, Perm):
                 raise TypeError(Perm._TYPE_ERROR.format(repr(other)))
             result.extend(element + shift for element in other)
