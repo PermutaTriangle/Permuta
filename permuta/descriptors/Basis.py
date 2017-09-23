@@ -83,6 +83,26 @@ class Basis(Descriptor, tuple):  # pylint: disable=too-few-public-methods
         else:
             return self
 
+    @classmethod
+    def from_string(cls, basis_string):
+        """Return the basis corresponding to the string given.
+
+        Permutations should be parsable by Perm.from_string and
+        separated by an underscore or a semicolon.
+
+        Examples:
+            >>> Basis.from_string("0123_021")
+            Basis((Perm((0, 2, 1)), Perm((0, 1, 2, 3))))
+            >>> Basis.from_string("1234_132")
+            Basis((Perm((0, 2, 1)), Perm((0, 1, 2, 3))))
+            >>> Basis.from_string("1432; 123; 43215")
+            Basis((Perm((0, 1, 2)), Perm((0, 3, 2, 1)), Perm((3, 2, 1, 0, 4))))
+            >>> Basis.from_string("1,3,2,4; 10,9,8,7,6,5,4,3,2,1")
+            Basis((Perm((0, 2, 1, 3)), Perm((9, 8, 7, 6, 5, 4, 3, 2, 1, 0))))
+        """
+        perm_strings = filter(None, basis_string.replace("_", ";").split(";"))
+        return cls(map(Perm.from_string, perm_strings))
+
     def is_polynomial(self):
         return True  # TODO
 
