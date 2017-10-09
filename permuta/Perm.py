@@ -8,6 +8,7 @@ import numbers
 import operator
 import random
 import sys
+import bisect
 
 from permuta.interfaces import Patt, Flippable, Rotatable, Shiftable
 from permuta.misc import checking
@@ -1394,8 +1395,28 @@ class Perm(tuple,
 
         return self == Perm.identity(len(self))
 
-    # TODO: Implement rank method
-    #perm2ind = rank  # permpy backwards compatibility
+    def rank(self):
+        """Computes the rank of a permutation.
+        Examples:
+            >>> Perm((0, 1)).rank()
+            2
+            >>> Perm((0, 2, 1, 3)).rank()
+            12
+        """
+        if len(self) == 0:
+            return 0
+        fact = [1]
+        for i in range(len(self)):
+            fact.append(fact[i] * (i + 1))
+        res = 0
+        vals = list()
+        for i in range(len(self)):
+            r = bisect.bisect_left(vals, self[i])
+            res += (self[i] - r) * fact[len(self) - i - 1] + fact[len(self) - i - 1]
+            vals.insert(r, self[i])
+        return res
+
+    perm2ind = rank  # permpy backwards compatibility
 
     def threepats(self):
         """Returns a dictionary of the number of occurrences of each
