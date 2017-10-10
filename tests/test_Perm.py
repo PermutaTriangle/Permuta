@@ -779,6 +779,11 @@ def test_is_involution():
         cyclelist = perm.cycle_decomp()
         assert perm.is_involution() == all(map(lambda x: len(x) <= 2, cyclelist))
 
+
+def test_rank():
+    assert list(map(lambda x: x.rank(), PermSet(5))) == list(range(34, 154))
+
+
 def test_threepats():
     assert all(v == 0 for v in Perm(()).threepats().values())
     assert all(v == 0 for v in Perm((0)).threepats().values())
