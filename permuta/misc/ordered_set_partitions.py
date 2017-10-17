@@ -1,13 +1,19 @@
 from itertools import combinations
 
 
-def ordered_set_partitions(lst, parts, CACHE={}):
+def ordered_set_partitions(lst, parts, cache=True):
+    if not cache:
+        for partition in list(helper(lst, parts)):
+            yield partition
     key = tuple(parts)
     if key not in CACHE:
         CACHE[key] = list(helper(lst, parts))
     for partition in CACHE[key]:
         yield partition
 
+def ordered_set_partitions_no_cache(lst, parts):
+    for partition in list(helper(lst, parts)):
+        yield partition
 
 def helper(lst, parts):
     if not parts:
@@ -19,12 +25,36 @@ def helper(lst, parts):
                 yield [list(comb)] + f
 
 
+def ordered_set_partitions_list(lst):
+    for parts in partitions(len(lst)):
+        if len(parts) == len(lst) or len(parts) == 1:
+            continue
+        for partition in ordered_set_partitions_no_cache(lst, parts):
+            yield partition
+
+
+def partitions(n, CACHE={}):
+    if n not in CACHE:
+        if n == 0:
+            CACHE[n] = [[]]
+        if n == 1:
+            CACHE[n] = [[1]]
+        else:
+            CACHE[n] = [[n]]
+            for i in range(1, n):
+                for part in partitions(n - i):
+                    if part and i < part[-1]:
+                        continue
+                    CACHE[n].append([i] + part)
+    return CACHE[n]
+
+
 
 #internet versions
 
 #def ordered_set_partitions(lst, parts):
 #    return partitions(*parts)
-# 
+#
 #def partitions(*args):
 #    def p(s, *args):
 #        if not args: return [[]]

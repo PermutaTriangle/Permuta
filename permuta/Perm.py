@@ -18,7 +18,7 @@ if sys.version_info.major == 2:
     range = xrange  #pylint: disable=redefined-builtin,invalid-name,undefined-variable
 
 
-__all__ = ["Perm"]
+__all__ = ("Perm",)
 
 
 class Perm(tuple,
@@ -1140,6 +1140,33 @@ class Perm(tuple,
             2
         """
         return len(self.ltrmin())
+
+    def count_ltrmax(self):
+        """Counts the number of left-to-right minimas.
+
+        Example:
+            >>> Perm((2, 4, 3, 0, 1)).count_ltrmin()
+            2
+        """
+        return len(self.ltrmax())
+
+    def count_rtlmin(self):
+        """Counts the number of left-to-right minimas.
+
+        Example:
+            >>> Perm((2, 4, 3, 0, 1)).count_ltrmin()
+            2
+        """
+        return len(self.rtlmin())
+
+    def count_rtlmax(self):
+        """Counts the number of left-to-right minimas.
+
+        Example:
+            >>> Perm((2, 4, 3, 0, 1)).count_ltrmin()
+            2
+        """
+        return len(self.rtlmax())
 
     num_ltrmin = count_ltrmin
 
