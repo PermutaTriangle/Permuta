@@ -1,11 +1,7 @@
 from itertools import combinations
 
 
-def ordered_set_partitions(lst, parts, cache=True):
-    if not cache:
-        for partition in list(helper(lst, parts)):
-            yield partition
-    key = tuple(parts)
+def ordered_set_partitions(lst, parts, cache={}):
     if key not in CACHE:
         CACHE[key] = list(helper(lst, parts))
     for partition in CACHE[key]:
