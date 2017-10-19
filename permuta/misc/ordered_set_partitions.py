@@ -1,7 +1,7 @@
 from itertools import combinations
 
 
-def ordered_set_partitions(lst, parts, cache={}):
+def ordered_set_partitions(lst, parts, CACHE={}):
     if key not in CACHE:
         CACHE[key] = list(helper(lst, parts))
     for partition in CACHE[key]:
