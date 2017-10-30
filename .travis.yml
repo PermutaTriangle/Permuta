@@ -9,9 +9,9 @@ python:
 #  - "pypy"
   - "pypy3"
 install:
-  - pip install -e . --use-mirrors
+  - pip install -e .
 before_script:
-  - pip install -r test_requirements.txt --use-mirrors
+  - pip install -r test_requirements.txt
 script:
   - py.test tests --doctest-modules --pep8 permuta -v --cov permuta --cov-report term-missing
 after_success:
