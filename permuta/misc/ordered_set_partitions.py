@@ -34,17 +34,29 @@ def partitions(n, CACHE={}):
     if n not in CACHE:
         if n == 0:
             CACHE[n] = [[]]
-        if n == 1:
+        elif n == 1:
             CACHE[n] = [[1]]
         else:
+
             CACHE[n] = [[n]]
             for i in range(1, n):
                 for part in partitions(n - i):
-                    if part and i < part[-1]:
-                        continue
-                    CACHE[n].append([i] + part)
+                    if part:
+                        CACHE[n].append([i] + part)
     return CACHE[n]
 
+def partitions_of_n_of_size_k(n, k):
+    """possibly empty parts"""
+    if n == 0 and k == 0:
+        return [[]]
+    elif k < 0:
+        return []
+    else:
+        parts = []
+        for i in range(n + 1):
+            for part in partitions_of_n_of_size_k(n - i, k - 1):
+                parts.append([i] + part)
+    return parts
 
 
 #internet versions
