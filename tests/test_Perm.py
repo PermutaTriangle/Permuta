@@ -830,7 +830,7 @@ def test_block_decomposition():
     assert Perm(()).block_decomposition() == []
     assert Perm((0)).block_decomposition() == [[]]
     assert Perm((5, 3, 0, 1, 2, 4, 7, 6)).block_decomposition() == [[], [], [2, 3, 6], [2], [1], [1], [0], []]
-    assert Perm((4, 1, 0, 5, 2, 3)).block_decomposition(True) == [Perm((0, 1)), Perm((1, 0))]
+    assert set(Perm((4, 1, 0, 5, 2, 3)).block_decomposition(True)) == set([Perm((0, 1)), Perm((1, 0))])
     for _ in range(20):
         perm = Perm.random(random.randint(0,20))
         blocks = perm.block_decomposition()
