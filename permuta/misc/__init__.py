@@ -6,7 +6,7 @@ from .dancing_links import DancingLinks
 from .exact_cover import exact_cover, exact_cover_smallest
 from .iterable_floor_and_ceiling import left_floor_and_ceiling, right_floor_and_ceiling
 from .misc import flatten, binary_search, choose, subsets
-from .ordered_set_partitions import ordered_set_partitions
+from .ordered_set_partitions import ordered_set_partitions, ordered_set_partitions_no_cache
 from .progressbar import ProgressBar
 from .ranges import cyclic_range, modulo_range
 from .triemap import TrieMap
