@@ -8,6 +8,8 @@ from permuta._perm_set.finite import PermSetFiniteSpecificLength
 
 from ..PermSetDescribed import PermSetDescribed
 
+import multiprocessing
+
 
 class Avoiding(PermSetDescribed):
     """The base class for all avoidance classes."""
@@ -38,6 +40,7 @@ class Avoiding(PermSetDescribed):
 
 class AvoidingGeneric(Avoiding):
     __CLASS_CACHE = {}  # Empty basis is dispatched to correct/another class (AvoidingEmpty)
+    _CACHE_LOCK = Multiprocessing.lock()
 
     def __new__(cls, basis):
         if basis in AvoidingGeneric.__CLASS_CACHE:
@@ -63,7 +66,8 @@ class AvoidingGeneric(Avoiding):
             self.cache.append(new_level)
 
     def _get_level(self, level_number):
-        self._ensure_level(level_number)
+        with AvoidingGeneric._CACHE_LOCK:
+            self._ensure_level(level_number)
         return self.cache[level_number]
 
     def of_length(self, length):
