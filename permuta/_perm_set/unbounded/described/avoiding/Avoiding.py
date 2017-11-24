@@ -40,7 +40,7 @@ class Avoiding(PermSetDescribed):
 
 class AvoidingGeneric(Avoiding):
     __CLASS_CACHE = {}  # Empty basis is dispatched to correct/another class (AvoidingEmpty)
-    _CACHE_LOCK = Multiprocessing.lock()
+    _CACHE_LOCK = multiprocessing.Lock()
 
     def __new__(cls, basis):
         if basis in AvoidingGeneric.__CLASS_CACHE:
