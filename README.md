@@ -1,6 +1,7 @@
 # permuta
 
 [![Build Status](https://travis-ci.org/PermutaTriangle/Permuta.svg?branch=master)](https://travis-ci.org/PermutaTriangle/Permuta)
+[![Coverage Status](https://coveralls.io/repos/github/PermutaTriangle/Permuta/badge.svg?branch=master)](https://coveralls.io/github/PermutaTriangle/Permuta?branch=master)
 
 Permuta is a Python library for working with perms (short for permutations),
 patts (patterns), and mesh patts.
