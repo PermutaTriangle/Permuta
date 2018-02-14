@@ -365,8 +365,9 @@ class MeshPatt(MeshPatternBase, Patt, Rotatable, Shiftable, Flippable):
         Examples:
             >>> MeshPatt((0,)).add_increase((0, 0))
             MeshPatt(Perm((0, 1, 2)), frozenset())
-            >>> MeshPatt((0, 1, 2), [(1, 0), (2, 1), (3, 2)]).add_increase((2, 0))
-            MeshPatt(Perm((2, 3, 0, 1, 4)), frozenset({(1, 2), (5, 4), (3, 3), (2, 3), (4, 3), (1, 0), (1, 1)}))
+            >>> mp = MeshPatt((0, 1, 2), [(1, 0), (2, 1), (3, 2)]).add_increase((2, 0))
+            >>> mp == MeshPatt(Perm((2, 3, 0, 1, 4)), frozenset({(1, 2), (5, 4), (3, 3), (2, 3), (4, 3), (1, 0), (1, 1)}))
+            True
         """
         x, y = pos
         return self.add_point((x, y)).add_point((x + 1,y + 1))
@@ -384,8 +385,9 @@ class MeshPatt(MeshPatternBase, Patt, Rotatable, Shiftable, Flippable):
         Examples:
             >>> MeshPatt((0,)).add_decrease((0, 0))
             MeshPatt(Perm((1, 0, 2)), frozenset())
-            >>> MeshPatt((0, 1, 2), [(1, 0), (2, 1), (3, 2)]).add_decrease((2, 0))
-            MeshPatt(Perm((2, 3, 1, 0, 4)), frozenset({(1, 2), (5, 4), (3, 3), (2, 3), (4, 3), (1, 0), (1, 1)}))
+            >>> mp = MeshPatt((0, 1, 2), [(1, 0), (2, 1), (3, 2)]).add_decrease((2, 0))
+            >>> mp == MeshPatt(Perm((2, 3, 1, 0, 4)), frozenset({(1, 2), (5, 4), (3, 3), (2, 3), (4, 3), (1, 0), (1, 1)}))
+            True
         """
         x, y = pos
         return self.add_point((x, y)).add_point((x + 1, y))
@@ -799,8 +801,10 @@ class MeshPatt(MeshPatternBase, Patt, Rotatable, Shiftable, Flippable):
         Examples:
             >>> bin(22563)
             '0b101100000100011'
-            >>> MeshPatt.unrank((0, 1, 2), 22563)
-            MeshPatt(Perm((0, 1, 2)), frozenset({(0, 1), (3, 2), (0, 0), (3, 0), (2, 3), (1, 1)}))
+            >>> mp = MeshPatt.unrank((0, 1, 2), 22563)
+            >>> mp == MeshPatt(Perm((0, 1, 2)), frozenset({(0, 1), (3, 2),
+            ... (0, 0), (3, 0), (2, 3), (1, 1)}))
+            True
         """
         if not isinstance(number, numbers.Integral):
             message = "'{}' object is not an integer".format(repr(number))

@@ -74,7 +74,7 @@ class Perm(tuple,
             >>> Perm("abc")  # Not good
             Traceback (most recent call last):
                 ...
-            TypeError: 'a' object is not an integer
+            TypeError: ''a'' object is not an integer
         """
         try:
             return tuple.__new__(cls, iterable)
@@ -510,7 +510,9 @@ class Perm(tuple,
             >>> Perm((1, 0, 2)).inflate([None, Perm((0, 1)), Perm((0, 1))])
             Perm((2, 0, 1, 3, 4))
             >>> Perm((0, 2, 1)).inflate({2: Perm((0, 1, 2))})
-            Perm((1, 0, 4, 3, 2))
+            Traceback (most recent call last):
+                ...
+            NotImplementedError
             >>> # Can also deflate points
             >>> Perm((0, 1)).inflate([Perm(), Perm()])
             Perm(())
@@ -2045,8 +2047,8 @@ class Perm(tuple,
         """Prints a simple plot of the given Permutation.
 
         Examples:
-            >>> Perm((1, 2, 4, 0, 3, 5)).ascii_plot()
-            '          *\n    *      \n        *  \n  *        \n*          \n      *    '
+            >>> Perm((1, 2, 4, 0, 3, 5))._ascii_plot()
+            '          *\\n    *      \\n        *  \\n  *        \\n*          \\n      *    '
         """
         n = self.__len__()
         array = [[' ' for i in range(n)] for j in range(n)]

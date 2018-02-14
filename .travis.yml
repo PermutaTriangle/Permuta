@@ -8,4 +8,11 @@ python:
   - "nightly"
 #  - "pypy"
   - "pypy3"
-script: py.test tests
+install:
+  - pip install -e .
+before_script:
+  - pip install -r test_requirements.txt
+script:
+  - py.test tests --doctest-modules --doctest-ignore-import-errors --pep8 permuta -v --cov permuta --cov-report term-missing
+after_success:
+  - coveralls
