@@ -72,4 +72,3 @@ class DancingLinks(object):
             lst.append(cur)
             cur = cur.next
         return 'DancingLinks([%s])' % ', '.join(map(repr, lst))
-

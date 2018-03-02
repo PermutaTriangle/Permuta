@@ -1,6 +1,7 @@
-import time
-import sys
 import math
+import sys
+import time
+
 
 class ProgressBar(object):
 
@@ -26,10 +27,13 @@ class ProgressBar(object):
         # sys.stderr.write('\033[1F')
         sys.stderr.write('\r')
         width = 50
-        prog = 1 if ProgressBar.mn == ProgressBar.mx else float(ProgressBar.at - ProgressBar.mn) / (ProgressBar.mx - ProgressBar.mn)
+        prog = (1 if ProgressBar.mn == ProgressBar.mx
+                else (float(ProgressBar.at - ProgressBar.mn) /
+                      (ProgressBar.mx - ProgressBar.mn)))
         bars = int(round(prog * width))
         bars = max(0, min(width, bars))
-        here = '%3d%% [%s%s] ' % (round(prog * 100), '#' * bars, '-' * (width - bars))
+        here = '%3d%% [%s%s] ' % (
+            round(prog * 100), '#' * bars, '-' * (width - bars))
         ProgressBar.curw = len(here)
         sys.stderr.write(here)
         elapsed = ProgressBar.last - ProgressBar.start
@@ -45,7 +49,7 @@ class ProgressBar(object):
             m = math.floor(show_time / 60)
             show_time -= m * 60
             s = math.floor(show_time)
-            here = ' %02d:%02d:%02d' % (h,m,s)
+            here = ' %02d:%02d:%02d' % (h, m, s)
             sys.stderr.write(here)
             ProgressBar.curw += len(here)
         # sys.stderr.write('\n')
@@ -67,4 +71,3 @@ class ProgressBar(object):
     def finish():
         ProgressBar.progress(ProgressBar.mx, fin=True)
         sys.stderr.write('\n')
-
