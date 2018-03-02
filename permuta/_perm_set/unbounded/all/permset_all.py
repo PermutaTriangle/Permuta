@@ -2,20 +2,17 @@
 
 import itertools
 import random
-import numbers
 import sys
-
 from math import factorial
 
 from permuta import Perm
-from permuta._perm_set.finite import PermSetFinite
-from permuta._perm_set.finite import PermSetStatic
-from permuta._perm_set.finite import PermSetFiniteSpecificLength
+from permuta._perm_set.finite import (PermSetFinite,
+                                      PermSetFiniteSpecificLength,
+                                      PermSetStatic)
 from permuta._perm_set.unbounded import PermSetUnbounded
 
-
 if sys.version_info.major == 2:
-    range = xrange  # pylint: disable=redefined-builtin,invalid-name,undefined-variable
+    range = xrange
 
 
 class PermSetAll(PermSetUnbounded):
@@ -90,14 +87,16 @@ class PermSetAllSpecificLength(PermSetFiniteSpecificLength):
 
     def __contains__(self, other):
         """Check if other is a permutation in the set."""
-        return isinstance(other, Permutation) and len(other) == self.length
+        return isinstance(other, Perm) and len(other) == self.length
 
     def __getitem__(self, key):
         return Perm.unrank(key, self.length)
 
     def __iter__(self):
-        # Need to return new instance because permutations of itertools depletes self
-        # This probably needs looking into because the iter isn't a subclass of PermSet
+        # Need to return new instance because permutations of itertools
+        # depletes self
+        # This probably needs looking into because the iter isn't a subclass of
+        # PermSet
         return PermSetAllSpecificLengthIterator(self.domain)
 
     def __len__(self):
@@ -112,7 +111,7 @@ class PermSetAllSpecificLength(PermSetFiniteSpecificLength):
 
 class PermSetAllSpecificLengthIterator(itertools.permutations):
     def __next__(self):
-        return Perm(super(PermSetAllSpecificLengthIterator, self).__next__())  # pylint: disable=no-member
+        return Perm(super(PermSetAllSpecificLengthIterator, self).__next__())
 
 
 class PermSetAllFiniteLengthSubset(PermSetFinite):

@@ -1,12 +1,14 @@
 import random
 
-from .permset_finite import PermSetFinite
 from permuta import Perm
+
+from .permset_finite import PermSetFinite
 
 
 class PermSetStatic(PermSetFinite):
     """A static perm set."""
     __slots__ = ("_set", "_generating_function", "_iter")
+
     def __init__(self, iterable=()):
         self._set = set(iterable)
         self._tuple = tuple(self._set)
@@ -15,7 +17,8 @@ class PermSetStatic(PermSetFinite):
 
     @property
     def generating_function(self):
-        return self._generating_function  # TODO Replace with symbolic variables and stuff
+        # TODO Replace with symbolic variables and stuff
+        return self._generating_function
 
     def of_length(self, length):
         return PermSetStatic(perm for perm in self if len(perm) == length)

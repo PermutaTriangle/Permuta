@@ -1,14 +1,12 @@
-import random
 import functools
+import multiprocessing
+import random
 
 from permuta import Perm
+from permuta._perm_set.finite import PermSetFiniteSpecificLength, PermSetStatic
 from permuta.descriptors import Basis
-from permuta._perm_set.finite import PermSetStatic
-from permuta._perm_set.finite import PermSetFiniteSpecificLength
 
 from ..permset_described import PermSetDescribed
-
-import multiprocessing
 
 
 class Avoiding(PermSetDescribed):
@@ -39,7 +37,8 @@ class Avoiding(PermSetDescribed):
 
 
 class AvoidingGeneric(Avoiding):
-    __CLASS_CACHE = {}  # Empty basis is dispatched to correct/another class (AvoidingEmpty)
+    # Empty basis is dispatched to correct/another class (AvoidingEmpty)
+    __CLASS_CACHE = {}
     _CACHE_LOCK = multiprocessing.Lock()
 
     def __new__(cls, basis):
@@ -47,7 +46,8 @@ class AvoidingGeneric(Avoiding):
             return AvoidingGeneric.__CLASS_CACHE[basis]
         else:
             instance = super(AvoidingGeneric, cls).__new__(cls)
-            instance.cache = [set([Perm()])]  # Generic case includes empty permutation
+            # Generic case includes empty permutation
+            instance.cache = [set([Perm()])]
             AvoidingGeneric.__CLASS_CACHE[basis] = instance
             return instance
 
@@ -57,7 +57,6 @@ class AvoidingGeneric(Avoiding):
         while len(self.cache) <= level_number:
             new_level = set()
             total_indices = len(self.cache)  # really: len(perm) + 1
-            #new_element = indices - 1  # TODO Performance without insert method
             for perm in self.cache[-1]:
                 for index in range(total_indices):
                     new_perm = perm.insert(index)
@@ -105,7 +104,8 @@ class AvoidingGeneric(Avoiding):
         return self
 
     def __contains__(self, perm):
-        # TODO: Think about heuristics for switching to avoiding the patterns in the basis instead
+        # TODO: Think about heuristics for switching to avoiding the patterns
+        #       in the basis instead
         if isinstance(perm, Perm):
             length = len(perm)
             self._ensure_level(length)
@@ -115,9 +115,10 @@ class AvoidingGeneric(Avoiding):
 
 
 class AvoidingGenericSpecificLength(PermSetFiniteSpecificLength):
-    """Class for iterating through all perms of a specific length avoiding a basis."""
+    """Class for iterating through all perms of a specific length avoiding a
+    basis."""
 
-    #__slots__ = ("_length", "_basis", "_get_perms", "_iter")
+    # __slots__ = ("_length", "_basis", "_get_perms", "_iter")
 
     def __init__(self, length, basis, get_perms):
         self._length = length
