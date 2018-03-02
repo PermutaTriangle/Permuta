@@ -188,9 +188,12 @@ class MeshPatt(MeshPatternBase, Patt, Rotatable, Shiftable, Flippable):
         Examples:
             >>> MeshPatt(Perm((0,)), frozenset({(0, 1)})).flip_vertical()
             MeshPatt(Perm((0,)), frozenset({(1, 1)}))
-            >>> MeshPatt(Perm((2, 1, 0)),
+            >>> m = MeshPatt(Perm((2, 1, 0)),
             ... frozenset({(3, 2), (3, 3), (0, 2)})).flip_vertical()
-            MeshPatt(Perm((0, 1, 2)), frozenset({(3, 2), (0, 2), (0, 3)}))
+            >>> m.pattern
+            Perm((0, 1, 2))
+            >>> sorted(m.shading)
+            [(0, 2), (0, 3), (3, 2)]
         """
         return self.reverse()
 
