@@ -1,4 +1,4 @@
-from .PermSetFinite import PermSetFinite
+from .permset_finite import PermSetFinite
 
 
 class PermSetFiniteSpecificLength(PermSetFinite):

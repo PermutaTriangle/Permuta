@@ -1,1 +1,1 @@
-from .PermSetAll import PermSetAll
+from .permset_all import PermSetAll

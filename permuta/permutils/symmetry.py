@@ -1,4 +1,4 @@
-from permuta.Perm import *
+from permuta.perm import *
 
 
 def rotate_90_clockwise_set(perms):

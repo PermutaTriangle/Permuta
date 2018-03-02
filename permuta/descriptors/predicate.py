@@ -3,7 +3,7 @@
 from dis import dis
 from collections import Callable
 
-from .Descriptor import Descriptor
+from .descriptor import Descriptor
 
 
 class Predicate(Descriptor):  # pylint: disable=too-few-public-methods

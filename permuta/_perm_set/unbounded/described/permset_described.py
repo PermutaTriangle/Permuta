@@ -1,4 +1,4 @@
-from ..PermSetUnbounded import PermSetUnbounded
+from ..permset_unbounded import PermSetUnbounded
 
 
 class PermSetDescribed(PermSetUnbounded):

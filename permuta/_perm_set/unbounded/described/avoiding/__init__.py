@@ -1,4 +1,4 @@
-from .Avoiding import Avoiding, AvoidingGeneric, AvoidingGenericSpecificLength
+from .avoiding import Avoiding, AvoidingGeneric, AvoidingGenericSpecificLength
 
 from . import avoiding_length_0
 #from . import avoiding_length_1

@@ -5,7 +5,7 @@ import time
 from collections import Iterable
 from permuta import Perm
 
-from .Descriptor import Descriptor
+from .descriptor import Descriptor
 
 
 class Basis(Descriptor, tuple):  # pylint: disable=too-few-public-methods

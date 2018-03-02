@@ -1,6 +1,6 @@
 import random
 
-from .PermSetFinite import PermSetFinite
+from .permset_finite import PermSetFinite
 from permuta import Perm
 
 

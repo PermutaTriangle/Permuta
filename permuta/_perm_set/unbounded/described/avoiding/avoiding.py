@@ -6,7 +6,7 @@ from permuta.descriptors import Basis
 from permuta._perm_set.finite import PermSetStatic
 from permuta._perm_set.finite import PermSetFiniteSpecificLength
 
-from ..PermSetDescribed import PermSetDescribed
+from ..permset_described import PermSetDescribed
 
 import multiprocessing
 
