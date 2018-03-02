@@ -49,7 +49,7 @@ class MeshPatt(MeshPatternBase, Patt, Rotatable, Shiftable, Flippable):
                 message = "'{}' object is not a tuple".format(repr(coordinate))
                 raise TypeError(message)
             if len(coordinate) != 2:
-                "Element is not a shading coordinate: '{}'".format(
+                message = "Element is not a shading coordinate: '{}'".format(
                     repr(coordinate))
                 raise ValueError(message)
             x, y = coordinate
