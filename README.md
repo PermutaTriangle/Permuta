@@ -23,10 +23,10 @@ run the following instead:
 To run the unit tests using pytest run:
 
 ```
-pytest --cov permuta tests
+# ./setup.py test
 ```
 
-This requires `pytest` and `pytest-cov`.
+This requires `pytest`, `pytest-cov`, `pytest-pep8` and `pytest-isort`.
 
 ## Demo
 

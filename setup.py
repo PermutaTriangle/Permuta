@@ -19,7 +19,6 @@ setup(
     url="https://github.com/PermutaTriangle/Permuta",
     packages=find_packages(),
     long_description=read("README.md"),
-    install_requires=read("requirements.txt").splitlines(),
     extras_require={"plot": ["seaborn"]},
     setup_requires=["pytest-runner"],
     tests_require=["pytest",
