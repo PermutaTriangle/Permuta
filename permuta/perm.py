@@ -1532,7 +1532,7 @@ class Perm(tuple,
         Examples:
             >>> Perm((5, 3, 0, 1, 2, 4, 7, 6)).block_decomposition()
             [[], [], [2, 3, 6], [2], [1], [1], [0], []]
-            >>> Perm((4, 1, 0, 5, 2, 3)).block_decomposition(True)
+            >>> sorted(Perm((4, 1, 0, 5, 2, 3)).block_decomposition(True))
             [Perm((0, 1)), Perm((1, 0))]
         """
         blocks = [[] for i in range(len(self))]
@@ -1697,10 +1697,10 @@ class Perm(tuple,
         layer of the downset, also called the shadow.
 
         Example:
-            >>> Perm((2, 0, 1)).children()
+            >>> sorted(Perm((2, 0, 1)).children())
             [Perm((0, 1)), Perm((1, 0))]
-            >>> Perm((4, 1, 6, 3, 0, 7, 2, 5)).children()[:2]
-            [Perm((3, 1, 5, 2, 0, 6, 4)), Perm((3, 0, 5, 2, 6, 1, 4))]
+            >>> sorted(Perm((4, 1, 6, 3, 0, 7, 2, 5)).children())[:2]
+            [Perm((1, 5, 3, 0, 6, 2, 4)), Perm((3, 0, 5, 2, 6, 1, 4))]
         """
         return list(set(self.remove(i) for i in range(len(self))))
 
@@ -1712,8 +1712,8 @@ class Perm(tuple,
         """Returns one layer of the upset of the permutation.
 
         Examples:
-            >>> Perm((0, 1)).coveredby()[:3]
-            [Perm((0, 2, 1)), Perm((1, 2, 0)), Perm((0, 1, 2))]
+            >>> sorted(Perm((0, 1)).coveredby())[:3]
+            [Perm((0, 1, 2)), Perm((0, 2, 1)), Perm((1, 0, 2))]
         """
         S = set()
         n = len(self)
