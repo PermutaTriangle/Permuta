@@ -13,6 +13,6 @@ install:
 before_script:
   - pip install -r test_requirements.txt
 script:
-  - py.test tests --doctest-modules --doctest-ignore-import-errors --pep8 permuta -v --cov permuta --cov-report term-missing
+  - pytest tests --doctest-ignore-import-errors --pep8 -v --cov=permuta --cov-report=term-missing
 after_success:
   - coveralls
