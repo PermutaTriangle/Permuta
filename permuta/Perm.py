@@ -155,15 +155,27 @@ class Perm(tuple,
     def from_string(cls, string):
         """Return the perm corresponding to the string given.
 
+        If the string is space or comma separated then each token is
+        interpreted as the integer value of an element. Otherwise,
+        to_standard is called on the given string.
+
         Examples:
-            >>> Perm.from_string("203451")
-            Perm((2, 0, 3, 4, 5, 1))
-            >>> Perm.from_string("40132")
-            Perm((4, 0, 1, 3, 2))
+            >>> Perm.from_string("012")
+            Perm((0, 1, 2))
+            >>> Perm.from_string("123")
+            Perm((0, 1, 2))
+            >>> Perm.from_string("abc")
+            Perm((0, 1, 2))
+            >>> Perm.from_string("10,9,8,7,6,5,4,3,2,1")
+            Perm((9, 8, 7, 6, 5, 4, 3, 2, 1, 0))
+            >>> Perm.from_string("10 9 8 7 6 5 4 3 2 1")
+            Perm((9, 8, 7, 6, 5, 4, 3, 2, 1, 0))
         """
         if isinstance(string, str):
-            return cls(map(int, string))
-        # TODO: throw exception when not a string
+            pieces = list(filter(None, string.replace(" ", ",").split(",")))
+            return Perm.to_standard(pieces[0] if len(pieces) == 1 else map(int, pieces))
+        else:
+            TypeError("'{}' object is not a string".format(repr(string)))
 
     @classmethod
     def one_based(cls, iterable):
