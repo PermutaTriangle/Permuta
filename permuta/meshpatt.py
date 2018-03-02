@@ -139,7 +139,7 @@ class MeshPatt(MeshPatternBase, Patt, Rotatable, Shiftable, Flippable):
             MeshPatt(Perm((2, 1, 0)), frozenset({(1, 2), (3, 2), (0, 2)}))
             >>> MeshPatt(Perm((2, 3, 1, 0)),
             ... shading).sub_mesh_pattern((1, 2, 3))
-            MeshPatt(Perm((2, 1, 0)), frozenset({(3, 2), (3, 1), (2, 3)}))
+            MeshPatt(Perm((2, 1, 0)), frozenset({(3, 2)}))
         """
         indices = sorted(indices)
         if not indices:
@@ -733,7 +733,7 @@ class MeshPatt(MeshPatternBase, Patt, Rotatable, Shiftable, Flippable):
 
         Examples:
             >>> m = MeshPatt(Perm((0, 1)), {(0, 0), (1, 0), (2, 0), (1, 1)})
-            >>> m..has_anchored_point()
+            >>> m.has_anchored_point()
             (False, False, False, True)
         """
         right = all((len(self), i) in self.shading

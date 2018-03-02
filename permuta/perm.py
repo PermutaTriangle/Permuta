@@ -2062,12 +2062,7 @@ class Perm(tuple,
     # Visualization methods
     #
     def _ascii_plot(self):
-        """Prints a simple plot of the given Permutation.
-
-        Examples:
-            >>> Perm((1, 2, 4, 0, 3))._ascii_plot()
-            '    *    \n        *\n  *      \n*        \n      *  '
-        """
+        """Prints a simple plot of the given Permutation."""
         n = self.__len__()
         array = [[' ' for i in range(n)] for j in range(n)]
         for i in range(n):
