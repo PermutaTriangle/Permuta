@@ -1,10 +1,10 @@
 language: python
 python:
 #  - "2.7"
-  - "3.3"
   - "3.4"
   - "3.5"
   - "3.6"
+  - "3.7"
   - "nightly"
 #  - "pypy"
   - "pypy3"
@@ -13,6 +13,6 @@ install:
 before_script:
   - pip install -r test_requirements.txt
 script:
-  - pytest tests --doctest-ignore-import-errors --pep8 -v --cov=permuta --cov-report=term-missing
+  - pytest --cov=permuta --cov-report=term-missing
 after_success:
   - coveralls
