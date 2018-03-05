@@ -78,10 +78,10 @@ class MeshPatt(MeshPatternBase, Patt, Rotatable, Shiftable, Flippable):
 
         Examples:
             >>> MeshPatt(Perm((0,)), frozenset({(0, 1)})).complement()
-            MeshPatt(Perm((0,)), frozenset({(0, 0)}))
+            MeshPatt(Perm((0,)), [(0, 0)])
             >>> MeshPatt(Perm((0, 2, 1)),
             ... frozenset({(0, 1), (0, 2), (0, 3)})).complement()
-            MeshPatt(Perm((2, 0, 1)), frozenset({(0, 1), (0, 0), (0, 2)}))
+            MeshPatt(Perm((2, 0, 1)), [(0, 0), (0, 1), (0, 2)])
         """
         return MeshPatt(self.pattern.complement(),
                         [(x, len(self)-y) for (x, y) in self.shading])
@@ -95,10 +95,10 @@ class MeshPatt(MeshPatternBase, Patt, Rotatable, Shiftable, Flippable):
 
         Examples:
             >>> MeshPatt(Perm((0,)), frozenset({(0, 1)})).reverse()
-            MeshPatt(Perm((0,)), frozenset({(1, 1)}))
+            MeshPatt(Perm((0,)), [(1, 1)])
             >>> MeshPatt(Perm((2, 1, 0)),
             ... frozenset({(3, 2), (2, 2), (1, 1)})).reverse()
-            MeshPatt(Perm((0, 1, 2)), frozenset({(1, 2), (0, 2), (2, 1)}))
+            MeshPatt(Perm((0, 1, 2)), [(0, 2), (1, 2), (2, 1)])
         """
         return MeshPatt(self.pattern.reverse(),
                         [(len(self)-x, y) for (x, y) in self.shading])
@@ -114,7 +114,7 @@ class MeshPatt(MeshPatternBase, Patt, Rotatable, Shiftable, Flippable):
 
         Examples:
             >>> MeshPatt(Perm((0,)), frozenset({(0, 1)})).inverse()
-            MeshPatt(Perm((0,)), frozenset({(1, 0)}))
+            MeshPatt(Perm((0,)), [(1, 0)])
         """
         return MeshPatt(self.pattern.inverse(),
                         [(y, x) for (x, y) in self.shading])
@@ -136,10 +136,10 @@ class MeshPatt(MeshPatternBase, Patt, Rotatable, Shiftable, Flippable):
             ... (4, 3)})
             >>> MeshPatt(Perm((3, 2, 1, 0)),
             ... shading).sub_mesh_pattern((0, 1, 3))
-            MeshPatt(Perm((2, 1, 0)), frozenset({(1, 2), (3, 2), (0, 2)}))
+            MeshPatt(Perm((2, 1, 0)), [(0, 2), (1, 2), (3, 2)])
             >>> MeshPatt(Perm((2, 3, 1, 0)),
             ... shading).sub_mesh_pattern((1, 2, 3))
-            MeshPatt(Perm((2, 1, 0)), frozenset({(3, 2)}))
+            MeshPatt(Perm((2, 1, 0)), [(3, 2)])
         """
         indices = sorted(indices)
         if not indices:
@@ -171,10 +171,10 @@ class MeshPatt(MeshPatternBase, Patt, Rotatable, Shiftable, Flippable):
 
         Examples:
             >>> MeshPatt(Perm((0,)), frozenset({(0, 1)})).flip_horizontal()
-            MeshPatt(Perm((0,)), frozenset({(0, 0)}))
+            MeshPatt(Perm((0,)), [(0, 0)])
             >>> MeshPatt(Perm((0, 2, 1)),
-            ... frozenset({(0, 1), (0, 0), (1, 0)})).flip_horizontal()
-            MeshPatt(Perm((2, 0, 1)), frozenset({(0, 3), (1, 3), (0, 2)}))
+            ... frozenset({(0, 1), (0, 2), (0, 3)})).flip_horizontal()
+            MeshPatt(Perm((2, 0, 1)), [(0, 0), (0, 1), (0, 2)])
         """
         return self.complement()
 
@@ -187,13 +187,10 @@ class MeshPatt(MeshPatternBase, Patt, Rotatable, Shiftable, Flippable):
 
         Examples:
             >>> MeshPatt(Perm((0,)), frozenset({(0, 1)})).flip_vertical()
-            MeshPatt(Perm((0,)), frozenset({(1, 1)}))
-            >>> m = MeshPatt(Perm((2, 1, 0)),
+            MeshPatt(Perm((0,)), [(1, 1)])
+            >>> MeshPatt(Perm((2, 1, 0)),
             ... frozenset({(3, 2), (3, 3), (0, 2)})).flip_vertical()
-            >>> m.pattern
-            Perm((0, 1, 2))
-            >>> sorted(m.shading)
-            [(0, 2), (0, 3), (3, 2)]
+            MeshPatt(Perm((0, 1, 2)), [(0, 2), (0, 3), (3, 2)])
         """
         return self.reverse()
 
@@ -206,7 +203,7 @@ class MeshPatt(MeshPatternBase, Patt, Rotatable, Shiftable, Flippable):
 
         Examples:
             >>> MeshPatt(Perm((0,)), frozenset({(0, 1)})).inverse()
-            MeshPatt(Perm((0,)), frozenset({(1, 0)}))
+            MeshPatt(Perm((0,)), [(1, 0)])
         """
         return self.inverse()
 
@@ -219,7 +216,7 @@ class MeshPatt(MeshPatternBase, Patt, Rotatable, Shiftable, Flippable):
         Examples:
             >>> MeshPatt(Perm((0,)),
             ... frozenset({(0, 1), (1, 1)}))._rotate_right()
-            MeshPatt(Perm((0,)), frozenset({(1, 0), (1, 1)}))
+            MeshPatt(Perm((0,)), [(1, 0), (1, 1)])
         """
         return MeshPatt(self.pattern.rotate(),
                         set([_rotate_right(len(self.pattern), coordinate)
@@ -234,7 +231,7 @@ class MeshPatt(MeshPatternBase, Patt, Rotatable, Shiftable, Flippable):
         Examples:
             >>> MeshPatt(Perm((0,)),
             ... frozenset({(0, 1), (1, 1)}))._rotate_left()
-            MeshPatt(Perm((0,)), frozenset({(0, 1), (0, 0)}))
+            MeshPatt(Perm((0,)), [(0, 0), (0, 1)])
         """
         return MeshPatt(self.pattern.rotate(3),
                         set([_rotate_left(len(self.pattern), coordinate)
@@ -248,7 +245,7 @@ class MeshPatt(MeshPatternBase, Patt, Rotatable, Shiftable, Flippable):
 
         Examples:
             >>> MeshPatt(Perm((0,)), frozenset({(0, 1), (1, 1)}))._rotate_180()
-            MeshPatt(Perm((0,)), frozenset({(1, 0), (0, 0)}))
+            MeshPatt(Perm((0,)), [(0, 0), (1, 0)])
         """
         return MeshPatt(self.pattern.rotate(2),
                         set([_rotate_180(len(self.pattern), coordinate)
@@ -375,7 +372,7 @@ class MeshPatt(MeshPatternBase, Patt, Rotatable, Shiftable, Flippable):
 
         Examples:
             >>> MeshPatt((0,)).add_increase((0, 0))
-            MeshPatt(Perm((0, 1, 2)), frozenset())
+            MeshPatt(Perm((0, 1, 2)), [])
         """
         x, y = pos
         return self.add_point((x, y)).add_point((x + 1, y + 1))
@@ -392,7 +389,7 @@ class MeshPatt(MeshPatternBase, Patt, Rotatable, Shiftable, Flippable):
 
         Examples:
             >>> MeshPatt((0,)).add_decrease((0, 0))
-            MeshPatt(Perm((1, 0, 2)), frozenset())
+            MeshPatt(Perm((1, 0, 2)), [])
         """
         x, y = pos
         return self.add_point((x, y)).add_point((x + 1, y))
@@ -717,8 +714,8 @@ class MeshPatt(MeshPatternBase, Patt, Rotatable, Shiftable, Flippable):
 
         Examples:
             >>> m = MeshPatt(Perm((0, 1)), frozenset({(0, 1), (2, 0), (0, 2)}))
-            >>> m.non_pointless_boxes()
-            {(0, 1), (1, 2), (0, 0), (2, 1), (2, 2), (1, 0), (1, 1)}
+            >>> sorted(m.non_pointless_boxes())
+            [(0, 0), (0, 1), (1, 0), (1, 1), (1, 2), (2, 1), (2, 2)]
         """
         res = []
         for i, v in enumerate(self.pattern):
@@ -819,7 +816,7 @@ class MeshPatt(MeshPatternBase, Patt, Rotatable, Shiftable, Flippable):
             >>> bin(22563)
             '0b101100000100011'
             >>> MeshPatt.unrank((0, 1, 2), 386)
-            MeshPatt(Perm((0, 1, 2)), frozenset({(0, 1), (2, 0), (1, 3)}))
+            MeshPatt(Perm((0, 1, 2)), [(0, 1), (1, 3), (2, 0)])
         """
         if not isinstance(number, numbers.Integral):
             message = "'{}' object is not an integer".format(repr(number))
@@ -856,7 +853,8 @@ class MeshPatt(MeshPatternBase, Patt, Rotatable, Shiftable, Flippable):
     #
 
     def __repr__(self):  # pragma: no cover
-        return "MeshPatt({self.pattern}, {self.shading})".format(self=self)
+        return "MeshPatt({self.pattern}, {shading})".format(
+            self=self, shading=sorted(self.shading))
 
     def __str__(self):  # pragma: no cover
         result = []
@@ -970,9 +968,9 @@ def gen_meshpatts(length, patt=None):
         >>> len(mps)
         2
         >>> mps[0]
-        MeshPatt(Perm(()), frozenset())
+        MeshPatt(Perm(()), [])
         >>> mps[1]
-        MeshPatt(Perm(()), frozenset({(0, 0)}))
+        MeshPatt(Perm(()), [(0, 0)])
         >>> len(list(gen_meshpatts(2, (1, 2))))
         512
     """
