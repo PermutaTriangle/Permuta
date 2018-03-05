@@ -1,12 +1,12 @@
 # TODO: Module docstring
 
-from dis import dis
 from collections import Callable
+from dis import dis
 
-from .Descriptor import Descriptor
+from .descriptor import Descriptor
 
 
-class Predicate(Descriptor):  # pylint: disable=too-few-public-methods
+class Predicate(Descriptor):
     """A predicate class.
 
     A PermSet can be built with a Predicate instance by using the predicate
@@ -18,6 +18,7 @@ class Predicate(Descriptor):  # pylint: disable=too-few-public-methods
         else:
             message = "{} object is not callable".format(repr(predicate))
             raise TypeError(message)
+
     def __eq__(self, other):
         if isinstance(other, self.__class__):
             # Disassemble predicates and see if code is the same

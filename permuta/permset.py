@@ -1,15 +1,11 @@
-import abc
 import numbers
 
-from permuta.descriptors import Descriptor
-from permuta.descriptors import Basis
-from permuta.descriptors import Predicate
 from permuta._perm_set import PermSetBase
 from permuta._perm_set.finite import PermSetStatic
 from permuta._perm_set.unbounded.all import PermSetAll
 from permuta._perm_set.unbounded.described import PermSetDescribed
 from permuta._perm_set.unbounded.described.avoiding import Avoiding
-
+from permuta.descriptors import Basis, Descriptor, Predicate
 
 __all__ = [
     "PermSet",
@@ -21,8 +17,10 @@ __all__ = [
 class PermSetMetaclass(type):
     def __instancecheck__(self, instance):
         return isinstance(instance, PermSetBase)
+
     def __subclasscheck__(self, subclass):
         return issubclass(subclass, PermSetBase)
+
 
 class PermSet(object, metaclass=PermSetMetaclass):
     def __new__(cls, descriptor=None):
@@ -41,16 +39,20 @@ class PermSet(object, metaclass=PermSetMetaclass):
     def _dispatch_described(cls, descriptor):
         # Loop through all the described superclasses; e.g. Avoiding
         for described_superclass in PermSetDescribed.__subclasses__():
-            # Check if descriptor's class is of that of the superclasses' descriptor
+            # Check if descriptor's class is of that of the superclasses'
+            # descriptor
             if isinstance(descriptor, described_superclass.DESCRIPTOR_CLASS):
                 # The correct superclass has been found!
                 # Try to find subclass specifically for this descriptor
-                described_class = cls._find_described_class(descriptor, PermSetDescribed)
+                described_class = cls._find_described_class(descriptor,
+                                                            PermSetDescribed)
                 if described_class is None:
                     return described_superclass.DEFAULT_CLASS(descriptor)
                 else:
                     return described_class(descriptor)
-        raise RuntimeError("PermSet for descriptor {} not found".format(repr(descriptor)))  # TODO: Something else?
+        # TODO: Something else?
+        raise RuntimeError(
+            "PermSet for descriptor {} not found".format(repr(descriptor)))
 
     @classmethod
     def _find_described_class(cls, descriptor, current_class):
@@ -59,7 +61,8 @@ class PermSet(object, metaclass=PermSetMetaclass):
             return current_class
         else:
             for subclass in current_class.__subclasses__():
-                described_class = cls._find_described_class(descriptor, subclass)
+                described_class = cls._find_described_class(descriptor,
+                                                            subclass)
                 if described_class is not None:
                     return described_class
             return None
@@ -81,6 +84,7 @@ class PermSet(object, metaclass=PermSetMetaclass):
 class AvoidanceClassMetaclass(type):
     def __instancecheck__(self, instance):
         return isinstance(instance, Avoiding)
+
     def __subclasscheck__(self, subclass):
         return issubclass(subclass, Avoiding)
 

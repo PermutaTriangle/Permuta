@@ -1,5 +1,6 @@
 from . import AlgorithmX
 
+
 def exact_cover(bss, validcnt, max_cnt, ignore_first, allow_overlap_in_first):
 
     # curcover = []
@@ -9,7 +10,8 @@ def exact_cover(bss, validcnt, max_cnt, ignore_first, allow_overlap_in_first):
     #     if (done & care) == (ball & care):
     #         yield list(curcover)
     #     elif not (left == 0 or at == len(bss)):
-    #         if (bss[at] & done & (care if allow_overlap_in_first else ball)) == 0:
+    #         if (bss[at] & done &
+    #             (care if allow_overlap_in_first else ball)) == 0:
     #             curcover.append(at)
     #             for res in bt(at + 1, left - 1, done | bss[at]):
     #                 yield res
@@ -46,9 +48,11 @@ def exact_cover(bss, validcnt, max_cnt, ignore_first, allow_overlap_in_first):
 
     return sols2
 
-def exact_cover_smallest(bss, validcnt, max_cnt, ignore_first, allow_overlap_in_first):
 
+def exact_cover_smallest(bss, validcnt, max_cnt, ignore_first,
+                         allow_overlap_in_first):
     sols = []
+
     def handle_solution(sol):
         sols.append(sol)
         return False
@@ -70,4 +74,3 @@ def exact_cover_smallest(bss, validcnt, max_cnt, ignore_first, allow_overlap_in_
         d += 1
 
     return sols
-

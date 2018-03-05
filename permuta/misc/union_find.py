@@ -2,10 +2,10 @@
 class UnionFind(object):
     """A collection of distjoint sets."""
 
-    def __init__(self, n = 0):
+    def __init__(self, n=0):
         """Creates a collection of n disjoint unit sets."""
         self.p = [-1]*n
-        self.leaders = set( i for i in range(n) )
+        self.leaders = set(i for i in range(n))
 
     def find(self, x):
         """Return the identifier of a representative element for the set
@@ -28,7 +28,7 @@ class UnionFind(object):
         if x == y:
             return False
         if self.size(x) > self.size(y):
-            x,y = y,x
+            x, y = y, x
         self.p[y] += self.p[x]
         self.p[x] = y
         self.leaders.remove(x)
@@ -40,4 +40,3 @@ class UnionFind(object):
         nid = len(self.p)
         self.p.append(nid)
         return nid
-

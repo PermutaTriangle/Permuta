@@ -1,6 +1,6 @@
 import abc
 
-from ..PermSetBase import PermSetBase
+from ..permset_base import PermSetBase
 
 
 class PermSetFinite(PermSetBase):

@@ -1,6 +1,5 @@
 import numbers
 
-
 INDEX_TYPE_ERROR_MESSAGE = "'{}' object is not a valid index"
 INDEX_VALUE_ERROR_MESSAGE = "{} is not a valid index"
 
@@ -13,7 +12,7 @@ def index(obj, maximum=None):
             The object to be checked.
         maximum: <numbers.Integral>
             The number the object is not to exceed if it is a number.
-    
+
     Raises:
         TypeError:
             Object is not an integral number.

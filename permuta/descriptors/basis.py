@@ -1,11 +1,10 @@
 # TODO: Module docstring
 
-import time
-
 from collections import Iterable
+
 from permuta import Perm
 
-from .Descriptor import Descriptor
+from .descriptor import Descriptor
 
 
 class Basis(Descriptor, tuple):  # pylint: disable=too-few-public-methods
@@ -20,7 +19,8 @@ class Basis(Descriptor, tuple):  # pylint: disable=too-few-public-methods
 
     def union(self, perms):
         if not isinstance(perms, Iterable):
-            raise TypeError("Non-iterable argument cannot be unified with basis")
+            raise TypeError(
+                "Non-iterable argument cannot be unified with basis")
 
         # Input cleaning
         perms = set([perms] if isinstance(perms, Perm) else perms)
@@ -37,7 +37,6 @@ class Basis(Descriptor, tuple):  # pylint: disable=too-few-public-methods
         # Add basis perms and sort
         perms.update(self)
         perms = sorted(perms)  # Necessarily non-empty
-
 
         # The new basis
         new_basis = []
@@ -93,4 +92,5 @@ class Basis(Descriptor, tuple):  # pylint: disable=too-few-public-methods
         return tuple.__hash__(self)
 
     def __repr__(self):
-        return "{}({})".format(self.__class__.__qualname__, tuple.__repr__(self))
+        return "{}({})".format(self.__class__.__qualname__,
+                               tuple.__repr__(self))
