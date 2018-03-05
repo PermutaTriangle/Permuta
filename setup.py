@@ -9,7 +9,7 @@ def read(fname):
 
 setup(
     name="permuta",
-    version="0.1.0",
+    version="0.1.1",
     author="Henning Ulfarsson",
     author_email="henningu@ru.is",
     description="A comprehensive high performance permutation library.",
