@@ -11,6 +11,10 @@ permuta
 .. image:: https://img.shields.io/pypi/v/Permuta.svg
     :alt: PyPI
     :target: https://pypi.python.org/pypi/Permuta
+.. image:: https://img.shields.io/pypi/l/Permuta.svg
+    :target: https://pypi.python.org/pypi/Permuta
+.. image:: https://img.shields.io/pypi/pyversions/Permuta.svg
+    :target: https://pypi.python.org/pypi/Permuta
 
 Permuta is a Python library for working with perms (short for permutations),
 patts (patterns), and mesh patts.
