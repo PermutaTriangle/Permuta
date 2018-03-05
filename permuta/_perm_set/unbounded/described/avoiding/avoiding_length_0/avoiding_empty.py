@@ -1,8 +1,8 @@
 from permuta import Perm
-from permuta.descriptors import Basis
 from permuta._perm_set.finite import PermSetStatic
+from permuta.descriptors import Basis
 
-from ..Avoiding import Avoiding
+from ..avoiding import Avoiding
 
 
 class AvoidingEmpty(Avoiding):

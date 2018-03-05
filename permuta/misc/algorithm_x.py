@@ -10,6 +10,7 @@ class Node:
         self.col = col
         self.size = 0
 
+
 def cover(c):
     c.r.l = c.l
     c.l.r = c.r
@@ -22,6 +23,7 @@ def cover(c):
             j.p.size -= 1
             j = j.r
         i = i.d
+
 
 def uncover(c):
     i = c.u
@@ -36,22 +38,27 @@ def uncover(c):
     c.l.r = c
     c.r.l = c.l.r
 
+
 class AlgorithmX:
     def __init__(self, rows, cols, solution_callback):
         assert rows > 0 and cols > 0
         self.rows = rows
         self.cols = cols
         self.head = None
-        self.arr = [ [ False for c in range(self.cols) ] for r in range(self.rows) ]
-        self.sol = [ 0 for i in range(self.rows) ]
+        self.arr = [[False for c in range(self.cols)]
+                    for r in range(self.rows)]
+        self.sol = [0 for i in range(self.rows)]
         self.solution_callback = solution_callback
         self.can_continue = False
 
-    def set_value(self, row, col, val = True):
+    def set_value(self, row, col, val=True):
         self.arr[row][col] = val
 
     def setup(self):
-        ptr = [ [ Node(i, j) if i == self.rows or self.arr[i][j] else None for j in range(self.cols) ] for i in range(self.rows + 1) ]
+        ptr = [[Node(i, j)
+                if i == self.rows or self.arr[i][j]
+                else None for j in range(self.cols)]
+               for i in range(self.rows + 1)]
         for i in range(self.rows + 1):
             for j in range(self.cols):
                 if ptr[i][j] is None:
@@ -94,9 +101,9 @@ class AlgorithmX:
                     ptr[i][j].p = ptr[self.rows][j]
             ptr[self.rows][j].size = cnt
 
-    def search(self, k = 0, at_most = None):
+    def search(self, k=0, at_most=None):
         if self.head == self.head.r:
-            res = [ self.sol[i] for i in range(k) ]
+            res = [self.sol[i] for i in range(k)]
             res = sorted(res)
             return self.solution_callback(res)
 
@@ -137,4 +144,3 @@ class AlgorithmX:
 
         uncover(c)
         return found
-

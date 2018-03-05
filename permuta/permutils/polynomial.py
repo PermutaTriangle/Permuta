@@ -1,8 +1,18 @@
-from permuta import Perm
-
-# Will return the set of polynomial types it intersects with (W_++, W+-, W^-1 ++, L_2, L_2^R etc)
-# 1: W++, 2: W+-, 3: W-+, 4: W--, 5: Winv++, 6: Winv+-, 7: Winv-+, 8: Winv--, 9: L2, 10: L2inv
+# Will return the set of polynomial types it intersects with
+#   (W_++, W+-, W^-1 ++, L_2, L_2^R etc)
+# 1: W++
+# 2: W+-
+# 3: W-+
+# 4: W--
+# 5: Winv++
+# 6: Winv+-
+# 7: Winv-+
+# 8: Winv--
+# 9: L2
+# 10: L2inv
 mem = {}
+
+
 def types(perm):
     interset = mem.get(perm)
     if interset is None:
@@ -45,17 +55,20 @@ def types(perm):
             interset.add(10)
     return interset
 
+
 def is_decr(L):
     for i in range(len(L) - 1):
         if L[i] < L[i+1]:
             return False
     return True
 
+
 def is_incr(L):
     for i in range(len(L) - 1):
         if L[i] > L[i+1]:
             return False
     return True
+
 
 def in_L2(L):
     n = len(L)
@@ -68,6 +81,7 @@ def in_L2(L):
     else:
         return False
 
+
 def is_polynomial(basis):
     overallinterset = set([])
     for perm in basis:
@@ -75,5 +89,6 @@ def is_polynomial(basis):
         if len(overallinterset) == 10:
             return True
     return False
+
 
 def is_non_polynomial(basis): return not is_polynomial(basis)

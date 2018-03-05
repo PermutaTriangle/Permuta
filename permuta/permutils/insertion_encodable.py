@@ -1,42 +1,49 @@
 from permuta import Perm
 
+
 def is_incr_next_incr(perm):
     for i in range(len(perm) - 1):
         if perm[i+1] < perm[i]:
-            for j in range(i+1,len(perm) - 1):
+            for j in range(i+1, len(perm) - 1):
                 if perm[j+1] < perm[j]:
                     return False
             break
     return True
+
 
 def is_incr_next_decr(perm):
     for i in range(len(perm) - 1):
         if perm[i+1] < perm[i]:
-            for j in range(i+1,len(perm) - 1):
+            for j in range(i+1, len(perm) - 1):
                 if perm[j+1] > perm[j]:
                     return False
             break
     return True
 
+
 def is_decr_next_incr(perm):
     for i in range(len(perm) - 1):
         if perm[i+1] > perm[i]:
-            for j in range(i+1,len(perm) - 1):
+            for j in range(i+1, len(perm) - 1):
                 if perm[j+1] < perm[j]:
                     return False
             break
     return True
 
+
 def is_decr_next_decr(perm):
     for i in range(len(perm) - 1):
         if perm[i+1] > perm[i]:
-            for j in range(i+1,len(perm) - 1):
+            for j in range(i+1, len(perm) - 1):
                 if perm[j+1] > perm[j]:
                     return False
             break
     return True
 
+
 mem = dict()
+
+
 def insertion_encodable_properties(perm):
     if perm in mem:
         return mem[tuple(perm)]
@@ -51,10 +58,11 @@ def insertion_encodable_properties(perm):
     if is_decr_next_incr(perm):
         properties.append(3)
 
-    res = sum( 1 << x for x in properties )
+    res = sum(1 << x for x in properties)
     mem[perm] = res
 
     return res
+
 
 def is_insertion_encodable_rightmost(basis):
     goal = (1 << 4) - 1
@@ -66,6 +74,7 @@ def is_insertion_encodable_rightmost(basis):
             return True
     return False
 
+
 def is_insertion_encodable_maximum(basis):
     goal = (1 << 4) - 1
     curr = 0
@@ -76,5 +85,7 @@ def is_insertion_encodable_maximum(basis):
             return True
     return False
 
+
 def is_insertion_encodable(basis):
-    return is_insertion_encodable_rightmost(basis) or is_insertion_encodable_maximum(basis)
+    return (is_insertion_encodable_rightmost(basis) or
+            is_insertion_encodable_maximum(basis))

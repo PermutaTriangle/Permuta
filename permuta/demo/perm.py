@@ -6,14 +6,14 @@ import tempfile
 import warnings
 import webbrowser
 
+from ..perm import Perm as _ZBPerm
+
 try:
     import seaborn
     _SEABORN_AVAILABLE = True
 except ImportError:
     _SEABORN_AVAILABLE = False
     warnings.warn("Unable to load seaborn for PermClass plotting")
-
-from ..Perm import Perm as _ZBPerm
 
 
 __all__ = ("Perm", "Permutation")
@@ -33,7 +33,7 @@ class Perm:
 
     It attempts to interpret anything you throw at it, but it's probably best
     to stick to giving a single sequence argument like Perm([1, 3, 2, 4]).
-    
+
     Examples:
         >>> Perm()  # Empty perm
         ()
@@ -85,7 +85,7 @@ class Perm:
                     self._zb_perm = _ZBPerm.to_standard(arg)
             else:
                     self._zb_perm = _ZBPerm.to_standard(args)
-        except:
+        except Exception:
             format_string = "Don't know how to get a perm from args: {}"
             message = format_string.format(args)
             raise ValueError(message)
@@ -111,7 +111,7 @@ class Perm:
 
     def direct_sum(self, perm):
         """Return the direct sum of the two perms.
-        
+
         See also:
             Perm.__sum__
         """
@@ -121,7 +121,7 @@ class Perm:
 
     def skew_sum(self, perm):
         """Return the skew sum of the two perms.
-        
+
         See also:
             Perm.__sub__
         """
@@ -131,7 +131,7 @@ class Perm:
 
     def compose(self, perm):
         """Return the composition of the two perms.
-        
+
         See also:
             Perm.multiply
             Perm.__mul__
@@ -216,7 +216,7 @@ class Perm:
 
     def ascents(self):
         """Return the indices of values where the next value is greater.
-        
+
         See also:
             Perm.total_ascents
         """
@@ -228,7 +228,7 @@ class Perm:
 
     def descents(self):
         """Return the indices of values where the next value is greater.
-        
+
         See also:
             Perm.total_descents
         """
@@ -240,7 +240,7 @@ class Perm:
 
     def peaks(self):
         """Return the indices of the peaks of the perm.
-        
+
         See also:
             Perm.total_peaks
         """
@@ -252,7 +252,7 @@ class Perm:
 
     def valleys(self):
         """Return the indices of the valleys of the perm.
-        
+
         See also:
             Perm.total_valleys
         """
@@ -264,12 +264,13 @@ class Perm:
 
     def cycles(self):
         """Return the cycle decomposition of the perm.
-        
+
         See also:
             Perm.cycle_decomposition
             Perm.total_cycles
         """
-        return list(list(value + 1 for value in cycle) for cycle in self._zb_perm.cycle_decomp())
+        return list(list(value + 1 for value in cycle)
+                    for cycle in self._zb_perm.cycle_decomp())
 
     cycle_decomposition = cycles
 
@@ -279,7 +280,7 @@ class Perm:
 
     def inversions(self):
         """Return the list of the inversions of the perm.
-        
+
         See also:
             Perm.total_inversions
         """
@@ -291,7 +292,7 @@ class Perm:
 
     def fixed_points(self):
         """Return the fixed points of the perm.
-        
+
         See also:
             Perm.total_fixed_points
         """
@@ -317,7 +318,7 @@ class Perm:
 
     def contains(self, patt):
         """Check if the perm contains the patt.
-        
+
         See also:
             Perm.avoids
             Perm.occurrence*
@@ -327,7 +328,7 @@ class Perm:
 
     def avoids(self, patt):
         """Check if the perm avoids the patt.
-        
+
         See also:
             Perm.contains
             Perm.occurrence*
@@ -387,7 +388,8 @@ class Perm:
     # Visualization methods
     #
 
-    def plot(self, *, browser=False, filename=None, file_format=None, **kwargs):
+    def plot(self, *, browser=False, filename=None, file_format=None,
+             **kwargs):
         """Display or save the perm with seaborn/matplotlib.
 
         Returns an Axes object or None if seaborn is unavailable.
@@ -438,9 +440,10 @@ class Perm:
                 webbrowser.open(filename)
         elif browser:
             with tempfile.NamedTemporaryFile(delete=False) as file_pointer:
-                figure.savefig(file_pointer,
-                               format="svg" if file_format is None else file_format,
-                               bbox_inches="tight")
+                figure.savefig(
+                    file_pointer,
+                    format="svg" if file_format is None else file_format,
+                    bbox_inches="tight")
                 file_pointer.flush()
                 webbrowser.open(file_pointer.name)
 
@@ -516,7 +519,7 @@ class Perm:
 
     def __contains__(self, patt):
         return self.contains(patt)
-    
+
     def __pow__(self, power):
         perm = self
         for _ in range(power - 1):
