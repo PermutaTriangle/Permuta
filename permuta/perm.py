@@ -1677,6 +1677,15 @@ class Perm(tuple,
             >>> Perm((2, 0, 1)).is_simple()
             False
         """
+        mins = [v for v in self]
+        maxs = [v for v in self]
+        for i in range(1, len(self)-1):
+            for j in range(len(self)-1, i-1, -1):
+                mins[j] = min(mins[j-1], self[j])
+                maxs[j] = max(maxs[j-1], self[j])
+                if maxs[j] - mins[j] == i:
+                    return False
+        return True # Faster check
         (i, j) = self.simple_location()
         return i == 0
 
