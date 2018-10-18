@@ -74,10 +74,10 @@ def in_L2(L):
     n = len(L)
     if n == 0 or n == 1:
         return True
-    if L[-1] == n-1:
-        return in_L2(L[0:n-1])
-    elif L[-1] == n-1 and L[-2] == n-1:
-        return in_L2(L[0:n-2])
+    if L[-1] == n - 1:
+        return in_L2(L[0:n - 1])
+    elif L[-1] == n - 2 and L[-2] == n - 1:
+        return in_L2(L[0:n - 2])
     else:
         return False
 
