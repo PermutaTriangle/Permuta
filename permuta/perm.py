@@ -28,20 +28,10 @@ class Perm(tuple,
     _TYPE_ERROR = "'{}' object is not a perm"
 
     #
-    # Methods to modify Perm class settings
-    #
-
-    @staticmethod
-    def toggle_check():
-        # TODO: Docstring and discuss, can settings be done better?
-        if Perm._init_helper is Perm._init_checked:
-            Perm._init_helper = Perm._init_unchecked
-        else:
-            Perm._init_helper = Perm._init_checked
-
-    #
     # Methods returning a single Perm instance
     #
+
+    _CACHE = {}
 
     def __new__(cls, iterable=()):
         """Return a Perm instance.
@@ -73,7 +63,11 @@ class Perm(tuple,
             TypeError: ''a'' object is not an integer
         """
         try:
-            return tuple.__new__(cls, iterable)
+            # return tuple.__new__(cls, iterable)
+            perm = tuple.__new__(cls, iterable)
+            if perm not in Perm._CACHE:
+                Perm._CACHE[perm] = perm
+            return Perm._CACHE[perm]
         except TypeError:
             # Try to interpret object as perm
             if isinstance(iterable, numbers.Integral):
@@ -95,12 +89,9 @@ class Perm(tuple,
     def __init__(self, iterable=()):
         # Cache for data used when finding occurrences of self in a perm
         self._cached_pattern_details = None
-        self._init_helper()
-
-    def _init_unchecked(self):
-        pass
 
     def _init_checked(self):
+        """Checks if a suitable iterable given when initialised."""
         used = [False]*len(self)
         for value in self:
             if not isinstance(value, numbers.Integral):
@@ -112,7 +103,7 @@ class Perm(tuple,
                 raise ValueError("Duplicate element: {}".format(value))
             used[value] = True
 
-    _init_helper = _init_unchecked
+    _to_standard_cache = {}
 
     @classmethod
     def to_standard(cls, iterable):
@@ -132,18 +123,16 @@ class Perm(tuple,
             Perm((4, 0, 1, 3, 2))
         """
         # TODO: Do performance testing
-        try:
-            len_iterable = len(iterable)
-        except TypeError:
-            iterable = list(iterable)
-            len_iterable = len(iterable)
-        result = [None]*len_iterable
-        value = 0
-        for (index, _) in sorted(enumerate(iterable),
-                                 key=operator.itemgetter(1)):
-            result[index] = value
-            value += 1
-        return cls(result)
+        iterable = tuple(iterable)
+        if iterable not in Perm._to_standard_cache:
+            result = [None]*len(iterable)
+            value = 0
+            for (index, _) in sorted(enumerate(iterable),
+                                        key=operator.itemgetter(1)):
+                result[index] = value
+                value += 1
+            Perm._to_standard_cache[iterable] = cls(result)
+        return Perm._to_standard_cache[iterable]
 
     standardize = to_standard  # permpy backwards compatibility
     from_iterable = to_standard
@@ -1965,8 +1954,8 @@ class Perm(tuple,
                 i += 1
                 elements_remaining -= 1
 
-        for occurence in occurrences(0, 0):
-            yield occurence
+        for occurrence in occurrences(0, 0):
+            yield occurrence
 
     def occurrences_of(self, patt):
         """Find all indices of occurrences of patt in self.
@@ -2180,6 +2169,9 @@ class Perm(tuple,
 
     def __repr__(self):
         return "Perm({})".format(super(Perm, self).__repr__())
+
+    def __str__(self):
+        return "".join(str(i) for i in self)
 
     def __lt__(self, other):
         return (len(self), tuple(self)) < (len(other), tuple(other))
