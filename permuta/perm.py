@@ -31,8 +31,6 @@ class Perm(tuple,
     # Methods returning a single Perm instance
     #
 
-    _CACHE = {}
-
     def __new__(cls, iterable=()):
         """Return a Perm instance.
 
@@ -63,11 +61,7 @@ class Perm(tuple,
             TypeError: ''a'' object is not an integer
         """
         try:
-            # return tuple.__new__(cls, iterable)
-            perm = tuple.__new__(cls, iterable)
-            if perm not in Perm._CACHE:
-                Perm._CACHE[perm] = perm
-            return Perm._CACHE[perm]
+            return tuple.__new__(cls, iterable)
         except TypeError:
             # Try to interpret object as perm
             if isinstance(iterable, numbers.Integral):
