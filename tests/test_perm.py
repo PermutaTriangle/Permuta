@@ -3,27 +3,23 @@ import pytest
 from permuta import Perm, PermSet
 
 def test_init():
-    Perm.toggle_check()
-    try:
-        with pytest.raises(ValueError): Perm([0, 1, 1])
-        with pytest.raises(ValueError): Perm([1, 0, 1])
-        with pytest.raises(ValueError): Perm([0, 0])
-        with pytest.raises(ValueError): Perm([1])
-        with pytest.raises(ValueError): Perm((1))
-        with pytest.raises(ValueError): Perm(101)
-        with pytest.raises(ValueError): Perm(-234)
-        with pytest.raises(TypeError): Perm(None)
-        with pytest.raises(TypeError): Perm([0.1, 0.2, 0.3])
-        Perm()
-        Perm([])
-        Perm(0)
-        Perm([0])
-        Perm([3, 0, 2, 1])
-        Perm(set([0, 1, 2]))
-        p = Perm(502134)
-        assert p == Perm((5, 0, 2, 1, 3, 4))
-    finally:
-        Perm.toggle_check()
+    with pytest.raises(ValueError): Perm([0, 1, 1], check=True)
+    with pytest.raises(ValueError): Perm([1, 0, 1], check=True)
+    with pytest.raises(ValueError): Perm([0, 0], check=True)
+    with pytest.raises(ValueError): Perm([1], check=True)
+    with pytest.raises(ValueError): Perm((1), check=True)
+    with pytest.raises(ValueError): Perm(101, check=True)
+    with pytest.raises(ValueError): Perm(-234, check=True)
+    with pytest.raises(TypeError): Perm(None, check=True)
+    with pytest.raises(TypeError): Perm([0.1, 0.2, 0.3], check=True)
+    Perm(check=True)
+    Perm([], check=True)
+    Perm(0, check=True)
+    Perm([0], check=True)
+    Perm([3, 0, 2, 1], check=True)
+    Perm(set([0, 1, 2]), check=True)
+    p = Perm(502134, check=True)
+    assert p == Perm((5, 0, 2, 1, 3, 4), check=True)
 
 def test_to_standard():
     def gen(perm):
@@ -66,15 +62,11 @@ def test_identity():
         assert Perm.identity(length) == Perm(range(length))
 
 def test_random():
-    Perm.toggle_check()
-    try:
-        for length in range(11):
-            for _ in range(10):
-                perm = Perm.random(length)
-                assert len(perm) == length
-                Perm(perm)
-    finally:
-        Perm.toggle_check()
+    for length in range(11):
+        for _ in range(10):
+            perm = Perm.random(length)
+            assert len(perm) == length
+            Perm(perm)
 
 def test_monotone_increasing():
     for length in range(11):
@@ -464,7 +456,7 @@ def test_all_syms():
 
 @pytest.mark.xfail
 def test_is_representative():
-    # TODO: write porper tests when the function is working
+    # TODO: write proper tests when the function is working
     assert Perm(()).is_representative()
     assert Perm((0)).is_representative()
 
