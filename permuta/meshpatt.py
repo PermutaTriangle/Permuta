@@ -853,8 +853,8 @@ class MeshPatt(MeshPatternBase, Patt, Rotatable, Shiftable, Flippable):
     #
 
     def __repr__(self):  # pragma: no cover
-        return "MeshPatt({self.pattern}, {shading})".format(
-            self=self, shading=sorted(self.shading))
+        return "MeshPatt({}, {})".format(
+            repr(self.pattern), sorted(self.shading))
 
     def __str__(self):  # pragma: no cover
         result = []

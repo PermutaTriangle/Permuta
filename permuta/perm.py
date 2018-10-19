@@ -1,6 +1,5 @@
 import bisect
 import collections
-import fractions
 import itertools
 import math
 import numbers
@@ -31,7 +30,7 @@ class Perm(tuple,
     # Methods returning a single Perm instance
     #
 
-    def __new__(cls, iterable=()):
+    def __new__(cls, iterable=(), check=False):
         """Return a Perm instance.
 
         Args:
@@ -54,8 +53,7 @@ class Perm(tuple,
             Perm((5, 4, 3, 2, 1, 0))
             >>> Perm(6012354)
             Perm((6, 0, 1, 2, 3, 5, 4))
-            >>> Perm.toggle_check()
-            >>> Perm("abc")  # Not good
+            >>> Perm("abc", check=True)  # Not good
             Traceback (most recent call last):
                 ...
             TypeError: ''a'' object is not an integer
@@ -80,9 +78,11 @@ class Perm(tuple,
             else:
                 raise
 
-    def __init__(self, iterable=()):
+    def __init__(self, iterable=(), check=False):
         # Cache for data used when finding occurrences of self in a perm
         self._cached_pattern_details = None
+        if check:
+            self._init_checked()
 
     def _init_checked(self):
         """Checks if a suitable iterable given when initialised."""
@@ -122,7 +122,7 @@ class Perm(tuple,
             result = [None]*len(iterable)
             value = 0
             for (index, _) in sorted(enumerate(iterable),
-                                        key=operator.itemgetter(1)):
+                                     key=operator.itemgetter(1)):
                 result[index] = value
                 value += 1
             Perm._to_standard_cache[iterable] = cls(result)
@@ -1067,7 +1067,7 @@ class Perm(tuple,
         """
         acc = 1
         for l in map(len, self.cycle_decomp()):
-            acc = (acc * l) // fractions.gcd(acc, l)
+            acc = (acc * l) // math.gcd(acc, l)
         return acc
 
     # TODO: reimplement the following four functions to return generators
