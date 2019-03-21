@@ -47,6 +47,10 @@ def test_from_string():
         perm = Perm.random(random.randint(0, 10))
         assert perm == Perm.from_string(''.join(map(str, perm)))
 
+def test_str_representation():
+    assert str(Perm((0,2,1))) == "021"
+    assert str(Perm((0,11,1,10,2,9,3,8,4,7,5,6))) == "0(11)1(10)29384756"
+
 def test_one_based():
     assert Perm.one_based((4, 1, 3, 2)) == Perm((3, 0, 2, 1))
     assert Perm.one_based((1, )) == Perm((0))

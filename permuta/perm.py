@@ -2165,7 +2165,7 @@ class Perm(tuple,
         return "Perm({})".format(super(Perm, self).__repr__())
 
     def __str__(self):
-        return "".join(str(i) for i in self)
+        return "".join(str(i) if i < 10 else '({})'.format(i) for i in self)
 
     def __lt__(self, other):
         return (len(self), tuple(self)) < (len(other), tuple(other))
