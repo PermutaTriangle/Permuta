@@ -1,4 +1,4 @@
-from permuta import Perm
+"""Function for testing if a basis has a regular insertion encoding."""
 
 
 def is_incr_next_incr(perm):
