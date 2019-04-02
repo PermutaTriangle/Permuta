@@ -347,7 +347,7 @@ def test_has_anchered_point():
 
 def test_rank():
     assert MeshPatt(Perm((0, 1)), [(0, 1), (1, 2), (2, 1), (2, 0), (2, 2), (1, 1)]).rank() == 498
-    assert MeshPatt(Perm((1, 0, 2)), [(3, 2), (0, 0), (2, 3), (1, 0), (0, 1), 
+    assert MeshPatt(Perm((1, 0, 2)), [(3, 2), (0, 0), (2, 3), (1, 0), (0, 1),
         (1, 2), (3, 3), (3, 1), (2, 0)]).rank() == 59731
     assert MeshPatt(Perm((0, 3, 2, 1)),
             [(0, 1), (4, 4), (1, 4), (2, 3), (4, 2), (4, 1), (0, 2)]).rank() == 23077382
