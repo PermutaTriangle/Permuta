@@ -22,24 +22,25 @@ patts (patterns), and mesh patts.
 Installing
 ==========
 
-To install Permuta on your system, simply run the following command as a superuser:
+To install Permuta on your system, run:
+
 .. code-block:: bash
 
-    # pip install permuta
+    pip install permuta
 
 It is also possible to install Permuta in development mode to work on the
 source code, in which case you run the following after cloning the repository:
 
 .. code-block:: bash
 
-    # ./setup.py develop
+    ./setup.py develop
 
-To run the unit tests using pytest run:
+To run the unit tests:
+
 .. code-block:: bash
 
-    # ./setup.py test
-
-This requires ``pytest``, ``pytest-cov``, ``pytest-pep8`` and ``pytest-isort``.
+    pip install -r test_requirements.txt
+    ./setup.py test
 
 Demo
 ####
