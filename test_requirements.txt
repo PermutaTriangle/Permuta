@@ -1,5 +1,5 @@
 pytest==4.3.0
 pytest-pep8==1.0.6
 pytest-isort==0.2.1
-pytest-cov=2.6.1
+pytest-cov==2.6.1
 coveralls==1.6.0
