@@ -2,9 +2,13 @@ import collections
 import numbers
 import random
 
-from permuta import Perm, PermSet
-from permuta.interfaces import Flippable, Patt, Rotatable, Shiftable
-from permuta.misc import DIR_EAST, DIR_NONE, DIR_NORTH, DIR_SOUTH, DIR_WEST
+from .interfaces.flippable import Flippable
+from .interfaces.patt import Patt
+from .interfaces.rotatable import Rotatable
+from .interfaces.shiftable import Shiftable
+from .misc import DIR_EAST, DIR_NONE, DIR_NORTH, DIR_SOUTH, DIR_WEST
+from .perm import Perm
+from .permset import PermSet
 
 MeshPatternBase = collections.namedtuple("MeshPatternBase",
                                          ["pattern", "shading"])

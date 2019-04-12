@@ -7,12 +7,11 @@ import operator
 import random
 import sys
 
-from permuta.interfaces import Flippable, Patt, Rotatable, Shiftable
-from permuta.misc import left_floor_and_ceiling
-
-if sys.version_info.major == 2:
-    range = xrange
-
+from .interfaces.flippable import Flippable
+from .interfaces.patt import Patt
+from .interfaces.rotatable import Rotatable
+from .interfaces.shiftable import Shiftable
+from .misc.iterable_floor_and_ceiling import left_floor_and_ceiling
 
 __all__ = ("Perm",)
 
@@ -2077,6 +2076,9 @@ class Perm(tuple,
         customization (i.e., setting a figure title, or setting labels on the
         axes). Falls back to an ascii_plot if matplotlib isn't found, or if
         use_mpl is set to False.
+        # TODO: check if matplotlib is imported
+        # TODO: either remove or implement this function, currently not making
+        #       sense
         """
         # TODO: check if matplotlib is imported
         # TODO: either remove or implement this function, currently not making
@@ -2085,7 +2087,8 @@ class Perm(tuple,
             return self._ascii_plot()
         xs = [val for val in range(len(self))]
         ys = [val for val in self]
-        plt = None
+        # plt = None
+        from matplotlib import plt
         if not ax:
             ax = plt.gca()
         # scat = ax.scatter(xs, ys, s=40, c='k')
