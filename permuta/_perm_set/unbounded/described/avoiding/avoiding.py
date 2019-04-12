@@ -2,10 +2,11 @@ import functools
 import multiprocessing
 import random
 
-from permuta import Perm
-from permuta._perm_set.finite import PermSetFiniteSpecificLength, PermSetStatic
-from permuta.descriptors import Basis
-
+from .....descriptors.basis import Basis
+from .....perm import Perm
+from ....finite.permset_finite_specificlength import \
+    PermSetFiniteSpecificLength
+from ....finite.permset_static import PermSetStatic
 from ..permset_described import PermSetDescribed
 
 

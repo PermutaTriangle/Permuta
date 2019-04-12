@@ -1,7 +1,6 @@
-from permuta import Perm
-from permuta._perm_set.finite import PermSetStatic
-from permuta.descriptors import Basis
-
+from ......descriptors.basis import Basis
+from ......perm import Perm
+from .....finite.permset_static import PermSetStatic
 from ..avoiding import Avoiding
 
 

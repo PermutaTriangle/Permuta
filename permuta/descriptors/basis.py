@@ -2,8 +2,7 @@
 
 from collections import Iterable
 
-from permuta import Perm
-
+from ..perm import Perm
 from .descriptor import Descriptor
 
 
