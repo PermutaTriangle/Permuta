@@ -8,6 +8,7 @@ def rotate_90_clockwise_set(perms):
         raise TypeError(("perms parameter must be of type list, set, tuple of"
                          " permuta.Perms"))
 
+
 def rotate_180_clockwise_set(perms):
     try:
         return perms.__class__([p._rotate_180() for p in perms])
@@ -38,7 +39,6 @@ def inverse_set(perms):
     except (AttributeError, TypeError):
         raise TypeError(("perms parameter must be of type list, set, tuple of"
                          " permuta.Perms"))
-
 
 
 def reverse_set(perms):

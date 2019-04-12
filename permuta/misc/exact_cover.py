@@ -1,4 +1,4 @@
-from . import AlgorithmX
+from .algorithm_x import AlgorithmX
 
 
 def exact_cover(bss, validcnt, max_cnt, ignore_first, allow_overlap_in_first):

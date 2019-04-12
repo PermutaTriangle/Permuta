@@ -1,11 +1,13 @@
 import numbers
 
-from permuta._perm_set import PermSetBase
-from permuta._perm_set.finite import PermSetStatic
-from permuta._perm_set.unbounded.all import PermSetAll
-from permuta._perm_set.unbounded.described import PermSetDescribed
-from permuta._perm_set.unbounded.described.avoiding import Avoiding
-from permuta.descriptors import Basis, Descriptor, Predicate
+from ._perm_set.finite.permset_static import PermSetStatic
+from ._perm_set.permset_base import PermSetBase
+from ._perm_set.unbounded.all.permset_all import PermSetAll
+from ._perm_set.unbounded.described.avoiding.avoiding import Avoiding
+from ._perm_set.unbounded.described.permset_described import PermSetDescribed
+from .descriptors.basis import Basis
+from .descriptors.descriptor import Descriptor
+from .descriptors.predicate import Predicate
 
 __all__ = [
     "PermSet",
