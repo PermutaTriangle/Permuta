@@ -843,8 +843,8 @@ class MeshPatt(MeshPatternBase, Patt, Rotatable, Shiftable, Flippable):
                 The length of the random pattern.
 
         Examples:
-            >>> mp1 = set(MeshPatt.unrank(Perm((0)), i) for i in range(0, 16))
-            >>> MeshPatt.random(1) in mp1
+            >>> mp = set(MeshPatt.unrank(Perm((0, )), i) for i in range(0, 16))
+            >>> MeshPatt.random(1) in mp
             True
             >>> len(MeshPatt.random(4))
             4
