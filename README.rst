@@ -221,12 +221,12 @@ but indexing has yet to be implemented:
 
     >>> Perm((2, 1, 0)) in perm_class_14
     False
-    >>> (1, 14, 2, 13, 3, 4, 5, 12, 6, 11, 7, 8, 9, 10) in perm_class_14
+    >>> Perm((0, 13, 1, 12, 2, 3, 4, 11, 5, 10, 6, 7, 8, 9)) in perm_class_14
     True
     >>> Perm(range(10)) - Perm(range(4)) in perm_class_14
     False
     >>> next(iter(perm_class_14))
-    (14, 1, 2, 3, 4, 5, 13, 12, 11, 10, 6, 9, 7, 8)
+    Perm((13, 12, 11, 10, 9, 8, 7, 6, 5, 4, 3, 2, 1, 0))
 
 License
 #######
