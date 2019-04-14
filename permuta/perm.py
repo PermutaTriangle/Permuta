@@ -2043,15 +2043,44 @@ class Perm(tuple,
     #
     # Visualization methods
     #
-    def _ascii_plot(self):
-        """Prints a simple plot of the given Permutation."""
+    def ascii_plot(self, cell_size=1):
+        """Return an ascii plot of the given Permutation.
+
+        Args:
+            self:
+                A perm.
+            cell_size: <int>
+                The size of the cell of the grid
+
+        Returns: <str>
+            The ascii art string of the permutation
+
+        Examples:
+            >>> print(Perm((0,1,2)).ascii_plot())
+             | | |
+            -+-+-●-
+             | | |
+            -+-●-+-
+             | | |
+            -●-+-+-
+             | | |
+        """
+        if cell_size > 0:
+            empty_char = '+'
+        elif cell_size == 0:
+            empty_char = '  '
+        else:
+            raise ValueError('`cell_size` must be positive')
+        point_char = '\u25cf'
         n = self.__len__()
-        array = [[' ' for i in range(n)] for j in range(n)]
+        array = [[empty_char for i in range(n)] for j in range(n)]
         for i in range(n):
-            array[self[i]][i] = '*'
+            array[self[i]][i] = point_char
         array.reverse()
-        s = '\n'.join((' '.join(l) for l in array))
-        return s
+        lines = [('-'*cell_size).join(['']+l+[''])+'\n' for l in array]
+        vline = (' '*cell_size + '|')*n + '\n'
+        s = (vline*cell_size).join(['']+lines+[''])
+        return s[:-1]
 
     def cycle_notation(self):
         """Returns the cycle notation representation of the permutation.
