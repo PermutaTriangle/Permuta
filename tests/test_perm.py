@@ -459,8 +459,8 @@ def test_all_syms():
 @pytest.mark.xfail
 def test_is_representative():
     # TODO: write proper tests when the function is working
-    assert Perm().is_representative()
-    assert Perm((0, )).is_representative()
+    assert Perm().is_representative() == True
+    assert Perm((0, )).is_representative() == True
 
 def test_fixed_points():
     assert list(Perm().fixed_points()) == []

@@ -95,7 +95,7 @@ Permutations can also be created using some specific class methods.
     >>> Perm.from_integer(201)
     Perm((2, 0, 1))
 
-Printing Perm is done as a zero-based strings
+Printing permutations gives zero-based strings.
 
 .. code-block:: python
 
@@ -168,22 +168,20 @@ Perm classes can be specified with a basis:
 
 .. code-block:: python
 
-    >>> basis = [213, Perm((2, 3, 1))]
+    >>> basis = [Perm((1, 0, 2)), Perm((1, 2, 0))]
     >>> basis
-    [213, (2, 3, 1)]
+    [Perm((1, 0, 2)), Perm((1, 2, 0))]
     >>> perm_class = Av(basis)
     >>> perm_class
-    <Perms avoiding: (2, 1, 3) and (2, 3, 1)>
-
-Recall that Av is just an alias of PermClass.
+    Av(102, 120)
 
 You can ask whether a perm belongs to the perm class:
 
 .. code-block:: python
 
-    >>> 4321 in perm_class
+    >>> Perm((3, 2, 1, 0)) in perm_class
     True
-    >>> 1324 in perm_class
+    >>> Perm((0, 2, 1, 3)) in perm_class
     False
 
 You can get the n-th perm of the class or iterate:
@@ -191,10 +189,10 @@ You can get the n-th perm of the class or iterate:
 .. code-block:: python
 
     >> [perm_class[n] for n in range(10)]
-    [(), (1), (1, 2), (2, 1), (1, 2, 3), (1, 3, 2), (3, 2, 1), (3, 1, 2), (4, 3, 2, 1), (4, 1, 3, 2)]
+    [Perm(()), Perm((0,)), Perm((1, 0)), Perm((0, 1)), Perm((2, 1, 0)), Perm((2, 0, 1)), Perm((0, 2, 1)), Perm((0, 1, 2)), Perm((3, 2, 1, 0)), Perm((3, 2, 0, 1))]
     >>> perm_class_iter = iter(perm_class)
     >>> [next(perm_class_iter) for _ in range(10)]
-    [(), (1), (1, 2), (2, 1), (1, 2, 3), (1, 3, 2), (3, 2, 1), (3, 1, 2), (4, 3, 2, 1), (4, 1, 3, 2)]
+    [Perm(()), Perm((0,)), Perm((1, 0)), Perm((0, 1)), Perm((2, 1, 0)), Perm((2, 0, 1)), Perm((0, 2, 1)), Perm((0, 1, 2)), Perm((3, 2, 1, 0)), Perm((3, 2, 0, 1))]
 
 (BEWARE: Lexicographic order is not guaranteed at the moment!)
 
@@ -207,7 +205,7 @@ You can define a subset of perms of a specific length in the perm class:
 
     >>> perm_class_14 = perm_class.of_length(14)
     >>> perm_class_14
-    <Perms of length 14 avoiding: (2, 1, 3) and (2, 3, 1)>
+    <PermSet of all perms of length 14 avoiding Basis((Perm((1, 0, 2)), Perm((1, 2, 0))))>
 
 You can ask for the size of the subset because it is guaranteed to be finite:
 
@@ -221,7 +219,7 @@ but indexing has yet to be implemented:
 
 .. code-block:: python
 
-    >>> 321 in perm_class_14
+    >>> Perm((2, 1, 0)) in perm_class_14
     False
     >>> (1, 14, 2, 13, 3, 4, 5, 12, 6, 11, 7, 8, 9, 10) in perm_class_14
     True
@@ -229,32 +227,6 @@ but indexing has yet to be implemented:
     False
     >>> next(iter(perm_class_14))
     (14, 1, 2, 3, 4, 5, 13, 12, 11, 10, 6, 9, 7, 8)
-
-To get a feeling for the perm class, you can plot a heatmap of this subset
- using matplotlib/seaborn:
-
-.. code-block:: python
-
-    >>> ax = perm_class_14.plot()
-    >>> plt.show()
-
-.. figure:: README.d/av_213_231_of_length_14_heatmap.png
-    :align: center
-
-    A heatmap plot for the perms of length 14 avoiding 213 and 231
-
-
-Life in Permuta beyond the demo
-###############################
-
-If your work has reached a place where your require functionality beyond
-that offered by the demo, it may be time to proceed to the non-demo version
-of Permuta. The first hurdle will be coming to terms with the zero based indexing.
-Here's how to get started:
-
-.. code-block:: python
-
-    >>> from permuta import Perm, PermSet, MeshPatt
 
 License
 #######
