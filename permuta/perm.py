@@ -2136,18 +2136,17 @@ class Perm(tuple,
         return ax
 
     def to_tikz(self):
+        """
+        Return the tikz code to plot the permutation.
+        """
         s = r'\begin{tikzpicture}'
         s += r'[scale=.3,baseline=(current bounding box.center)]'
         s += '\n\t'
-        s += r'\draw[ultra thick] (1,0) -- ('+str(len(self))+',0);'
-        s += '\n\t'
-        s += r'\draw[ultra thick] (0,1) -- (0,'+str(len(self))+');'
-        s += '\n\t'
         s += r'\foreach \x in {1,...,'+str(len(self))+'} {'
         s += '\n\t\t'
-        s += r'\draw[thick] (\x,.09)--(\x,-.5);'
+        s += r'\draw[ultra thin] (\x,0)--(\x,'+str(len(self)+1)+'); %vline'
         s += '\n\t\t'
-        s += r'\draw[thick] (.09,\x)--(-.5,\x);'
+        s += r'\draw[ultra thin] (0,\x)--('+str(len(self)+1) + r',\x); %hline'
         s += '\n\t'
         s += r'}'
         for (i, e) in enumerate(self):
