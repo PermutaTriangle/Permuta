@@ -27,9 +27,9 @@ def test_init():
         with pytest.raises(ValueError): MeshPatt(Perm([1, 0, 1], check=True), ())
         with pytest.raises(ValueError): MeshPatt(Perm([0, 0], check=True), ())
         with pytest.raises(ValueError): MeshPatt(Perm([1], check=True), ())
-        with pytest.raises(ValueError): MeshPatt(Perm((1), check=True), ())
-        with pytest.raises(ValueError): MeshPatt(Perm(101, check=True), ())
-        with pytest.raises(ValueError): MeshPatt(Perm(-234, check=True), ())
+        with pytest.raises(ValueError): MeshPatt(Perm((1, ), check=True), ())
+        with pytest.raises(TypeError): MeshPatt(Perm(101, check=True), ())
+        with pytest.raises(TypeError): MeshPatt(Perm(-234, check=True), ())
         with pytest.raises(TypeError): MeshPatt(Perm(None, check=True), ())
         with pytest.raises(TypeError): MeshPatt(Perm([0.1, 0.2, 0.3], check=True), ())
         with pytest.raises(TypeError): MeshPatt(Perm((), check=True), (0, 1))
@@ -42,7 +42,7 @@ def test_init():
         with pytest.raises(ValueError): MeshPatt(Perm.random(10), [(0, 0), (12, 7)])
         MeshPatt(Perm(check=True), ())
         MeshPatt(Perm([], check=True), ())
-        MeshPatt(Perm(0, check=True), ())
+        MeshPatt(Perm((0, ), check=True), ())
         MeshPatt(Perm([0], check=True), ())
         MeshPatt(Perm([3, 0, 2, 1], check=True), ())
         MeshPatt(Perm([3, 0, 2, 1], check=True), [(0, 0), (0, 1), (0, 2), (0, 3), (0, 4),
@@ -55,11 +55,11 @@ def test_init():
 
 def test_complement():
     assert MeshPatt(Perm(), []).complement() ==  MeshPatt(Perm(), [])
-    assert MeshPatt(Perm(0), []).complement() == MeshPatt(Perm(0), [])
-    assert MeshPatt(Perm(0), [(0, 0)]).complement() == MeshPatt(Perm(0), [(0, 1)])
-    assert MeshPatt(Perm(0), [(0, 1)]).complement() == MeshPatt(Perm(0), [(0, 0)])
-    assert MeshPatt(Perm(0), [(1, 0)]).complement() == MeshPatt(Perm(0), [(1, 1)])
-    assert MeshPatt(Perm(0), [(1, 1)]).complement() == MeshPatt(Perm(0), [(1, 0)])
+    assert MeshPatt(Perm((0, )), []).complement() == MeshPatt(Perm((0, )), [])
+    assert MeshPatt(Perm((0, )), [(0, 0)]).complement() == MeshPatt(Perm((0, )), [(0, 1)])
+    assert MeshPatt(Perm((0, )), [(0, 1)]).complement() == MeshPatt(Perm((0, )), [(0, 0)])
+    assert MeshPatt(Perm((0, )), [(1, 0)]).complement() == MeshPatt(Perm((0, )), [(1, 1)])
+    assert MeshPatt(Perm((0, )), [(1, 1)]).complement() == MeshPatt(Perm((0, )), [(1, 0)])
     for _ in range(20):
         mpatt = MeshPatt.random(10)
         comp = mpatt.complement()
@@ -68,15 +68,15 @@ def test_complement():
 
 def test_flip_horizontal():
     assert MeshPatt(Perm(), []).flip_vertical() ==  MeshPatt(Perm(), [])
-    assert MeshPatt(Perm(0), [(0, 1)]).flip_horizontal() == MeshPatt(Perm(0), [(0, 0)])
+    assert MeshPatt(Perm((0,)), [(0, 1)]).flip_horizontal() == MeshPatt(Perm((0, )), [(0, 0)])
 
 def test_reverse():
     assert MeshPatt(Perm(), []).reverse() ==  MeshPatt(Perm(), [])
-    assert MeshPatt(Perm(0), []).reverse() == MeshPatt(Perm(0), [])
-    assert MeshPatt(Perm(0), [(0, 0)]).reverse() == MeshPatt(Perm(0), [(1, 0)])
-    assert MeshPatt(Perm(0), [(0, 1)]).reverse() == MeshPatt(Perm(0), [(1, 1)])
-    assert MeshPatt(Perm(0), [(1, 0)]).reverse() == MeshPatt(Perm(0), [(0, 0)])
-    assert MeshPatt(Perm(0), [(1, 1)]).reverse() == MeshPatt(Perm(0), [(0, 1)])
+    assert MeshPatt(Perm((0, )), []).reverse() == MeshPatt(Perm((0, )), [])
+    assert MeshPatt(Perm((0, )), [(0, 0)]).reverse() == MeshPatt(Perm((0, )), [(1, 0)])
+    assert MeshPatt(Perm((0, )), [(0, 1)]).reverse() == MeshPatt(Perm((0, )), [(1, 1)])
+    assert MeshPatt(Perm((0, )), [(1, 0)]).reverse() == MeshPatt(Perm((0, )), [(0, 0)])
+    assert MeshPatt(Perm((0, )), [(1, 1)]).reverse() == MeshPatt(Perm((0, )), [(0, 1)])
     for _ in range(20):
         mpatt = MeshPatt.random(10)
         comp = mpatt.reverse()
@@ -85,15 +85,15 @@ def test_reverse():
 
 def test_flip_vertical():
     assert MeshPatt(Perm(), []).flip_vertical() ==  MeshPatt(Perm(), [])
-    assert MeshPatt(Perm(0), [(0, 0)]).flip_vertical() == MeshPatt(Perm(0), [(1, 0)])
+    assert MeshPatt(Perm((0, )), [(0, 0)]).flip_vertical() == MeshPatt(Perm((0, )), [(1, 0)])
 
 def test_inverse():
     assert MeshPatt(Perm(), []).inverse() ==  MeshPatt(Perm(), [])
-    assert MeshPatt(Perm(0), []).inverse() == MeshPatt(Perm(0), [])
-    assert MeshPatt(Perm(0), [(0, 0)]).inverse() == MeshPatt(Perm(0), [(0, 0)])
-    assert MeshPatt(Perm(0), [(0, 1)]).inverse() == MeshPatt(Perm(0), [(1, 0)])
-    assert MeshPatt(Perm(0), [(1, 0)]).inverse() == MeshPatt(Perm(0), [(0, 1)])
-    assert MeshPatt(Perm(0), [(1, 1)]).inverse() == MeshPatt(Perm(0), [(1, 1)])
+    assert MeshPatt(Perm((0, )), []).inverse() == MeshPatt(Perm((0, )), [])
+    assert MeshPatt(Perm((0, )), [(0, 0)]).inverse() == MeshPatt(Perm((0, )), [(0, 0)])
+    assert MeshPatt(Perm((0, )), [(0, 1)]).inverse() == MeshPatt(Perm((0, )), [(1, 0)])
+    assert MeshPatt(Perm((0, )), [(1, 0)]).inverse() == MeshPatt(Perm((0, )), [(0, 1)])
+    assert MeshPatt(Perm((0, )), [(1, 1)]).inverse() == MeshPatt(Perm((0, )), [(1, 1)])
     for _ in range(20):
         mpatt = MeshPatt.random(10)
         comp = mpatt.inverse()
@@ -138,16 +138,16 @@ def test_sub_mesh_pattern():
 
 def test_flip_diagonal():
     assert MeshPatt(Perm(), []).flip_diagonal() ==  MeshPatt(Perm(), [])
-    assert MeshPatt(Perm(0), [(0, 1)]).flip_diagonal() == MeshPatt(Perm(0), [(1, 0)])
+    assert MeshPatt(Perm((0, )), [(0, 1)]).flip_diagonal() == MeshPatt(Perm((0, )), [(1, 0)])
 
 def test_rotate():
     assert MeshPatt(Perm(), [])._rotate_right() == MeshPatt(Perm(), [])
     assert MeshPatt(Perm(), [])._rotate_left() == MeshPatt(Perm(), [])
     assert MeshPatt(Perm(), [])._rotate_180() == MeshPatt(Perm(), [])
 
-    assert MeshPatt(Perm(0), [])._rotate_right() == MeshPatt(Perm(0), [])
-    assert MeshPatt(Perm(0), [])._rotate_left() == MeshPatt(Perm(0), [])
-    assert MeshPatt(Perm(0), [])._rotate_180() == MeshPatt(Perm(0), [])
+    assert MeshPatt(Perm((0, )), [])._rotate_right() == MeshPatt(Perm((0, )), [])
+    assert MeshPatt(Perm((0, )), [])._rotate_left() == MeshPatt(Perm((0, )), [])
+    assert MeshPatt(Perm((0, )), [])._rotate_180() == MeshPatt(Perm((0, )), [])
 
     for _ in range(50):
         mpatt = MeshPatt.random(6)
@@ -404,7 +404,7 @@ def test_unrank():
 
 def test_random():
     assert MeshPatt.random(0) in set([MeshPatt(Perm(()), []), MeshPatt(Perm(()), [(0, 0)])])
-    assert MeshPatt.random(1) in set(MeshPatt.unrank(Perm((0)), i) for i in range(0, 16))
+    assert MeshPatt.random(1) in set(MeshPatt.unrank(Perm((0, )), i) for i in range(0, 16))
     assert MeshPatt.random(2) in (
             set(MeshPatt.unrank(Perm((0, 1)), i) for i in range(0, 512))
             | set(MeshPatt.unrank(Perm((1, 0)), i) for i in range(0, 512)))
