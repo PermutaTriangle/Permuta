@@ -2,9 +2,13 @@ import collections
 import numbers
 import random
 
-from permuta import Perm, PermSet
-from permuta.interfaces import Flippable, Patt, Rotatable, Shiftable
-from permuta.misc import DIR_EAST, DIR_NONE, DIR_NORTH, DIR_SOUTH, DIR_WEST
+from .interfaces.flippable import Flippable
+from .interfaces.patt import Patt
+from .interfaces.rotatable import Rotatable
+from .interfaces.shiftable import Shiftable
+from .misc import DIR_EAST, DIR_NONE, DIR_NORTH, DIR_SOUTH, DIR_WEST
+from .perm import Perm
+from .permset import PermSet
 
 MeshPatternBase = collections.namedtuple("MeshPatternBase",
                                          ["pattern", "shading"])
@@ -839,8 +843,8 @@ class MeshPatt(MeshPatternBase, Patt, Rotatable, Shiftable, Flippable):
                 The length of the random pattern.
 
         Examples:
-            >>> mp1 = set(MeshPatt.unrank(Perm((0)), i) for i in range(0, 16))
-            >>> MeshPatt.random(1) in mp1
+            >>> mp = set(MeshPatt.unrank(Perm((0, )), i) for i in range(0, 16))
+            >>> MeshPatt.random(1) in mp
             True
             >>> len(MeshPatt.random(4))
             4
@@ -853,8 +857,8 @@ class MeshPatt(MeshPatternBase, Patt, Rotatable, Shiftable, Flippable):
     #
 
     def __repr__(self):  # pragma: no cover
-        return "MeshPatt({self.pattern}, {shading})".format(
-            self=self, shading=sorted(self.shading))
+        return "MeshPatt({}, {})".format(
+            repr(self.pattern), sorted(self.shading))
 
     def __str__(self):  # pragma: no cover
         result = []

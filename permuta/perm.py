@@ -1,6 +1,5 @@
 import bisect
 import collections
-import fractions
 import itertools
 import math
 import numbers
@@ -8,12 +7,11 @@ import operator
 import random
 import sys
 
-from permuta.interfaces import Flippable, Patt, Rotatable, Shiftable
-from permuta.misc import left_floor_and_ceiling
-
-if sys.version_info.major == 2:
-    range = xrange
-
+from .interfaces.flippable import Flippable
+from .interfaces.patt import Patt
+from .interfaces.rotatable import Rotatable
+from .interfaces.shiftable import Shiftable
+from .misc.iterable_floor_and_ceiling import left_floor_and_ceiling
 
 __all__ = ("Perm",)
 
@@ -28,22 +26,10 @@ class Perm(tuple,
     _TYPE_ERROR = "'{}' object is not a perm"
 
     #
-    # Methods to modify Perm class settings
-    #
-
-    @staticmethod
-    def toggle_check():
-        # TODO: Docstring and discuss, can settings be done better?
-        if Perm._init_helper is Perm._init_checked:
-            Perm._init_helper = Perm._init_unchecked
-        else:
-            Perm._init_helper = Perm._init_checked
-
-    #
     # Methods returning a single Perm instance
     #
 
-    def __new__(cls, iterable=()):
+    def __new__(cls, iterable=(), check=False):
         """Return a Perm instance.
 
         Args:
@@ -64,43 +50,21 @@ class Perm(tuple,
             Perm((0, 3, 1, 2))
             >>> Perm(range(5, -1, -1))
             Perm((5, 4, 3, 2, 1, 0))
-            >>> Perm(6012354)
-            Perm((6, 0, 1, 2, 3, 5, 4))
-            >>> Perm.toggle_check()
-            >>> Perm("abc")  # Not good
+            >>> Perm("abc", check=True)  # Not good
             Traceback (most recent call last):
                 ...
             TypeError: ''a'' object is not an integer
         """
-        try:
-            return tuple.__new__(cls, iterable)
-        except TypeError:
-            # Try to interpret object as perm
-            if isinstance(iterable, numbers.Integral):
-                number = iterable
-                if not 0 <= number <= 9876543210:
-                    raise ValueError("Illegal perm: {}".format(number))
-                digit_list = []
-                if number == 0:
-                    digit_list.append(number)
-                else:
-                    while number != 0:
-                        digit_list.append(number % 10)
-                        number //= 10
-                    digit_list.reverse()
-                return tuple.__new__(cls, digit_list)
-            else:
-                raise
+        return tuple.__new__(cls, iterable)
 
-    def __init__(self, iterable=()):
+    def __init__(self, iterable=(), check=False):
         # Cache for data used when finding occurrences of self in a perm
         self._cached_pattern_details = None
-        self._init_helper()
-
-    def _init_unchecked(self):
-        pass
+        if check:
+            self._init_checked()
 
     def _init_checked(self):
+        """Checks if a suitable iterable given when initialised."""
         used = [False]*len(self)
         for value in self:
             if not isinstance(value, numbers.Integral):
@@ -112,7 +76,7 @@ class Perm(tuple,
                 raise ValueError("Duplicate element: {}".format(value))
             used[value] = True
 
-    _init_helper = _init_unchecked
+    _to_standard_cache = {}
 
     @classmethod
     def to_standard(cls, iterable):
@@ -132,24 +96,50 @@ class Perm(tuple,
             Perm((4, 0, 1, 3, 2))
         """
         # TODO: Do performance testing
-        try:
-            len_iterable = len(iterable)
-        except TypeError:
-            iterable = list(iterable)
-            len_iterable = len(iterable)
-        result = [None]*len_iterable
-        value = 0
-        for (index, _) in sorted(enumerate(iterable),
-                                 key=operator.itemgetter(1)):
-            result[index] = value
-            value += 1
-        return cls(result)
+        iterable = tuple(iterable)
+        if iterable not in Perm._to_standard_cache:
+            result = [None]*len(iterable)
+            value = 0
+            for (index, _) in sorted(enumerate(iterable),
+                                     key=operator.itemgetter(1)):
+                result[index] = value
+                value += 1
+            Perm._to_standard_cache[iterable] = cls(result)
+        return Perm._to_standard_cache[iterable]
 
     standardize = to_standard  # permpy backwards compatibility
     from_iterable = to_standard
 
     @classmethod
-    def from_string(cls, string):
+    def from_integer(cls, integer):
+        """Return the perm corresponding to the integer given. The permutation
+        can be given one-based or zero-base but it will be returned in 0-based.
+
+        Examples:
+            >>> Perm.from_integer(123)
+            Perm((0, 1, 2))
+            >>> Perm.from_integer(321)
+            Perm((2, 1, 0))
+            >>> Perm.from_integer(201)
+            Perm((2, 0, 1))
+        """
+        if isinstance(integer, numbers.Integral):
+            if not 0 <= integer <= 9876543210:
+                raise ValueError("Illegal perm: {}".format(integer))
+            digit_list = []
+            if integer == 0:
+                digit_list.append(integer)
+            else:
+                while integer != 0:
+                    digit_list.append(integer % 10)
+                    integer //= 10
+                digit_list.reverse()
+            return Perm.to_standard(digit_list)
+        else:
+            raise TypeError("{} is not an integer".format(repr(integer)))
+
+    @classmethod
+    def from_string(cls, string, check=False):
         """Return the perm corresponding to the string given.
 
         Examples:
@@ -159,7 +149,7 @@ class Perm(tuple,
             Perm((4, 0, 1, 3, 2))
         """
         if isinstance(string, str):
-            return cls(map(int, string))
+            return cls(map(int, string), check=check)
         # TODO: throw exception when not a string
 
     @classmethod
@@ -763,13 +753,13 @@ class Perm(tuple,
         """Returns all symmetries of the permutation in a PermSet, all possible
         combinations of revers, complement and inverse.
         """
-        # TODO: finish PermSet
-        # S = PermSet([self])
-        # S = S.union(PermSet([P.reverse() for P in S]))
-        # S = S.union(PermSet([P.complement() for P in S]))
-        # S = S.union(PermSet([P.inverse() for P in S]))
-        # return S
-        pass
+        syms = set([self, self.inverse()])
+        curr = self
+        for _ in range(3):
+            curr = curr.rotate()
+            syms.add(curr)
+            syms.add(curr.inverse())
+        return tuple(syms)
 
     def is_representative(self):
         """Checks if the permutation is representative, that is, all the
@@ -808,17 +798,21 @@ class Perm(tuple,
             >>> Perm((3, 2, 1, 0)).count_fixed_points()
             0
         """
-        result = 0
-        value = 0
-        for element in self:
-            if element == value:
-                result += 1
-            value += 1
-        return result
+        return sum(1 for _ in self.fixed_points())
 
-    # TODO: Implement a function that returns a list of fixed points.
+    def fixed_points(self):
+        """Yield the index of the fixed points in self.
 
-    fixed_points = count_fixed_points
+        Examples:
+            >>> tuple(Perm((0, 2, 1, 3)).fixed_points())
+            (0, 3)
+            >>> tuple(Perm((0, 1, 4, 3, 2)).fixed_points())
+            (0, 1, 3)
+        """
+        res = []
+        for idx, val in enumerate(self):
+            if idx == val:
+                yield idx
 
     def is_skew_decomposable(self):
         """Determines whether the permutation is expressible as the skew sum of
@@ -1084,7 +1078,7 @@ class Perm(tuple,
         """
         acc = 1
         for l in map(len, self.cycle_decomp()):
-            acc = (acc * l) // fractions.gcd(acc, l)
+            acc = (acc * l) // math.gcd(acc, l)
         return acc
 
     # TODO: reimplement the following four functions to return generators
@@ -1092,7 +1086,7 @@ class Perm(tuple,
         """Returns the positions of the left-to-right minima.
 
         Examples:
-            >>> Perm(24301).ltrmin()
+            >>> Perm((2, 4, 3, 0, 1)).ltrmin()
             [0, 3]
         """
         L = []
@@ -1107,7 +1101,7 @@ class Perm(tuple,
         """Returns the positions of the right-to-left minima.
 
         Examples:
-            >>> Perm(204153).rtlmin()
+            >>> Perm((2, 0, 4, 1, 5, 3)).rtlmin()
             [1, 3, 5]
         """
         rev_perm = self.reverse()
@@ -1117,7 +1111,7 @@ class Perm(tuple,
         """Returns the positions of the left-to-right maxima.
 
         Examples:
-            >>> Perm(204153).ltrmax()
+            >>> Perm((2, 0, 4, 1, 5, 3)).ltrmax()
             [0, 2, 4]
         """
         return [len(self)-i-1 for i in Perm(self[::-1]).rtlmax()][::-1]
@@ -1126,7 +1120,7 @@ class Perm(tuple,
         """Returns the positions of the right-to-left maxima.
 
         Examples:
-            >>> Perm(24301).rtlmax()
+            >>> Perm((2, 4, 3, 0, 1)).rtlmax()
             [1, 2, 4]
         """
         return [
@@ -1174,46 +1168,55 @@ class Perm(tuple,
         """Returns the number of inversions of the permutation, i.e., the
         number of pairs i,j such that i < j and self(i) > self(j).
 
-        TODO: Reimplement in NlogN time.
-
-        >>> Perm(3021).count_inversions()
-        4
-        >>> Perm.monotone_decreasing(6).count_inversions() == 5*6 / 2
-        True
-        >>> Perm.monotone_increasing(7).count_inversions()
-        0
+        Example:
+            >>> Perm((3, 0, 2, 1)).count_inversions()
+            4
+            >>> Perm.monotone_decreasing(6).count_inversions() == 5*6 / 2
+            True
+            >>> Perm.monotone_increasing(7).count_inversions()
+            0
         """
+        return sum(1 for _ in self.inversions())
 
-        p = list(self)
-        n = self.__len__()
-        inv = 0
+    def inversions(self):
+        """Yield the inversions of the permutation, i.e., the pairs i,j
+        such that i < j and self(i) > self(j).
+
+        TODO: Reimplement in NlogN time.
+        Example:
+            >>> tuple(Perm((3, 0, 2, 1)).inversions())
+            ((0, 1), (0, 2), (0, 3), (2, 3))
+        """
+        n = len(self)
         for i in range(n):
             for j in range(i+1, n):
-                if p[i] > p[j]:
-                    inv += 1
-        return inv
+                if self[i] > self[j]:
+                    yield (i, j)
 
-    inversions = count_inversions
-
-    # TODO: Implement function that returns list of inversions.
-
-    # TODO: Reimplement using count_inversions.
-    def count_noninversions(self):
-        """Returns the number of noninversions of the permutation, i.e., the
+    def count_non_inversions(self):
+        """Returns the number of non_inversions of the permutation, i.e., the
         number of pairs i,j such that i < j and self[i] < self[j].
 
         Examples:
-            >>> Perm((3, 0, 2, 1, 4)).count_noninversions()
+            >>> Perm((3, 0, 2, 1, 4)).count_non_inversions()
             6
-            >>> Perm.monotone_increasing(7).count_noninversions() == (6 * 7)/2
+            >>> Perm.monotone_increasing(7).count_non_inversions() == (6 * 7)/2
             True
         """
-        inv = 0
+        return sum(1 for _ in self.non_inversions())
+
+    def non_inversions(self):
+        """Yields the non_inversions of the permutation, i.e., the pairs i,j
+        such that i < j and self[i] < self[j].
+
+        Examples:
+            >>> tuple(Perm((3, 0, 2, 1, 4)).non_inversions())
+            ((0, 4), (1, 2), (1, 3), (1, 4), (2, 4), (3, 4))
+        """
         for i in range(len(self)):
             for j in range(i + 1, len(self)):
                 if self[i] < self[j]:
-                    inv += 1
-        return inv
+                    yield (i, j)
 
     def min_gapsize(self):
         """Returns the minimum gap between any two entries in the permutation
@@ -1222,7 +1225,7 @@ class Perm(tuple,
         TODO: currently uses the naive algorithm --- can be improved
 
         Examples:
-            >>> Perm(2031).min_gapsize()
+            >>> Perm((2, 0, 3, 1)).min_gapsize()
             3
         """
         min_dist = len(self)
@@ -1301,14 +1304,14 @@ class Perm(tuple,
 
     num_dec_bonds = count_dec_bonds
 
-    def majorindex(self):
+    def major_index(self):
         """Returns the major index of the permutation, that is the sum of the
         positions of the descents of the permutation.
 
         Examples:
-            >>> Perm((3, 1, 2, 4, 0)).majorindex()
+            >>> Perm((3, 1, 2, 4, 0)).major_index()
             5
-            >>> Perm((0, 2, 1)).majorindex()
+            >>> Perm((0, 2, 1)).major_index()
             2
         """
         desc = list(self.descents())
@@ -1965,8 +1968,8 @@ class Perm(tuple,
                 i += 1
                 elements_remaining -= 1
 
-        for occurence in occurrences(0, 0):
-            yield occurence
+        for occurrence in occurrences(0, 0):
+            yield occurrence
 
     def occurrences_of(self, patt):
         """Find all indices of occurrences of patt in self.
@@ -2061,15 +2064,44 @@ class Perm(tuple,
     #
     # Visualization methods
     #
-    def _ascii_plot(self):
-        """Prints a simple plot of the given Permutation."""
+    def ascii_plot(self, cell_size=1):
+        """Return an ascii plot of the given Permutation.
+
+        Args:
+            self:
+                A perm.
+            cell_size: <int>
+                The size of the cell of the grid
+
+        Returns: <str>
+            The ascii art string of the permutation
+
+        Examples:
+            >>> print(Perm((0,1,2)).ascii_plot())
+             | | |
+            -+-+-●-
+             | | |
+            -+-●-+-
+             | | |
+            -●-+-+-
+             | | |
+        """
+        if cell_size > 0:
+            empty_char = '+'
+        elif cell_size == 0:
+            empty_char = '  '
+        else:
+            raise ValueError('`cell_size` must be positive')
+        point_char = '\u25cf'
         n = self.__len__()
-        array = [[' ' for i in range(n)] for j in range(n)]
+        array = [[empty_char for i in range(n)] for j in range(n)]
         for i in range(n):
-            array[self[i]][i] = '*'
+            array[self[i]][i] = point_char
         array.reverse()
-        s = '\n'.join((' '.join(l) for l in array))
-        return s
+        lines = [('-'*cell_size).join(['']+l+[''])+'\n' for l in array]
+        vline = (' '*cell_size + '|')*n + '\n'
+        s = (vline*cell_size).join(['']+lines+[''])
+        return s[:-1]
 
     def cycle_notation(self):
         """Returns the cycle notation representation of the permutation.
@@ -2087,52 +2119,27 @@ class Perm(tuple,
 
     cycles = cycle_notation  # permpy backwards compatibility
 
-    def plot(self, show=True, ax=None, use_mpl=True, fname=None, **kwargs):
-        """Draws a matplotlib plot of the permutation. Can be used for both
-        quick visualization, or to build a larger figure. Unrecognized
-        arguments are passed as options to the axes object to allow for
-        customization (i.e., setting a figure title, or setting labels on the
-        axes). Falls back to an ascii_plot if matplotlib isn't found, or if
-        use_mpl is set to False.
+    def plot(self, **kwargs):
         """
-        # TODO: check if matplotlib is imported
-        # TODO: either remove or implement this function, currently not making
-        #       sense
-        if not use_mpl:
-            return self._ascii_plot()
-        xs = [val for val in range(len(self))]
-        ys = [val for val in self]
-        plt = None
-        if not ax:
-            ax = plt.gca()
-        # scat = ax.scatter(xs, ys, s=40, c='k')
-        ax_settings = {'xticks': xs, 'yticks': ys,
-                       'xticklabels': '', 'yticklabels': '',
-                       'xlim': (min(xs) - 1, max(xs) + 1),
-                       'ylim': (min(ys) - 1, max(ys) + 1)}
-        ax.set(**ax_settings)
-        ax.set(**kwargs)
-        ax.set_aspect('equal')
-        if fname:
-            fig = plt.gcf()
-            fig.savefig(fname, dpi=300)
-        if show:
-            plt.show()
-        return ax
+        Draws a plot of the permutation.
+
+        Todo:
+            * Implement this function using matplotlib or some other tools
+        """
+        raise NotImplementedError('Use `ascii_plot` or `to_tikz` method')
 
     def to_tikz(self):
+        """
+        Return the tikz code to plot the permutation.
+        """
         s = r'\begin{tikzpicture}'
         s += r'[scale=.3,baseline=(current bounding box.center)]'
         s += '\n\t'
-        s += r'\draw[ultra thick] (1,0) -- ('+str(len(self))+',0);'
-        s += '\n\t'
-        s += r'\draw[ultra thick] (0,1) -- (0,'+str(len(self))+');'
-        s += '\n\t'
         s += r'\foreach \x in {1,...,'+str(len(self))+'} {'
         s += '\n\t\t'
-        s += r'\draw[thick] (\x,.09)--(\x,-.5);'
+        s += r'\draw[ultra thin] (\x,0)--(\x,'+str(len(self)+1)+'); %vline'
         s += '\n\t\t'
-        s += r'\draw[thick] (.09,\x)--(-.5,\x);'
+        s += r'\draw[ultra thin] (0,\x)--('+str(len(self)+1) + r',\x); %hline'
         s += '\n\t'
         s += r'}'
         for (i, e) in enumerate(self):
@@ -2180,6 +2187,11 @@ class Perm(tuple,
 
     def __repr__(self):
         return "Perm({})".format(super(Perm, self).__repr__())
+
+    def __str__(self):
+        if not self:
+            return "\u03B5"
+        return "".join(str(i) if i < 10 else '({})'.format(i) for i in self)
 
     def __lt__(self, other):
         return (len(self), tuple(self)) < (len(other), tuple(other))
