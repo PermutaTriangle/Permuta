@@ -755,7 +755,7 @@ class Perm(tuple,
         """
         syms = set([self, self.inverse()])
         curr = self
-        for i in range(3):
+        for _ in range(3):
             curr = curr.rotate()
             syms.add(curr)
             syms.add(curr.inverse())
