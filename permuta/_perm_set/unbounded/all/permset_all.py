@@ -5,11 +5,11 @@ import random
 import sys
 from math import factorial
 
-from permuta import Perm
-from permuta._perm_set.finite import (PermSetFinite,
-                                      PermSetFiniteSpecificLength,
-                                      PermSetStatic)
-from permuta._perm_set.unbounded import PermSetUnbounded
+from ....perm import Perm
+from ...finite.permset_finite import PermSetFinite
+from ...finite.permset_finite_specificlength import PermSetFiniteSpecificLength
+from ...finite.permset_static import PermSetStatic
+from ..permset_unbounded import PermSetUnbounded
 
 if sys.version_info.major == 2:
     range = xrange
@@ -54,6 +54,9 @@ class PermSetAll(PermSetUnbounded):
         return isinstance(perm, Perm)  # Why would you even ask?
 
     def __repr__(self):
+        return "PermSet()"
+
+    def __str__(self):
         return "<The set of all perms>"
 
 
@@ -102,11 +105,11 @@ class PermSetAllSpecificLength(PermSetFiniteSpecificLength):
     def __len__(self):
         return factorial(self.length)
 
-    def __str__(self):
-        return "The set of all perms of length {}".format(self.length)
-
     def __repr__(self):
-        return "<PermSet of all perms of length {}>".format(self.length)
+        return "PermSet({})".format(self.length)
+
+    def __str__(self):
+        return "<The set of all perms of length {}>".format(self.length)
 
 
 class PermSetAllSpecificLengthIterator(itertools.permutations):

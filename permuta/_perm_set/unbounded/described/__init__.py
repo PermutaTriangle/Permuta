@@ -1,2 +1,2 @@
-from .permset_described import PermSetDescribed
 from . import avoiding
+from .permset_described import PermSetDescribed

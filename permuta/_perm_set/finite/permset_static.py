@@ -1,7 +1,6 @@
 import random
 
-from permuta import Perm
-
+from ...perm import Perm
 from .permset_finite import PermSetFinite
 
 
@@ -43,4 +42,7 @@ class PermSetStatic(PermSetFinite):
         return next(self._iter)
 
     def __repr__(self):
-        return "<A set of {} perms>".format(len(self._tuple))
+        return "PermSet({})".format(repr(self._tuple))
+
+    def __str__(self):
+        return "{{{}}}".format(", ".join(str(p) for p in sorted(self)))

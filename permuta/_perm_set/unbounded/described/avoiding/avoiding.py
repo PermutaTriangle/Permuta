@@ -2,10 +2,11 @@ import functools
 import multiprocessing
 import random
 
-from permuta import Perm
-from permuta._perm_set.finite import PermSetFiniteSpecificLength, PermSetStatic
-from permuta.descriptors import Basis
-
+from .....descriptors.basis import Basis
+from .....perm import Perm
+from ....finite.permset_finite_specificlength import \
+    PermSetFiniteSpecificLength
+from ....finite.permset_static import PermSetStatic
 from ..permset_described import PermSetDescribed
 
 
@@ -25,15 +26,10 @@ class Avoiding(PermSetDescribed):
         raise NotImplementedError  # This is a hard task!
 
     def __repr__(self):
-        result = ["Av("]
-        for perm in self.basis:
-            result.append(str(perm))
-            result.append(", ")
-        result[-1] = ")"
-        return "".join(result)
+        return "Av({})".format(tuple(self.basis))
 
     def __str__(self):
-        return "perm set of all perms avoiding {!s}".format(self.basis)
+        return "<perm set of all perms avoiding {}>".format(self.basis)
 
 
 class AvoidingGeneric(Avoiding):
@@ -153,17 +149,12 @@ class AvoidingGenericSpecificLength(PermSetFiniteSpecificLength):
         return next(self._iter)
 
     def __str__(self):
-        result = ["Av", str(self._length), "("]
-        for perm in self._basis:
-            result.append(str(perm))
-            result.append(", ")
-        result[-1] = ")"
-        return "".join(result)
+        return ("<PermSet of all perms of length {} avoiding {}>"
+                "".format(self._length, self._basis))
 
     def __repr__(self):
-        format_string = "<PermSet of all perms of length {} avoiding {}>"
-        result = format_string.format(self._length, repr(self._basis))
-        return result
+        return ("Av({}).of_length({})"
+                "".format(repr(tuple(self._basis)), self._length))
 
 
 # Set default Avoiding class to be dispatched

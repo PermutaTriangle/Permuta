@@ -9,8 +9,8 @@ def read(fname):
 
 setup(
     name="permuta",
-    version="0.1.1",
-    author="Henning Ulfarsson",
+    version="1.0.0",
+    author="Permuta Triangle",
     author_email="henningu@ru.is",
     description="A comprehensive high performance permutation library.",
     license="BSD-3",
@@ -23,13 +23,12 @@ setup(
     },
     packages=find_packages(),
     long_description=read("README.rst"),
-    extras_require={"plot": ["seaborn"]},
     setup_requires=["pytest-runner"],
     tests_require=["pytest",
                    "permuta",
                    "pytest-pep8",
                    "pytest-isort"],
-    python_requires='>=3.4',
+    python_requires='>=3.5',
     classifiers=[
         'Development Status :: 5 - Production/Stable',
         'Intended Audience :: Education',
@@ -37,9 +36,10 @@ setup(
         'License :: OSI Approved :: BSD License',
 
         'Programming Language :: Python :: 3',
-        'Programming Language :: Python :: 3.4',
         'Programming Language :: Python :: 3.5',
         'Programming Language :: Python :: 3.6',
+        'Programming Language :: Python :: 3.7',
+        'Programming Language :: Python :: Implementation:: PyPy',
 
         'Topic :: Education',
         'Topic :: Scientific/Engineering :: Mathematics',
