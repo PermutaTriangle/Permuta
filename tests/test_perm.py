@@ -1056,14 +1056,15 @@ def test_bool():
     assert not (Perm())
 
 def test_ascii_plot():
-    assert Perm()._ascii_plot() == ''
-    assert Perm((0, ))._ascii_plot() == '*'
-    assert Perm((1, 2, 4, 0, 3, 5))._ascii_plot() == '          *\n    *      \n        *  \n  *        \n*          \n      *    '
+    assert Perm().ascii_plot() == ''
+    assert Perm((0, )).ascii_plot() == ' |\n-\u25cf-\n |'
+    assert Perm((0, 1)).ascii_plot(cell_size=2) == '  |  |\n  |  |\n--+--●--\n  |  |\n  |  |\n--●--+--\n  |  |\n  |  |'
+    assert Perm((1, 2, 4, 0, 3, 5)).ascii_plot() == ' | | | | | |\n-+-+-+-+-+-●-\n | | | | | |\n-+-+-●-+-+-+-\n | | | | | |\n-+-+-+-+-●-+-\n | | | | | |\n-+-●-+-+-+-+-\n | | | | | |\n-●-+-+-+-+-+-\n | | | | | |\n-+-+-+-●-+-+-\n | | | | | |'
     for _ in range(10):
         perm = Perm.random(random.randint(0, 20))
-        plot = perm._ascii_plot().split('\n')
+        plot = perm.ascii_plot(cell_size=0).split('\n')
         for i in range(len(perm)):
-            assert plot[len(perm) - perm[i] - 1][2*i] == '*'
+            assert plot[len(perm) - perm[i] - 1][2*i] == '\u25cf'
 
 def test_cycle_notation():
     assert Perm().cycle_notation() == '( )'
