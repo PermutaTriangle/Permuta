@@ -93,3 +93,6 @@ class Basis(Descriptor, tuple):  # pylint: disable=too-few-public-methods
     def __repr__(self):
         return "{}({})".format(self.__class__.__qualname__,
                                tuple.__repr__(self))
+
+    def __str__(self):
+        return "{{{}}}".format(", ".join(str(p) for p in self))

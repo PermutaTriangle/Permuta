@@ -26,15 +26,10 @@ class Avoiding(PermSetDescribed):
         raise NotImplementedError  # This is a hard task!
 
     def __repr__(self):
-        result = ["Av("]
-        for perm in self.basis:
-            result.append(str(perm))
-            result.append(", ")
-        result[-1] = ")"
-        return "".join(result)
+        return "Av({})".format(tuple(self.basis))
 
     def __str__(self):
-        return "perm set of all perms avoiding {!s}".format(self.basis)
+        return "perm set of all perms avoiding {}".format(self.basis)
 
 
 class AvoidingGeneric(Avoiding):
@@ -162,9 +157,8 @@ class AvoidingGenericSpecificLength(PermSetFiniteSpecificLength):
         return "".join(result)
 
     def __repr__(self):
-        format_string = "<PermSet of all perms of length {} avoiding {}>"
-        result = format_string.format(self._length, repr(self._basis))
-        return result
+        return ("PermSet.avoiding({}).of_length({})"
+                "".format(repr(tuple(self._basis)), self._length))
 
 
 # Set default Avoiding class to be dispatched

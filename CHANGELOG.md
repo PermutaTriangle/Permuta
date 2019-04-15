@@ -13,8 +13,9 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 - Can no longer initialise Perm with an integer.
 - Added a from integer method, for creating a Perm from integer.
 - Added inversions and non-inversions function that yield pairs.
-- The string of a Perm is now one-line notation
+- The string of a Perm is now one-line notation.
 - Fix bug in polynomial checker.
+- Added/updated repr and str methods to Av, PermSetAll and PermSetStatic.
 
 ## [0.1.1] - 2017-03-05
 ### Added
