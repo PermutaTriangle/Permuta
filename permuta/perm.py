@@ -2043,15 +2043,44 @@ class Perm(tuple,
     #
     # Visualization methods
     #
-    def _ascii_plot(self):
-        """Prints a simple plot of the given Permutation."""
+    def ascii_plot(self, cell_size=1):
+        """Return an ascii plot of the given Permutation.
+
+        Args:
+            self:
+                A perm.
+            cell_size: <int>
+                The size of the cell of the grid
+
+        Returns: <str>
+            The ascii art string of the permutation
+
+        Examples:
+            >>> print(Perm((0,1,2)).ascii_plot())
+             | | |
+            -+-+-●-
+             | | |
+            -+-●-+-
+             | | |
+            -●-+-+-
+             | | |
+        """
+        if cell_size > 0:
+            empty_char = '+'
+        elif cell_size == 0:
+            empty_char = '  '
+        else:
+            raise ValueError('`cell_size` must be positive')
+        point_char = '\u25cf'
         n = self.__len__()
-        array = [[' ' for i in range(n)] for j in range(n)]
+        array = [[empty_char for i in range(n)] for j in range(n)]
         for i in range(n):
-            array[self[i]][i] = '*'
+            array[self[i]][i] = point_char
         array.reverse()
-        s = '\n'.join((' '.join(l) for l in array))
-        return s
+        lines = [('-'*cell_size).join(['']+l+[''])+'\n' for l in array]
+        vline = (' '*cell_size + '|')*n + '\n'
+        s = (vline*cell_size).join(['']+lines+[''])
+        return s[:-1]
 
     def cycle_notation(self):
         """Returns the cycle notation representation of the permutation.
@@ -2069,56 +2098,27 @@ class Perm(tuple,
 
     cycles = cycle_notation  # permpy backwards compatibility
 
-    def plot(self, show=True, ax=None, use_mpl=True, fname=None, **kwargs):
-        """Draws a matplotlib plot of the permutation. Can be used for both
-        quick visualization, or to build a larger figure. Unrecognized
-        arguments are passed as options to the axes object to allow for
-        customization (i.e., setting a figure title, or setting labels on the
-        axes). Falls back to an ascii_plot if matplotlib isn't found, or if
-        use_mpl is set to False.
-        # TODO: check if matplotlib is imported
-        # TODO: either remove or implement this function, currently not making
-        #       sense
+    def plot(self, **kwargs):
         """
-        # TODO: check if matplotlib is imported
-        # TODO: either remove or implement this function, currently not making
-        #       sense
-        if not use_mpl:
-            return self._ascii_plot()
-        xs = [val for val in range(len(self))]
-        ys = [val for val in self]
-        # plt = None
-        from matplotlib import plt
-        if not ax:
-            ax = plt.gca()
-        # scat = ax.scatter(xs, ys, s=40, c='k')
-        ax_settings = {'xticks': xs, 'yticks': ys,
-                       'xticklabels': '', 'yticklabels': '',
-                       'xlim': (min(xs) - 1, max(xs) + 1),
-                       'ylim': (min(ys) - 1, max(ys) + 1)}
-        ax.set(**ax_settings)
-        ax.set(**kwargs)
-        ax.set_aspect('equal')
-        if fname:
-            fig = plt.gcf()
-            fig.savefig(fname, dpi=300)
-        if show:
-            plt.show()
-        return ax
+        Draws a plot of the permutation.
+
+        Todo:
+            * Implement this function using matplotlib or some other tools
+        """
+        raise NotImplementedError('Use `ascii_plot` or `to_tikz` method')
 
     def to_tikz(self):
+        """
+        Return the tikz code to plot the permutation.
+        """
         s = r'\begin{tikzpicture}'
         s += r'[scale=.3,baseline=(current bounding box.center)]'
         s += '\n\t'
-        s += r'\draw[ultra thick] (1,0) -- ('+str(len(self))+',0);'
-        s += '\n\t'
-        s += r'\draw[ultra thick] (0,1) -- (0,'+str(len(self))+');'
-        s += '\n\t'
         s += r'\foreach \x in {1,...,'+str(len(self))+'} {'
         s += '\n\t\t'
-        s += r'\draw[thick] (\x,.09)--(\x,-.5);'
+        s += r'\draw[ultra thin] (\x,0)--(\x,'+str(len(self)+1)+'); %vline'
         s += '\n\t\t'
-        s += r'\draw[thick] (.09,\x)--(-.5,\x);'
+        s += r'\draw[ultra thin] (0,\x)--('+str(len(self)+1) + r',\x); %hline'
         s += '\n\t'
         s += r'}'
         for (i, e) in enumerate(self):

@@ -159,11 +159,11 @@ def test_count_occurrences_of():
 
 def test_occurrences_in():
     assert list(Perm([]).occurrences_in(Perm([4, 1, 2, 3, 0]))) == [()]
-    assert (sorted(Perm([0]).occurrences_in(Perm([4, 1, 2, 3, 0]))) 
+    assert (sorted(Perm([0]).occurrences_in(Perm([4, 1, 2, 3, 0])))
             == [(0, ), (1, ), (2, ), (3, ), (4, )])
-    assert (sorted(Perm([0, 1]).occurrences_in(Perm([4, 1, 2, 3, 0]))) 
+    assert (sorted(Perm([0, 1]).occurrences_in(Perm([4, 1, 2, 3, 0])))
             == [(1, 2), (1, 3), (2, 3)])
-    assert (sorted(Perm([1, 0]).occurrences_in(Perm([4, 1, 2, 3, 0]))) 
+    assert (sorted(Perm([1, 0]).occurrences_in(Perm([4, 1, 2, 3, 0])))
             == [(0, 1), (0, 2), (0, 3), (0, 4), (1, 4), (2, 4), (3, 4)])
     assert list(Perm([4, 1, 2, 3, 0]).occurrences_in(Perm([]))) == []
     assert list(Perm([4, 1, 2, 3, 0]).occurrences_in(Perm([1, 0]))) == []
@@ -394,11 +394,11 @@ def test_rotate_right():
 def test_rotate_left():
     for i in range(10):
         assert Perm(list(range(i-1, -1, -1))) == Perm(range(i)).rotate_right()
-    assert (Perm([6, 5, 3, 2, 0, 1, 4]).rotate_left() 
+    assert (Perm([6, 5, 3, 2, 0, 1, 4]).rotate_left()
             == Perm([6, 5, 3, 2, 0, 1, 4]).rotate_right(3))
-    assert (Perm([6, 5, 3, 2, 0, 1, 4]).rotate_left() 
+    assert (Perm([6, 5, 3, 2, 0, 1, 4]).rotate_left()
             == Perm([6, 5, 3, 2, 0, 1, 4]).rotate_right(-1))
-    assert (Perm([4, 7, 1, 0, 2, 6, 3, 5]).rotate_left() 
+    assert (Perm([4, 7, 1, 0, 2, 6, 3, 5]).rotate_left()
             == Perm([4, 7, 1, 0, 2, 6, 3, 5]).rotate_right(7))
     assert Perm([]).rotate_left() == Perm([]).rotate_left(123)
 
@@ -1038,14 +1038,15 @@ def test_bool():
     assert not (Perm())
 
 def test_ascii_plot():
-    assert Perm(())._ascii_plot() == ''
-    assert Perm((0))._ascii_plot() == '*'
-    assert Perm((1, 2, 4, 0, 3, 5))._ascii_plot() == '          *\n    *      \n        *  \n  *        \n*          \n      *    '
+    assert Perm(()).ascii_plot() == ''
+    assert Perm((0)).ascii_plot() == ' |\n-\u25cf-\n |'
+    assert Perm((0, 1)).ascii_plot(cell_size=2) == '  |  |\n  |  |\n--+--●--\n  |  |\n  |  |\n--●--+--\n  |  |\n  |  |'
+    assert Perm((1, 2, 4, 0, 3, 5)).ascii_plot() == ' | | | | | |\n-+-+-+-+-+-●-\n | | | | | |\n-+-+-●-+-+-+-\n | | | | | |\n-+-+-+-+-●-+-\n | | | | | |\n-+-●-+-+-+-+-\n | | | | | |\n-●-+-+-+-+-+-\n | | | | | |\n-+-+-+-●-+-+-\n | | | | | |'
     for _ in range(10):
         perm = Perm.random(random.randint(0, 20))
-        plot = perm._ascii_plot().split('\n')
+        plot = perm.ascii_plot(cell_size=0).split('\n')
         for i in range(len(perm)):
-            assert plot[len(perm) - perm[i] - 1][2*i] == '*'
+            assert plot[len(perm) - perm[i] - 1][2*i] == '\u25cf'
 
 def test_cycle_notation():
     assert Perm(()).cycle_notation() == '( )'

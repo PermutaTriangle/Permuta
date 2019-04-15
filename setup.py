@@ -23,7 +23,6 @@ setup(
     },
     packages=find_packages(),
     long_description=read("README.rst"),
-    extras_require={"plot": ["seaborn"]},
     setup_requires=["pytest-runner"],
     tests_require=["pytest",
                    "permuta",
