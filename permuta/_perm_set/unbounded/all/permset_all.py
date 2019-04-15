@@ -54,6 +54,9 @@ class PermSetAll(PermSetUnbounded):
         return isinstance(perm, Perm)  # Why would you even ask?
 
     def __repr__(self):
+        return "PermSet()"
+
+    def __str__(self):
         return "<The set of all perms>"
 
 
@@ -102,11 +105,11 @@ class PermSetAllSpecificLength(PermSetFiniteSpecificLength):
     def __len__(self):
         return factorial(self.length)
 
-    def __str__(self):
-        return "The set of all perms of length {}".format(self.length)
-
     def __repr__(self):
-        return "<PermSet of all perms of length {}>".format(self.length)
+        return "PermSet({})".format(self.length)
+
+    def __str__(self):
+        return "<The set of all perms of length {}>".format(self.length)
 
 
 class PermSetAllSpecificLengthIterator(itertools.permutations):

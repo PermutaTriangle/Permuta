@@ -451,10 +451,9 @@ def test__rotate_180():
         perm = Perm.random(random.randint(0, 20))
         assert perm._rotate_180() == perm.rotate().rotate()
 
-@pytest.mark.xfail
 def test_all_syms():
-    # TODO: write proper tests when the function is working
-    assert Perm((0, )).all_syms() == PermSet([Perm((0, ))])
+    assert list(sorted(Perm((0, )).all_syms())) == [Perm((0, ))]
+    assert list(sorted(Perm((0, 2, 1)).all_syms())) == [Perm((0, 2, 1)), Perm((1, 0, 2)), Perm((1, 2, 0)), Perm((2, 0, 1))]
 
 @pytest.mark.xfail
 def test_is_representative():

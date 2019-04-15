@@ -753,13 +753,13 @@ class Perm(tuple,
         """Returns all symmetries of the permutation in a PermSet, all possible
         combinations of revers, complement and inverse.
         """
-        # TODO: finish PermSet
-        # S = PermSet([self])
-        # S = S.union(PermSet([P.reverse() for P in S]))
-        # S = S.union(PermSet([P.complement() for P in S]))
-        # S = S.union(PermSet([P.inverse() for P in S]))
-        # return S
-        pass
+        syms = set([self, self.inverse()])
+        curr = self
+        for i in range(3):
+            curr = curr.rotate()
+            syms.add(curr)
+            syms.add(curr.inverse())
+        return tuple(syms)
 
     def is_representative(self):
         """Checks if the permutation is representative, that is, all the
