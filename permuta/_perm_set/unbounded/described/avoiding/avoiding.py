@@ -29,7 +29,7 @@ class Avoiding(PermSetDescribed):
         return "Av({})".format(tuple(self.basis))
 
     def __str__(self):
-        return "perm set of all perms avoiding {}".format(self.basis)
+        return "<perm set of all perms avoiding {}>".format(self.basis)
 
 
 class AvoidingGeneric(Avoiding):
@@ -149,15 +149,11 @@ class AvoidingGenericSpecificLength(PermSetFiniteSpecificLength):
         return next(self._iter)
 
     def __str__(self):
-        result = ["Av", str(self._length), "("]
-        for perm in self._basis:
-            result.append(str(perm))
-            result.append(", ")
-        result[-1] = ")"
-        return "".join(result)
+        return ("<PermSet of all perms of length {} avoiding {}>"
+                "".format(self._length, self._basis))
 
     def __repr__(self):
-        return ("PermSet.avoiding({}).of_length({})"
+        return ("Av({}).of_length({})"
                 "".format(repr(tuple(self._basis)), self._length))
 
 

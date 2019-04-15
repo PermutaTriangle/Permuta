@@ -17,7 +17,7 @@ permuta
     :target: https://pypi.python.org/pypi/Permuta
 
 Permuta is a Python library for working with perms (short for permutations),
-patts (patterns), and mesh patts.
+patterns, and mesh patterns.
 
 Installing
 ==========
@@ -54,7 +54,7 @@ interactive Python session, just like any other Python library:
 
 Importing ``*`` from it supplies you with the 'Perm' and 'PermSet'
 classes along with the 'AvoidanceClass' class (with alias 'Av') for generating
-permutations avoiding a set of patterns. It also gives you the 'MeshPatt' class
+perms avoiding a set of patterns. It also gives you the 'MeshPatt' class
 and some other submodules which we will not discuss in this readme.
 
 Creating a single perm
@@ -96,7 +96,7 @@ Permutations can also be created using some specific class methods.
     >>> Perm.from_integer(201)
     Perm((2, 0, 1))
 
-Printing permutations gives zero-based strings.
+Printing perms gives zero-based strings.
 
 .. code-block:: python
 
@@ -107,7 +107,7 @@ Printing permutations gives zero-based strings.
     >>> print(Perm((6, 2, 10, 9, 3, 8, 0, 1, 5, 11, 4, 7))
     62(10)938015(11)47
 
-The avoids, contains, and occurrence methods enable working with patts:
+The avoids, contains, and occurrence methods enable working with patterns:
 
 .. code-block:: python
 
@@ -161,9 +161,9 @@ You might want the set of all perms:
 
 .. code-block:: python
 
-    >>> all_perms = PermClass()
-    >>> all_perms
-    <All perms>
+    >>> all_perms = PermSet()
+    >>> print(all_perms)
+    <The set of all perms>
 
 Perm classes can be specified with a basis:
 
@@ -174,7 +174,7 @@ Perm classes can be specified with a basis:
     [Perm((1, 0, 2)), Perm((1, 2, 0))]
     >>> perm_class = Av(basis)
     >>> perm_class
-    Av(102, 120)
+    Av((Perm((1, 0, 2)), Perm((1, 2, 0))))
 
 You can ask whether a perm belongs to the perm class:
 
@@ -206,7 +206,7 @@ You can define a subset of perms of a specific length in the perm class:
 
     >>> perm_class_14 = perm_class.of_length(14)
     >>> perm_class_14
-    <PermSet of all perms of length 14 avoiding Basis((Perm((1, 0, 2)), Perm((1, 2, 0))))>
+    <PermSet of all perms of length 14 avoiding {102, 120}>
 
 You can ask for the size of the subset because it is guaranteed to be finite:
 
