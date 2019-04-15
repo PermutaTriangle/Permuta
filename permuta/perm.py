@@ -2098,42 +2098,14 @@ class Perm(tuple,
 
     cycles = cycle_notation  # permpy backwards compatibility
 
-    def plot(self, show=True, ax=None, use_mpl=True, fname=None, **kwargs):
-        """Draws a matplotlib plot of the permutation. Can be used for both
-        quick visualization, or to build a larger figure. Unrecognized
-        arguments are passed as options to the axes object to allow for
-        customization (i.e., setting a figure title, or setting labels on the
-        axes). Falls back to an ascii_plot if matplotlib isn't found, or if
-        use_mpl is set to False.
-        # TODO: check if matplotlib is imported
-        # TODO: either remove or implement this function, currently not making
-        #       sense
+    def plot(self, **kwargs):
         """
-        # TODO: check if matplotlib is imported
-        # TODO: either remove or implement this function, currently not making
-        #       sense
-        if not use_mpl:
-            return self._ascii_plot()
-        xs = [val for val in range(len(self))]
-        ys = [val for val in self]
-        # plt = None
-        from matplotlib import plt
-        if not ax:
-            ax = plt.gca()
-        # scat = ax.scatter(xs, ys, s=40, c='k')
-        ax_settings = {'xticks': xs, 'yticks': ys,
-                       'xticklabels': '', 'yticklabels': '',
-                       'xlim': (min(xs) - 1, max(xs) + 1),
-                       'ylim': (min(ys) - 1, max(ys) + 1)}
-        ax.set(**ax_settings)
-        ax.set(**kwargs)
-        ax.set_aspect('equal')
-        if fname:
-            fig = plt.gcf()
-            fig.savefig(fname, dpi=300)
-        if show:
-            plt.show()
-        return ax
+        Draws a plot of the permutation.
+
+        Todo:
+            * Implement this function using matplotlib or some other tools
+        """
+        raise NotImplementedError('Use `ascii_plot` or `to_tikz` method')
 
     def to_tikz(self):
         """
