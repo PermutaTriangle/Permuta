@@ -16,6 +16,7 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 - The string of a Perm is now one-line notation.
 - Fix bug in polynomial checker.
 - Added/updated repr and str methods to Av, PermSetAll and PermSetStatic.
+- Fixed the ascii plot, and removed broken plot function.
 
 ## [0.1.1] - 2017-03-05
 ### Added
