@@ -1,6 +1,7 @@
 import collections
 import numbers
 import random
+from itertools import cycle, islice
 
 from .interfaces.flippable import Flippable
 from .interfaces.patt import Patt
@@ -768,6 +769,67 @@ class MeshPatt(MeshPatternBase, Patt, Rotatable, Shiftable, Flippable):
         for (x, y) in self.shading:
             res |= 1 << (x * (len(self.pattern)+1) + y)
         return res
+
+    def ascii_plot(self, cell_size=1):
+        """Return an ascii plot of the given Permutation.
+
+        Args:
+            self:
+                A perm.
+            cell_size: <int>
+                The size of the cell of the grid
+
+        Returns: <str>
+            The ascii art string of the permutation
+
+        Examples:
+            >>> print(MeshPatt((0,1,2), [(2,1), (3,0), (3,1), (3,2), (3,3)]
+            ...     ).ascii_plot())
+             | | |▒
+            -+-+-●-
+             | | |▒
+            -+-●-+-
+             | |▒|▒
+            -●-+-+-
+             | | |▒
+        """
+        def roundrobin(*iterables):
+            "roundrobin('ABC', 'D', 'EF') --> A D E B F C"
+            # Recipe credited to George Sakkis
+            num_active = len(iterables)
+            nexts = cycle(iter(it).__next__ for it in iterables)
+            while num_active:
+                try:
+                    for next in nexts:
+                        yield next()
+                except StopIteration:
+                    # Remove the iterator we just exhausted from the cycle.
+                    num_active -= 1
+                    nexts = cycle(islice(nexts, num_active))
+
+        def fill_char(c):
+            shading_char = '\u2592'
+            if c in self.shading:
+                return shading_char
+            else:
+                return ' '
+        if cell_size < 0:
+            raise ValueError('`cell_size` must be positive')
+        empty_char = '+'
+        point_char = '\u25cf'
+        n = self.pattern.__len__()
+        array = [[empty_char for i in range(n)] for j in range(n)]
+        for i in range(n):
+            array[self.pattern[i]][i] = point_char
+        array.reverse()
+        lines = [('-'*cell_size).join(['']+l+[''])+'\n' for l in array]
+        vlines = [
+            ('|'.join(fill_char((j, i))*cell_size for j in
+                      range(n+1))+'\n')*cell_size
+            for i in range(n+1)]
+        vlines.reverse()
+        s = ''.join(roundrobin(vlines, lines))
+        return s[:-1]
 
     def latex(self, scale=0.3):  # pragma: no cover
         """Returns the LaTeX code for the TikZ figure of the mesh pattern. The
