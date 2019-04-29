@@ -831,33 +831,34 @@ class MeshPatt(MeshPatternBase, Patt, Rotatable, Shiftable, Flippable):
         s = ''.join(roundrobin(vlines, lines))
         return s[:-1]
 
-    def latex(self, scale=0.3):  # pragma: no cover
-        """Returns the LaTeX code for the TikZ figure of the mesh pattern. The
-        LaTeX code requires the TikZ library 'patterns'.
-
-        Args:
-            scale: <numbers.Real>
-                The scale of the image.
+    def to_tikz(self):
+        """
+        Return the tikz code to plot the mesh pattern. The tikz code requires
+        the TikZ library patter.
 
         Returns: str
             The LaTeX code for the TikZ figure of the pattern.
         """
-        # TODO: Review
-        return ("\\raisebox{{0.6ex}}{{\n"
-                "\\begin{{tikzpicture}}"
-                "[baseline=(current bounding box.center),scale={0}]\n"
-                "\\useasboundingbox (0.0,-0.1) rectangle ({1}+1.4,{1}+1.1);\n"
-                "\\foreach \\x/\\y in {{{3}}}\n"
-                "  \\fill[pattern color = black!65, pattern=north east lines] "
-                "(\\x,\\y) rectangle +(1,1);\n"
-                "\\draw (0.01,0.01) grid ({1}+0.99,{1}+0.99);\n"
-                "\\foreach [count=\\x] \\y in {{{2}}}\n"
-                "  \\filldraw (\\x,\\y) circle (6pt);\n"
-                "\\end{{tikzpicture}}}}"
-                ).format(scale, len(self.pattern),
-                         ','.join(map(str, self.pattern)),
-                         ','.join(["{}/{}".format(p[0], p[1])
-                                   for p in self.shading]))
+        s = r'\begin{tikzpicture}'
+        s += r'[scale=.3,baseline=(current bounding box.center)]'
+        s += '\n\t'
+        s += r'\foreach \x in {1,...,'+str(len(self))+'} {'
+        s += '\n\t\t'
+        s += r'\draw[ultra thin] (\x,0)--(\x,'+str(len(self)+1)+'); %vline'
+        s += '\n\t\t'
+        s += r'\draw[ultra thin] (0,\x)--('+str(len(self)+1) + r',\x); %hline'
+        s += 2*'\n\t'
+        s += r'}'
+        for cell in self.shading:
+            s += '\n\t'
+            s += r'\fill[pattern color = black!75, pattern=north east lines] '
+            s += str(cell) + r' rectangle +(1,1);'
+        for (i, e) in enumerate(self.pattern):
+            s += '\n\t'
+            s += r'\draw[fill=black] ('+str(i+1)+','+str(e+1)+') circle (5pt);'
+        s += '\n'
+        s += r'\end{tikzpicture}'
+        return s
 
     #
     # Static methods
