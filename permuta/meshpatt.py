@@ -849,10 +849,12 @@ class MeshPatt(MeshPatternBase, Patt, Rotatable, Shiftable, Flippable):
         s += r'\draw[ultra thin] (0,\x)--('+str(len(self)+1) + r',\x); %hline'
         s += 2*'\n\t'
         s += r'}'
-        for cell in self.shading:
+        print(self.shading)
+        for cell in sorted(self.shading):
             s += '\n\t'
             s += r'\fill[pattern color = black!75, pattern=north east lines] '
             s += str(cell) + r' rectangle +(1,1);'
+            print(cell)
         for (i, e) in enumerate(self.pattern):
             s += '\n\t'
             s += r'\draw[fill=black] ('+str(i+1)+','+str(e+1)+') circle (5pt);'
