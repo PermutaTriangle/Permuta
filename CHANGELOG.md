@@ -9,6 +9,8 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 - The ascii_plot, and to_tikz method in MeshPatt
 ### Removed
 - The broken latex method in MeshPatt
+### Fixed
+- Wrong examples in the README. README.rst is now tested
 
 ## [1.0.0] - 2019-04-15
 ### Added
