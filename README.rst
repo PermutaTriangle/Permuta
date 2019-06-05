@@ -15,6 +15,9 @@ permuta
     :target: https://pypi.python.org/pypi/Permuta
 .. image:: https://img.shields.io/pypi/pyversions/Permuta.svg
     :target: https://pypi.python.org/pypi/Permuta
+.. image:: http://img.shields.io/badge/readme-tested-brightgreen.svg
+    :alt: Travis
+    :target: https://travis-ci.org/PermutaTriangle/Permuta
 
 Permuta is a Python library for working with perms (short for permutations),
 patterns, and mesh patterns.
@@ -73,10 +76,16 @@ Permutations are zero-based in Permuta and can be created using any iterable.
     >>> Perm((2, 1, 3)) # Warning: it will initialise with any iterable
     Perm((2, 1, 3))
     >>> Perm((2, 1, 3), check=True) # If you are unsure, you can check
+    Traceback (most recent call last):
+        ...
     ValueError: Element out of range: 3
     >>> Perm((4, 2, 3, 0, 0), check=True)
+    Traceback (most recent call last):
+        ...
     ValueError: Duplicate element: 0
     >>> Perm("123", check=True)
+    Traceback (most recent call last):
+        ...
     TypeError: ''1'' object is not an integer
 
 Permutations can also be created using some specific class methods.
@@ -104,7 +113,7 @@ Printing perms gives zero-based strings.
     ε
     >>> print(Perm((2, 1, 0)))
     210
-    >>> print(Perm((6, 2, 10, 9, 3, 8, 0, 1, 5, 11, 4, 7))
+    >>> print(Perm((6, 2, 10, 9, 3, 8, 0, 1, 5, 11, 4, 7)))
     62(10)938015(11)47
 
 The avoids, contains, and occurrence methods enable working with patterns:
@@ -112,15 +121,14 @@ The avoids, contains, and occurrence methods enable working with patterns:
 .. code-block:: python
 
     >>> p = Perm((0,2,1,3))
-    Perm((0,2,1,3))
     >>> p.contains(Perm((2, 1, 0)))
     False
     >>> p.avoids(Perm((0, 1)))
     False
-    >>> p.occurrences_of(Perm((1, 0)))
-    [[3, 2]]
-    >>> Perm((0, 1)).occurrences_in(p)
-    [[1, 3], [1, 2], [1, 4], [3, 4], [2, 4]]
+    >>> list(p.occurrences_of(Perm((1, 0))))
+    [(1, 2)]
+    >>> list(Perm((0, 1)).occurrences_in(p))
+    [(0, 1), (0, 2), (0, 3), (1, 3), (2, 3)]
 
 The basic symmetries are implemented:
 
@@ -137,7 +145,7 @@ To take direct sums and skew sums we use ``+`` and ``-``:
     >>> p + q
     Perm((0, 2, 1, 3, 4, 5, 6, 7, 8))
     >>> p - q
-    Perm((4, 5, 6, 7, 8, 0, 2, 1, 3))
+    Perm((5, 7, 6, 8, 0, 1, 2, 3, 4))
 
 There are numerous practical methods available:
 
@@ -189,11 +197,11 @@ You can get the n-th perm of the class or iterate:
 
 .. code-block:: python
 
-    >> [perm_class[n] for n in range(10)]
-    [Perm(()), Perm((0,)), Perm((1, 0)), Perm((0, 1)), Perm((2, 1, 0)), Perm((2, 0, 1)), Perm((0, 2, 1)), Perm((0, 1, 2)), Perm((3, 2, 1, 0)), Perm((3, 2, 0, 1))]
+    >>> sorted([perm_class[n] for n in range(8)])
+    [Perm(()), Perm((0,)), Perm((0, 1)), Perm((1, 0)), Perm((0, 1, 2)), Perm((0, 2, 1)), Perm((2, 0, 1)), Perm((2, 1, 0))]
     >>> perm_class_iter = iter(perm_class)
-    >>> [next(perm_class_iter) for _ in range(10)]
-    [Perm(()), Perm((0,)), Perm((1, 0)), Perm((0, 1)), Perm((2, 1, 0)), Perm((2, 0, 1)), Perm((0, 2, 1)), Perm((0, 1, 2)), Perm((3, 2, 1, 0)), Perm((3, 2, 0, 1))]
+    >>> sorted([next(perm_class_iter) for _ in range(8)])
+    [Perm(()), Perm((0,)), Perm((0, 1)), Perm((1, 0)), Perm((0, 1, 2)), Perm((0, 2, 1)), Perm((2, 0, 1)), Perm((2, 1, 0))]
 
 (BEWARE: Lexicographic order is not guaranteed at the moment!)
 
@@ -206,7 +214,7 @@ You can define a subset of perms of a specific length in the perm class:
 
     >>> perm_class_14 = perm_class.of_length(14)
     >>> perm_class_14
-    <PermSet of all perms of length 14 avoiding {102, 120}>
+    Av((Perm((1, 0, 2)), Perm((1, 2, 0)))).of_length(14)
 
 You can ask for the size of the subset because it is guaranteed to be finite:
 
@@ -226,8 +234,8 @@ but indexing has yet to be implemented:
     True
     >>> Perm(range(10)) - Perm(range(4)) in perm_class_14
     False
-    >>> next(iter(perm_class_14))
-    Perm((13, 12, 11, 10, 9, 8, 7, 6, 5, 4, 3, 2, 1, 0))
+    >>> next(iter(perm_class_14)) in perm_class_14
+    True
 
 License
 #######
