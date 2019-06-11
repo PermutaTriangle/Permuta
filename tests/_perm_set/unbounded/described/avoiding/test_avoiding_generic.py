@@ -1,8 +1,11 @@
+import pytest
+
+from permuta import MeshPatt
 from permuta import Perm
 from permuta import PermSet
+from permuta._perm_set.unbounded.described.avoiding import AvoidingGeneric
 from permuta.descriptors import Basis
 from permuta.misc import catalan
-from permuta._perm_set.unbounded.described.avoiding import AvoidingGeneric
 
 
 def test_iter_getitem_same_principal_classes():
@@ -76,6 +79,38 @@ def test_avoiding_generic_principal_classes():
             cnt[len(perm)] += 1
 
         assert enum == cnt
+
+
+def test_avoiding_generic_mesh_patterns():
+    p = Perm((2, 0, 1))
+    shading = ((2, 0), (2, 1), (2, 2), (2, 3))
+    mps = [MeshPatt(p, shading)]
+    basis = Basis(mps)
+    avoiding_generic_basis = AvoidingGeneric(basis)
+    enum = [1, 1, 2, 5, 15, 52, 203, 877]  # Bell numbers
+
+    for (n, cnt) in enumerate(enum):
+        inst = avoiding_generic_basis.of_length(n)
+        gen = list(inst)
+        assert len(gen) == cnt
+        assert len(gen) == len(set(gen))
+        for perm in gen:
+            assert perm.avoids(*mps)
+            assert perm in avoiding_generic_basis
+
+    for mp in mps:
+        with pytest.raises(TypeError):
+            mp in avoiding_generic_basis
+
+    mx = len(enum) - 1
+    cnt = [0 for _ in range(mx + 1)]
+    for perm in AvoidingGeneric(basis):
+        if len(perm) > mx:
+            break
+        assert perm.avoids(*mps)
+        cnt[len(perm)] += 1
+
+    assert enum == cnt
 
 
 def test_avoiding_generic_finite_class():
