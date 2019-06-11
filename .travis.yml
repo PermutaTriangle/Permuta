@@ -12,13 +12,10 @@ python:
 - 'pypy3.5'
 
 install:
-- pip install -e .
-
-before_script:
-- pip install -r test_requirements.txt
+- pip install coveralls==1.8.0
 
 script:
-- pytest --cov=permuta --cov-report=term-missing
+- ./setup.py test
 
 after_success:
 - coveralls
