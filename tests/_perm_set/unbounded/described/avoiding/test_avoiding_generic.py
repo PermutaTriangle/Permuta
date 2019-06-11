@@ -9,8 +9,8 @@ from permuta.misc import catalan
 
 
 def test_iter_getitem_same_principal_classes():
-    maximum = 300
-    for length in range(3, 6):
+    maximum = 100
+    for length in range(3, 5):
         for patt in PermSet(length):
             basis = Basis(patt)
             avoiders = AvoidingGeneric(basis)
@@ -35,7 +35,7 @@ def test_avoiding_generic_principal_classes():
     for (patts, enum) in ts:
         patts = [Perm(patt) for patt in patts]
         basis = Basis(patts)
-        for (n,cnt) in enumerate(enum):
+        for (n, cnt) in enumerate(enum):
             inst = AvoidingGeneric(basis).of_length(n)
             gen = list(inst)
             assert len(gen) == cnt
@@ -43,8 +43,8 @@ def test_avoiding_generic_principal_classes():
             for perm in gen:
                 assert perm.avoids(*patts)
 
-        mx = len(enum)-1
-        cnt = [0 for _ in range(mx+1)]
+        mx = len(enum) - 1
+        cnt = [0 for _ in range(mx + 1)]
         for perm in AvoidingGeneric(basis):
             if len(perm) > mx:
                 break
@@ -62,7 +62,7 @@ def test_avoiding_generic_principal_classes():
     for (patts, enum) in ts:
         patts = [Perm(patt) for patt in patts]
         basis = Basis(patts)
-        for (n,cnt) in enumerate(enum):
+        for (n, cnt) in enumerate(enum):
             inst = AvoidingGeneric(basis).of_length(n)
             gen = list(inst)
             assert len(gen) == cnt
@@ -70,8 +70,8 @@ def test_avoiding_generic_principal_classes():
             for perm in gen:
                 assert perm.avoids(*patts)
 
-        mx = len(enum)-1
-        cnt = [0 for _ in range(mx+1)]
+        mx = len(enum) - 1
+        cnt = [0 for _ in range(mx + 1)]
         for perm in AvoidingGeneric(basis):
             if len(perm) > mx:
                 break
@@ -123,7 +123,7 @@ def test_avoiding_generic_finite_class():
     for (patts, enum) in ts:
         patts = [Perm(patt) for patt in patts]
         basis = Basis(patts)
-        for (n,cnt) in enumerate(enum):
+        for (n, cnt) in enumerate(enum):
             inst = AvoidingGeneric(basis).of_length(n)
             gen = list(inst)
             assert len(gen) == cnt
@@ -131,8 +131,8 @@ def test_avoiding_generic_finite_class():
             for perm in gen:
                 assert perm.avoids(*patts)
 
-        mx = len(enum)-1
-        cnt = [0 for _ in range(mx+1)]
+        mx = len(enum) - 1
+        cnt = [0 for _ in range(mx + 1)]
         for perm in AvoidingGeneric(basis):
             if len(perm) > mx:
                 break
