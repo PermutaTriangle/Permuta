@@ -427,7 +427,7 @@ class MeshPatt(MeshPatternBase, Patt, Rotatable, Shiftable, Flippable):
 
         Returns: <bool>
             True if and only if self avoids all patterns in patts.
-        """"
+        """
         return all(patt not in self for patt in patts)
 
     def occurrences_in(self, perm):
