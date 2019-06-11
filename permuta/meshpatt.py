@@ -1,6 +1,7 @@
 import collections
 import numbers
 import random
+from itertools import cycle, islice
 
 from .interfaces.flippable import Flippable
 from .interfaces.patt import Patt
@@ -797,33 +798,97 @@ class MeshPatt(MeshPatternBase, Patt, Rotatable, Shiftable, Flippable):
             res |= 1 << (x * (len(self.pattern)+1) + y)
         return res
 
-    def latex(self, scale=0.3):  # pragma: no cover
-        """Returns the LaTeX code for the TikZ figure of the mesh pattern. The
-        LaTeX code requires the TikZ library 'patterns'.
+    def ascii_plot(self, cell_size=1):
+        """Return an ascii plot of the given Permutation.
 
         Args:
-            scale: <numbers.Real>
-                The scale of the image.
+            self:
+                A perm.
+            cell_size: <int>
+                The size of the cell of the grid
+
+        Returns: <str>
+            The ascii art string of the permutation
+
+        Examples:
+            >>> print(MeshPatt((0,1,2), [(2,1), (3,0), (3,1), (3,2), (3,3)]
+            ...     ).ascii_plot())
+             | | |▒
+            -+-+-●-
+             | | |▒
+            -+-●-+-
+             | |▒|▒
+            -●-+-+-
+             | | |▒
+        """
+        def roundrobin(*iterables):
+            "roundrobin('ABC', 'D', 'EF') --> A D E B F C"
+            # Recipe credited to George Sakkis
+            num_active = len(iterables)
+            nexts = cycle(iter(it).__next__ for it in iterables)
+            while num_active:
+                try:
+                    for next in nexts:
+                        yield next()
+                except StopIteration:
+                    # Remove the iterator we just exhausted from the cycle.
+                    num_active -= 1
+                    nexts = cycle(islice(nexts, num_active))
+
+        def fill_char(c):
+            shading_char = '\u2592'
+            if c in self.shading:
+                return shading_char
+            else:
+                return ' '
+        if cell_size < 0:
+            raise ValueError('`cell_size` must be positive')
+        empty_char = '+'
+        point_char = '\u25cf'
+        n = self.pattern.__len__()
+        array = [[empty_char for i in range(n)] for j in range(n)]
+        for i in range(n):
+            array[self.pattern[i]][i] = point_char
+        array.reverse()
+        lines = [('-'*cell_size).join(['']+l+[''])+'\n' for l in array]
+        vlines = [
+            ('|'.join(fill_char((j, i))*cell_size for j in
+                      range(n+1))+'\n')*cell_size
+            for i in range(n+1)]
+        vlines.reverse()
+        s = ''.join(roundrobin(vlines, lines))
+        return s[:-1]
+
+    def to_tikz(self):
+        """
+        Return the tikz code to plot the mesh pattern. The tikz code requires
+        the TikZ library patter.
 
         Returns: str
             The LaTeX code for the TikZ figure of the pattern.
         """
-        # TODO: Review
-        return ("\\raisebox{{0.6ex}}{{\n"
-                "\\begin{{tikzpicture}}"
-                "[baseline=(current bounding box.center),scale={0}]\n"
-                "\\useasboundingbox (0.0,-0.1) rectangle ({1}+1.4,{1}+1.1);\n"
-                "\\foreach \\x/\\y in {{{3}}}\n"
-                "  \\fill[pattern color = black!65, pattern=north east lines] "
-                "(\\x,\\y) rectangle +(1,1);\n"
-                "\\draw (0.01,0.01) grid ({1}+0.99,{1}+0.99);\n"
-                "\\foreach [count=\\x] \\y in {{{2}}}\n"
-                "  \\filldraw (\\x,\\y) circle (6pt);\n"
-                "\\end{{tikzpicture}}}}"
-                ).format(scale, len(self.pattern),
-                         ','.join(map(str, self.pattern)),
-                         ','.join(["{}/{}".format(p[0], p[1])
-                                   for p in self.shading]))
+        s = r'\begin{tikzpicture}'
+        s += r'[scale=.3,baseline=(current bounding box.center)]'
+        s += '\n\t'
+        s += r'\foreach \x in {1,...,'+str(len(self))+'} {'
+        s += '\n\t\t'
+        s += r'\draw[ultra thin] (\x,0)--(\x,'+str(len(self)+1)+'); %vline'
+        s += '\n\t\t'
+        s += r'\draw[ultra thin] (0,\x)--('+str(len(self)+1) + r',\x); %hline'
+        s += 2*'\n\t'
+        s += r'}'
+        print(self.shading)
+        for cell in sorted(self.shading):
+            s += '\n\t'
+            s += r'\fill[pattern color = black!75, pattern=north east lines] '
+            s += str(cell) + r' rectangle +(1,1);'
+            print(cell)
+        for (i, e) in enumerate(self.pattern):
+            s += '\n\t'
+            s += r'\draw[fill=black] ('+str(i+1)+','+str(e+1)+') circle (5pt);'
+        s += '\n'
+        s += r'\end{tikzpicture}'
+        return s
 
     #
     # Static methods

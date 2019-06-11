@@ -2197,6 +2197,12 @@ class Perm(tuple,
         return "".join(str(i) if i < 10 else '({})'.format(i) for i in self)
 
     def __lt__(self, other):
+        """
+        >>> p1 = Perm((0,1,2,3))
+        >>> p2 = Perm((0,1,2))
+        >>> p2 <= p1
+        True
+        """
         return (len(self), tuple(self)) < (len(other), tuple(other))
 
     def __le__(self, other):

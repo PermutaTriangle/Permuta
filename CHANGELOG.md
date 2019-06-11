@@ -4,6 +4,14 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](http://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.html).
 
+## Unreleased
+### Added
+- The ascii_plot, and to_tikz method in MeshPatt
+### Removed
+- The broken latex method in MeshPatt
+### Fixed
+- Wrong examples in the README. README.rst is now tested
+
 ## [1.0.0] - 2019-04-15
 ### Added
 - Made master branch deploy to PyPi.
