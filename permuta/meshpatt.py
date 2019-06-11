@@ -402,6 +402,34 @@ class MeshPatt(MeshPatternBase, Patt, Rotatable, Shiftable, Flippable):
     # Occurrence/Avoidance/Containment methods
     #
 
+    def contains(self, *patts):
+        """Check if self contains patts.
+
+        Args:
+            self:
+                A MeshPatt.
+            patts: <permuta.Patt> argument list
+                Classical/mesh patterns.
+
+        Returns: <bool>
+            True if and only if all patterns in patts are contained in self.
+        """
+        return all(patt in self for patt in patts)
+
+    def avoids(self, *patts):
+        """Check if self avoids patts.
+
+        Args:
+            self:
+                A MeshPatt.
+            patts: <permuta.Patt> argument list
+                Classical/mesh patterns.
+
+        Returns: <bool>
+            True if and only if self avoids all patterns in patts.
+        """"
+        return all(patt not in self for patt in patts)
+
     def occurrences_in(self, perm):
         """Find all indices of occurrences of self in perm.
 
@@ -900,6 +928,21 @@ class MeshPatt(MeshPatternBase, Patt, Rotatable, Shiftable, Flippable):
 
     def __bool__(self):
         return bool(self.pattern) or bool(self.shading)
+
+    def __contains__(self, patt):
+        """Check if self contains patt.
+
+
+        Args:
+            self:
+                A perm.
+            patt: <permuta.Patt>
+                A classical/mesh pattern.
+
+        Returns: <bool>
+            True if and only if the pattern patt is contained in self.
+        """
+        return any(True for _ in patt.occurrences_in(self))
 
 
 def _rotate_right(length, element):
