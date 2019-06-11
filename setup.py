@@ -9,9 +9,9 @@ def read(fname):
 
 setup(
     name="permuta",
-    version="1.0.0",
+    version="1.1.0",
     author="Permuta Triangle",
-    author_email="henningu@ru.is",
+    author_email="permutatriangle@gmail.com",
     description="A comprehensive high performance permutation library.",
     license="BSD-3",
     keywords=("permutation perm mesh pattern patt avoid contain occurrence"
@@ -35,7 +35,6 @@ setup(
         'Intended Audience :: Science/Research',
         'License :: OSI Approved :: BSD License',
 
-        'Programming Language :: Python :: 3',
         'Programming Language :: Python :: 3.5',
         'Programming Language :: Python :: 3.6',
         'Programming Language :: Python :: 3.7',
