@@ -7,6 +7,7 @@ from .....perm import Perm
 from ....finite.permset_finite_specificlength import \
     PermSetFiniteSpecificLength
 from ....finite.permset_static import PermSetStatic
+from ....unbounded.all.permset_all import PermSetAll
 from ..permset_described import PermSetDescribed
 
 
@@ -53,9 +54,16 @@ class AvoidingGeneric(Avoiding):
         while len(self.cache) <= level_number:
             new_level = set()
             total_indices = len(self.cache)  # really: len(perm) + 1
-            for perm in self.cache[-1]:
-                for index in range(total_indices):
-                    new_perm = perm.insert(index)
+            if all(isinstance(patt, Perm) for patt in patts):
+                # Smart way when basis consists only of Perms
+                for perm in self.cache[-1]:
+                    for index in range(total_indices):
+                        new_perm = perm.insert(index)
+                        if new_perm.avoids(*patts):
+                            new_level.add(new_perm)
+            else:
+                # Necessary non-smart way for e.g. MeshPatts
+                for new_perm in PermSetAll().of_length(total_indices):
                     if new_perm.avoids(*patts):
                         new_level.add(new_perm)
             self.cache.append(new_level)
@@ -107,7 +115,7 @@ class AvoidingGeneric(Avoiding):
             self._ensure_level(length)
             return perm in self.cache[length]
         else:
-            raise TypeError  # TODO
+            raise TypeError
 
 
 class AvoidingGenericSpecificLength(PermSetFiniteSpecificLength):
