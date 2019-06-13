@@ -4,7 +4,7 @@ from permuta import MeshPatt
 from permuta import Perm
 from permuta import PermSet
 from permuta._perm_set.unbounded.described.avoiding import AvoidingGeneric
-from permuta.descriptors import Basis
+from permuta.descriptors import Basis, MeshBasis
 from permuta.misc import catalan
 
 
@@ -19,6 +19,17 @@ def test_iter_getitem_same_principal_classes():
                 if index > maximum:
                     break
 
+def test_basis_with_empty_perm():
+    basis = Basis([Perm(), Perm((0,))])
+    assert basis == Basis(Perm())
+
+def test_meshbasis_with_empty_meshpatt():
+    meshbasis = MeshBasis([MeshPatt(), MeshPatt(Perm((0,)), ())])
+    assert meshbasis == MeshBasis(MeshPatt())
+
+def test_meshbasis_with_empty_perm():
+    meshbasis = MeshBasis([MeshPatt(), Perm()])
+    assert meshbasis == MeshBasis(Perm())
 
 def test_avoiding_generic_principal_classes():
     ts = [
@@ -85,7 +96,7 @@ def test_avoiding_generic_mesh_patterns():
     p = Perm((2, 0, 1))
     shading = ((2, 0), (2, 1), (2, 2), (2, 3))
     mps = [MeshPatt(p, shading)]
-    basis = Basis(mps)
+    basis = MeshBasis(mps)
     avoiding_generic_basis = AvoidingGeneric(basis)
     enum = [1, 1, 2, 5, 15, 52, 203, 877]  # Bell numbers
 

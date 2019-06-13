@@ -2,30 +2,19 @@
 
 from collections import Iterable
 
-from permuta.interfaces import Patt
-
+from ..meshpatt import MeshPatt
 from ..perm import Perm
 from .descriptor import Descriptor
 
 
-class Basis(Descriptor, tuple):  # pylint: disable=too-few-public-methods
-    """A basis class.
-
-    A PermSet can be built with a Basis instance by using the basis provided
-    to it to see if a perm should be in the PermSet or not. Additionally,
-    various fast methods exist to build a PermSet defined by a basis.
-    """
-
-    def __new__(cls, patts):
-        return tuple.__new__(cls).union(patts)
-
-    def union(self, patts):
+class GenericBasis(Descriptor, tuple):
+    def union(self, patts, patt_types):
         if not isinstance(patts, Iterable):
             raise TypeError(
                 "Non-iterable argument cannot be unified with basis")
 
         # Input cleaning
-        patts = set([patts] if isinstance(patts, Patt) else patts)
+        patts = set([patts] if isinstance(patts, patt_types) else patts)
 
         if not patts:
             # Empty set of patts added to basis
@@ -33,8 +22,10 @@ class Basis(Descriptor, tuple):  # pylint: disable=too-few-public-methods
 
         # Make sure the elements are patterns
         for patt in patts:
-            if not isinstance(patt, Patt):
-                raise TypeError("Elements of a basis should all be patterns")
+            if not isinstance(patt, patt_types):
+                raise TypeError(
+                    "Elements of a basis should all be of type {}".format(
+                        patt_types))
 
         # Add basis patts and sort
         patts.update(self)
@@ -49,14 +40,9 @@ class Basis(Descriptor, tuple):  # pylint: disable=too-few-public-methods
         # The list of new patts used for the new basis
         new_patts_used = []
 
-        empty_perm = Perm()  # Just for checking if it is in the basis
-        compare_to_empty_perm = patts[0] if isinstance(patts[0], Perm) \
-            else patts[0].pattern
-
-        if compare_to_empty_perm == empty_perm:
-            # If empty perm is in there, then no other element is viable
-            new_basis.append(empty_perm)
-            new_patts_used.append(empty_perm)
+        if patts[0] in [c() for c in patt_types]:
+            new_basis.append(patts[0])
+            new_patts_used.append(patts[0])
         else:
             patts_iter = iter(patts)
             basis_iter = iter(self)
@@ -101,3 +87,20 @@ class Basis(Descriptor, tuple):  # pylint: disable=too-few-public-methods
 
     def __str__(self):
         return "{{{}}}".format(", ".join(str(p) for p in self))
+
+
+class Basis(GenericBasis):  # pylint: disable=too-few-public-methods
+    """A basis class.
+
+    A PermSet can be built with a Basis instance by using the basis provided
+    to it to see if a perm should be in the PermSet or not. Additionally,
+    various fast methods exist to build a PermSet defined by a basis.
+    """
+
+    def __new__(cls, patts):
+        return tuple.__new__(cls).union(patts, (Perm,))
+
+
+class MeshBasis(GenericBasis):
+    def __new__(cls, patts):
+        return tuple.__new__(cls).union(patts, (Perm, MeshPatt))
