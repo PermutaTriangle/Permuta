@@ -1,5 +1,6 @@
 # TODO: Module docstring
 
+import abc
 from collections import Iterable
 
 from ..meshpatt import MeshPatt
@@ -7,7 +8,12 @@ from ..perm import Perm
 from .descriptor import Descriptor
 
 
-class GenericBasis(Descriptor, tuple):
+class AbstractBasis(Descriptor, tuple, abc.ABC):
+
+    @abc.abstractmethod
+    def __new__(cls, patts):
+        raise NotImplemented
+
     def union(self, patts, patt_types):
         if not isinstance(patts, Iterable):
             raise TypeError(
@@ -24,7 +30,7 @@ class GenericBasis(Descriptor, tuple):
         for patt in patts:
             if not isinstance(patt, patt_types):
                 raise TypeError(
-                    "Elements of a basis should all be of type {}".format(
+                    "Elements of a basis should all be of type(s) {}".format(
                         patt_types))
 
         # Add basis patts and sort
@@ -89,7 +95,7 @@ class GenericBasis(Descriptor, tuple):
         return "{{{}}}".format(", ".join(str(p) for p in self))
 
 
-class Basis(GenericBasis):  # pylint: disable=too-few-public-methods
+class Basis(AbstractBasis):
     """A basis class.
 
     A PermSet can be built with a Basis instance by using the basis provided
@@ -101,6 +107,17 @@ class Basis(GenericBasis):  # pylint: disable=too-few-public-methods
         return tuple.__new__(cls).union(patts, (Perm,))
 
 
-class MeshBasis(GenericBasis):
+class MeshBasis(AbstractBasis):
     def __new__(cls, patts):
         return tuple.__new__(cls).union(patts, (Perm, MeshPatt))
+
+
+def returnBasis(basis):
+    if isinstance(basis, (Perm, MeshBasis)):
+        return basis
+    elif all(isinstance(patt, Perm) for patt in basis):
+        return Basis(basis)
+    elif all(isinstance(patt, (Perm, MeshPatt)) for patt in basis):
+        return MeshBasis(basis)
+    else:
+        ValueError("A basis can only contain Perms and MeshPatts.")
