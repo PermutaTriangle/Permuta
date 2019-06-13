@@ -12,6 +12,7 @@ python:
 - 'pypy3.5'
 
 install:
+- pip install --upgrade pip
 - pip install coveralls==1.8.0
 
 script:
@@ -19,6 +20,9 @@ script:
 
 after_success:
 - coveralls
+
+notifications:
+  email: false
 
 deploy:
   provider: pypi
