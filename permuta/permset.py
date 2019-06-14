@@ -5,7 +5,7 @@ from ._perm_set.permset_base import PermSetBase
 from ._perm_set.unbounded.all.permset_all import PermSetAll
 from ._perm_set.unbounded.described.avoiding.avoiding import Avoiding
 from ._perm_set.unbounded.described.permset_described import PermSetDescribed
-from .descriptors.basis import returnBasis
+from .descriptors.basis import detectBasisCls
 from .descriptors.descriptor import Descriptor
 from .descriptors.predicate import Predicate
 
@@ -71,7 +71,8 @@ class PermSet(object, metaclass=PermSetMetaclass):
 
     @classmethod
     def avoiding(cls, basis):
-        return cls(returnBasis(basis))
+        BasisCls = detectBasisCls(basis)
+        return cls(BasisCls(basis))
 
     @classmethod
     def filtering(cls, predicate):
