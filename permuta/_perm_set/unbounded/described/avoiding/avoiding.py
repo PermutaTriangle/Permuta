@@ -2,7 +2,7 @@ import functools
 import multiprocessing
 import random
 
-from .....descriptors.basis import AbstractBasis
+from .....descriptors.basis import AbstractBasis, Basis
 from .....perm import Perm
 from ....finite.permset_finite_specificlength import \
     PermSetFiniteSpecificLength
@@ -50,21 +50,20 @@ class AvoidingGeneric(Avoiding):
 
     def _ensure_level(self, level_number):
         # Ensure level is available
-        patts = self.basis
         while len(self.cache) <= level_number:
             new_level = set()
             total_indices = len(self.cache)  # really: len(perm) + 1
-            if all(isinstance(patt, Perm) for patt in patts):
+            if isinstance(self.basis, Basis):
                 # Smart way when basis consists only of Perms
                 for perm in self.cache[-1]:
                     for index in range(total_indices):
                         new_perm = perm.insert(index)
-                        if new_perm.avoids(*patts):
+                        if new_perm.avoids(*self.basis):
                             new_level.add(new_perm)
             else:
-                # Necessary non-smart way for e.g. MeshPatts
+                # Necessary non-smart way for e.g. MeshBasis
                 for new_perm in PermSetAll().of_length(total_indices):
-                    if new_perm.avoids(*patts):
+                    if new_perm.avoids(*self.basis):
                         new_level.add(new_perm)
             self.cache.append(new_level)
 
