@@ -10,9 +10,13 @@ from .descriptor import Descriptor
 
 class AbstractBasis(Descriptor, tuple, abc.ABC):
 
+    @property
     @abc.abstractmethod
-    def __new__(cls, patts):
+    def ALLOWED_BASIS_ELEMENT_TYPES(self):
         raise NotImplemented
+
+    def __new__(cls, patts):
+        return tuple.__new__(cls).union(patts, cls.ALLOWED_BASIS_ELEMENT_TYPES)
 
     def union(self, patts, patt_types):
         if not isinstance(patts, Iterable):
@@ -102,22 +106,27 @@ class Basis(AbstractBasis):
     to it to see if a perm should be in the PermSet or not. Additionally,
     various fast methods exist to build a PermSet defined by a basis.
     """
-
-    def __new__(cls, patts):
-        return tuple.__new__(cls).union(patts, (Perm,))
+    ALLOWED_BASIS_ELEMENT_TYPES = (Perm,)
 
 
 class MeshBasis(AbstractBasis):
-    def __new__(cls, patts):
-        return tuple.__new__(cls).union(patts, (Perm, MeshPatt))
+    ALLOWED_BASIS_ELEMENT_TYPES = (Perm, MeshPatt)
 
 
-def returnBasis(basis):
-    if isinstance(basis, (Perm, MeshBasis)):
+def detectBasisCls(basis):
+    # Argument can be the actual basis class
+    if basis in AbstractBasis.__subclasses__():
         return basis
-    elif all(isinstance(patt, Perm) for patt in basis):
-        return Basis(basis)
+
+    # Argument can be an instance of the basis classes
+    for BasisCls in AbstractBasis.__subclasses__():
+        if isinstance(basis, BasisCls):
+            return BasisCls
+
+    # Argument can be an iterable of objects that makes up a basis
+    if all(isinstance(patt, Perm) for patt in basis):
+        return Basis
     elif all(isinstance(patt, (Perm, MeshPatt)) for patt in basis):
-        return MeshBasis(basis)
+        return MeshBasis
     else:
-        ValueError("A basis can only contain Perms and MeshPatts.")
+        raise ValueError("A basis can only contain Perms and MeshPatts.")
