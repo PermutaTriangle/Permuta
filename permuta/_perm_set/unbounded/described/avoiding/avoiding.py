@@ -2,7 +2,7 @@ import functools
 import multiprocessing
 import random
 
-from .....descriptors.basis import Basis
+from .....descriptors.basis import AbstractBasis
 from .....perm import Perm
 from ....finite.permset_finite_specificlength import \
     PermSetFiniteSpecificLength
@@ -14,7 +14,7 @@ from ..permset_described import PermSetDescribed
 class Avoiding(PermSetDescribed):
     """The base class for all avoidance classes."""
     # NOTE: Monkey patching of default subclass happens at end of file
-    DESCRIPTOR_CLASS = Basis
+    DESCRIPTOR_CLASS = AbstractBasis
 
     @property
     def basis(self):
