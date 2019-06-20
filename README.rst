@@ -184,6 +184,13 @@ Perm classes can be specified with a basis:
     >>> perm_class
     Av((Perm((1, 0, 2)), Perm((1, 2, 0))))
 
+When a basis consists of a single element you can pass it directly to `Av`:
+.. code-block:: python
+
+    >>> q = Perm((1,0))
+    >>> len(Av(q).of_length(100))
+    1
+
 You can ask whether a perm belongs to the perm class:
 
 .. code-block:: python
