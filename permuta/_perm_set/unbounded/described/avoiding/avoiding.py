@@ -2,18 +2,19 @@ import functools
 import multiprocessing
 import random
 
-from .....descriptors.basis import Basis
+from .....descriptors.basis import AbstractBasis, Basis
 from .....perm import Perm
 from ....finite.permset_finite_specificlength import \
     PermSetFiniteSpecificLength
 from ....finite.permset_static import PermSetStatic
+from ....unbounded.all.permset_all import PermSetAll
 from ..permset_described import PermSetDescribed
 
 
 class Avoiding(PermSetDescribed):
     """The base class for all avoidance classes."""
     # NOTE: Monkey patching of default subclass happens at end of file
-    DESCRIPTOR_CLASS = Basis
+    DESCRIPTOR_CLASS = AbstractBasis
 
     @property
     def basis(self):
@@ -49,14 +50,20 @@ class AvoidingGeneric(Avoiding):
 
     def _ensure_level(self, level_number):
         # Ensure level is available
-        patts = self.basis
         while len(self.cache) <= level_number:
             new_level = set()
             total_indices = len(self.cache)  # really: len(perm) + 1
-            for perm in self.cache[-1]:
-                for index in range(total_indices):
-                    new_perm = perm.insert(index)
-                    if new_perm.avoids(*patts):
+            if isinstance(self.basis, Basis):
+                # Smart way when basis consists only of Perms
+                for perm in self.cache[-1]:
+                    for index in range(total_indices):
+                        new_perm = perm.insert(index)
+                        if new_perm.avoids(*self.basis):
+                            new_level.add(new_perm)
+            else:
+                # Necessary non-smart way for e.g. MeshBasis
+                for new_perm in PermSetAll().of_length(total_indices):
+                    if new_perm.avoids(*self.basis):
                         new_level.add(new_perm)
             self.cache.append(new_level)
 
@@ -107,7 +114,7 @@ class AvoidingGeneric(Avoiding):
             self._ensure_level(length)
             return perm in self.cache[length]
         else:
-            raise TypeError  # TODO
+            raise TypeError
 
 
 class AvoidingGenericSpecificLength(PermSetFiniteSpecificLength):

@@ -5,7 +5,6 @@ import math
 import numbers
 import operator
 import random
-import sys
 
 from .interfaces.flippable import Flippable
 from .interfaces.patt import Patt
@@ -506,9 +505,9 @@ class Perm(tuple,
             Perm(())
         """
         # TODO: Spitshine method and docstring
-        if isinstance(components, collections.Mapping):
+        if isinstance(components, collections.abc.Mapping):
             raise NotImplementedError
-        elif isinstance(components, collections.Iterable):
+        elif isinstance(components, collections.abc.Iterable):
             components = tuple(components)
             assert len(components) == len(self)
             shift = 0
@@ -1784,11 +1783,11 @@ class Perm(tuple,
         Args:
             self:
                 A perm.
-            patts: <permuta.Patt> argument list
+            patts: <permuta.interfaces.Patt> argument list
                 Classical/mesh patterns.
 
         Returns: <bool>
-            True if and only if all patterns in patt are contained in self.
+            True if and only if all patterns in patts are contained in self.
 
         Examples:
             >>> Perm.monotone_decreasing(7).avoids(Perm((0, 1)))
@@ -1813,7 +1812,7 @@ class Perm(tuple,
         Args:
             self:
                 A perm.
-            patts: <permuta.Patt> argument list
+            patts: <permuta.interfaces.Patt> argument list
                 Classical/mesh patterns.
 
         Returns: <bool>
@@ -1852,7 +1851,7 @@ class Perm(tuple,
         Args:
             self:
                 A perm.
-            patt: <permuta.Patt>
+            patt: <permuta.interfaces.Patt>
                 A classical/mesh pattern.
 
         Returns: <int>
@@ -1868,20 +1867,20 @@ class Perm(tuple,
 
     occurrences = count_occurrences_of  # permpy backwards compatibility
 
-    def occurrences_in(self, perm):
-        """Find all indices of occurrences of self in perm.
+    def occurrences_in(self, patt):
+        """Find all indices of occurrences of self in patt.
 
         Args:
             self:
                 The classical pattern whose occurrences are to be found.
-            perm: <permuta.Perm>
-                The perm to search for occurrences in.
+            patt: <permuta.interfaces.Patt>
+                The patt to search for occurrences in.
 
         Yields: <tuple> of <int>
-            The indices of the occurrences of self in perm.
+            The indices of the occurrences of self in patt.
             Each yielded element l is a tuple of integer indices of the
-            perm perm such that:
-            self == permuta.Perm.to_standard([perm[i] for i in l])
+            pattern patt such that:
+            self == permuta.Perm.to_standard([patt[i] for i in l])
 
         Examples:
             >>> list(Perm((2, 0, 1)).occurrences_in(Perm((5, 3, 0, 4, 2, 1))))
@@ -1893,13 +1892,17 @@ class Perm(tuple,
             >>> list(Perm().occurrences_in(Perm((1, 2, 3, 0))))
             [()]
         """
+
+        if not isinstance(patt, Perm):
+            patt = patt.pattern
+
         # Special cases
         if len(self) == 0:
             # Pattern is empty, occurs in all perms
             # This is needed for the occurrences function to work correctly
             yield ()
             return
-        if len(self) > len(perm):
+        if len(self) > len(patt):
             # Pattern is too long to occur in perm
             return
 
@@ -1914,7 +1917,7 @@ class Perm(tuple,
         # k is how many elements of the perm have already been added to
         # occurrence
         def occurrences(i, k):
-            elements_remaining = len(perm) - i
+            elements_remaining = len(patt) - i
             elements_needed = len(self) - k
 
             # Get the following variables:
@@ -1934,26 +1937,26 @@ class Perm(tuple,
                 # The new element of the occurrence must be at least as far
                 # from its left floor as self[k] is from its left floor
                 # In this case, lbp = self[k] - self[lfi]
-                occurrence_left_floor = perm[occurrence_indices[lfi]]
+                occurrence_left_floor = patt[occurrence_indices[lfi]]
                 lower_bound = occurrence_left_floor + lbp
             if lci is None:
                 # The new element of the occurrence must be at least as less
                 # than its maximum possible element---i.e., len(perm)---as
                 # self[k] is to its maximum possible element---i.e., len(self)
                 # In this case, ubp = len(self) - self[k]
-                upper_bound = len(perm) - ubp
+                upper_bound = len(patt) - ubp
             else:
                 # The new element of the occurrence must be at least as less
                 # than its left ceiling as self[k] is to its left ceiling
                 # In this case, ubp = self[lci] - self[k]
-                upper_bound = perm[occurrence_indices[lci]] - ubp
+                upper_bound = patt[occurrence_indices[lci]] - ubp
 
             # Loop over remaining elements of perm (actually i, the index)
             while 1:
                 if elements_remaining < elements_needed:
                     # Can't form an occurrence with remaining elements
                     return
-                element = perm[i]
+                element = patt[i]
                 if lower_bound <= element <= upper_bound:
                     occurrence_indices[k] = i
                     if elements_needed == 1:
@@ -1981,7 +1984,7 @@ class Perm(tuple,
         Args:
             self:
                 A perm.
-            patt: <permuta.Patt>
+            patt: <permuta.interfaces.Patt>
                 A classical/mesh pattern.
 
         Yields: <tuple> of <int>
@@ -2217,7 +2220,7 @@ class Perm(tuple,
         Args:
             self:
                 A perm.
-            patt: <permuta.Patt>
+            patt: <permuta.interfaces.Patt>
                 A classical/mesh pattern.
 
         Returns: <bool>
