@@ -1,7 +1,7 @@
 # TODO: Module docstring
 
 import abc
-from collections import Iterable
+from collections.abc import Iterable
 
 from ..meshpatt import MeshPatt
 from ..perm import Perm

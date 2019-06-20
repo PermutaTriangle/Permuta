@@ -505,9 +505,9 @@ class Perm(tuple,
             Perm(())
         """
         # TODO: Spitshine method and docstring
-        if isinstance(components, collections.Mapping):
+        if isinstance(components, collections.abc.Mapping):
             raise NotImplementedError
-        elif isinstance(components, collections.Iterable):
+        elif isinstance(components, collections.abc.Iterable):
             components = tuple(components)
             assert len(components) == len(self)
             shift = 0
