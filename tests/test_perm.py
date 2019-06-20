@@ -306,6 +306,7 @@ def test_remove_element():
 
     with pytest.raises(TypeError): Perm((2, 1, 0, 3)).remove_element("ble")
     with pytest.raises(TypeError): Perm((2, 1, 0, 3)).remove_element([0])
+
 def test_inflate():
     # TODO: make proper tests when the Perm.inflate has been implemented.
     assert Perm((0, 1)).inflate([Perm((1, 0)), Perm((2, 1, 0))]) ==  Perm((1, 0, 4, 3, 2))

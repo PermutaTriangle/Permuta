@@ -9,7 +9,6 @@ from .interfaces.rotatable import Rotatable
 from .interfaces.shiftable import Shiftable
 from .misc import DIR_EAST, DIR_NONE, DIR_NORTH, DIR_SOUTH, DIR_WEST
 from .perm import Perm
-from .permset import PermSet
 
 MeshPatternBase = collections.namedtuple("MeshPatternBase",
                                          ["pattern", "shading"])
@@ -402,6 +401,34 @@ class MeshPatt(MeshPatternBase, Patt, Rotatable, Shiftable, Flippable):
     #
     # Occurrence/Avoidance/Containment methods
     #
+
+    def contains(self, *patts):
+        """Check if self contains patts.
+
+        Args:
+            self:
+                A MeshPatt.
+            patts: <permuta.Patt> argument list
+                Classical/mesh patterns.
+
+        Returns: <bool>
+            True if and only if all patterns in patts are contained in self.
+        """
+        return all(patt in self for patt in patts)
+
+    def avoids(self, *patts):
+        """Check if self avoids patts.
+
+        Args:
+            self:
+                A MeshPatt.
+            patts: <permuta.Patt> argument list
+                Classical/mesh patterns.
+
+        Returns: <bool>
+            True if and only if self avoids all patterns in patts.
+        """
+        return all(patt not in self for patt in patts)
 
     def occurrences_in(self, perm):
         """Find all indices of occurrences of self in perm.
@@ -966,6 +993,21 @@ class MeshPatt(MeshPatternBase, Patt, Rotatable, Shiftable, Flippable):
     def __bool__(self):
         return bool(self.pattern) or bool(self.shading)
 
+    def __contains__(self, patt):
+        """Check if self contains patt.
+
+
+        Args:
+            self:
+                A perm.
+            patt: <permuta.Patt>
+                A classical/mesh pattern.
+
+        Returns: <bool>
+            True if and only if the pattern patt is contained in self.
+        """
+        return any(True for _ in patt.occurrences_in(self))
+
 
 def _rotate_right(length, element):
     """Rotate an element of the Cartesian product of {0,...,length} clockwise.
@@ -1015,40 +1057,3 @@ def _rotate_180(length, element):
     """
     x, y = element
     return (length - x, length - y)
-
-
-def gen_meshpatts(length, patt=None):
-    """Generates all mesh patterns of length n. If the classical pattern is
-    specified then only the mesh patterns with the classical pattern as the
-    underlying pattern are generated.
-
-    Args:
-        length: <numbers.Integral>
-            The length(size) of the mesh pattern.
-        patt: <permutation.Permutation>, <numbers.Integral> or
-              <collections.Iterable>
-
-    Yields: <permuta.MeshPatt>
-        Every permutation of the specified length with the specified classical
-        pattern or each of them if the pattern is not specified.
-
-    Examples:
-        >>> mps = list(gen_meshpatts(0))
-        >>> len(mps)
-        2
-        >>> mps[0]
-        MeshPatt(Perm(()), [])
-        >>> mps[1]
-        MeshPatt(Perm(()), [(0, 0)])
-        >>> len(list(gen_meshpatts(2, (1, 2))))
-        512
-    """
-    if patt is None:
-        for p in PermSet(length):
-            for i in range(2**((length + 1)**2)):
-                yield MeshPatt.unrank(p, i)
-    else:
-        if not isinstance(patt, Perm):
-            patt = Perm(patt)
-        for i in range(2**((length + 1)**2)):
-            yield MeshPatt.unrank(patt, i)

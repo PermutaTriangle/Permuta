@@ -1,82 +1,83 @@
 # TODO: Module docstring
 
-from collections import Iterable
+import abc
+from collections.abc import Iterable
 
+from ..meshpatt import MeshPatt
 from ..perm import Perm
 from .descriptor import Descriptor
 
 
-class Basis(Descriptor, tuple):  # pylint: disable=too-few-public-methods
-    """A basis class.
+class AbstractBasis(Descriptor, tuple, abc.ABC):
 
-    A PermSet can be built with a Basis instance by using the basis provided
-    to it to see if a perm should be in the PermSet or not. Additionally,
-    various fast methods exist to build a PermSet defined by a basis.
-    """
-    def __new__(cls, perms):
-        return tuple.__new__(cls).union(perms)
+    @property
+    @abc.abstractmethod
+    def ALLOWED_BASIS_ELEMENT_TYPES(self):
+        raise NotImplemented
 
-    def union(self, perms):
-        if not isinstance(perms, Iterable):
+    def __new__(cls, patts):
+        return tuple.__new__(cls).union(patts, cls.ALLOWED_BASIS_ELEMENT_TYPES)
+
+    def union(self, patts, patt_types):
+        if not isinstance(patts, Iterable):
             raise TypeError(
                 "Non-iterable argument cannot be unified with basis")
 
         # Input cleaning
-        perms = set([perms] if isinstance(perms, Perm) else perms)
+        patts = set([patts] if isinstance(patts, patt_types) else patts)
 
-        if not perms:
-            # Empty set of perms added to basis
+        if not patts:
+            # Empty set of patts added to basis
             return self
 
-        # Make sure the elements are permutations
-        for perm in perms:
-            if not isinstance(perm, Perm):
-                raise TypeError("Elements of a basis should all be perms")
+        # Make sure the elements are patterns
+        for patt in patts:
+            if not isinstance(patt, patt_types):
+                raise TypeError(
+                    "Elements of a basis should all be of type(s) {}".format(
+                        patt_types))
 
-        # Add basis perms and sort
-        perms.update(self)
-        perms = sorted(perms)  # Necessarily non-empty
+        # Add basis patts and sort
+        patts.update(self)
+        patts = sorted(patts)  # Necessarily non-empty
 
         # The new basis
         new_basis = []
 
-        # The list of basis perms used for the new basis
-        basis_perms_used = []
+        # The list of basis patts used for the new basis
+        basis_patts_used = []
 
-        # The list of new perms used for the new basis
-        new_perms_used = []
+        # The list of new patts used for the new basis
+        new_patts_used = []
 
-        empty_perm = Perm()  # Just for checking if it is in the basis
-
-        if perms[0] == empty_perm:
-            # If empty perm is in there, then no other element is viable
-            new_basis.append(empty_perm)
-            new_perms_used.append(empty_perm)
+        if patts[0] in [c() for c in patt_types]:
+            new_basis.append(patts[0])
+            new_patts_used.append(patts[0])
         else:
-            perms_iter = iter(perms)
+            patts_iter = iter(patts)
             basis_iter = iter(self)
             for basis_perm in basis_iter:
                 # Add perms up to and including this basis perm to the basis
                 while True:
-                    perm = next(perms_iter)
-                    if perm == basis_perm:
+                    patt = next(patts_iter)
+                    if patt == basis_perm:
                         # Add if it avoids the new perms used
-                        if perm.avoids(*new_perms_used):
-                            new_basis.append(perm)
-                            basis_perms_used.append(perm)
+                        if patt.avoids(*new_patts_used):
+                            new_basis.append(patt)
+                            basis_patts_used.append(patt)
                         break
-                    elif perm.avoids(*new_basis):
+                    elif patt.avoids(*new_basis):
                         # Add it if it avoids the new basis perms
-                        new_basis.append(perm)
-                        new_perms_used.append(perm)
-            for perm in perms_iter:
+                        new_basis.append(patt)
+                        new_patts_used.append(patt)
+            for patt in patts_iter:
                 # All perms left over weren't in the basis before
-                if perm.avoids(*new_basis):
-                    new_basis.append(perm)
-                    new_perms_used.append(perm)
+                if patt.avoids(*new_basis):
+                    new_basis.append(patt)
+                    new_patts_used.append(patt)
 
         # Return either the unmodified basis or a new basis
-        if new_perms_used:
+        if new_patts_used:
             return tuple.__new__(self.__class__, new_basis)
         else:
             return self
@@ -96,3 +97,38 @@ class Basis(Descriptor, tuple):  # pylint: disable=too-few-public-methods
 
     def __str__(self):
         return "{{{}}}".format(", ".join(str(p) for p in self))
+
+
+class Basis(AbstractBasis):
+    """A basis class.
+
+    A PermSet can be built with a Basis instance by using the basis provided
+    to it to see if a perm should be in the PermSet or not. Additionally,
+    various fast methods exist to build a PermSet defined by a basis.
+    """
+    ALLOWED_BASIS_ELEMENT_TYPES = (Perm,)
+
+
+class MeshBasis(AbstractBasis):
+    ALLOWED_BASIS_ELEMENT_TYPES = (Perm, MeshPatt)
+
+
+def detect_basis_cls(basis):
+    # Argument can be the actual basis class
+    if basis in AbstractBasis.__subclasses__():
+        return basis
+
+    # Argument can be an instance of the basis classes
+    for BasisCls in AbstractBasis.__subclasses__():
+        if isinstance(basis, BasisCls):
+            return BasisCls
+
+    # Argument can be an object or an iterable of objects that makes up a basis
+    if isinstance(basis, Perm) or all(
+            isinstance(patt, Perm) for patt in basis):
+        return Basis
+    elif isinstance(basis, MeshPatt) or all(
+            isinstance(patt, (Perm, MeshPatt)) for patt in basis):
+        return MeshBasis
+    else:
+        raise ValueError("A basis can only contain Perms and MeshPatts.")
