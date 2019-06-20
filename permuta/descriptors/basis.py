@@ -113,7 +113,7 @@ class MeshBasis(AbstractBasis):
     ALLOWED_BASIS_ELEMENT_TYPES = (Perm, MeshPatt)
 
 
-def detectBasisCls(basis):
+def detect_basis_cls(basis):
     # Argument can be the actual basis class
     if basis in AbstractBasis.__subclasses__():
         return basis
