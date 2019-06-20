@@ -185,6 +185,7 @@ Perm classes can be specified with a basis:
     Av((Perm((1, 0, 2)), Perm((1, 2, 0))))
 
 When a basis consists of a single element you can pass it directly to `Av`:
+
 .. code-block:: python
 
     >>> q = Perm((1,0))
