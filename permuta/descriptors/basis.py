@@ -123,10 +123,12 @@ def detectBasisCls(basis):
         if isinstance(basis, BasisCls):
             return BasisCls
 
-    # Argument can be an iterable of objects that makes up a basis
-    if all(isinstance(patt, Perm) for patt in basis):
+    # Argument can be an object or an iterable of objects that makes up a basis
+    if isinstance(basis, Perm) or all(
+            isinstance(patt, Perm) for patt in basis):
         return Basis
-    elif all(isinstance(patt, (Perm, MeshPatt)) for patt in basis):
+    elif isinstance(basis, MeshPatt) or all(
+            isinstance(patt, (Perm, MeshPatt)) for patt in basis):
         return MeshBasis
     else:
         raise ValueError("A basis can only contain Perms and MeshPatts.")
