@@ -1,5 +1,6 @@
 from abc import ABC, abstractmethod
 
+
 class EnumerationStrategy(ABC):
 
     """Abstract class for a strategy to enumerate a permutation classes"""
