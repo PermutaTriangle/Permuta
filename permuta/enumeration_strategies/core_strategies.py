@@ -10,6 +10,37 @@ C_U = Perm((2, 0, 1, 3))
 R_D = Perm((1, 3, 0, 2))
 C_D = Perm((2, 0, 3, 1))
 
+# Abstract Core Strategy
+
+
+class CoreStrategy(EnumerationStrategy):
+    """
+    Abstract class for a core related strategy.
+    """
+
+    @abstractproperty
+    def patterns_needed():
+        """
+        Return the set of patterns that are needed for the strategy to be
+        useful.
+        """
+        pass
+
+    @abstractstaticmethod
+    def is_valid_extension(patt):
+        """
+        Determine if the pattern satisfies the condition for strategy to apply.
+        """
+        pass
+
+    def applies(self):
+        b = set(self.basis)
+        extensions_are_valid = all(self.is_valid_extension(patt) for patt in
+                                   b.difference(self.patterns_needed))
+        return self.patterns_needed.issubset(b) and extensions_are_valid
+
+
+# Tool functions
 
 def fstrip(perm):
     """
@@ -41,65 +72,96 @@ def bstrip(perm):
         return perm
 
 
-class CoreStrategy(EnumerationStrategy):
+def one_plus_skewind(perm):
     """
-    Abstract class for a core related strategy.
+    Return True if the permutation is of the form 1 + p where p is a
+    skew-indecomposable permutations
     """
+    return perm[0] == 0 and not fstrip(perm).skew_decomposable()
 
-    @abstractproperty
-    def patterns_needed():
-        """
-        Return the set of patterns that are needed for the strategy to be
-        useful.
-        """
-        pass
 
-    @abstractstaticmethod
-    def is_valid_extension(self, patt):
-        """
-        Determine if the pattern satisfies the condition for strategy to apply.
-        """
-        pass
+def one_plus_sumind(perm):
+    """
+    Return True if the permutation is of the form 1 + p where p is a
+    sum-indecomposable permutations
+    """
+    return perm[0] == 0 and not fstrip(perm).sum_decomposable()
 
-    def applies(self):
-        b = set(self.basis)
-        extensions_are_valid = all(self.is_valid_extension(patt) for patt in
-                                   b.difference(self.patterns_needed))
-        return self.patterns_needed.issubset(b) and extensions_are_valid
 
+def one_plus_perm(perm):
+    return perm[0] == 0
+
+
+# Core Strategies
 
 class RuCuCoreStrategy(CoreStrategy):
     """
     This strategies uses independent set of the up-core graph to enumerate a
     class as inflation of an independent set.
-
     """
     patterns_needed = set([R_U, C_U])
-
-    def is_valid_extension(self, patt):
-        return patt[0] == 0 and not fstrip(patt).skew_decomposable()
-
+    is_valid_extension = staticmethod(one_plus_skewind)
 
 
 class RdCdCoreStrategy(CoreStrategy):
+    """
+    This strategies uses independent set of the down-core graph to enumerate a
+    class as inflation of an independent set.
+    """
     patterns_needed = set([R_D, C_D])
-
-    def is_valid_extension(self, patt):
-        return patt[0] == 0 and not fstrip(patt).sum_decomposable()
+    is_valid_extension = staticmethod(one_plus_sumind)
 
 
 class RuCuRdCdCoreStrategy(CoreStrategy):
     patterns_needed = set([R_D, C_D, R_U, C_U])
-
-    def is_valid_extension(self, patt):
-        return patt[0] == 0
+    is_valid_extension = staticmethod(one_plus_perm)
 
 
 class RuCuRdCoreStrategy(CoreStrategy):
     patterns_needed = set([R_U, C_U, R_D])
-
-    def is_valid_extension(self, patt):
-        return patt[0] == 0 and not fstrip(patt).skew_decomposable()
+    is_valid_extension = staticmethod(one_plus_skewind)
 
 
-core_strategies = [RuCuCoreStrategy, RdCdCoreStrategy, RuCuRdCdCoreStrategy]
+class RuCuCdCoreStrategy(CoreStrategy):
+    patterns_needed = set([R_U, C_U, C_D])
+    is_valid_extension = staticmethod(one_plus_skewind)
+
+
+class RdCdRuCoreStrategy(CoreStrategy):
+    patterns_needed = set([R_D, C_D, R_U])
+    is_valid_extension = staticmethod(one_plus_sumind)
+
+
+class RdCdCuCoreStrategy(CoreStrategy):
+    patterns_needed = set([R_D, C_D, C_U])
+    is_valid_extension = staticmethod(one_plus_sumind)
+
+
+class RdCuCoreStrategy(CoreStrategy):
+    patterns_needed = set([R_D, C_U])
+
+    @staticmethod
+    def is_valid_extension(patt):
+        return one_plus_skewind(patt) and \
+                not bstrip(fstrip(patt)).sum_decomposable()
+
+
+class RuCdCoreStrategy(CoreStrategy):
+    patterns_needed = set([R_U, C_D])
+
+    @staticmethod
+    def is_valid_extension(patt):
+        return one_plus_skewind(patt) and \
+                not bstrip(fstrip(patt)).sum_decomposable()
+
+core_strategies = [
+    RuCuCoreStrategy,
+    RdCdCoreStrategy,
+    RuCuRdCdCoreStrategy,
+    RuCuRdCoreStrategy,
+    RuCuCdCoreStrategy,
+    RdCdRuCoreStrategy,
+    RdCdCuCoreStrategy,
+    RdCuCoreStrategy,
+    RuCdCoreStrategy,
+]
