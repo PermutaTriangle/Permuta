@@ -1,13 +1,15 @@
-from abc import abstractproperty, abstractstaticmethod
+from abc import abstractmethod, abstractproperty, abstractstaticmethod
 
-from permuta import Perm
+from permuta import Av, Perm
+from permuta.descriptors import Basis
 from permuta.enumeration_strategies.abstract_strategy import \
-        EnumerationStrategy
+    EnumerationStrategy
 
 R_U = Perm((1, 2, 0, 3))
-C_U = Perm((1, 0, 2, 3))
+C_U = Perm((2, 0, 1, 3))
 R_D = Perm((1, 3, 0, 2))
 C_D = Perm((2, 0, 3, 1))
+
 
 def fstrip(perm):
     """
@@ -23,6 +25,7 @@ def fstrip(perm):
     else:
         return perm
 
+
 def bstrip(perm):
     """
     Remove the trailing n if the permutation is the sum of p + 1.
@@ -37,51 +40,66 @@ def bstrip(perm):
     else:
         return perm
 
+
 class CoreStrategy(EnumerationStrategy):
     """
     Abstract class for a core related strategy.
     """
 
     @abstractproperty
-    def PATTERNS_NEEDED():
+    def patterns_needed():
         """
         Return the set of patterns that are needed for the strategy to be
         useful.
         """
-        raise NotImplemented
+        pass
 
     @abstractstaticmethod
-    def is_valid_extension(patt):
+    def is_valid_extension(self, patt):
         """
         Determine if the pattern satisfies the condition for strategy to apply.
         """
         pass
 
-    def applies():
+    def applies(self):
         b = set(self.basis)
-        extensions_are_valid = all(self.is_valid_extension(patt) for patt in \
-                                   b.difference(self.PATTERNS_NEEDED))
-        return self.PATTERNS_NEEDED.issubset(b) and extensions_are_valid
+        extensions_are_valid = all(self.is_valid_extension(patt) for patt in
+                                   b.difference(self.patterns_needed))
+        return self.patterns_needed.issubset(b) and extensions_are_valid
 
 
-class UpCoreStrategy(CoreStrategy):
-    PATTERNS_NEEDED = set([R_U, C_U])
+class RuCuCoreStrategy(CoreStrategy):
+    """
+    This strategies uses independent set of the up-core graph to enumerate a
+    class as inflation of an independent set.
 
-    def is_valid_extension(patt):
+    """
+    patterns_needed = set([R_U, C_U])
+
+    def is_valid_extension(self, patt):
         return patt[0] == 0 and not fstrip(patt).skew_decomposable()
 
 
-class DownCoreStrategy(CoreStrategy):
-    PATTERNS_NEEDED = set([R_D, C_D])
 
-    def is_valid_extension(patt):
+class RdCdCoreStrategy(CoreStrategy):
+    patterns_needed = set([R_D, C_D])
+
+    def is_valid_extension(self, patt):
         return patt[0] == 0 and not fstrip(patt).sum_decomposable()
 
 
-class UpDownCoreStrategy(CoreStrategy):
-    PATTERNS_NEEDED = set([R_D, C_D, R_U, C_U])
+class RuCuRdCdCoreStrategy(CoreStrategy):
+    patterns_needed = set([R_D, C_D, R_U, C_U])
 
-    def is_valid_extension(patt):
+    def is_valid_extension(self, patt):
         return patt[0] == 0
 
-__all__ = [UpCoreStrategy, DownCoreStrategy]
+
+class RuCuRdCoreStrategy(CoreStrategy):
+    patterns_needed = set([R_U, C_U, R_D])
+
+    def is_valid_extension(self, patt):
+        return patt[0] == 0 and not fstrip(patt).skew_decomposable()
+
+
+core_strategies = [RuCuCoreStrategy, RdCdCoreStrategy, RuCuRdCdCoreStrategy]
