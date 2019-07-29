@@ -38,7 +38,7 @@ def test_RdCd():
     assert RdCdCoreStrategy([rd, cd, Perm((0,4,1,2,3))]).applies()
 
 def test_find_strategies():
-    b1 = [Perm((0,1,2))]
+    b1 = [Perm((0,1,2,3,4))]
     b2 = Basis([Perm((0,1,2,3)), Perm((2,0,1))])
     assert len(find_strategies(b1, long_runnning=True)) == 0
     assert len(find_strategies(b1, long_runnning=False)) == 0
