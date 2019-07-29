@@ -35,9 +35,12 @@ class CoreStrategy(EnumerationStrategy):
 
     def applies(self):
         b = set(self.basis)
+        perm_class = Av(b)
+        patterns_are_contained = all(p not in perm_class for p in
+                                     self.patterns_needed)
         extensions_are_valid = all(self.is_valid_extension(patt) for patt in
                                    b.difference(self.patterns_needed))
-        return self.patterns_needed.issubset(b) and extensions_are_valid
+        return patterns_are_contained and extensions_are_valid
 
 
 # Tool functions
