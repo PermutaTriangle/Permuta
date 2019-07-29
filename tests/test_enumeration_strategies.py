@@ -40,7 +40,8 @@ def test_RdCd():
 def test_find_strategies():
     b1 = [Perm((0,1,2))]
     b2 = Basis([Perm((0,1,2,3)), Perm((2,0,1))])
-    assert len(find_strategies(b1)) == 0
+    assert len(find_strategies(b1, long_runnning=True)) == 0
+    assert len(find_strategies(b1, long_runnning=False)) == 0
     assert len(find_strategies(b2)) > 0
     assert any(isinstance(s, InsertionEncodingStrategy) for s in
                find_strategies(b2))
