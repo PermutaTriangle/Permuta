@@ -116,6 +116,10 @@ class AvoidingGeneric(Avoiding):
         else:
             raise TypeError
 
+    def is_subclass(self, other):
+        """ Check if the `self` is a subclass of `other`. """
+        return all(p1 not in self for p1 in other.basis)
+
 
 class AvoidingGenericSpecificLength(PermSetFiniteSpecificLength):
     """Class for iterating through all perms of a specific length avoiding a
