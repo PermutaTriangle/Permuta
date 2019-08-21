@@ -151,3 +151,23 @@ def test_avoiding_generic_finite_class():
             cnt[len(perm)] += 1
 
         assert enum == cnt
+
+
+def test_is_subclass():
+    av1 = AvoidingGeneric((Perm((0,)),))
+    av12_21 = AvoidingGeneric((Perm((0,1)), Perm((1,0))))
+    av123 = AvoidingGeneric((Perm((0,1,2)),))
+    av1234 = AvoidingGeneric((Perm((0,1,2,3)),))
+    assert av1.is_subclass(av123)
+    assert not av123.is_subclass(av1)
+    assert av123.is_subclass(av1234)
+    assert not av1234.is_subclass(av12_21)
+    assert av12_21.is_subclass(av1234)
+    assert av123.is_subclass(av123)
+    av1324_1423_12345 = AvoidingGeneric((Perm((0,2,1,3)), Perm((0,3,1,2)),
+                                       Perm((0,1,2,3,4,5))))
+    av1324_1234 = AvoidingGeneric((Perm((0,2,1,3)), Perm((0,1,2,3))))
+    av1234_132 = AvoidingGeneric((Perm((0,1,2,3)), Perm((0,2,1))))
+    assert av123.is_subclass(av1324_1423_12345)
+    assert not av1324_1234.is_subclass(av1324_1423_12345)
+    assert av1234_132.is_subclass(av1324_1423_12345)
