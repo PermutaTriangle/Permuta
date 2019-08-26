@@ -2,7 +2,6 @@
 
 import itertools
 import random
-import sys
 from math import factorial
 
 from ....perm import Perm
@@ -10,9 +9,6 @@ from ...finite.permset_finite import PermSetFinite
 from ...finite.permset_finite_specificlength import PermSetFiniteSpecificLength
 from ...finite.permset_static import PermSetStatic
 from ..permset_unbounded import PermSetUnbounded
-
-if sys.version_info.major == 2:
-    range = xrange
 
 
 class PermSetAll(PermSetUnbounded):
