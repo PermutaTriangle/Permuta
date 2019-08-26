@@ -6,7 +6,7 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 
 ## Unreleased
 
-## [1.1.0]
+## [1.1.0] - 2019-08-26
 ### Added
 - The ascii_plot, and to_tikz method in MeshPatt
 - is_subclass method in Av
