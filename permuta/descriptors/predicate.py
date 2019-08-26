@@ -1,6 +1,6 @@
 # TODO: Module docstring
 
-from collections import Callable
+from collections.abc import Callable
 from dis import dis
 
 from .descriptor import Descriptor
