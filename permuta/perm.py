@@ -1867,14 +1867,22 @@ class Perm(tuple,
 
     occurrences = count_occurrences_of  # permpy backwards compatibility
 
-    def occurrences_in(self, patt):
+    def occurrences_in(self, patt, self_colours=None, patt_colours=None):
         """Find all indices of occurrences of self in patt.
+
+        If the optional colours are provided, in an occurrences the colours of
+        the patterns have to match the colours of the permutation.
 
         Args:
             self:
                 The classical pattern whose occurrences are to be found.
             patt: <permuta.interfaces.Patt>
                 The patt to search for occurrences in.
+            self_colours: <tuple>
+                Optional colours on each entry of the permutation.
+            patt_colours: <tuple>
+                Optional colours on each entry of the pattern.
+
 
         Yields: <tuple> of <int>
             The indices of the occurrences of self in patt.
@@ -1892,7 +1900,6 @@ class Perm(tuple,
             >>> list(Perm().occurrences_in(Perm((1, 2, 3, 0))))
             [()]
         """
-
         if not isinstance(patt, Perm):
             patt = patt.pattern
 
@@ -1952,20 +1959,22 @@ class Perm(tuple,
                 upper_bound = patt[occurrence_indices[lci]] - ubp
 
             # Loop over remaining elements of perm (actually i, the index)
-            while 1:
+            while True:
                 if elements_remaining < elements_needed:
                     # Can't form an occurrence with remaining elements
                     return
                 element = patt[i]
-                if lower_bound <= element <= upper_bound:
+                compare_colours = (self_colours is None or
+                                   patt_colours[i] == self_colours[k])
+                if compare_colours and lower_bound <= element <= upper_bound:
                     occurrence_indices[k] = i
                     if elements_needed == 1:
                         # Yield occurrence
                         yield tuple(occurrence_indices)
                     else:
                         # Yield occurrences where the i-th element is chosen
-                        for occurence in occurrences(i+1, k+1):
-                            yield occurence
+                        for occurrence in occurrences(i+1, k+1):
+                            yield occurrence
                 # Increment i, that also means elements_remaining should
                 # decrement
                 i += 1
