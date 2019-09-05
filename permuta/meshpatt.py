@@ -430,15 +430,17 @@ class MeshPatt(MeshPatternBase, Patt, Rotatable, Shiftable, Flippable):
         """
         return all(patt not in self for patt in patts)
 
-    def occurrences_in(self, perm):
+    def occurrences_in(self, patt):
         """Find all indices of occurrences of self in perm.
 
         Args:
             self:
                 The mesh pattern whose occurrences are to be found.
-            perm: <permuta.Perm>
-                The permutation to search for occurrences in.
+            patt: <permuta.Perm> or <permuta.MeshPatt>
+                The patt to search for occurrences in.
 
+        ToDo: Update description below to account for patt being either
+              Perm or Meshpatt
         Yields: numbers.Integral
             The indices of the occurrences of self in perm. Each yielded
             element l is a list of integer indices of the permutation perm such
@@ -447,20 +449,29 @@ class MeshPatt(MeshPatternBase, Patt, Rotatable, Shiftable, Flippable):
             self.shading.
         """
         # TODO: Implement all nice
-        for candidate_indices in self.pattern.occurrences_in(perm):
-            candidate = [perm[index] for index in candidate_indices]
-            x = 0
-            for element in perm:
-                if element in candidate:
-                    x += 1
-                    continue
-                y = sum(1 for candidate_element in candidate
-                        if candidate_element < element)
-                if (x, y) in self.shading:
-                    break
-            else:
-                # No unused point fell within shading
-                yield list(candidate_indices)
+        if isinstance(patt, Perm):
+            for candidate_indices in self.pattern.occurrences_in(patt):
+                candidate = [patt[index] for index in candidate_indices]
+                x = 0
+                for element in patt:
+                    if element in candidate:
+                        x += 1
+                        continue
+                    y = sum(1 for candidate_element in candidate
+                            if candidate_element < element)
+                    if (x, y) in self.shading:
+                        break
+                else:
+                    # No unused point fell within shading
+                    yield list(candidate_indices)
+        elif isinstance(patt, MeshPatt):
+            for occurrence in self.occurrences_in(patt.pattern):
+                candidate_sub_mesh_patt = patt.sub_mesh_pattern(occurrence)
+                if set(self.shading) <= set(candidate_sub_mesh_patt.shading):
+                    yield list(occurrence)
+        else:
+            raise ValueError("Variable 'patt' needs to be either a Perm or "
+                             "MeshPatt")
 
     #
     # Other methods
