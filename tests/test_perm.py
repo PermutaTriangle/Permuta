@@ -165,6 +165,13 @@ def test_occurrences_in():
             == [(0, 1), (0, 2), (0, 3), (0, 4), (1, 4), (2, 4), (3, 4)])
     assert list(Perm([4, 1, 2, 3, 0]).occurrences_in(Perm([]))) == []
     assert list(Perm([4, 1, 2, 3, 0]).occurrences_in(Perm([1, 0]))) == []
+    #Test with colours
+    assert (sorted(Perm([0]).occurrences_in(Perm([4, 1, 2, 3, 0]),
+                                            [1], [0, 0, 1, 1, 0]))
+            == [(2, ), (3, )])
+    assert (sorted(Perm([1, 0]).occurrences_in(Perm([4, 1, 2, 3, 0]),
+                                              [1, 0], [1, 0, 1, 2, 0]))
+            == [(0, 1), (0, 4), (2, 4)])
 
 def test_apply():
     with pytest.raises(ValueError): Perm((1, 2, 4, 0, 3, 5)).apply(Perm((0, 2, 1, 3)))
