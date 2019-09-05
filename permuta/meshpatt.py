@@ -431,7 +431,8 @@ class MeshPatt(MeshPatternBase, Patt, Rotatable, Shiftable, Flippable):
         return all(patt not in self for patt in patts)
 
     def occurrences_in(self, patt):
-        """Find all indices of occurrences of self in perm.
+        """
+        Find all indices of patt in self.
 
         Args:
             self:
@@ -439,16 +440,22 @@ class MeshPatt(MeshPatternBase, Patt, Rotatable, Shiftable, Flippable):
             patt: <permuta.Perm> or <permuta.MeshPatt>
                 The patt to search for occurrences in.
 
-        ToDo: Update description below to account for patt being either
-              Perm or Meshpatt
         Yields: numbers.Integral
             The indices of the occurrences of self in perm. Each yielded
-            element l is a list of integer indices of the permutation perm such
-            that self.pattern == permuta.Perm.to_standard([perm[i] for i in l])
-            and that no element not in the occurrence falls within
-            self.shading.
+            element l is a list of integer indices of the pattern `patt` such
+            that:
+
+            If `patt` is a classical pattern:
+                self.pattern == permuta.Perm.to_standard([patt[i] for i in l])
+                and that no element not in the occurrence falls within
+                self.shading.
+
+            If `patt` is a mesh pattern:
+                The list of indices describe a classical occurrence of
+                `patt.patt` as described above and the shading of the submesh
+                pattern induced by this occurrence is a superset of shading of
+                `self.shading`.
         """
-        # TODO: Implement all nice
         if isinstance(patt, Perm):
             for candidate_indices in self.pattern.occurrences_in(patt):
                 candidate = [patt[index] for index in candidate_indices]
