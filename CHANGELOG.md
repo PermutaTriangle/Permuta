@@ -6,6 +6,12 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 
 ## Unreleased
 
+## [1.2.0] - 2019-09-05
+### Added
+- The `occurences_in` method of permutation can can handle coloured
+  permutations.
+- Support for containment of mesh pattern in a mesh pattern.
+
 ## [1.1.0] - 2019-08-26
 ### Added
 - The ascii_plot, and to_tikz method in MeshPatt
