@@ -224,6 +224,19 @@ def test_contained_in():
     assert mesh_pattern.contained_in(perm1, perm2)
     assert not (mesh_pattern.contained_in(perm1, perm3))
 
+def test_meshpatt_contains_meshpatt():
+    p_12 = Perm([0, 1])
+    p_123 = Perm([0, 1, 2])
+    small_mesh_patt = MeshPatt(p_12, [(1, 0), (1, 1), (1, 2)])
+    big_mesh_patt_1st_col = MeshPatt(p_123, [(1, 0), (1, 1), (1, 2), (1, 3)])
+    big_mesh_patt_2nd_col = MeshPatt(p_123, [(2, 0), (2, 1), (2, 2), (2, 3)])
+    assert small_mesh_patt in big_mesh_patt_1st_col
+    assert small_mesh_patt in big_mesh_patt_2nd_col
+    assert not big_mesh_patt_1st_col in small_mesh_patt
+    assert not big_mesh_patt_2nd_col in small_mesh_patt
+    assert not big_mesh_patt_1st_col in big_mesh_patt_2nd_col
+    assert not big_mesh_patt_2nd_col in big_mesh_patt_1st_col
+
 def test_avoided_by():
     assert not (mesh_pattern.avoided_by(perm1))
     assert not (mesh_pattern.avoided_by(perm2))
