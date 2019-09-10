@@ -11,7 +11,7 @@ def read(fname):
 
 setup(
     name="permuta",
-    version="1.2.0",
+    version="1.2.1",
     author="Permuta Triangle",
     author_email="permutatriangle@gmail.com",
     description="A comprehensive high performance permutation library.",
@@ -26,7 +26,7 @@ setup(
     packages=find_packages(),
     long_description=read("README.rst"),
     setup_requires=["pytest-runner==5.1"],
-    tests_require=["pytest==5.1.1",
+    tests_require=["pytest==5.1.2",
                    "pytest-cov==2.7.1",
                    "pytest-pep8==1.0.6",
                    "pytest-isort==0.3.1"],
