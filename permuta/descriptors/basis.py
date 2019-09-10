@@ -110,7 +110,13 @@ class Basis(AbstractBasis):
 
 
 class MeshBasis(AbstractBasis):
-    ALLOWED_BASIS_ELEMENT_TYPES = (Perm, MeshPatt)
+    ALLOWED_BASIS_ELEMENT_TYPES = (MeshPatt,)
+
+    def __new__(cls, patts):
+        return super().__new__(cls, {
+            patt if isinstance(patt, MeshPatt) else MeshPatt(patt, [])
+            for patt in patts
+        })
 
 
 def detect_basis_cls(basis):
