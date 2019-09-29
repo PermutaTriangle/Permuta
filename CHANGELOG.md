@@ -6,6 +6,10 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 
 ## Unreleased
 
+## [1.2.1] - 2019-09-10
+### Fixed
+- Allow for a mix of permutation and mesh patterns in MeshBasis
+
 ## [1.2.0] - 2019-09-05
 ### Added
 - The `occurences_in` method of permutation can can handle coloured
