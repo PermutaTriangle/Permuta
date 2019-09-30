@@ -464,6 +464,24 @@ def test_eq():
     assert mesh2copy == mesh2copy
     assert mesh3copy == mesh3copy
 
+
+def test_ordering():
+    # mesh1, mesh2 and mesh3 have different underlying patterns
+    mp1 = MeshPatt(perm1, shad1)
+    mp2 = MeshPatt(perm1, shad2)
+    mp3 = MeshPatt(perm1, shad3)
+
+    # Ensure some ordering of mesh patts (all should be comparable)
+    assert mesh1 > mesh2 or mesh1 <= mesh2
+    assert mp1 < mp2 or mp1 >= mp2
+
+    # Describing lexicographical ordering of mesh patts:
+    #  1) order first by underlying patts
+    #  2) order second by shading [Python list ordering by smallest indices]
+    assert mesh3 < mesh1 < mesh2  # case 1)
+    assert mp1 < mp2 < mp3  # case 2)
+
+
 def test_to_tikz():
     assert (mesh_pattern.to_tikz() ==
 '\\begin{tikzpicture}[scale=.3,baseline=(current bounding box.center)]\n\t\\foreach \\x in {1,...,4} {\n\t\t\\draw[ultra thin] (\\x,0)--(\\x,5); %vline\n\t\t\\draw[ultra thin] (0,\\x)--(5,\\x); %hline\n\t\n\t}\n\t\\fill[pattern color = black!75, pattern=north east lines] (0, 0) rectangle +(1,1);\n\t\\fill[pattern color = black!75, pattern=north east lines] (0, 4) rectangle +(1,1);\n\t\\fill[pattern color = black!75, pattern=north east lines] (2, 1) rectangle +(1,1);\n\t\\fill[pattern color = black!75, pattern=north east lines] (2, 2) rectangle +(1,1);\n\t\\fill[pattern color = black!75, pattern=north east lines] (3, 3) rectangle +(1,1);\n\t\\fill[pattern color = black!75, pattern=north east lines] (4, 0) rectangle +(1,1);\n\t\\fill[pattern color = black!75, pattern=north east lines] (4, 1) rectangle +(1,1);\n\t\\fill[pattern color = black!75, pattern=north east lines] (4, 2) rectangle +(1,1);\n\t\\draw[fill=black] (1,2) circle (5pt);\n\t\\draw[fill=black] (2,4) circle (5pt);\n\t\\draw[fill=black] (3,3) circle (5pt);\n\t\\draw[fill=black] (4,1) circle (5pt);\n\\end{tikzpicture}'
