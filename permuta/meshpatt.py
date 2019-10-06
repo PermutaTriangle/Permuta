@@ -1011,6 +1011,20 @@ class MeshPatt(MeshPatternBase, Patt, Rotatable, Shiftable, Flippable):
     def __bool__(self):
         return bool(self.pattern) or bool(self.shading)
 
+    def __lt__(self, other):
+        return (self.pattern, sorted(self.shading)) < \
+               (other.pattern, sorted(other.shading))
+
+    def __le__(self, other):
+        return (self.pattern, sorted(self.shading)) <= \
+               (other.pattern, sorted(other.shading))
+
+    def __gt__(self, other):
+        return other.__lt__(self)
+
+    def __ge__(self, other):
+        return other.__le__(self)
+
     def __contains__(self, patt):
         """Check if self contains patt.
 
