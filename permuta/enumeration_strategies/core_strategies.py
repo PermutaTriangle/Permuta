@@ -1,6 +1,6 @@
 from abc import abstractmethod, abstractproperty, abstractstaticmethod
 
-from permuta import Av, Perm
+from permuta import Av, MeshPatt, Perm
 from permuta.descriptors import Basis
 from permuta.enumeration_strategies.abstract_strategy import \
     EnumerationStrategy
@@ -120,19 +120,9 @@ class RuCuRdCdCoreStrategy(CoreStrategy):
     is_valid_extension = staticmethod(one_plus_perm)
 
 
-class RuCuRdCoreStrategy(CoreStrategy):
-    patterns_needed = set([R_U, C_U, R_D])
-    is_valid_extension = staticmethod(one_plus_skewind)
-
-
 class RuCuCdCoreStrategy(CoreStrategy):
     patterns_needed = set([R_U, C_U, C_D])
     is_valid_extension = staticmethod(one_plus_skewind)
-
-
-class RdCdRuCoreStrategy(CoreStrategy):
-    patterns_needed = set([R_D, C_D, R_U])
-    is_valid_extension = staticmethod(one_plus_sumind)
 
 
 class RdCdCuCoreStrategy(CoreStrategy):
@@ -149,22 +139,31 @@ class RdCuCoreStrategy(CoreStrategy):
                 not bstrip(fstrip(patt)).sum_decomposable()
 
 
-class RuCdCoreStrategy(CoreStrategy):
-    patterns_needed = set([R_U, C_D])
+class Rd2134CoreStrategy(CoreStrategy):
+    patterns_needed = set([R_D, Perm((1, 0, 2, 3))])
 
     @staticmethod
     def is_valid_extension(patt):
-        return one_plus_skewind(patt) and \
-                not bstrip(fstrip(patt)).sum_decomposable()
+        mp1 = MeshPatt(Perm((1, 0)), [(0, 2), (1, 0), (1, 1), (1, 2),
+                                      (2, 1), (2, 2)])
+        mp2 = MeshPatt(Perm((0, 1)), [(0, 0), (0, 1), (0, 2), (1, 0), (1, 1),
+                                      (1, 2), (2, 0), (2, 2)])
+        mp3 = MeshPatt(Perm((1, 0)), [(0, 1), (0, 2), (1, 1), (1, 2), (2, 1),
+                                      (2, 2)])
+        return (not patt.skew_decomposable() and
+                not mp1.contained_in(patt) and
+                not mp2.contained_in(patt) and
+                (mp3.contained_in(patt) or
+                 (patt[len(patt)-1] == len(patt)-1 and
+                  not bstrip(patt).skew_decomposable())))
+
 
 core_strategies = [
     RuCuCoreStrategy,
     RdCdCoreStrategy,
     RuCuRdCdCoreStrategy,
-    RuCuRdCoreStrategy,
     RuCuCdCoreStrategy,
-    RdCdRuCoreStrategy,
     RdCdCuCoreStrategy,
     RdCuCoreStrategy,
-    RuCdCoreStrategy,
+    Rd2134CoreStrategy,
 ]
