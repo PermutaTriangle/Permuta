@@ -3,7 +3,7 @@ from abc import abstractmethod, abstractproperty, abstractstaticmethod
 from permuta import Av, MeshPatt, Perm
 from permuta.descriptors import Basis
 from permuta.enumeration_strategies.abstract_strategy import \
-    EnumerationStrategy
+    EnumerationStrategyWithSymmetry
 
 R_U = Perm((1, 2, 0, 3))
 C_U = Perm((2, 0, 1, 3))
@@ -12,8 +12,7 @@ C_D = Perm((2, 0, 3, 1))
 
 # Abstract Core Strategy
 
-
-class CoreStrategy(EnumerationStrategy):
+class CoreStrategy(EnumerationStrategyWithSymmetry):
     """
     Abstract class for a core related strategy.
     """
@@ -33,8 +32,15 @@ class CoreStrategy(EnumerationStrategy):
         """
         pass
 
-    def applies(self):
-        b = set(self.basis)
+    def _applies_to_symmetry(self, b):
+        """
+        Check if the core strategy applies to the basis or any of its symmetry.
+
+        INPUT:
+
+        - `b`: a set of permutations.
+        """
+        assert isinstance(b, set)
         perm_class = Av(b)
         patterns_are_contained = all(p not in perm_class for p in
                                      self.patterns_needed)
@@ -75,7 +81,7 @@ def bstrip(perm):
         return perm
 
 
-def one_plus_skewind(perm):
+def zero_plus_skewind(perm):
     """
     Return True if the permutation is of the form 1 + p where p is a
     skew-indecomposable permutations
@@ -83,7 +89,7 @@ def one_plus_skewind(perm):
     return perm[0] == 0 and not fstrip(perm).skew_decomposable()
 
 
-def one_plus_sumind(perm):
+def zero_plus_sumind(perm):
     """
     Return True if the permutation is of the form 1 + p where p is a
     sum-indecomposable permutations
@@ -91,7 +97,10 @@ def one_plus_sumind(perm):
     return perm[0] == 0 and not fstrip(perm).sum_decomposable()
 
 
-def one_plus_perm(perm):
+def zero_plus_perm(perm):
+    """
+    Return True if the permutation starts with a zero.
+    """
     return perm[0] == 0
 
 
@@ -103,7 +112,7 @@ class RuCuCoreStrategy(CoreStrategy):
     class as inflation of an independent set.
     """
     patterns_needed = set([R_U, C_U])
-    is_valid_extension = staticmethod(one_plus_skewind)
+    is_valid_extension = staticmethod(zero_plus_skewind)
 
 
 class RdCdCoreStrategy(CoreStrategy):
@@ -112,22 +121,22 @@ class RdCdCoreStrategy(CoreStrategy):
     class as inflation of an independent set.
     """
     patterns_needed = set([R_D, C_D])
-    is_valid_extension = staticmethod(one_plus_sumind)
+    is_valid_extension = staticmethod(zero_plus_sumind)
 
 
 class RuCuRdCdCoreStrategy(CoreStrategy):
     patterns_needed = set([R_D, C_D, R_U, C_U])
-    is_valid_extension = staticmethod(one_plus_perm)
+    is_valid_extension = staticmethod(zero_plus_perm)
 
 
 class RuCuCdCoreStrategy(CoreStrategy):
     patterns_needed = set([R_U, C_U, C_D])
-    is_valid_extension = staticmethod(one_plus_skewind)
+    is_valid_extension = staticmethod(zero_plus_skewind)
 
 
 class RdCdCuCoreStrategy(CoreStrategy):
     patterns_needed = set([R_D, C_D, C_U])
-    is_valid_extension = staticmethod(one_plus_sumind)
+    is_valid_extension = staticmethod(zero_plus_sumind)
 
 
 class RdCuCoreStrategy(CoreStrategy):
@@ -135,7 +144,7 @@ class RdCuCoreStrategy(CoreStrategy):
 
     @staticmethod
     def is_valid_extension(patt):
-        return one_plus_skewind(patt) and \
+        return zero_plus_skewind(patt) and \
                 not bstrip(fstrip(patt)).sum_decomposable()
 
 
