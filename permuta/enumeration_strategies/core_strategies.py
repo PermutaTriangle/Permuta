@@ -12,6 +12,7 @@ C_D = Perm((2, 0, 3, 1))
 
 # Abstract Core Strategy
 
+
 class CoreStrategy(EnumerationStrategyWithSymmetry):
     """
     Abstract class for a core related strategy.
@@ -145,7 +146,7 @@ class RdCuCoreStrategy(CoreStrategy):
     @staticmethod
     def is_valid_extension(patt):
         return zero_plus_skewind(patt) and \
-                not bstrip(fstrip(patt)).sum_decomposable()
+            not bstrip(fstrip(patt)).sum_decomposable()
 
 
 class Rd2134CoreStrategy(CoreStrategy):
