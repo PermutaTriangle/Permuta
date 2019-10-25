@@ -48,7 +48,6 @@ class EnumerationStrategyWithSymmetry(EnumerationStrategy):
             self.applies()
         return self._basis
 
-
     def applies(self):
         """
         Check if the strategy applies to any symmetry.
