@@ -10,14 +10,13 @@ C_U = Perm((2, 0, 1, 3))
 R_D = Perm((1, 3, 0, 2))
 C_D = Perm((2, 0, 3, 1))
 
-# Abstract Core Strategy
 
+# Abstract Core Strategy
 
 class CoreStrategy(EnumerationStrategyWithSymmetry):
     """
     Abstract class for a core related strategy.
     """
-
     @abstractproperty
     def patterns_needed():
         """
@@ -49,17 +48,11 @@ class CoreStrategy(EnumerationStrategyWithSymmetry):
                                    b.difference(self.patterns_needed))
         return patterns_are_contained and extensions_are_valid
 
-
 # Tool functions
 
 def fstrip(perm):
     """
     Remove the leading 1 if the permutation is the sum of 1 + p.
-
-    >>> fstrip(Perm((0, 1, 3, 2)))
-    Perm((0, 2, 1))
-    >>> fstrip(Perm((4, 0, 1, 3, 2)))
-    Perm((4, 0, 1, 3, 2))
     """
     if perm[0] == 0:
         return Perm.from_iterable(perm[1:])
@@ -70,11 +63,6 @@ def fstrip(perm):
 def bstrip(perm):
     """
     Remove the trailing n if the permutation is the sum of p + 1.
-
-    >>> bstrip(Perm((0, 1, 3, 2)))
-    Perm((0, 1, 3, 2))
-    >>> bstrip(Perm((0, 1, 3, 2, 4)))
-    Perm((0, 1, 3, 2))
     """
     if perm[-1] == len(perm)-1:
         return Perm.from_iterable(perm[:-1])
@@ -103,6 +91,32 @@ def zero_plus_perm(perm):
     Return True if the permutation starts with a zero.
     """
     return perm[0] == 0
+
+
+def last_sum_component(p):
+    """
+    Return the last sum component of a permutation.
+    """
+    n = len(p)
+    i = 1
+    comp = set([p[n-i]])
+    while comp != set(range(n-i, n)):
+        i += 1
+        comp.add(p[n-i])
+    return Perm.to_standard(p[n-i:n])
+
+
+def last_skew_component(p):
+    """
+    Return the last skew component of a permutation.
+    """
+    n = len(p)
+    i = 1
+    comp = set([p[n-i]])
+    while comp != set(range(0, i)):
+        i += 1
+        comp.add(p[n-i])
+    return Perm.to_standard(p[n-i:n])
 
 
 # Core Strategies
@@ -137,7 +151,10 @@ class RuCuCdCoreStrategy(CoreStrategy):
 
 class RdCdCuCoreStrategy(CoreStrategy):
     patterns_needed = frozenset([R_D, C_D, C_U])
-    is_valid_extension = staticmethod(zero_plus_sumind)
+
+    @staticmethod
+    def is_valid_extension(patt):
+        return zero_plus_sumind(bstrip(patt))
 
 
 class RdCuCoreStrategy(CoreStrategy):
@@ -145,8 +162,8 @@ class RdCuCoreStrategy(CoreStrategy):
 
     @staticmethod
     def is_valid_extension(patt):
-        return zero_plus_skewind(patt) and \
-            not bstrip(fstrip(patt)).sum_decomposable()
+        return (zero_plus_skewind(patt) and
+                zero_plus_sumind(bstrip(patt)))
 
 
 class Rd2134CoreStrategy(CoreStrategy):
@@ -154,18 +171,22 @@ class Rd2134CoreStrategy(CoreStrategy):
 
     @staticmethod
     def is_valid_extension(patt):
-        mp1 = MeshPatt(Perm((1, 0)), [(0, 2), (1, 0), (1, 1), (1, 2),
-                                      (2, 1), (2, 2)])
-        mp2 = MeshPatt(Perm((0, 1)), [(0, 0), (0, 1), (0, 2), (1, 0), (1, 1),
-                                      (1, 2), (2, 0), (2, 2)])
-        mp3 = MeshPatt(Perm((1, 0)), [(0, 1), (0, 2), (1, 1), (1, 2), (2, 1),
-                                      (2, 2)])
-        return (not patt.skew_decomposable() and
-                not mp1.contained_in(patt) and
-                not mp2.contained_in(patt) and
-                (mp3.contained_in(patt) or
-                 (patt[len(patt)-1] == len(patt)-1 and
-                  not bstrip(patt).skew_decomposable())))
+        mp = MeshPatt(Perm((1, 0)), [(0, 1), (0, 2), (1, 0), (1, 1), (1, 2),
+                                     (2, 1), (2, 2)])
+        return (patt[0] == 0 and fstrip(patt).avoids(mp) and
+                last_sum_component(fstrip(patt)) not in Av([Perm((0, 1))]))
+
+
+class Ru2143CoreStrategy(CoreStrategy):
+    patterns_needed = frozenset([R_U, Perm((1, 0, 3, 2))])
+
+    @staticmethod
+    def is_valid_extension(patt):
+        mp = MeshPatt(Perm((0, 1)), [(0, 1), (0, 2), (1, 0), (1, 1), (1, 2),
+                                     (2, 1), (2, 2)])
+        patt = fstrip(patt)
+        return (patt.avoids(mp) and
+                last_skew_component(patt) not in Av([Perm((1, 0))]))
 
 
 core_strategies = [
@@ -176,4 +197,5 @@ core_strategies = [
     RdCdCuCoreStrategy,
     RdCuCoreStrategy,
     Rd2134CoreStrategy,
+    Ru2143CoreStrategy,
 ]
