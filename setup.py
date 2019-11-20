@@ -26,7 +26,7 @@ setup(
     packages=find_packages(),
     long_description=read("README.rst"),
     setup_requires=["pytest-runner==5.2"],
-    tests_require=["pytest==5.2.4",
+    tests_require=["pytest==5.3.0",
                    "pytest-cov==2.8.1",
                    "pytest-pep8==1.0.6",
                    "pytest-isort==0.3.1"],
