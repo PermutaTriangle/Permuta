@@ -48,6 +48,17 @@ class CoreStrategy(EnumerationStrategyWithSymmetry):
                                    b.difference(self.patterns_needed))
         return patterns_are_contained and extensions_are_valid
 
+    @classmethod
+    def reference(cls):
+        return ('Enumeration of Permutation Classes and Weighted Labelled '
+                'Independent Sets: Corollary {}').format(cls.corr_number)
+
+    @property
+    @staticmethod
+    def corr_number():
+        """The number of the corollary in the that gives this strategy."""
+        raise NotImplementedError
+
 # Tool functions
 
 
@@ -129,6 +140,7 @@ class RuCuCoreStrategy(CoreStrategy):
     """
     patterns_needed = frozenset([R_U, C_U])
     is_valid_extension = staticmethod(zero_plus_skewind)
+    corr_number = '4.3'
 
 
 class RdCdCoreStrategy(CoreStrategy):
@@ -138,20 +150,24 @@ class RdCdCoreStrategy(CoreStrategy):
     """
     patterns_needed = frozenset([R_D, C_D])
     is_valid_extension = staticmethod(zero_plus_sumind)
+    corr_number = '4.6'
 
 
 class RuCuRdCdCoreStrategy(CoreStrategy):
     patterns_needed = frozenset([R_D, C_D, R_U, C_U])
     is_valid_extension = staticmethod(zero_plus_perm)
+    corr_number = '5.4'
 
 
 class RuCuCdCoreStrategy(CoreStrategy):
     patterns_needed = frozenset([R_U, C_U, C_D])
     is_valid_extension = staticmethod(zero_plus_skewind)
+    corr_number = '6.3'
 
 
 class RdCdCuCoreStrategy(CoreStrategy):
     patterns_needed = frozenset([R_D, C_D, C_U])
+    corr_number = '7.4'
 
     @staticmethod
     def is_valid_extension(patt):
@@ -160,6 +176,7 @@ class RdCdCuCoreStrategy(CoreStrategy):
 
 class RdCuCoreStrategy(CoreStrategy):
     patterns_needed = frozenset([R_D, C_U])
+    corr_number = '8.3'
 
     @staticmethod
     def is_valid_extension(patt):
@@ -169,6 +186,7 @@ class RdCuCoreStrategy(CoreStrategy):
 
 class Rd2134CoreStrategy(CoreStrategy):
     patterns_needed = frozenset([R_D, Perm((1, 0, 2, 3))])
+    corr_number = '9.5'
 
     @staticmethod
     def is_valid_extension(patt):
@@ -181,6 +199,7 @@ class Rd2134CoreStrategy(CoreStrategy):
 
 class Ru2143CoreStrategy(CoreStrategy):
     patterns_needed = frozenset([R_U, Perm((1, 0, 3, 2))])
+    corr_number = '10.5'
 
     @staticmethod
     def is_valid_extension(patt):

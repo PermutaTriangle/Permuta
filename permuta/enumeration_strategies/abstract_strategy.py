@@ -14,9 +14,8 @@ class EnumerationStrategy(ABC):
     def basis(self):
         return self._basis
 
-    @property
-    @staticmethod
-    def reference():
+    @classmethod
+    def reference(cls):
         """A reference for the strategy."""
         raise NotImplementedError
 
