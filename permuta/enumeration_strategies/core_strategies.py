@@ -50,6 +50,7 @@ class CoreStrategy(EnumerationStrategyWithSymmetry):
 
 # Tool functions
 
+
 def fstrip(perm):
     """
     Remove the leading 1 if the permutation is the sum of 1 + p.
@@ -173,8 +174,9 @@ class Rd2134CoreStrategy(CoreStrategy):
     def is_valid_extension(patt):
         mp = MeshPatt(Perm((1, 0)), [(0, 1), (0, 2), (1, 0), (1, 1), (1, 2),
                                      (2, 1), (2, 2)])
+        last_comp = last_sum_component(fstrip(patt))
         return (patt[0] == 0 and fstrip(patt).avoids(mp) and
-                last_sum_component(fstrip(patt)) not in Av([Perm((0, 1))]))
+                (last_comp not in Av([Perm((0, 1))]) or len(last_comp) == 1))
 
 
 class Ru2143CoreStrategy(CoreStrategy):

@@ -29,6 +29,8 @@ class TestRuCu():
         assert not RuCuCoreStrategy([ru, Perm((0,1,2,3))]).applies()
         assert not RuCuCoreStrategy([ru, cu, Perm((1,4,0,2,3))]).applies()
         assert RuCuCoreStrategy([ru, cu, Perm((0,1,2,3,4))]).applies()
+        assert RuCuCoreStrategy([ru, cu, Perm((0,2,4,1,3)),
+                                 Perm((0,1,3,2,4))]).applies()
 
     def test_applies_to_a_symmetry(self):
         assert RuCuCoreStrategy([Perm([0,2,3,1]), Perm([0,3,1,2])]).applies()
@@ -91,10 +93,14 @@ class TestRuCuCd():
         assert RuCuCdCoreStrategy([ru, cu, cd, Perm((0,1,2,3))]).applies()
 
     def test_applies_to_a_symmetry(self):
+        assert RuCuCdCoreStrategy([ru, cu, rd]).applies()
+        assert RuCuCdCoreStrategy([ru, cu, rd, Perm((0,2,1,3))]).applies()
         assert RuCuCdCoreStrategy([Perm((0,2,3,1)), Perm((0,3,1,2)),
                                      Perm((1,3,0,2))]).applies()
         assert RuCuCdCoreStrategy([Perm((0,2,3,1)), Perm((0,3,1,2)),
                                      Perm((1,3,0,2)), Perm((0,1,2,3))]).applies()
+        # 123 implies the avoidance of ru and cu
+        assert RuCuCdCoreStrategy([rd, Perm((0,1,2))]).applies()
 
 
 class TestRdCdCu():
@@ -107,6 +113,8 @@ class TestRdCdCu():
 
     def test_applies_to_a_symmetry(self):
         assert RdCdCuCoreStrategy([rd, cd, ru]).applies()
+        # Symmetry and adding pattern
+        assert RdCdCuCoreStrategy([Perm((1,0,2)), Perm((0,3,1,2))]).applies()
 
     def test_is_valid_extension(self):
         assert RdCdCuCoreStrategy.is_valid_extension(Perm((0,2,1,3)))
@@ -138,6 +146,9 @@ class TestRd2134():
         assert not Rd2134CoreStrategy([rd, cu, Perm((0,1,2,3))]).applies()
         assert Rd2134CoreStrategy([rd, p2134, Perm((0,3,4,2,1))]).applies()
         assert Rd2134CoreStrategy([rd, p2134, Perm((0,3,2,4,1))]).applies()
+        assert Rd2134CoreStrategy([rd, p2134, Perm((0,1,2,3))]).applies()
+        assert Rd2134CoreStrategy([rd, p2134, Perm((0,2,1,3)),
+                                   Perm((0,1,4,2,3))]).applies()
 
     def test_applies_to_a_symmetry(self):
         assert Rd2134CoreStrategy([cd, p2134]).applies()
@@ -148,7 +159,8 @@ class TestRd2134():
     def test_is_valid_extension(self):
         assert Rd2134CoreStrategy.is_valid_extension(Perm((0,3,4,2,1)))
         assert not Rd2134CoreStrategy.is_valid_extension(Perm((0,4,3,1,2)))
-        assert not Rd2134CoreStrategy.is_valid_extension(Perm((0,1,2,3)))
+        assert Rd2134CoreStrategy.is_valid_extension(Perm((0,1,2,3)))
+        assert not Rd2134CoreStrategy.is_valid_extension(Perm((0,1,2,4,3)))
 
 
 class TestRu2143():
