@@ -40,7 +40,7 @@ class CoreStrategy(EnumerationStrategyWithSymmetry):
 
         - `b`: a set of permutations.
         """
-        assert isinstance(b, set)
+        assert isinstance(b, frozenset)
         perm_class = Av(b)
         patterns_are_contained = all(p not in perm_class for p in
                                      self.patterns_needed)
@@ -111,7 +111,7 @@ class RuCuCoreStrategy(CoreStrategy):
     This strategies uses independent set of the up-core graph to enumerate a
     class as inflation of an independent set.
     """
-    patterns_needed = set([R_U, C_U])
+    patterns_needed = frozenset([R_U, C_U])
     is_valid_extension = staticmethod(zero_plus_skewind)
 
 
@@ -120,27 +120,27 @@ class RdCdCoreStrategy(CoreStrategy):
     This strategies uses independent set of the down-core graph to enumerate a
     class as inflation of an independent set.
     """
-    patterns_needed = set([R_D, C_D])
+    patterns_needed = frozenset([R_D, C_D])
     is_valid_extension = staticmethod(zero_plus_sumind)
 
 
 class RuCuRdCdCoreStrategy(CoreStrategy):
-    patterns_needed = set([R_D, C_D, R_U, C_U])
+    patterns_needed = frozenset([R_D, C_D, R_U, C_U])
     is_valid_extension = staticmethod(zero_plus_perm)
 
 
 class RuCuCdCoreStrategy(CoreStrategy):
-    patterns_needed = set([R_U, C_U, C_D])
+    patterns_needed = frozenset([R_U, C_U, C_D])
     is_valid_extension = staticmethod(zero_plus_skewind)
 
 
 class RdCdCuCoreStrategy(CoreStrategy):
-    patterns_needed = set([R_D, C_D, C_U])
+    patterns_needed = frozenset([R_D, C_D, C_U])
     is_valid_extension = staticmethod(zero_plus_sumind)
 
 
 class RdCuCoreStrategy(CoreStrategy):
-    patterns_needed = set([R_D, C_U])
+    patterns_needed = frozenset([R_D, C_U])
 
     @staticmethod
     def is_valid_extension(patt):
@@ -149,7 +149,7 @@ class RdCuCoreStrategy(CoreStrategy):
 
 
 class Rd2134CoreStrategy(CoreStrategy):
-    patterns_needed = set([R_D, Perm((1, 0, 2, 3))])
+    patterns_needed = frozenset([R_D, Perm((1, 0, 2, 3))])
 
     @staticmethod
     def is_valid_extension(patt):

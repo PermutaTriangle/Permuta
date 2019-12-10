@@ -22,11 +22,11 @@ class TestRuCu():
                                  Perm([0,1,2,3])]).applies()
 
     def test_specific_symmetry(self):
-        b1 = set([ru, cu, Perm((3,0,1,2))])
+        b1 = frozenset([ru, cu, Perm((3,0,1,2))])
         assert not RuCuCoreStrategy(b1)._applies_to_symmetry(b1)
-        b2 = set([ru, cu, Perm((0,3,2,1))])
+        b2 = frozenset([ru, cu, Perm((0,3,2,1))])
         assert not RuCuCoreStrategy(b2)._applies_to_symmetry(b2)
-        b3 = set([ru, cu])
+        b3 = frozenset([ru, cu])
         assert RuCuCoreStrategy(b3)._applies_to_symmetry(b3)
 
 # Test for tools functions
