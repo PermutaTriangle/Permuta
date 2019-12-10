@@ -8,7 +8,7 @@ class EnumerationStrategy(ABC):
 
     def __init__(self, basis):
         ABC.__init__(self)
-        self._basis = basis
+        self._basis = frozenset(basis)
 
     @property
     def basis(self):
@@ -53,7 +53,7 @@ class EnumerationStrategyWithSymmetry(EnumerationStrategy):
         """
         Check if the strategy applies to any symmetry.
         """
-        for b in map(set, all_symmetry_sets(self._basis)):
+        for b in map(frozenset, all_symmetry_sets(self._basis)):
             if self._applies_to_symmetry(b):
                 self._apply_basis = b
                 return True
