@@ -45,6 +45,13 @@ class TestRuCu():
         b3 = frozenset([ru, cu])
         assert RuCuCoreStrategy(b3)._applies_to_symmetry(b3)
 
+    def test_reference(self):
+        print(RuCuCoreStrategy.reference())
+        assert RuCuCoreStrategy.reference() == (
+            'Enumeration of Permutation '
+            'Classes and Weighted Labelled Independent Sets: '
+            'Corollary 4.3')
+
 
 class TestRdCd():
 
