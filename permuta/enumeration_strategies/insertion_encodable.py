@@ -3,11 +3,12 @@ Enumeration strategies related to the insertion encoding.
 """
 
 from permuta.enumeration_strategies.abstract_strategy import \
-    EnumerationStrategy
-from permuta.permutils.insertion_encodable import is_insertion_encodable
+    EnumerationStrategyWithSymmetry
+from permuta.permutils.insertion_encodable import \
+    is_insertion_encodable_maximum
 
 
-class InsertionEncodingStrategy(EnumerationStrategy):
+class InsertionEncodingStrategy(EnumerationStrategyWithSymmetry):
 
-    def applies(self):
-        return is_insertion_encodable(self.basis)
+    def _applies_to_symmetry(self, b):
+        return is_insertion_encodable_maximum(b)
