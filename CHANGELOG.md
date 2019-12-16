@@ -6,6 +6,7 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 
 ## Unreleased
 
+## [1.3.0] - 2019-12-16
 ### Added
 - `MeshPatt`s are now comparable (i.e. a mesh patt is always less then,
   equal to or greater than another mesh patt) and therefore sortable
