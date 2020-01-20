@@ -6,6 +6,13 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 
 ## Unreleased
 
+## [1.3.0] - 2019-12-16
+### Added
+- `MeshPatt`s are now comparable (i.e. a mesh patt is always less then,
+  equal to or greater than another mesh patt) and therefore sortable
+- Added enumeration strategies that can point out to useful results to find the
+  enumeration of a permutation class.
+
 ## [1.2.1] - 2019-09-10
 ### Fixed
 - Allow for a mix of permutation and mesh patterns in MeshBasis
