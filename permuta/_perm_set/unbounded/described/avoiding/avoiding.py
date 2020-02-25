@@ -30,7 +30,7 @@ class Avoiding(PermSetDescribed):
         return "Av({})".format(tuple(self.basis))
 
     def __str__(self):
-        return "<perm set of all perms avoiding {}>".format(self.basis)
+        return "Av({})".format(', '.join(map(str, self.basis)))
 
 
 class AvoidingGeneric(Avoiding):
