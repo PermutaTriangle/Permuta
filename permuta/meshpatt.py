@@ -970,40 +970,9 @@ class MeshPatt(MeshPatternBase, Patt, Rotatable, Shiftable, Flippable):
         return "MeshPatt({}, {})".format(
             repr(self.pattern), sorted(self.shading))
 
-    def __str__(self):  # pragma: no cover
-        result = []
-        for line_number in range(2*len(self), -1, -1):
-            if line_number % 2 == 0:
-                # The regions defined by, and the columns of, the mesh grid
-                y = line_number//2
-                for x in range(len(self) + 1):
-                    if (x, y) in self.shading:
-                        result.append("#")
-                    else:
-                        result.append(" ")
-                    result.append("|")
-                else:
-                    # Remove extra "|"
-                    result.pop()
-            else:
-                # The rows of the mesh grid
-                row_index = line_number//2
-                for column_index in range(0, len(self)):
-                    if self.pattern[column_index] == row_index:
-                        result.append("-")
-                        if len(self) > 9:
-                            result.append("o")
-                        else:
-                            result.append(str(self.pattern[column_index]))
-                    else:
-                        result.append("-+")
-                else:
-                    result.append("-")
-            result.append("\n")
-        else:
-            # Remove extra "\n"
-            result.pop()
-        return "".join(result)
+    def __str__(self):
+        return "({}, {})".format(
+            self.pattern, sorted(self.shading))
 
     def __len__(self):
         return len(self.pattern)
