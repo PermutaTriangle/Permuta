@@ -430,7 +430,7 @@ class MeshPatt(MeshPatternBase, Patt, Rotatable, Shiftable, Flippable):
         """
         return all(patt not in self for patt in patts)
 
-    def occurrences_in(self, patt):
+    def occurrences_in(self, patt, require_last=0):
         """
         Find all indices of patt in self.
 
@@ -439,6 +439,10 @@ class MeshPatt(MeshPatternBase, Patt, Rotatable, Shiftable, Flippable):
                 The mesh pattern whose occurrences are to be found.
             patt: <permuta.Perm> or <permuta.MeshPatt>
                 The patt to search for occurrences in.
+            require_last: <int>
+                The function only returns occurrences where the require_last
+                rightmost point of `patt` are used. If set to 0 it returns all
+                the occurrences.
 
         Yields: numbers.Integral
             The indices of the occurrences of self in perm. Each yielded
@@ -457,7 +461,9 @@ class MeshPatt(MeshPatternBase, Patt, Rotatable, Shiftable, Flippable):
                 `self.shading`.
         """
         if isinstance(patt, Perm):
-            for candidate_indices in self.pattern.occurrences_in(patt):
+            classical_occruences = self.pattern.occurrences_in(
+                patt, require_last=require_last)
+            for candidate_indices in classical_occruences:
                 candidate = [patt[index] for index in candidate_indices]
                 x = 0
                 for element in patt:
@@ -472,7 +478,8 @@ class MeshPatt(MeshPatternBase, Patt, Rotatable, Shiftable, Flippable):
                     # No unused point fell within shading
                     yield list(candidate_indices)
         elif isinstance(patt, MeshPatt):
-            for occurrence in self.occurrences_in(patt.pattern):
+            for occurrence in self.occurrences_in(patt.pattern,
+                                                  require_last=require_last):
                 candidate_sub_mesh_patt = patt.sub_mesh_pattern(occurrence)
                 if set(self.shading) <= set(candidate_sub_mesh_patt.shading):
                     yield list(occurrence)
