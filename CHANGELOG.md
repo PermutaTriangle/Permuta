@@ -7,6 +7,8 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 ## Unreleased
 ### Changed
 - Updated `__str__` method of `Av` and `MeshPatt`.
+- Introduce a more efficient algorithm to build permutation in a permutation
+  class.
 
 ## [1.3.0] - 2019-12-16
 ### Added
