@@ -49,6 +49,17 @@ class AvoidingGeneric(Avoiding):
             return instance
 
     def _ensure_level(self, level_number):
+        min_length = min(len(p) for p in self.basis)
+        max_length = max(len(p) for p in self.basis)
+        def _avoids(perm, basis):
+            if len(perm) < min_length:
+                return True
+            elif len(perm) <= max_length:
+                if perm in basis:
+                    return False
+                if len(perm) == min_length:
+                    return True
+            return all(perm.remove(i) in self for i in range(len(perm)))
         # Ensure level is available
         while len(self.cache) <= level_number:
             new_level = set()
@@ -58,7 +69,7 @@ class AvoidingGeneric(Avoiding):
                 for perm in self.cache[-1]:
                     for index in range(total_indices):
                         new_perm = perm.insert(index)
-                        if new_perm.avoids(*self.basis):
+                        if _avoids(new_perm, self.basis):
                             new_level.add(new_perm)
             else:
                 # Necessary non-smart way for e.g. MeshBasis
