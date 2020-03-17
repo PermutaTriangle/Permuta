@@ -1928,14 +1928,7 @@ class Perm(tuple,
         occurrence_indices = [None]*len(self)
 
         # Get right to left scan details
-        pattern_details = self.reverse().__pattern_details()
-        pattern_details.reverse()
-
-        def trans(x):
-            """A hack to flip the pattern details."""
-            return None if x is None else len(self)-x-1
-        pattern_details = [(trans(a), trans(b), c, d) for a, b, c, d
-                           in pattern_details]
+        pattern_details = self.__pattern_details()
 
         def bounds(k):
             # Get the following variables:
@@ -2048,23 +2041,34 @@ class Perm(tuple,
         # If details have been calculated before, return cached result
         if self._cached_pattern_details is not None:
             return self._cached_pattern_details
+        temp = self.reverse()
         result = []
         index = 0
-        for fac_indices in left_floor_and_ceiling(self):
-            base_element = self[index]
+        for fac_indices in left_floor_and_ceiling(temp):
+            base_element = temp[index]
             compiled = (fac_indices.floor,
 
                         fac_indices.ceiling,
 
-                        self[index]
+                        temp[index]
                         if fac_indices.floor is None
-                        else base_element - self[fac_indices.floor],
+                        else base_element - temp[fac_indices.floor],
 
-                        len(self) - self[index]
+                        len(temp) - temp[index]
                         if fac_indices.ceiling is None
-                        else self[fac_indices.ceiling] - base_element,)
+                        else temp[fac_indices.ceiling] - base_element,)
             result.append(compiled)
             index += 1
+
+        # Get right to left scan details
+        result.reverse()
+
+        def trans(x):
+            """A hack to flip the pattern details."""
+            return None if x is None else len(self)-x-1
+        result = [(trans(a), trans(b), c, d) for a, b, c, d
+                  in result]
+
         self._cached_pattern_details = result
         return result
 
