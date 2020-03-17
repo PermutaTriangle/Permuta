@@ -1867,7 +1867,8 @@ class Perm(tuple,
 
     occurrences = count_occurrences_of  # permpy backwards compatibility
 
-    def occurrences_in(self, patt, self_colours=None, patt_colours=None):
+    def occurrences_in(self, patt, self_colours=None, patt_colours=None,
+                       require_last=0):
         """Find all indices of occurrences of self in patt.
 
         If the optional colours are provided, in an occurrences the colours of
@@ -1882,6 +1883,10 @@ class Perm(tuple,
                 Optional colours on each entry of the permutation.
             patt_colours: <tuple>
                 Optional colours on each entry of the pattern.
+            require_last: <int>
+                The function only returns occurrences where the require_last
+                rightmost point of `patt` are used. If set to 0 it returns all
+                the occurrences.
 
 
         Yields: <tuple> of <int>
@@ -1926,13 +1931,7 @@ class Perm(tuple,
         pattern_details = [(trans(a), trans(b), c, d) for a, b, c, d
                            in pattern_details]
 
-        # Define function that works with the above defined variables
-        # i is the index of the element in perm that is to be considered
-        # k is the index of self you are trying to match
-        def occurrences(i, k):
-            elements_remaining = i + 1
-            elements_needed = k + 1
-
+        def bounds(k):
             # Get the following variables:
             #   - rfi: Right Floor Index
             #   - rci: Right Ceiling Index
@@ -1963,6 +1962,28 @@ class Perm(tuple,
                 # than its right ceiling as self[k] is to its right ceiling
                 # In this case, ubp = self[lci] - self[k]
                 upper_bound = patt[occurrence_indices[rci]] - ubp
+            return lower_bound, upper_bound
+
+        # Initialize to use the require_last rightmost element of patt.
+        for j in range(1, require_last+1):
+            i = len(patt)-j
+            k = len(self)-j
+            element = patt[i]
+            lower_bound, upper_bound = bounds(k)
+            compare_colours = (self_colours is None or
+                               patt_colours[i] == self_colours[k])
+            if compare_colours and lower_bound <= element <= upper_bound:
+                occurrence_indices[k] = i
+            else:
+                return
+
+        # Define function that works with the above defined variables
+        # i is the index of the element in perm that is to be considered
+        # k is the index of self you are trying to match
+        def occurrences(i, k):
+            elements_remaining = i + 1
+            elements_needed = k + 1
+            lower_bound, upper_bound = bounds(k)
 
             # Loop over remaining elements of perm (actually i, the index)
             while True:
@@ -1985,7 +2006,8 @@ class Perm(tuple,
                 i -= 1
                 elements_remaining -= 1
 
-        yield from occurrences(len(patt)-1, len(self)-1)
+        yield from occurrences(len(patt)-1-require_last,
+                               len(self)-1-require_last)
 
     def occurrences_of(self, patt):
         """Find all indices of occurrences of patt in self.

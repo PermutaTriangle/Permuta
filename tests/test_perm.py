@@ -172,6 +172,31 @@ def test_occurrences_in():
     assert (sorted(Perm([1, 0]).occurrences_in(Perm([4, 1, 2, 3, 0]),
                                               [1, 0], [1, 0, 1, 2, 0]))
             == [(0, 1), (0, 4), (2, 4)])
+    # Tes with require_last
+    assert (sorted(Perm([0, 1, 2]).occurrences_in(Perm((0, 1, 2, 3)),
+                                                  require_last=2))
+            == [(0, 2, 3), (1, 2, 3)])
+    assert (sorted(Perm([0, 2, 1]).occurrences_in(Perm((2, 0, 4, 3, 1)),
+                                                  require_last=2))
+            == [(1, 3, 4)])
+    assert (sorted(Perm([0, 1, 2]).occurrences_in(Perm((0, 1, 3, 2)),
+                                                  require_last=2))
+            == [])
+    assert (sorted(Perm([0, 1, 2]).occurrences_in(Perm((0, 1, 2, 3)),
+                                                  self_colours=[0, 0, 1],
+                                                  patt_colours=[0, 0, 0, 1],
+                                                  require_last=2))
+            == [(0, 2, 3), (1, 2, 3)])
+    assert (sorted(Perm([0, 1, 2]).occurrences_in(Perm((0, 1, 2, 3)),
+                                                  self_colours=[1, 0, 1],
+                                                  patt_colours=[0, 1, 0, 1],
+                                                  require_last=2))
+            == [(1, 2, 3)])
+    assert (sorted(Perm([0, 1, 2]).occurrences_in(Perm((0, 1, 2, 3)),
+                                                  self_colours=[0, 1, 1],
+                                                  patt_colours=[0, 1, 0, 1],
+                                                  require_last=2))
+            == [])
 
 def test_apply():
     with pytest.raises(ValueError): Perm((1, 2, 4, 0, 3, 5)).apply(Perm((0, 2, 1, 3)))
