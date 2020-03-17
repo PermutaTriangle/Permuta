@@ -1892,11 +1892,11 @@ class Perm(tuple,
 
         Examples:
             >>> list(Perm((2, 0, 1)).occurrences_in(Perm((5, 3, 0, 4, 2, 1))))
-            [(0, 1, 3), (0, 2, 3), (0, 2, 4), (0, 2, 5), (1, 2, 4), (1, 2, 5)]
+            [(1, 2, 5), (0, 2, 5), (1, 2, 4), (0, 2, 4), (0, 2, 3), (0, 1, 3)]
             >>> list(Perm((1, 0)).occurrences_in(Perm((1, 2, 3, 0))))
-            [(0, 3), (1, 3), (2, 3)]
+            [(2, 3), (1, 3), (0, 3)]
             >>> list(Perm((0,)).occurrences_in(Perm((1, 2, 3, 0))))
-            [(0,), (1,), (2,), (3,)]
+            [(3,), (2,), (1,), (0,)]
             >>> list(Perm().occurrences_in(Perm((1, 2, 3, 0))))
             [()]
         """
@@ -1916,37 +1916,43 @@ class Perm(tuple,
         # The indices of the occurrence in perm
         occurrence_indices = [None]*len(self)
 
-        # Get left to right scan details
-        pattern_details = self.__pattern_details()
+        # Get right to left scan details
+        pattern_details = self.reverse().__pattern_details()
+        pattern_details.reverse()
+
+        def trans(x):
+            """A hack to flip the pattern details."""
+            return None if x is None else len(self)-x-1
+        pattern_details = [(trans(a), trans(b), c, d) for a, b, c, d
+                           in pattern_details]
 
         # Define function that works with the above defined variables
         # i is the index of the element in perm that is to be considered
-        # k is how many elements of the perm have already been added to
-        # occurrence
+        # k is the index of self you are trying to match
         def occurrences(i, k):
-            elements_remaining = len(patt) - i
-            elements_needed = len(self) - k
+            elements_remaining = i + 1
+            elements_needed = k + 1
 
             # Get the following variables:
-            #   - lfi: Left Floor Index
-            #   - lci: Left Ceiling Index
+            #   - rfi: Right Floor Index
+            #   - rci: Right Ceiling Index
             #   - lbp: Lower Bound Pre-computation
             #   - ubp: Upper Bound Pre-computation
-            lfi, lci, lbp, ubp = pattern_details[k]
+            rfi, rci, lbp, ubp = pattern_details[k]
 
             # Set the bounds for the new element
-            if lfi is None:
+            if rfi is None:
                 # The new element of the occurrence must be at least self[k];
                 # i.e., the k-th element of the pattern
                 # In this case, lbp = self[k]
                 lower_bound = lbp
             else:
                 # The new element of the occurrence must be at least as far
-                # from its left floor as self[k] is from its left floor
-                # In this case, lbp = self[k] - self[lfi]
-                occurrence_left_floor = patt[occurrence_indices[lfi]]
+                # from its right floor as self[k] is from its right floor
+                # In this case, lbp = self[k] - self[rfi]
+                occurrence_left_floor = patt[occurrence_indices[rfi]]
                 lower_bound = occurrence_left_floor + lbp
-            if lci is None:
+            if rci is None:
                 # The new element of the occurrence must be at least as less
                 # than its maximum possible element---i.e., len(perm)---as
                 # self[k] is to its maximum possible element---i.e., len(self)
@@ -1954,9 +1960,9 @@ class Perm(tuple,
                 upper_bound = len(patt) - ubp
             else:
                 # The new element of the occurrence must be at least as less
-                # than its left ceiling as self[k] is to its left ceiling
+                # than its right ceiling as self[k] is to its right ceiling
                 # In this case, ubp = self[lci] - self[k]
-                upper_bound = patt[occurrence_indices[lci]] - ubp
+                upper_bound = patt[occurrence_indices[rci]] - ubp
 
             # Loop over remaining elements of perm (actually i, the index)
             while True:
@@ -1973,15 +1979,13 @@ class Perm(tuple,
                         yield tuple(occurrence_indices)
                     else:
                         # Yield occurrences where the i-th element is chosen
-                        for occurrence in occurrences(i+1, k+1):
-                            yield occurrence
+                        yield from occurrences(i-1, k-1)
                 # Increment i, that also means elements_remaining should
                 # decrement
-                i += 1
+                i -= 1
                 elements_remaining -= 1
 
-        for occurrence in occurrences(0, 0):
-            yield occurrence
+        yield from occurrences(len(patt)-1, len(self)-1)
 
     def occurrences_of(self, patt):
         """Find all indices of occurrences of patt in self.
@@ -2001,11 +2005,11 @@ class Perm(tuple,
 
         Examples:
             >>> list(Perm((5, 3, 0, 4, 2, 1)).occurrences_of(Perm((2, 0, 1))))
-            [(0, 1, 3), (0, 2, 3), (0, 2, 4), (0, 2, 5), (1, 2, 4), (1, 2, 5)]
+            [(1, 2, 5), (0, 2, 5), (1, 2, 4), (0, 2, 4), (0, 2, 3), (0, 1, 3)]
             >>> list(Perm((1, 2, 3, 0)).occurrences_of(Perm((1, 0))))
-            [(0, 3), (1, 3), (2, 3)]
+            [(2, 3), (1, 3), (0, 3)]
             >>> list(Perm((1, 2, 3, 0)).occurrences_of(Perm((0,))))
-            [(0,), (1,), (2,), (3,)]
+            [(3,), (2,), (1,), (0,)]
             >>> list(Perm((1, 2, 3, 0)).occurrences_of(Perm()))
             [()]
         """

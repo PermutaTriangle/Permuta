@@ -131,7 +131,7 @@ The avoids, contains, and occurrence methods enable working with patterns:
     >>> list(p.occurrences_of(Perm((1, 0))))
     [(1, 2)]
     >>> list(Perm((0, 1)).occurrences_in(p))
-    [(0, 1), (0, 2), (0, 3), (1, 3), (2, 3)]
+    [(2, 3), (1, 3), (0, 3), (0, 2), (0, 1)]
 
 The basic symmetries are implemented:
 
