@@ -1004,6 +1004,8 @@ def test_avoids():
     assert Perm([4, 0, 1, 2, 3]).avoids(Perm([2, 1, 0]))
     assert not (Perm([4, 0, 1, 2, 3]).avoids_set([Perm([2, 1, 0]), Perm([1, 0])]))
     assert Perm([4, 0, 1, 2, 3]).avoids_set([Perm([2, 1, 0]), Perm([1, 2, 0])])
+    assert (Perm([4, 0, 1, 2, 3]).avoids(Perm([2, 1, 0]), Perm([1, 0]),
+                                         require_last=2))
 
 def test_avoids_2():
     bound = 6

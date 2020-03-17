@@ -1806,7 +1806,7 @@ class Perm(tuple,
         """
         return all(patt in self for patt in patts)
 
-    def avoids(self, *patts):
+    def avoids(self, *patts, require_last=0):
         """Check if self avoids patts.
 
         Args:
@@ -1814,6 +1814,8 @@ class Perm(tuple,
                 A perm.
             patts: <permuta.interfaces.Patt> argument list
                 Classical/mesh patterns.
+            require_last: <int>
+                The number of rightmost point that must be in the occurrence
 
         Returns: <bool>
             True if and only if self avoids all patterns in patts.
@@ -1836,7 +1838,11 @@ class Perm(tuple,
             >>> Perm((5, 3, 0, 4, 2, 1)).avoids(pattern3, pattern4)
             True
         """
-        return all(patt not in self for patt in patts)
+        return all(
+            not any(True for _ in patt.occurrences_in(
+                self, require_last=require_last))
+            for patt in patts
+        )
 
     def avoids_set(self, patts):
         """Check if self avoids patts.
