@@ -1920,7 +1920,7 @@ class Perm(tuple,
             # This is needed for the occurrences function to work correctly
             yield ()
             return
-        if len(self) > len(patt):
+        if len(self) > len(patt) or len(self) < require_last:
             # Pattern is too long to occur in perm
             return
 
@@ -1975,6 +1975,9 @@ class Perm(tuple,
                 occurrence_indices[k] = i
             else:
                 return
+        if len(self) == require_last:
+            yield tuple(occurrence_indices)
+            return
 
         # Define function that works with the above defined variables
         # i is the index of the element in perm that is to be considered

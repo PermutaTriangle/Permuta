@@ -176,6 +176,12 @@ def test_occurrences_in():
     assert (sorted(Perm([0, 1, 2]).occurrences_in(Perm((0, 1, 2, 3)),
                                                   require_last=2))
             == [(0, 2, 3), (1, 2, 3)])
+    assert (sorted(Perm([0, 1, 2, 3]).occurrences_in(Perm((0, 1, 2, 3)),
+                                                  require_last=4))
+            == [(0, 1, 2, 3)])
+    assert (sorted(Perm([0, 1, 2, 3]).occurrences_in(Perm((0, 1, 2, 3)),
+                                                  require_last=5))
+            == [])
     assert (sorted(Perm([0, 2, 1]).occurrences_in(Perm((2, 0, 4, 3, 1)),
                                                   require_last=2))
             == [(1, 3, 4)])
