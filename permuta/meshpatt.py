@@ -455,7 +455,7 @@ class MeshPatt(MeshPatternBase, Patt, Rotatable, Shiftable, Flippable):
 
     def occurrences_in(self, patt):
         """
-        Find all indices of patt in self.
+        Find all indices of self in patt.
 
         Args:
             self:
