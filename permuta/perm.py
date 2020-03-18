@@ -143,7 +143,10 @@ class Perm(tuple, Patt, Rotatable, Shiftable, Flippable):
             Perm((4, 0, 1, 3, 2))
         """
         if isinstance(string, str):
-            return cls(map(int, string), check=check)
+            if string == "ε":
+                return cls([], check=check)
+            else:
+                return cls(map(int, string), check=check)
         # TODO: throw exception when not a string
 
     @classmethod
@@ -817,6 +820,26 @@ class Perm(tuple, Patt, Rotatable, Shiftable, Flippable):
         for idx, val in enumerate(self):
             if idx == val:
                 yield idx
+
+    def strong_fixed_points(self):
+        """Yield the index of the strong fixed points in self.
+
+        Examples:
+            >>> tuple(Perm((0, 2, 1, 3)).strong_fixed_points())
+            (0, 3)
+            >>> tuple(Perm((0, 1, 4, 3, 2)).strong_fixed_points())
+            (0, 1)
+        """
+        if self != Perm(()):
+            L = len(self)
+            curmax = self[0]
+            for idx, val in enumerate(self):
+                if idx == val:
+                    if val >= curmax:
+                        if idx == L - 1 or val < min(
+                            self[i] for i in range(idx + 1, L)
+                        ):
+                            yield idx
 
     def is_skew_decomposable(self):
         """Determines whether the permutation is expressible as the skew sum of
@@ -2236,7 +2259,10 @@ class Perm(tuple, Patt, Rotatable, Shiftable, Flippable):
     def __str__(self):
         if not self:
             return "\u03B5"
-        return "".join(str(i) if i < 10 else "({})".format(i) for i in self)
+        if len(self) < 10:
+            return "".join(str(i) for i in self)
+        else:
+            return "".join("({})".format(i) for i in self)
 
     def __lt__(self, other):
         """
