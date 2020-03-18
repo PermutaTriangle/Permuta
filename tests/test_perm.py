@@ -61,7 +61,10 @@ def test_from_string():
 
 def test_str_representation():
     assert str(Perm((0, 2, 1))) == "021"
-    assert str(Perm((0, 11, 1, 10, 2, 9, 3, 8, 4, 7, 5, 6))) == "0(11)1(10)29384756"
+    assert (
+        str(Perm((0, 11, 1, 10, 2, 9, 3, 8, 4, 7, 5, 6)))
+        == "(0)(11)(1)(10)(2)(9)(3)(8)(4)(7)(5)(6)"
+    )
 
 
 def test_one_based():
@@ -780,6 +783,9 @@ def test_bend_list():
 def test_order():
     assert Perm().order() == 1
     assert Perm((0,)).order() == 1
+    perm = Perm((4, 5, 2, 0, 6, 1, 3))
+    args = tuple(perm for _ in range(perm.order() - 1))
+    assert perm.compose(*args).is_identity()
     for _ in range(100):
         perm = Perm.random(random.randint(2, 20))
         args = tuple(perm for _ in range(perm.order() - 1))
