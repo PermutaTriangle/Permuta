@@ -1,7 +1,7 @@
 class Node:
     def __init__(self, row, col):
-        self.l = None
-        self.r = None
+        self.left = None
+        self.right = None
         self.u = None
         self.d = None
         self.p = None
@@ -11,31 +11,31 @@ class Node:
 
 
 def cover(c):
-    c.r.l = c.l
-    c.l.r = c.r
+    c.right.left = c.left
+    c.left.right = c.right
     i = c.d
     while i != c:
-        j = i.r
+        j = i.right
         while j != i:
             j.d.u = j.u
             j.u.d = j.d
             j.p.size -= 1
-            j = j.r
+            j = j.right
         i = i.d
 
 
 def uncover(c):
     i = c.u
     while i != c:
-        j = i.l
+        j = i.left
         while j != i:
             j.p.size += 1
             j.u.d = j
             j.d.u = j.u.d
-            j = j.l
+            j = j.left
         i = i.u
-    c.l.r = c
-    c.r.l = c.l.r
+    c.left.right = c
+    c.right.left = c.left.right
 
 
 class AlgorithmX:
@@ -85,14 +85,14 @@ class AlgorithmX:
                         break
                     nj += 1
 
-                ptr[i][j].r = ptr[i][nj]
-                ptr[i][nj].l = ptr[i][j]
+                ptr[i][j].right = ptr[i][nj]
+                ptr[i][nj].left = ptr[i][j]
 
         self.head = Node(self.rows, -1)
-        self.head.r = ptr[self.rows][0]
-        ptr[self.rows][0].l = self.head
-        self.head.l = ptr[self.rows][self.cols - 1]
-        ptr[self.rows][self.cols - 1].r = self.head
+        self.head.right = ptr[self.rows][0]
+        ptr[self.rows][0].left = self.head
+        self.head.left = ptr[self.rows][self.cols - 1]
+        ptr[self.rows][self.cols - 1].right = self.head
 
         for j in range(self.cols):
             cnt = -1
@@ -103,7 +103,7 @@ class AlgorithmX:
             ptr[self.rows][j].size = cnt
 
     def search(self, k=0, at_most=None):
-        if self.head == self.head.r:
+        if self.head == self.head.right:
             res = [self.sol[i] for i in range(k)]
             res = sorted(res)
             return self.solution_callback(res)
@@ -112,12 +112,12 @@ class AlgorithmX:
             self.can_continue = True
             return
 
-        c = self.head.r
-        tmp = self.head.r
+        c = self.head.right
+        tmp = self.head.right
         while tmp != self.head:
             if tmp.size < c.size:
                 c = tmp
-            tmp = tmp.r
+            tmp = tmp.right
 
         if c == c.d:
             return False
@@ -129,17 +129,17 @@ class AlgorithmX:
         while not found and r != c:
             self.sol[k] = r.row
 
-            j = r.r
+            j = r.right
             while j != r:
                 cover(j.p)
-                j = j.r
+                j = j.right
 
             found = self.search(k + 1, at_most)
 
-            j = r.l
+            j = r.left
             while j != r:
                 uncover(j.p)
-                j = j.l
+                j = j.left
 
             r = r.d
 

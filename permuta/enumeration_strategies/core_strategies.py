@@ -1,7 +1,6 @@
-from abc import abstractmethod, abstractproperty, abstractstaticmethod
+from abc import abstractproperty, abstractstaticmethod
 
 from permuta import Av, MeshPatt, Perm
-from permuta.descriptors import Basis
 from permuta.enumeration_strategies.abstract_strategy import (
     EnumerationStrategyWithSymmetry,
 )

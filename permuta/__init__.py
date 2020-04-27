@@ -1,5 +1,5 @@
-from . import _perm_set, descriptors, interfaces, misc, permutils
 from .meshpatt import MeshPatt
-from .meshpattset import gen_meshpatts
-from .perm import *
-from .permset import *
+from .perm import Perm
+from .permset import Av, PermSet
+
+__all__ = ["Perm", "PermSet", "Av", "MeshPatt"]
