@@ -1,4 +1,4 @@
-from permuta.misc import factorial, binomial
+from permuta.misc import binomial, factorial
 
 
 def test_factorial():
@@ -8,6 +8,7 @@ def test_factorial():
     assert factorial(3) == 6
     assert factorial(9) == 362880
     assert factorial(10) == 3628800
+
 
 def test_binomial():
     assert binomial(0, 0) == 1

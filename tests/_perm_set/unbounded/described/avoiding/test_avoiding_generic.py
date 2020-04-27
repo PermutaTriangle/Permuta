@@ -1,8 +1,5 @@
 import pytest
-
-from permuta import MeshPatt
-from permuta import Perm
-from permuta import PermSet
+from permuta import MeshPatt, Perm, PermSet
 from permuta._perm_set.unbounded.described.avoiding import AvoidingGeneric
 from permuta.descriptors import Basis, MeshBasis
 from permuta.misc import catalan
@@ -37,8 +34,10 @@ test_classes = [
     ([[2, 1, 0], [1, 2, 3, 0]], [1, 1, 2, 5, 13, 34, 89, 233]),
     ([[3, 2, 1, 0], [3, 2, 0, 1]], [1, 1, 2, 6, 22, 90, 394, 1806]),
     ([[2, 3, 0, 1], [1, 3, 0, 2]], [1, 1, 2, 6, 22, 90, 395, 1823]),
-    ([[3, 1, 2, 0], [2, 4, 0, 3, 1], [3, 1, 4, 0, 2], [2, 4, 0, 5, 1, 3]],
-     [1, 1, 2, 6, 23, 101, 477, 2343, 11762]),
+    (
+        [[3, 1, 2, 0], [2, 4, 0, 3, 1], [3, 1, 4, 0, 2], [2, 4, 0, 5, 1, 3]],
+        [1, 1, 2, 6, 23, 101, 477, 2343, 11762],
+    ),
     ([[0, 2, 1], [2, 1, 3, 4, 0]], [1, 1, 2, 5, 14, 41, 122, 365, 1094]),
 ]
 
@@ -139,9 +138,9 @@ def test_is_subclass():
     assert not av1234.is_subclass(av12_21)
     assert av12_21.is_subclass(av1234)
     assert av123.is_subclass(av123)
-    av1324_1423_12345 = AvoidingGeneric((Perm((0, 2, 1, 3)),
-                                         Perm((0, 3, 1, 2)),
-                                         Perm((0, 1, 2, 3, 4, 5))))
+    av1324_1423_12345 = AvoidingGeneric(
+        (Perm((0, 2, 1, 3)), Perm((0, 3, 1, 2)), Perm((0, 1, 2, 3, 4, 5)))
+    )
     av1324_1234 = AvoidingGeneric((Perm((0, 2, 1, 3)), Perm((0, 1, 2, 3))))
     av1234_132 = AvoidingGeneric((Perm((0, 1, 2, 3)), Perm((0, 2, 1))))
     assert av123.is_subclass(av1324_1423_12345)

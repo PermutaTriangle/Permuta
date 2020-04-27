@@ -1,4 +1,3 @@
-
 class Node(object):
     def __init__(self, value, prev=None, next=None):
         self.value = value
@@ -12,11 +11,10 @@ class Node(object):
             self.next.prev = self
 
     def __repr__(self):
-        return 'Node(%s)' % repr(self.value)
+        return "Node(%s)" % repr(self.value)
 
 
 class DancingLinks(object):
-
     def __init__(self, lst=None):
         self.front = None
         self.back = None
@@ -71,4 +69,4 @@ class DancingLinks(object):
         while cur is not None:
             lst.append(cur)
             cur = cur.next
-        return 'DancingLinks([%s])' % ', '.join(map(repr, lst))
+        return "DancingLinks([%s])" % ", ".join(map(repr, lst))

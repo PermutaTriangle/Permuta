@@ -1,4 +1,3 @@
-
 class Node:
     def __init__(self, row, col):
         self.l = None
@@ -45,8 +44,7 @@ class AlgorithmX:
         self.rows = rows
         self.cols = cols
         self.head = None
-        self.arr = [[False for c in range(self.cols)]
-                    for r in range(self.rows)]
+        self.arr = [[False for c in range(self.cols)] for r in range(self.rows)]
         self.sol = [0 for i in range(self.rows)]
         self.solution_callback = solution_callback
         self.can_continue = False
@@ -55,10 +53,13 @@ class AlgorithmX:
         self.arr[row][col] = val
 
     def setup(self):
-        ptr = [[Node(i, j)
-                if i == self.rows or self.arr[i][j]
-                else None for j in range(self.cols)]
-               for i in range(self.rows + 1)]
+        ptr = [
+            [
+                Node(i, j) if i == self.rows or self.arr[i][j] else None
+                for j in range(self.cols)
+            ]
+            for i in range(self.rows + 1)
+        ]
         for i in range(self.rows + 1):
             for j in range(self.cols):
                 if ptr[i][j] is None:

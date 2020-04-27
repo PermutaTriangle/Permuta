@@ -6,6 +6,7 @@ from ..avoiding import Avoiding
 
 class AvoidingEmpty(Avoiding):
     """The empty perm set class."""
+
     DESCRIPTOR = Basis(Perm())
     __CLASS_CACHE = None
 

@@ -59,7 +59,7 @@ class PermSetAll(PermSetUnbounded):
 class PermSetAllSpecificLength(PermSetFiniteSpecificLength):
     """Class for iterating through all perms of a specific length."""
 
-    __slots__ = ("_length")
+    __slots__ = "_length"
 
     def __init__(self, length):
         self._length = length

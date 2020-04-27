@@ -31,10 +31,10 @@ def gen_meshpatts(length, patt=None):
     """
     if patt is None:
         for p in PermSet(length):
-            for i in range(2**((length + 1)**2)):
+            for i in range(2 ** ((length + 1) ** 2)):
                 yield MeshPatt.unrank(p, i)
     else:
         if not isinstance(patt, Perm):
             patt = Perm(patt)
-        for i in range(2**((length + 1)**2)):
+        for i in range(2 ** ((length + 1) ** 2)):
             yield MeshPatt.unrank(patt, i)
