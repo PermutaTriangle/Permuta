@@ -1,4 +1,4 @@
-from permuta import Av, Perm
+from permuta import Perm
 from permuta.descriptors import Basis
 from permuta.enumeration_strategies import all_enumeration_strategies, find_strategies
 from permuta.enumeration_strategies.core_strategies import (

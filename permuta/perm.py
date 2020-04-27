@@ -814,7 +814,6 @@ class Perm(tuple, Patt, Rotatable, Shiftable, Flippable):
             >>> tuple(Perm((0, 1, 4, 3, 2)).fixed_points())
             (0, 1, 3)
         """
-        res = []
         for idx, val in enumerate(self):
             if idx == val:
                 yield idx
