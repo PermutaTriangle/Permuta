@@ -3,6 +3,7 @@ import abc
 
 class PermSetBase(metaclass=abc.ABCMeta):
     """Base class for all perm sets."""
+
     def contains(self, perm):
         # This comes for free when __contains__ is implemented
         return perm in self

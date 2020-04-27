@@ -13,7 +13,7 @@ __all__ = [
     "PermSet",
     "Av",
     "AvoidanceClass",
-    ]
+]
 
 
 class PermSetMetaclass(type):
@@ -46,15 +46,17 @@ class PermSet(object, metaclass=PermSetMetaclass):
             if isinstance(descriptor, described_superclass.DESCRIPTOR_CLASS):
                 # The correct superclass has been found!
                 # Try to find subclass specifically for this descriptor
-                described_class = cls._find_described_class(descriptor,
-                                                            PermSetDescribed)
+                described_class = cls._find_described_class(
+                    descriptor, PermSetDescribed
+                )
                 if described_class is None:
                     return described_superclass.DEFAULT_CLASS(descriptor)
                 else:
                     return described_class(descriptor)
         # TODO: Something else?
         raise RuntimeError(
-            "PermSet for descriptor {} not found".format(repr(descriptor)))
+            "PermSet for descriptor {} not found".format(repr(descriptor))
+        )
 
     @classmethod
     def _find_described_class(cls, descriptor, current_class):
@@ -63,8 +65,7 @@ class PermSet(object, metaclass=PermSetMetaclass):
             return current_class
         else:
             for subclass in current_class.__subclasses__():
-                described_class = cls._find_described_class(descriptor,
-                                                            subclass)
+                described_class = cls._find_described_class(descriptor, subclass)
                 if described_class is not None:
                     return described_class
             return None

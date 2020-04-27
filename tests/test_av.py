@@ -1,13 +1,12 @@
-from permuta import Av
-from permuta import Perm
-from permuta import MeshPatt
+from permuta import Av, MeshPatt, Perm
 
 
 def test_av_perm():
-    p = Perm((0,1))
+    p = Perm((0, 1))
     av = Av([p])
     for length in range(10):
         assert len(set(av.of_length(length))) == 1
+
 
 def test_av_meshpatt():
     p = Perm((2, 0, 1))

@@ -4,7 +4,6 @@ ABC = abc.ABCMeta("ABC", (object,), {})
 
 
 class Rotatable(ABC):
-
     def rotate(self, times=1):
         """Return self rotated 90 degrees to the right."""
         return self._rotate(times)
