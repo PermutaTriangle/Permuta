@@ -1,7 +1,6 @@
 import collections
 
-FloorAndCeiling = collections.namedtuple("FloorAndCeiling",
-                                         ["floor", "ceiling"])
+FloorAndCeiling = collections.namedtuple("FloorAndCeiling", ["floor", "ceiling"])
 
 
 def left_floor_and_ceiling(iterable, default_floor=None, default_ceiling=None):
@@ -57,11 +56,11 @@ def left_floor_and_ceiling(iterable, default_floor=None, default_ceiling=None):
         index += 1
 
 
-def right_floor_and_ceiling(iterable, default_floor=None,
-                            default_ceiling=None):
+def right_floor_and_ceiling(iterable, default_floor=None, default_ceiling=None):
     """The right counterpart of left_floor_and_ceiling."""
     # TODO: Implement nicely
-    result = left_floor_and_ceiling(reversed(list(iterable)),
-                                    default_floor, default_ceiling)
+    result = left_floor_and_ceiling(
+        reversed(list(iterable)), default_floor, default_ceiling
+    )
     for fac in reversed(list(result)):
         yield fac

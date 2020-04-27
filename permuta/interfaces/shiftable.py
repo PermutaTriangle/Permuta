@@ -4,7 +4,6 @@ ABC = abc.ABCMeta("ABC", (object,), {})
 
 
 class Shiftable(ABC):
-
     @abc.abstractmethod
     def shift_right(self, times=1):
         """Return self shifted times steps to the right.

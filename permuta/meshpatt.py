@@ -10,8 +10,7 @@ from .interfaces.shiftable import Shiftable
 from .misc import DIR_EAST, DIR_NONE, DIR_NORTH, DIR_SOUTH, DIR_WEST
 from .perm import Perm
 
-MeshPatternBase = collections.namedtuple("MeshPatternBase",
-                                         ["pattern", "shading"])
+MeshPatternBase = collections.namedtuple("MeshPatternBase", ["pattern", "shading"])
 
 
 class MeshPatt(MeshPatternBase, Patt, Rotatable, Shiftable, Flippable):
@@ -54,7 +53,8 @@ class MeshPatt(MeshPatternBase, Patt, Rotatable, Shiftable, Flippable):
                 raise TypeError(message)
             if len(coordinate) != 2:
                 message = "Element is not a shading coordinate: '{}'".format(
-                    repr(coordinate))
+                    repr(coordinate)
+                )
                 raise ValueError(message)
             x, y = coordinate
             if not isinstance(x, numbers.Integral):
@@ -63,8 +63,7 @@ class MeshPatt(MeshPatternBase, Patt, Rotatable, Shiftable, Flippable):
             if not isinstance(y, numbers.Integral):
                 message = "'{}' object is not an integer".format(repr(y))
                 raise TypeError(message)
-            if ((not 0 <= x <= len(self.pattern)) or
-                    (not 0 <= y <= len(self.pattern))):
+            if (not 0 <= x <= len(self.pattern)) or (not 0 <= y <= len(self.pattern)):
                 message = "Element out of range: '{}'".format(coordinate)
                 raise ValueError(message)
 
@@ -87,8 +86,9 @@ class MeshPatt(MeshPatternBase, Patt, Rotatable, Shiftable, Flippable):
             ... frozenset({(0, 1), (0, 2), (0, 3)})).complement()
             MeshPatt(Perm((2, 0, 1)), [(0, 0), (0, 1), (0, 2)])
         """
-        return MeshPatt(self.pattern.complement(),
-                        [(x, len(self)-y) for (x, y) in self.shading])
+        return MeshPatt(
+            self.pattern.complement(), [(x, len(self) - y) for (x, y) in self.shading]
+        )
 
     def reverse(self):
         """Returns the reversed mesh patterns, which has the underlying pattern
@@ -104,8 +104,9 @@ class MeshPatt(MeshPatternBase, Patt, Rotatable, Shiftable, Flippable):
             ... frozenset({(3, 2), (2, 2), (1, 1)})).reverse()
             MeshPatt(Perm((0, 1, 2)), [(0, 2), (1, 2), (2, 1)])
         """
-        return MeshPatt(self.pattern.reverse(),
-                        [(len(self)-x, y) for (x, y) in self.shading])
+        return MeshPatt(
+            self.pattern.reverse(), [(len(self) - x, y) for (x, y) in self.shading]
+        )
 
     def inverse(self):
         """Returns the inverse of the meshpatt, that is the meshpatt with the
@@ -120,8 +121,7 @@ class MeshPatt(MeshPatternBase, Patt, Rotatable, Shiftable, Flippable):
             >>> MeshPatt(Perm((0,)), frozenset({(0, 1)})).inverse()
             MeshPatt(Perm((0,)), [(1, 0)])
         """
-        return MeshPatt(self.pattern.inverse(),
-                        [(y, x) for (x, y) in self.shading])
+        return MeshPatt(self.pattern.inverse(), [(y, x) for (x, y) in self.shading])
 
     def sub_mesh_pattern(self, indices):
         """Return the mesh pattern induced by indices.
@@ -157,13 +157,19 @@ class MeshPatt(MeshPatternBase, Patt, Rotatable, Shiftable, Flippable):
         horizontal.append(len(self) + 1)
         shading = frozenset(
             (x, y)
-            for x in range(len(pattern) + 1) for y in range(len(pattern) + 1)
-            if (self.is_shaded((vertical[x], horizontal[y]),
-                               (vertical[x + 1] - 1,
-                                horizontal[y + 1] - 1)) and
-                self.is_pointfree((vertical[x], horizontal[y]),
-                                  (vertical[x + 1] - 1,
-                                   horizontal[y + 1] - 1))))
+            for x in range(len(pattern) + 1)
+            for y in range(len(pattern) + 1)
+            if (
+                self.is_shaded(
+                    (vertical[x], horizontal[y]),
+                    (vertical[x + 1] - 1, horizontal[y + 1] - 1),
+                )
+                and self.is_pointfree(
+                    (vertical[x], horizontal[y]),
+                    (vertical[x + 1] - 1, horizontal[y + 1] - 1),
+                )
+            )
+        )
         return MeshPatt(pattern, shading)
 
     def flip_horizontal(self):
@@ -222,9 +228,15 @@ class MeshPatt(MeshPatternBase, Patt, Rotatable, Shiftable, Flippable):
             ... frozenset({(0, 1), (1, 1)}))._rotate_right()
             MeshPatt(Perm((0,)), [(1, 0), (1, 1)])
         """
-        return MeshPatt(self.pattern.rotate(),
-                        set([_rotate_right(len(self.pattern), coordinate)
-                             for coordinate in self.shading]))
+        return MeshPatt(
+            self.pattern.rotate(),
+            set(
+                [
+                    _rotate_right(len(self.pattern), coordinate)
+                    for coordinate in self.shading
+                ]
+            ),
+        )
 
     def _rotate_left(self):
         """Return the pattern rotated 90 degrees to the left.
@@ -237,9 +249,15 @@ class MeshPatt(MeshPatternBase, Patt, Rotatable, Shiftable, Flippable):
             ... frozenset({(0, 1), (1, 1)}))._rotate_left()
             MeshPatt(Perm((0,)), [(0, 0), (0, 1)])
         """
-        return MeshPatt(self.pattern.rotate(3),
-                        set([_rotate_left(len(self.pattern), coordinate)
-                             for coordinate in self.shading]))
+        return MeshPatt(
+            self.pattern.rotate(3),
+            set(
+                [
+                    _rotate_left(len(self.pattern), coordinate)
+                    for coordinate in self.shading
+                ]
+            ),
+        )
 
     def _rotate_180(self):
         """Return the pattern rotated 180 degrees.
@@ -251,9 +269,15 @@ class MeshPatt(MeshPatternBase, Patt, Rotatable, Shiftable, Flippable):
             >>> MeshPatt(Perm((0,)), frozenset({(0, 1), (1, 1)}))._rotate_180()
             MeshPatt(Perm((0,)), [(0, 0), (1, 0)])
         """
-        return MeshPatt(self.pattern.rotate(2),
-                        set([_rotate_180(len(self.pattern), coordinate)
-                             for coordinate in self.shading]))
+        return MeshPatt(
+            self.pattern.rotate(2),
+            set(
+                [
+                    _rotate_180(len(self.pattern), coordinate)
+                    for coordinate in self.shading
+                ]
+            ),
+        )
 
     def all_symmetries(self):
         """Return the set of all symmetries of the mesh pattern.
@@ -289,8 +313,8 @@ class MeshPatt(MeshPatternBase, Patt, Rotatable, Shiftable, Flippable):
         if isinstance(positions, tuple):
             if len(positions) == 0:
                 raise ValueError(
-                    "Element is not a valid shading coordinate: '{}'".format(
-                        positions))
+                    "Element is not a valid shading coordinate: '{}'".format(positions)
+                )
             if isinstance(positions[0], numbers.Integral):
                 positions = set([positions])
         positions = set(positions)
@@ -319,8 +343,7 @@ class MeshPatt(MeshPatternBase, Patt, Rotatable, Shiftable, Flippable):
             The mesh pattern with a point added in pos.
         """
         x, y = pos
-        if (not isinstance(x, numbers.Integral) or
-                not isinstance(y, numbers.Integral)):
+        if not isinstance(x, numbers.Integral) or not isinstance(y, numbers.Integral):
             message = "Element is not a tuple of integers: '{}'".format(pos)
             raise TypeError(message)
         if safe and (x, y) in self.shading:
@@ -334,33 +357,33 @@ class MeshPatt(MeshPatternBase, Patt, Rotatable, Shiftable, Flippable):
             if a < x:
                 nx = [a]
             elif a == x:
-                nx = [a, a+1]
+                nx = [a, a + 1]
             else:
-                nx = [a+1]
+                nx = [a + 1]
 
             if b < y:
                 ny = [b]
             elif b == y:
-                ny = [b, b+1]
+                ny = [b, b + 1]
             else:
-                ny = [b+1]
+                ny = [b + 1]
 
             for na in nx:
                 for nb in ny:
                     nshading.add((na, nb))
 
         if shade_dir == DIR_EAST:
-            nshading.add((x+1, y))
-            nshading.add((x+1, y+1))
+            nshading.add((x + 1, y))
+            nshading.add((x + 1, y + 1))
         elif shade_dir == DIR_NORTH:
-            nshading.add((x, y+1))
-            nshading.add((x+1, y+1))
+            nshading.add((x, y + 1))
+            nshading.add((x + 1, y + 1))
         elif shade_dir == DIR_WEST:
             nshading.add((x, y))
-            nshading.add((x, y+1))
+            nshading.add((x, y + 1))
         elif shade_dir == DIR_SOUTH:
             nshading.add((x, y))
-            nshading.add((x+1, y))
+            nshading.add((x + 1, y))
 
         return MeshPatt(Perm(nperm), nshading)
 
@@ -464,8 +487,11 @@ class MeshPatt(MeshPatternBase, Patt, Rotatable, Shiftable, Flippable):
                     if element in candidate:
                         x += 1
                         continue
-                    y = sum(1 for candidate_element in candidate
-                            if candidate_element < element)
+                    y = sum(
+                        1
+                        for candidate_element in candidate
+                        if candidate_element < element
+                    )
                     if (x, y) in self.shading:
                         break
                 else:
@@ -477,8 +503,7 @@ class MeshPatt(MeshPatternBase, Patt, Rotatable, Shiftable, Flippable):
                 if set(self.shading) <= set(candidate_sub_mesh_patt.shading):
                     yield list(occurrence)
         else:
-            raise ValueError("Variable 'patt' needs to be either a Perm or "
-                             "MeshPatt")
+            raise ValueError("Variable 'patt' needs to be either a Perm or " "MeshPatt")
 
     #
     # Other methods
@@ -505,20 +530,23 @@ class MeshPatt(MeshPatternBase, Patt, Rotatable, Shiftable, Flippable):
             the range lower_left[0] to upper_right[0] (inclusive) and for y in
             the range lower_left[1] to upper_right[1] (inclusive) are shaded.
         """
-        if ((lower_left[0] < 0 or lower_left[1] < 0) or
-                (lower_left[0] > len(self) or lower_left[1] > len(self))):
+        if (lower_left[0] < 0 or lower_left[1] < 0) or (
+            lower_left[0] > len(self) or lower_left[1] > len(self)
+        ):
             message = "Element out of range: '{}'".format(lower_left)
             raise ValueError(message)
         elif upper_right is None:
             return lower_left in self.shading
-        elif ((upper_right[0] < 0 or upper_right[1] < 0) or
-              (upper_right[0] > len(self) or upper_right[1] > len(self))):
+        elif (upper_right[0] < 0 or upper_right[1] < 0) or (
+            upper_right[0] > len(self) or upper_right[1] > len(self)
+        ):
             message = "Element out of range: '{}'".format(upper_right)
             raise ValueError(message)
         elif lower_left[0] > upper_right[0] or lower_left[1] > upper_right[1]:
-            message = ("Elements do not correspond to lower left and upper"
-                       " right of a non-empty rectangle: '{}' '{}'").format(
-                           lower_left, upper_right)
+            message = (
+                "Elements do not correspond to lower left and upper"
+                " right of a non-empty rectangle: '{}' '{}'"
+            ).format(lower_left, upper_right)
             raise ValueError(message)
         else:
             left, lower = lower_left
@@ -549,18 +577,21 @@ class MeshPatt(MeshPatternBase, Patt, Rotatable, Shiftable, Flippable):
             lower_left[0] + 1 to upper_right[0] - 1 (inclusive) have values
             less than lower_left[1] or greater than or equal to upper_right[1].
         """
-        if ((lower_left[0] < 0 or lower_left[1] < 0) or
-                (lower_left[0] > len(self) or lower_left[1] > len(self))):
+        if (lower_left[0] < 0 or lower_left[1] < 0) or (
+            lower_left[0] > len(self) or lower_left[1] > len(self)
+        ):
             message = "Element out of range: '{}'".format(lower_left)
             raise ValueError(message)
-        elif ((upper_right[0] < 0 or upper_right[1] < 0) or
-              (upper_right[0] > len(self) or upper_right[1] > len(self))):
+        elif (upper_right[0] < 0 or upper_right[1] < 0) or (
+            upper_right[0] > len(self) or upper_right[1] > len(self)
+        ):
             message = "Element out of range: '{}'".format(upper_right)
             raise ValueError(message)
         elif lower_left[0] > upper_right[0] or lower_left[1] > upper_right[1]:
-            message = ("Elements do not correspond to lower left and upper "
-                       "right of a non-empty rectangle: '{}' '{}'").format(
-                           lower_left, upper_right)
+            message = (
+                "Elements do not correspond to lower left and upper "
+                "right of a non-empty rectangle: '{}' '{}'"
+            ).format(lower_left, upper_right)
             raise ValueError(message)
         else:
             left, lower = lower_left
@@ -593,28 +624,28 @@ class MeshPatt(MeshPatternBase, Patt, Rotatable, Shiftable, Flippable):
             return False
         c = 0
         # only one of the boxes to the left and down can be shaded
-        if (i, j-1) in self.shading:
+        if (i, j - 1) in self.shading:
             c += 1
-        if (i-1, j) in self.shading:
+        if (i - 1, j) in self.shading:
             c += 1
         if c == 2:
             return False
 
         # if the box on the lower side of the horizontal line is shaded then
         # the upper one must be shaded
-        for k in range(len(self.pattern)+1):
+        for k in range(len(self.pattern) + 1):
             if k == i - 1 or k == i:
                 continue
             if (k, j - 1) in self.shading and (k, j) not in self.shading:
                 return False
         # if the box on the left side of the vertical line is shaded then the
         # right one must be shaded
-        for k in range(len(self.pattern)+1):
-            if k == j-1 or k == j:
+        for k in range(len(self.pattern) + 1):
+            if k == j - 1 or k == j:
                 continue
-            if (i-1, k) in self.shading and (i, k) not in self.shading:
+            if (i - 1, k) in self.shading and (i, k) not in self.shading:
                 return False
-        return (i-1, j-1)
+        return (i - 1, j - 1)
 
     def can_shade(self, pos):
         """Returns whether it is possible to shade the box at position pos
@@ -643,7 +674,7 @@ class MeshPatt(MeshPatternBase, Patt, Rotatable, Shiftable, Flippable):
             ans = mp._can_shade(pos)
             if ans:
                 for j in range((-i) % 4):
-                    ans = _rotate_right(len(self.pattern)-1, ans)
+                    ans = _rotate_right(len(self.pattern) - 1, ans)
                 poss.append(ans[1])
             mp = mp.rotate_right()
             pos = _rotate_right(len(self.pattern), pos)
@@ -665,9 +696,9 @@ class MeshPatt(MeshPatternBase, Patt, Rotatable, Shiftable, Flippable):
             return False
         # The boxes surrounding the point (pos1[0]-1, pos1[1] - 1) must be
         # empty
-        if (pos1[0]-1, pos1[1]) in self.shading:
+        if (pos1[0] - 1, pos1[1]) in self.shading:
             return False
-        if (pos2[0]-1, pos2[1]) in self.shading:
+        if (pos2[0] - 1, pos2[1]) in self.shading:
             return False
 
         # Check the boxes on each side of the vertical line of pos1[0], if the
@@ -676,8 +707,7 @@ class MeshPatt(MeshPatternBase, Patt, Rotatable, Shiftable, Flippable):
         for y in range(len(self.pattern) + 1):
             if y == pos1[1] or y == pos1[1] - 1:
                 continue
-            if ((pos1[0] - 1, y) in self.shading and
-                    (pos1[0], y) not in self.shading):
+            if (pos1[0] - 1, y) in self.shading and (pos1[0], y) not in self.shading:
                 return False
 
         # Check the boxes on each side of the horizontal line of pos1[1]-1,
@@ -685,8 +715,7 @@ class MeshPatt(MeshPatternBase, Patt, Rotatable, Shiftable, Flippable):
         for x in range(len(self.pattern) + 1):
             if x == pos1[0] or x == pos1[0] - 1:
                 continue
-            if (((x, pos1[1]) in self.shading) !=
-                    ((x, pos2[1]) in self.shading)):
+            if ((x, pos1[1]) in self.shading) != ((x, pos2[1]) in self.shading):
                 return False
         return (pos1[0] - 1, pos1[1] - 1)
 
@@ -744,15 +773,15 @@ class MeshPatt(MeshPatternBase, Patt, Rotatable, Shiftable, Flippable):
             for j in range(len(self) + 1):
                 points = self.can_shade((i, j))
                 for p in points:
-                    shadable[p].append(((i, j), ))
+                    shadable[p].append(((i, j),))
                 if i < len(self):
-                    points = self.can_simul_shade((i, j),  (i+1, j))
+                    points = self.can_simul_shade((i, j), (i + 1, j))
                     for p in points:
-                        shadable[p].append(((i, j),  (i+1, j)))
+                        shadable[p].append(((i, j), (i + 1, j)))
                 if j < len(self):
-                    points = self.can_simul_shade((i, j),  (i,  j+1))
+                    points = self.can_simul_shade((i, j), (i, j + 1))
                     for p in points:
-                        shadable[p].append(((i, j),  (i, j+1)))
+                        shadable[p].append(((i, j), (i, j + 1)))
         return shadable
 
     def non_pointless_boxes(self):
@@ -786,8 +815,7 @@ class MeshPatt(MeshPatternBase, Patt, Rotatable, Shiftable, Flippable):
             >>> m.has_anchored_point()
             (False, False, False, True)
         """
-        right = all((len(self), i) in self.shading
-                    for i in range(len(self) + 1))
+        right = all((len(self), i) in self.shading for i in range(len(self) + 1))
         top = all((i, len(self)) in self.shading for i in range(len(self) + 1))
         left = all((0, i) in self.shading for i in range(len(self) + 1))
         bottom = all((i, 0) in self.shading for i in range(len(self) + 1))
@@ -812,7 +840,7 @@ class MeshPatt(MeshPatternBase, Patt, Rotatable, Shiftable, Flippable):
         """
         res = 0
         for (x, y) in self.shading:
-            res |= 1 << (x * (len(self.pattern)+1) + y)
+            res |= 1 << (x * (len(self.pattern) + 1) + y)
         return res
 
     def ascii_plot(self, cell_size=1):
@@ -838,6 +866,7 @@ class MeshPatt(MeshPatternBase, Patt, Rotatable, Shiftable, Flippable):
             -●-+-+-
              | | |▒
         """
+
         def roundrobin(*iterables):
             "roundrobin('ABC', 'D', 'EF') --> A D E B F C"
             # Recipe credited to George Sakkis
@@ -853,27 +882,29 @@ class MeshPatt(MeshPatternBase, Patt, Rotatable, Shiftable, Flippable):
                     nexts = cycle(islice(nexts, num_active))
 
         def fill_char(c):
-            shading_char = '\u2592'
+            shading_char = "\u2592"
             if c in self.shading:
                 return shading_char
             else:
-                return ' '
+                return " "
+
         if cell_size < 0:
-            raise ValueError('`cell_size` must be positive')
-        empty_char = '+'
-        point_char = '\u25cf'
+            raise ValueError("`cell_size` must be positive")
+        empty_char = "+"
+        point_char = "\u25cf"
         n = self.pattern.__len__()
         array = [[empty_char for i in range(n)] for j in range(n)]
         for i in range(n):
             array[self.pattern[i]][i] = point_char
         array.reverse()
-        lines = [('-'*cell_size).join(['']+l+[''])+'\n' for l in array]
+        lines = [("-" * cell_size).join([""] + l + [""]) + "\n" for l in array]
         vlines = [
-            ('|'.join(fill_char((j, i))*cell_size for j in
-                      range(n+1))+'\n')*cell_size
-            for i in range(n+1)]
+            ("|".join(fill_char((j, i)) * cell_size for j in range(n + 1)) + "\n")
+            * cell_size
+            for i in range(n + 1)
+        ]
         vlines.reverse()
-        s = ''.join(roundrobin(vlines, lines))
+        s = "".join(roundrobin(vlines, lines))
         return s[:-1]
 
     def to_tikz(self):
@@ -884,27 +915,33 @@ class MeshPatt(MeshPatternBase, Patt, Rotatable, Shiftable, Flippable):
         Returns: str
             The LaTeX code for the TikZ figure of the pattern.
         """
-        s = r'\begin{tikzpicture}'
-        s += r'[scale=.3,baseline=(current bounding box.center)]'
-        s += '\n\t'
-        s += r'\foreach \x in {1,...,'+str(len(self))+'} {'
-        s += '\n\t\t'
-        s += r'\draw[ultra thin] (\x,0)--(\x,'+str(len(self)+1)+'); %vline'
-        s += '\n\t\t'
-        s += r'\draw[ultra thin] (0,\x)--('+str(len(self)+1) + r',\x); %hline'
-        s += 2*'\n\t'
-        s += r'}'
+        s = r"\begin{tikzpicture}"
+        s += r"[scale=.3,baseline=(current bounding box.center)]"
+        s += "\n\t"
+        s += r"\foreach \x in {1,...," + str(len(self)) + "} {"
+        s += "\n\t\t"
+        s += r"\draw[ultra thin] (\x,0)--(\x," + str(len(self) + 1) + "); %vline"
+        s += "\n\t\t"
+        s += r"\draw[ultra thin] (0,\x)--(" + str(len(self) + 1) + r",\x); %hline"
+        s += 2 * "\n\t"
+        s += r"}"
         print(self.shading)
         for cell in sorted(self.shading):
-            s += '\n\t'
-            s += r'\fill[pattern color = black!75, pattern=north east lines] '
-            s += str(cell) + r' rectangle +(1,1);'
+            s += "\n\t"
+            s += r"\fill[pattern color = black!75, pattern=north east lines] "
+            s += str(cell) + r" rectangle +(1,1);"
             print(cell)
         for (i, e) in enumerate(self.pattern):
-            s += '\n\t'
-            s += r'\draw[fill=black] ('+str(i+1)+','+str(e+1)+') circle (5pt);'
-        s += '\n'
-        s += r'\end{tikzpicture}'
+            s += "\n\t"
+            s += (
+                r"\draw[fill=black] ("
+                + str(i + 1)
+                + ","
+                + str(e + 1)
+                + ") circle (5pt);"
+            )
+        s += "\n"
+        s += r"\end{tikzpicture}"
         return s
 
     #
@@ -935,13 +972,15 @@ class MeshPatt(MeshPatternBase, Patt, Rotatable, Shiftable, Flippable):
         if not isinstance(number, numbers.Integral):
             message = "'{}' object is not an integer".format(repr(number))
             raise TypeError(message)
-        if not (0 <= number < 2**((len(pattern) + 1)**2)):
+        if not (0 <= number < 2 ** ((len(pattern) + 1) ** 2)):
             message = "Element out of range: '{}'".format(number)
             raise ValueError(message)
         bound = len(pattern) + 1
-        shading = set((index // bound, index % bound)
-                      for index, bit in enumerate(reversed(bin(number)[2:]))
-                      if bit == '1')
+        shading = set(
+            (index // bound, index % bound)
+            for index, bit in enumerate(reversed(bin(number)[2:]))
+            if bit == "1"
+        )
         return MeshPatt(pattern, shading)
 
     @staticmethod
@@ -960,19 +999,18 @@ class MeshPatt(MeshPatternBase, Patt, Rotatable, Shiftable, Flippable):
             4
         """
         return MeshPatt.unrank(
-            Perm.random(length), random.randint(0, 2**((length + 1)**2) - 1))
+            Perm.random(length), random.randint(0, 2 ** ((length + 1) ** 2) - 1)
+        )
 
     #
     # Dunder methods
     #
 
     def __repr__(self):  # pragma: no cover
-        return "MeshPatt({}, {})".format(
-            repr(self.pattern), sorted(self.shading))
+        return "MeshPatt({}, {})".format(repr(self.pattern), sorted(self.shading))
 
     def __str__(self):
-        return "({}, {})".format(
-            self.pattern, sorted(self.shading))
+        return "({}, {})".format(self.pattern, sorted(self.shading))
 
     def __len__(self):
         return len(self.pattern)
@@ -981,12 +1019,16 @@ class MeshPatt(MeshPatternBase, Patt, Rotatable, Shiftable, Flippable):
         return bool(self.pattern) or bool(self.shading)
 
     def __lt__(self, other):
-        return (self.pattern, sorted(self.shading)) < \
-               (other.pattern, sorted(other.shading))
+        return (self.pattern, sorted(self.shading)) < (
+            other.pattern,
+            sorted(other.shading),
+        )
 
     def __le__(self, other):
-        return (self.pattern, sorted(self.shading)) <= \
-               (other.pattern, sorted(other.shading))
+        return (self.pattern, sorted(self.shading)) <= (
+            other.pattern,
+            sorted(other.shading),
+        )
 
     def __gt__(self, other):
         return other.__lt__(self)

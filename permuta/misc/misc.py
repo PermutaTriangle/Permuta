@@ -15,6 +15,7 @@ def flatten(lst):
                 dfs(i)
         except Exception:
             res.append(l)
+
     dfs(lst)
     return res
 
@@ -43,9 +44,10 @@ def subsets(elems):
         if at == len(elems):
             yield cur
         else:
-            for x in bt(at+1, cur):
+            for x in bt(at + 1, cur):
                 yield x
-            for x in bt(at+1, cur + [elems[at]]):
+            for x in bt(at + 1, cur + [elems[at]]):
                 yield x
+
     for x in bt(0, []):
         yield x

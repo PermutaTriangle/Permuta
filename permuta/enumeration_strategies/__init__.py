@@ -5,8 +5,7 @@ fast_enumeration_strategies = [InsertionEncodingStrategy] + core_strategies
 
 long_enumeration_strategies = []
 
-all_enumeration_strategies = (fast_enumeration_strategies +
-                              long_enumeration_strategies)
+all_enumeration_strategies = fast_enumeration_strategies + long_enumeration_strategies
 
 
 def find_strategies(basis, long_runnning=True):

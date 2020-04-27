@@ -6,6 +6,7 @@ from .permset_finite import PermSetFinite
 
 class PermSetStatic(PermSetFinite):
     """A static perm set."""
+
     __slots__ = ("_set", "_generating_function", "_iter")
 
     def __init__(self, iterable=()):

@@ -4,7 +4,6 @@ import time
 
 
 class ProgressBar(object):
-
     @staticmethod
     def create(mx, mn=0):
         ProgressBar.mn = mn
@@ -18,22 +17,26 @@ class ProgressBar(object):
 
     @staticmethod
     def clear():
-        sys.stderr.write('\r')
-        sys.stderr.write(' ' * ProgressBar.curw)
-        sys.stderr.write('\r')
+        sys.stderr.write("\r")
+        sys.stderr.write(" " * ProgressBar.curw)
+        sys.stderr.write("\r")
 
     @staticmethod
     def draw(fin=False):
         # sys.stderr.write('\033[1F')
-        sys.stderr.write('\r')
+        sys.stderr.write("\r")
         width = 50
-        prog = (1 if ProgressBar.mn == ProgressBar.mx
-                else (float(ProgressBar.at - ProgressBar.mn) /
-                      (ProgressBar.mx - ProgressBar.mn)))
+        prog = (
+            1
+            if ProgressBar.mn == ProgressBar.mx
+            else (
+                float(ProgressBar.at - ProgressBar.mn)
+                / (ProgressBar.mx - ProgressBar.mn)
+            )
+        )
         bars = int(round(prog * width))
         bars = max(0, min(width, bars))
-        here = '%3d%% [%s%s] ' % (
-            round(prog * 100), '#' * bars, '-' * (width - bars))
+        here = "%3d%% [%s%s] " % (round(prog * 100), "#" * bars, "-" * (width - bars))
         ProgressBar.curw = len(here)
         sys.stderr.write(here)
         elapsed = ProgressBar.last - ProgressBar.start
@@ -49,7 +52,7 @@ class ProgressBar(object):
             m = math.floor(show_time / 60)
             show_time -= m * 60
             s = math.floor(show_time)
-            here = ' %02d:%02d:%02d' % (h, m, s)
+            here = " %02d:%02d:%02d" % (h, m, s)
             sys.stderr.write(here)
             ProgressBar.curw += len(here)
         # sys.stderr.write('\n')
@@ -70,4 +73,4 @@ class ProgressBar(object):
     @staticmethod
     def finish():
         ProgressBar.progress(ProgressBar.mx, fin=True)
-        sys.stderr.write('\n')
+        sys.stderr.write("\n")
