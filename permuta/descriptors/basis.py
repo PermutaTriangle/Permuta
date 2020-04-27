@@ -12,7 +12,7 @@ class AbstractBasis(Descriptor, tuple, abc.ABC):
     @property
     @abc.abstractmethod
     def ALLOWED_BASIS_ELEMENT_TYPES(self):
-        raise NotImplemented
+        raise NotImplementedError
 
     def __new__(cls, patts):
         return tuple.__new__(cls).union(patts, cls.ALLOWED_BASIS_ELEMENT_TYPES)
