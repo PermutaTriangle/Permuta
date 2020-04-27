@@ -12,6 +12,7 @@ class Predicate(Descriptor):
     A PermSet can be built with a Predicate instance by using the predicate
     provided to it to see if a perm should be in the PermSet or not.
     """
+
     def __init__(self, predicate):
         if isinstance(predicate, Callable):
             self.predicate = predicate

@@ -1,4 +1,3 @@
-
 class TrieNode(object):
     def __init__(self):
         self.down = {}
@@ -15,7 +14,6 @@ class TrieNode(object):
 
 
 class TrieMap(object):
-
     def __init__(self):
         self.root = TrieNode()
         self.cnt = 0

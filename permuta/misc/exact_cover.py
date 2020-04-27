@@ -49,8 +49,7 @@ def exact_cover(bss, validcnt, max_cnt, ignore_first, allow_overlap_in_first):
     return sols2
 
 
-def exact_cover_smallest(bss, validcnt, max_cnt, ignore_first,
-                         allow_overlap_in_first):
+def exact_cover_smallest(bss, validcnt, max_cnt, ignore_first, allow_overlap_in_first):
     sols = []
 
     def handle_solution(sol):

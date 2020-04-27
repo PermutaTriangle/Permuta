@@ -7,6 +7,7 @@ def test_cyclic_range():
     expected.extend(range(-20, 5))
     assert result == expected
 
+
 def test_modulo_range():
     result = list(modulo_range(7, 30))
     expected = list(range(7, 30))

@@ -1,10 +1,9 @@
-
 class UnionFind(object):
     """A collection of distjoint sets."""
 
     def __init__(self, n=0):
         """Creates a collection of n disjoint unit sets."""
-        self.p = [-1]*n
+        self.p = [-1] * n
         self.leaders = set(i for i in range(n))
 
     def find(self, x):
