@@ -603,8 +603,8 @@ def test_all_syms():
 @pytest.mark.xfail
 def test_is_representative():
     # TODO: write proper tests when the function is working
-    assert Perm().is_representative() == True
-    assert Perm((0,)).is_representative() == True
+    assert Perm().is_representative()
+    assert Perm((0,)).is_representative()
 
 
 def test_fixed_points():
@@ -634,6 +634,7 @@ def test_is_skew_decomposable():
     assert p1.skew_sum(p2, p3).is_skew_decomposable()
     assert p1.skew_sum(p2, p3, p4).is_skew_decomposable()
     assert p2.skew_sum(p3, p4).is_skew_decomposable()
+    assert not p5.is_skew_decomposable()
 
     assert not Perm((0, 1, 2, 3, 4)).is_skew_decomposable()
     assert not Perm((5, 0, 4, 1, 3, 2, 1)).is_skew_decomposable()
@@ -1266,9 +1267,9 @@ def test_avoids_2():
 
     def do_test(patts, expected):
         for i in range(min(len(expected), bound)):
-            l = i + 1
+            length = i + 1
             cnt = 0
-            for p in PermSet(l):
+            for p in PermSet(length):
                 ok = True
                 for patt in patts:
                     if not p.avoids(Perm(patt)):
@@ -1355,8 +1356,14 @@ def test_ascii_plot():
     assert Perm().ascii_plot() == ""
     assert Perm((0,)).ascii_plot() == " |\n-\u25cf-\n |"
     assert (
-        Perm((0, 1)).ascii_plot(cell_size=2)
-        == "  |  |\n  |  |\n--+--●--\n  |  |\n  |  |\n--●--+--\n  |  |\n  |  |"
+        Perm((0, 1)).ascii_plot(cell_size=2) == "  |  |\n"
+        "  |  |\n"
+        "--+--●--\n"
+        "  |  |\n"
+        "  |  |\n"
+        "--●--+--\n"
+        "  |  |\n"
+        "  |  |"
     )
     assert (
         Perm((1, 2, 4, 0, 3, 5)).ascii_plot() == " | | | | | |\n"

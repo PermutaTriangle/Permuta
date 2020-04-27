@@ -4,7 +4,7 @@ import random
 import pytest
 from permuta import MeshPatt, Perm
 from permuta.meshpattset import gen_meshpatts
-from permuta.misc import DIR_EAST, DIR_NONE, DIR_NORTH, DIR_SOUTH, DIR_WEST, factorial
+from permuta.misc import DIR_EAST, DIR_NORTH, DIR_SOUTH, DIR_WEST, factorial
 
 mesh_pattern = MeshPatt(
     [1, 3, 2, 0], set([(0, 0), (4, 0), (2, 1), (4, 1), (2, 2), (4, 2), (3, 3), (0, 4)])
@@ -223,7 +223,6 @@ def test_rotate():
 
 
 def test_shade():
-    mpatt = MeshPatt()
     assert MeshPatt().shade((0, 0)).is_shaded((0, 0))
     assert MeshPatt().shade([(0, 0)]).is_shaded((0, 0))
 
@@ -337,10 +336,10 @@ def test_meshpatt_contains_meshpatt():
     big_mesh_patt_2nd_col = MeshPatt(p_123, [(2, 0), (2, 1), (2, 2), (2, 3)])
     assert small_mesh_patt in big_mesh_patt_1st_col
     assert small_mesh_patt in big_mesh_patt_2nd_col
-    assert not big_mesh_patt_1st_col in small_mesh_patt
-    assert not big_mesh_patt_2nd_col in small_mesh_patt
-    assert not big_mesh_patt_1st_col in big_mesh_patt_2nd_col
-    assert not big_mesh_patt_2nd_col in big_mesh_patt_1st_col
+    assert big_mesh_patt_1st_col not in small_mesh_patt
+    assert big_mesh_patt_2nd_col not in small_mesh_patt
+    assert big_mesh_patt_1st_col not in big_mesh_patt_2nd_col
+    assert big_mesh_patt_2nd_col not in big_mesh_patt_1st_col
 
 
 def test_avoided_by():
@@ -709,7 +708,25 @@ def test_ordering():
 def test_to_tikz():
     assert (
         mesh_pattern.to_tikz()
-        == "\\begin{tikzpicture}[scale=.3,baseline=(current bounding box.center)]\n\t\\foreach \\x in {1,...,4} {\n\t\t\\draw[ultra thin] (\\x,0)--(\\x,5); %vline\n\t\t\\draw[ultra thin] (0,\\x)--(5,\\x); %hline\n\t\n\t}\n\t\\fill[pattern color = black!75, pattern=north east lines] (0, 0) rectangle +(1,1);\n\t\\fill[pattern color = black!75, pattern=north east lines] (0, 4) rectangle +(1,1);\n\t\\fill[pattern color = black!75, pattern=north east lines] (2, 1) rectangle +(1,1);\n\t\\fill[pattern color = black!75, pattern=north east lines] (2, 2) rectangle +(1,1);\n\t\\fill[pattern color = black!75, pattern=north east lines] (3, 3) rectangle +(1,1);\n\t\\fill[pattern color = black!75, pattern=north east lines] (4, 0) rectangle +(1,1);\n\t\\fill[pattern color = black!75, pattern=north east lines] (4, 1) rectangle +(1,1);\n\t\\fill[pattern color = black!75, pattern=north east lines] (4, 2) rectangle +(1,1);\n\t\\draw[fill=black] (1,2) circle (5pt);\n\t\\draw[fill=black] (2,4) circle (5pt);\n\t\\draw[fill=black] (3,3) circle (5pt);\n\t\\draw[fill=black] (4,1) circle (5pt);\n\\end{tikzpicture}"
+        == "\\begin{tikzpicture}[scale=.3,baseline=(current bounding box.center)]\n"
+        "\t\\foreach \\x in {1,...,4} {\n"
+        "\t\t\\draw[ultra thin] (\\x,0)--(\\x,5); %vline\n"
+        "\t\t\\draw[ultra thin] (0,\\x)--(5,\\x); %hline\n"
+        "\t\n"
+        "\t}\n"
+        "\t\\fill[pattern color = black!75, pattern=north east lines] (0, 0) rectangle +(1,1);\n"  # noqa: E501
+        "\t\\fill[pattern color = black!75, pattern=north east lines] (0, 4) rectangle +(1,1);\n"  # noqa: E501
+        "\t\\fill[pattern color = black!75, pattern=north east lines] (2, 1) rectangle +(1,1);\n"  # noqa: E501
+        "\t\\fill[pattern color = black!75, pattern=north east lines] (2, 2) rectangle +(1,1);\n"  # noqa: E501
+        "\t\\fill[pattern color = black!75, pattern=north east lines] (3, 3) rectangle +(1,1);\n"  # noqa: E501
+        "\t\\fill[pattern color = black!75, pattern=north east lines] (4, 0) rectangle +(1,1);\n"  # noqa: E501
+        "\t\\fill[pattern color = black!75, pattern=north east lines] (4, 1) rectangle +(1,1);\n"  # noqa: E501
+        "\t\\fill[pattern color = black!75, pattern=north east lines] (4, 2) rectangle +(1,1);\n"  # noqa: E501
+        "\t\\draw[fill=black] (1,2) circle (5pt);\n"
+        "\t\\draw[fill=black] (2,4) circle (5pt);\n"
+        "\t\\draw[fill=black] (3,3) circle (5pt);\n"
+        "\t\\draw[fill=black] (4,1) circle (5pt);\n"
+        "\\end{tikzpicture}"
     )
 
 
@@ -721,8 +738,7 @@ def test_ascii_plot():
     )
 
 
-# def test_gen_meshpatts():
-def gen_meshpatts():
+def test_gen_meshpatts():
     assert list(gen_meshpatts(0)) == [MeshPatt(), MeshPatt((), [(0, 0)])]
     assert len(list(gen_meshpatts(1))) == 2 ** 4
     for i in range(2, 4):

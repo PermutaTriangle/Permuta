@@ -2,7 +2,13 @@ import random
 
 import pytest
 from permuta import Perm, PermSet
-from permuta.permutils.symmetry import *
+from permuta.permutils.symmetry import (
+    all_symmetry_sets,
+    inverse_set,
+    lex_min,
+    reverse_set,
+    rotate_set,
+)
 
 
 def get_inp():
