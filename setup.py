@@ -29,7 +29,7 @@ setup(
     tests_require=["pytest==5.4.1",
                    "pytest-cov==2.8.1",
                    "pytest-pep8==1.0.6",
-                   "pytest-isort==0.3.1"],
+                   "pytest-isort==1.0.0"],
     python_requires='>=3.5',
     classifiers=[
         'Development Status :: 5 - Production/Stable',
