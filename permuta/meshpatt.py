@@ -885,10 +885,12 @@ class MeshPatt(MeshPatternBase, Patt, Rotatable, Shiftable, Flippable):
             shading_char = "\u2592"
             if c in self.shading:
                 return shading_char
+            elif c[0] == len(self):
+                return ""
             else:
                 return " "
 
-        if cell_size < 0:
+        if cell_size < 1:
             raise ValueError("`cell_size` must be positive")
         empty_char = "+"
         point_char = "\u25cf"

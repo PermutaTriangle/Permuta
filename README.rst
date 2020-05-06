@@ -293,13 +293,13 @@ be considered.
     <BLANKLINE>
     Now displaying the patterns
     <BLANKLINE>
-     | | | 
+     | | |
     -+-●-+-
-     | | | 
+     | | |
     -●-+-+-
-     | | | 
+     | | |
     -+-+-●-
-     | | | 
+     | | |
     <BLANKLINE>
 
 We should ignore the ``The number of sets to monitor at the start of the clean-up phase
