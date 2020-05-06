@@ -5,10 +5,17 @@ The format is based on [Keep a Changelog](http://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.html).
 
 ## Unreleased
+### Added
+- The BiSC algorithm that can tell you what mesh patterns are avoided by a set
+  of permutations.
+
 ### Changed
 - Updated `__str__` method of `Av` and `MeshPatt`.
 - Introduce a more efficient algorithm to build permutation in a permutation
   class.
+
+### Removed
+- Support for Python 3.5 and earlier
 
 ## [1.3.0] - 2019-12-16
 ### Added
