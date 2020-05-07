@@ -95,7 +95,7 @@ class AvoidanceClassMetaclass(type):
 
 class Av(object, metaclass=AvoidanceClassMetaclass):
     def __new__(cls, basis=None):
-        if basis is None:
+        if basis is None or len(basis) == 0:
             return PermSetAll()
         return PermSet.avoiding(basis)
 

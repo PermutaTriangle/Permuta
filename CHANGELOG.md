@@ -14,6 +14,9 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 - Introduce a more efficient algorithm to build permutation in a permutation
   class.
 
+### Fixed
+- `Av([])` returns `PermSetAll()`
+
 ### Removed
 - Support for Python 3.5 and earlier
 
