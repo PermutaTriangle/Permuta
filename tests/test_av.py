@@ -1,4 +1,5 @@
 from permuta import Av, MeshPatt, Perm
+from permuta.permset import PermSetAll
 
 
 def test_av_perm():
@@ -19,3 +20,8 @@ def test_av_meshpatt():
         inst = av.of_length(n)
         gen = list(inst)
         assert len(gen) == cnt
+
+
+def test_av_empty():
+    bases = [[], tuple(), set(), frozenset(), None]
+    assert all(isinstance(Av(basis), PermSetAll) for basis in bases)
