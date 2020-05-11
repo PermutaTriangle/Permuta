@@ -2259,7 +2259,7 @@ class Perm(tuple, Patt, Rotatable, Shiftable, Flippable):
     def __str__(self):
         if not self:
             return "\u03B5"
-        if len(self) < 10:
+        if len(self) <= 10:
             return "".join(str(i) for i in self)
         else:
             return "".join("({})".format(i) for i in self)
