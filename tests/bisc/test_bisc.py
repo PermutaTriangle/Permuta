@@ -1,5 +1,5 @@
 from permuta.bisc.bisc import bisc, read_bisc_file
-from permuta.bisc.bisc_subfunctions import patterns_suffice, run_clean_up
+from permuta.bisc.bisc_subfunctions import patterns_suffice_for_bad, run_clean_up
 from permuta.perm import Perm
 
 # Path to permutation files
@@ -27,7 +27,7 @@ def test_stack_sortable():
 
     SG = bisc(A, 3, 7)
     assert SG == {3: {Perm((1, 2, 0)): [set()]}}
-    assert patterns_suffice(SG, 6, B) == (True, [])
+    assert patterns_suffice_for_bad(SG, 6, B) == (True, [])
     assert run_clean_up(SG, B, limit_monitors=5) == (
         [[(3, 0, 0)]],
         {(3, 0, 0): (Perm((1, 2, 0)), set())},
@@ -77,7 +77,7 @@ def test_West2():
         4: {Perm((1, 2, 3, 0)): [set()], Perm((2, 1, 3, 0)): [{(1, 4)}]},
         5: {Perm((4, 2, 1, 3, 0)): [{(2, 4), (1, 5)}]},
     }
-    assert patterns_suffice(SG, 6, B) == (True, [])
+    assert patterns_suffice_for_bad(SG, 6, B) == (True, [])
     assert run_clean_up(SG, B, limit_monitors=5) == (
         [[(4, 0, 0), (4, 1, 0)]],
         {
@@ -123,7 +123,7 @@ def test_smooth():
         4: {Perm((0, 2, 1, 3)): [set()], Perm((1, 0, 3, 2)): [set()]},
         5: {},
     }
-    assert patterns_suffice(SG, 6, B) == (True, [])
+    assert patterns_suffice_for_bad(SG, 6, B) == (True, [])
     assert run_clean_up(SG, B, limit_monitors=5) == (
         [[(4, 0, 0), (4, 1, 0)]],
         {
@@ -168,7 +168,7 @@ def test_forestlike():
         4: {Perm((0, 2, 1, 3)): [set()], Perm((1, 0, 3, 2)): [{(2, 2)}]},
         5: {Perm((1, 3, 0, 4, 2)): [set()], Perm((2, 0, 4, 1, 3)): [set()]},
     }
-    assert patterns_suffice(SG, 6, B) == (True, [])
+    assert patterns_suffice_for_bad(SG, 6, B) == (True, [])
     assert run_clean_up(SG, B, limit_monitors=5) == (
         [[(4, 0, 0), (4, 1, 0)]],
         {
@@ -220,7 +220,7 @@ def test_Baxter():
             Perm((3, 1, 4, 0, 2)): [set()],
         },
     }
-    assert patterns_suffice(SG, 6, B) == (True, [])
+    assert patterns_suffice_for_bad(SG, 6, B) == (True, [])
     assert run_clean_up(SG, B, limit_monitors=5) == (
         [[(4, 0, 0), (4, 1, 0)]],
         {
@@ -777,7 +777,7 @@ def test_yt32():
         },
         6: {Perm((2, 5, 0, 3, 4, 1)): [set()], Perm((4, 1, 2, 5, 0, 3)): [set()]},
     }
-    assert patterns_suffice(SG, 7, B) == (True, [])
+    assert patterns_suffice_for_bad(SG, 7, B) == (True, [])
     assert run_clean_up(SG, B, limit_monitors=25) == (
         [
             [
