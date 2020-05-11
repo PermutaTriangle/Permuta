@@ -463,51 +463,82 @@ def display_forb_output(patts_w_shadings_dict):
     return res
 
 
-def patterns_suffice(SG, L, D, stop_on_failure=False):
+def patterns_suffice_for_good(SG, L, A, stop_on_failure=False):
+    print("Starting sanity check with good perms")
+    for n in range(L + 1):
 
-    for n in range(1, L + 1):
-
-        if n not in D.keys():
-            print("The dictionary does not contain permutations of length " + str(n))
-            break
+        if n not in A.keys():
+            print("There are no good perms of length {} to check".format(n))
+            return False, []
 
         print("Now checking permutations of length " + str(n))
 
-        avoiding_perms = []
-        for b in D[n]:
+        containing_perms_in_A = []
+        for a in A[n]:
 
-            b_avoids = not perm_contains_cl_patts_many_shadings(b, SG)
+            if perm_contains_cl_patts_many_shadings(a, SG):
+                if stop_on_failure:
+                    print(
+                        "!!!! The permutation " + str(a) + " contains the patterns !!!!"
+                    )
+                    return False, [a]
+                else:
+                    containing_perms_in_A.append(a)
 
-            if b_avoids:
+        if A[n] and containing_perms_in_A:
+            print(
+                "!!!! There are permutations of length "
+                + str(n)
+                + " that contain the patterns !!!!"
+            )
+            return False, containing_perms_in_A
+    print("Sanity check passes for the good perms")
+    return True, []
+
+
+def patterns_suffice_for_bad(SG, L, B, stop_on_failure=False):
+    print("Starting sanity check with bad perms")
+    for n in range(L + 1):
+
+        if n not in B.keys():
+            print("There are no bad perms of length {} to check".format(n))
+            return False, []
+
+        print("Now checking permutations of length " + str(n))
+
+        avoiding_perms_in_B = []
+        for b in B[n]:
+
+            if not perm_contains_cl_patts_many_shadings(b, SG):
                 if stop_on_failure:
                     print(
                         "!!!! The permutation " + str(b) + " avoids the patterns !!!!"
                     )
                     return False, [b]
                 else:
-                    avoiding_perms.append(b)
+                    avoiding_perms_in_B.append(b)
 
-        if D[n] and avoiding_perms:
+        if B[n] and avoiding_perms_in_B:
             print(
                 "!!!! There are permutations of length "
                 + str(n)
                 + " that avoid the patterns !!!!"
             )
-            return False, avoiding_perms
+            return False, avoiding_perms_in_B
 
-    print("There are no permutations in the complement that avoid the found patterns")
+    print("Sanity check passes for the bad perms")
     return True, []
 
 
 def run_clean_up(
-    SG, B, bm=None, M=None, limit_monitors=0, report=True, detailed_report=False
+    SG, B, bm=None, M=None, limit_monitors=0, report=False, detailed_report=False
 ):
 
-    if bm is None:
-        bm = max(k for k in SG.keys() if SG[k] != {})
-
     if M is None:
-        M = max(B.keys())
+        M = max(k for k in SG.keys() if SG[k] != {})
+
+    if bm is None:
+        bm = max(B.keys())
 
     bases, dict_numbs_to_patts = clean_up(
         SG,
@@ -787,6 +818,22 @@ def show_me_basis(b, dict_numbs_to_patts):
         mpatt = dict_numbs_to_patts[i]
         print(MeshPatt(mpatt[0], mpatt[1]).ascii_plot())
         print()
+
+
+def to_sg_format(basis, dict_numbs_to_patts):
+    sg = {}
+    for ind in basis:
+        length = ind[0]
+        if length not in sg:
+            sg[length] = {}
+        data = dict_numbs_to_patts[ind]
+        cl_patt = data[0]
+        sh = data[1]
+        if cl_patt not in sg[length]:
+            sg[length][cl_patt] = [sh]
+        else:
+            sg[length][cl_patt].append(sh)
+    return sg
 
 
 # TODO Compare this with the subfunction inside mine
