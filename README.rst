@@ -264,8 +264,13 @@ To use the algorithm we first need to import it.
 A classic example of a set of permutations described by pattern avoidance are
 the permutations sortable in one pass through a stack. We start by loading a
 function ``stack_sortable`` which returns ``True`` for permutations that
-satisfy this property. We input the property into ``bisc`` and ask it to search
-for patterns of length 3.
+satisfy this property. The user now has two choices: Run
+``auto_bisc(stack_sortable)`` and let the algorithm run without any more user
+input. It will try to use sensible values, starting by learning small patterns
+from small permutations, and only considering longer patterns when that fails.
+If the user wants to have more control over what happens that is also possible
+and we now walk through that: We input the property into ``bisc`` and ask it to
+search for patterns of length 3.
 
 .. code-block:: python
 
@@ -376,7 +381,9 @@ in the complement contains at least one of the patterns we found.
 .. code-block:: python
 
     >>> SG = bisc(A, 5, 7)
-    >>> patterns_suffice(SG, 7, B)
+    >>> patterns_suffice_for_bad(SG, 7, B)
+    Starting sanity check with bad perms
+    Now checking permutations of length 0
     Now checking permutations of length 1
     Now checking permutations of length 2
     Now checking permutations of length 3
@@ -384,7 +391,7 @@ in the complement contains at least one of the patterns we found.
     Now checking permutations of length 5
     Now checking permutations of length 6
     Now checking permutations of length 7
-    There are no permutations in the complement that avoid the found patterns
+    Sanity check passes for the bad perms
     (True, [])
 
 In this case it is true that every permutation in B, up to length 7, contains
@@ -400,14 +407,6 @@ by another pattern (or a set of others, as is the case here). We use the diction
 .. code-block:: python
 
     >>> bases, dict_numbs_to_patts = run_clean_up(SG, B)
-    Creating the sets to monitor
-    <BLANKLINE>
-    There are 1 potential bases to monitor
-    Starting the tests
-    ----------------------------------------------------------------
-    <BLANKLINE>
-    Testing permutations of length 5
-    <BLANKLINE>
     <BLANKLINE>
     The bases found have lengths
     [2]
@@ -444,6 +443,9 @@ There is one basis of mesh patterns found, with 2 patterns
 This is the output we were expecting. There are several other properties of
 permutations that can be imported from ``permuta.bisc.permsets.perm_properties``, such
 as ``smooth``, ``forest-like``, ``Baxter``, ``Simsun``, ``quick_sortable``, etc.
+
+Both ``bisc`` and ``auto_bisz`` can accept input in the form of a property,
+or a list of permutations (satisfying some property).
 
 License
 #######
