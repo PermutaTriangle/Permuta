@@ -25,6 +25,10 @@ permuta
 Permuta is a Python library for working with perms (short for permutations),
 patterns, and mesh patterns.
 
+If you need support, you can join us in our `Discord support server`_.
+
+.. _Discord support server: https://discord.gg/ngPZVT5
+
 Installing
 ==========
 
@@ -444,7 +448,7 @@ This is the output we were expecting. There are several other properties of
 permutations that can be imported from ``permuta.bisc.permsets.perm_properties``, such
 as ``smooth``, ``forest-like``, ``Baxter``, ``Simsun``, ``quick_sortable``, etc.
 
-Both ``bisc`` and ``auto_bisz`` can accept input in the form of a property,
+Both ``bisc`` and ``auto_bisc`` can accept input in the form of a property,
 or a list of permutations (satisfying some property).
 
 License
