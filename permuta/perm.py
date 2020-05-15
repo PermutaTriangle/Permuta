@@ -1787,13 +1787,6 @@ class Perm(tuple, Patt, Rotatable, Shiftable, Flippable):
             L.append(newS)
         return L
 
-    def sum_indecomposable_sequence(self):
-        S = self.downset()
-        return [
-            len([p for p in S if len(p) == i and not p.sum_decomposable()])
-            for i in range(1, max([len(p) for p in S]) + 1)
-        ]
-
     def count_rtlmax_ltrmin_layers(self):
         """Counts the layers in the right-to-left maxima, left-to-right minima
         decomposition.
