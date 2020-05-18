@@ -3,6 +3,7 @@ from ..permset_unbounded import PermSetUnbounded
 
 class PermSetDescribed(PermSetUnbounded):
     """A base class for unbounded perm sets."""
+
     # TODO: Make things abstract properties as a solution?
 
     # TODO: These two attribute needs to be defined in all immediate subclasses

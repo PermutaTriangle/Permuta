@@ -9,19 +9,17 @@ from .descriptor import Descriptor
 
 
 class AbstractBasis(Descriptor, tuple, abc.ABC):
-
     @property
     @abc.abstractmethod
     def ALLOWED_BASIS_ELEMENT_TYPES(self):
-        raise NotImplemented
+        raise NotImplementedError
 
     def __new__(cls, patts):
         return tuple.__new__(cls).union(patts, cls.ALLOWED_BASIS_ELEMENT_TYPES)
 
     def union(self, patts, patt_types):
         if not isinstance(patts, Iterable):
-            raise TypeError(
-                "Non-iterable argument cannot be unified with basis")
+            raise TypeError("Non-iterable argument cannot be unified with basis")
 
         # Input cleaning
         patts = set([patts] if isinstance(patts, patt_types) else patts)
@@ -34,8 +32,8 @@ class AbstractBasis(Descriptor, tuple, abc.ABC):
         for patt in patts:
             if not isinstance(patt, patt_types):
                 raise TypeError(
-                    "Elements of a basis should all be of type(s) {}".format(
-                        patt_types))
+                    "Elements of a basis should all be of type(s) {}".format(patt_types)
+                )
 
         # Add basis patts and sort
         patts.update(self)
@@ -92,8 +90,7 @@ class AbstractBasis(Descriptor, tuple, abc.ABC):
         return tuple.__hash__(self)
 
     def __repr__(self):
-        return "{}({})".format(self.__class__.__qualname__,
-                               tuple.__repr__(self))
+        return "{}({})".format(self.__class__.__qualname__, tuple.__repr__(self))
 
     def __str__(self):
         return "{{{}}}".format(", ".join(str(p) for p in self))
@@ -106,6 +103,7 @@ class Basis(AbstractBasis):
     to it to see if a perm should be in the PermSet or not. Additionally,
     various fast methods exist to build a PermSet defined by a basis.
     """
+
     ALLOWED_BASIS_ELEMENT_TYPES = (Perm,)
 
 
@@ -113,10 +111,13 @@ class MeshBasis(AbstractBasis):
     ALLOWED_BASIS_ELEMENT_TYPES = (MeshPatt,)
 
     def __new__(cls, patts):
-        return super().__new__(cls, {
-            patt if isinstance(patt, MeshPatt) else MeshPatt(patt, [])
-            for patt in patts
-        })
+        return super().__new__(
+            cls,
+            {
+                patt if isinstance(patt, MeshPatt) else MeshPatt(patt, [])
+                for patt in patts
+            },
+        )
 
 
 def detect_basis_cls(basis):
@@ -130,11 +131,11 @@ def detect_basis_cls(basis):
             return BasisCls
 
     # Argument can be an object or an iterable of objects that makes up a basis
-    if isinstance(basis, Perm) or all(
-            isinstance(patt, Perm) for patt in basis):
+    if isinstance(basis, Perm) or all(isinstance(patt, Perm) for patt in basis):
         return Basis
     elif isinstance(basis, MeshPatt) or all(
-            isinstance(patt, (Perm, MeshPatt)) for patt in basis):
+        isinstance(patt, (Perm, MeshPatt)) for patt in basis
+    ):
         return MeshBasis
     else:
         raise ValueError("A basis can only contain Perms and MeshPatts.")

@@ -17,7 +17,7 @@ def types(perm):
     interset = mem.get(perm)
     if interset is None:
         interset = set([])
-        for i in range(len(perm)+1):
+        for i in range(len(perm) + 1):
             part1 = perm[0:i]
             part2 = perm[i:]
 
@@ -34,7 +34,7 @@ def types(perm):
                     interset.add(4)
 
         flipperm = perm.inverse()
-        for i in range(len(perm)+1):
+        for i in range(len(perm) + 1):
             part1 = flipperm[0:i]
             part2 = flipperm[i:]
 
@@ -58,14 +58,14 @@ def types(perm):
 
 def is_decr(L):
     for i in range(len(L) - 1):
-        if L[i] < L[i+1]:
+        if L[i] < L[i + 1]:
             return False
     return True
 
 
 def is_incr(L):
     for i in range(len(L) - 1):
-        if L[i] > L[i+1]:
+        if L[i] > L[i + 1]:
             return False
     return True
 
@@ -75,9 +75,9 @@ def in_L2(L):
     if n == 0 or n == 1:
         return True
     if L[-1] == n - 1:
-        return in_L2(L[0:n - 1])
+        return in_L2(L[0 : n - 1])
     elif L[-1] == n - 2 and L[-2] == n - 1:
-        return in_L2(L[0:n - 2])
+        return in_L2(L[0 : n - 2])
     else:
         return False
 
@@ -91,4 +91,5 @@ def is_polynomial(basis):
     return False
 
 
-def is_non_polynomial(basis): return not is_polynomial(basis)
+def is_non_polynomial(basis):
+    return not is_polynomial(basis)

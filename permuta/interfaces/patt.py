@@ -4,7 +4,6 @@ ABC = abc.ABCMeta("ABC", (object,), {})
 
 
 class Patt(ABC):
-
     def avoided_by(self, *perms):
         """Check if self is avoided by perms.
 

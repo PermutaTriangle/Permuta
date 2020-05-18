@@ -61,6 +61,7 @@ def partitions_of_n_of_size_k(n, k):
                 parts.append([i] + part)
     return parts
 
+
 # internet versions
 
 # def ordered_set_partitions(lst, parts):

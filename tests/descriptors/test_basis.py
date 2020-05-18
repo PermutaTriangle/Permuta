@@ -1,5 +1,4 @@
 import pytest
-
 from permuta import MeshPatt, Perm
 from permuta.descriptors.basis import Basis, MeshBasis, detect_basis_cls
 

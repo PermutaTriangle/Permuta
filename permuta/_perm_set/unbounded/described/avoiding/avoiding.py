@@ -4,8 +4,7 @@ import random
 
 from .....descriptors.basis import AbstractBasis, Basis
 from .....perm import Perm
-from ....finite.permset_finite_specificlength import \
-    PermSetFiniteSpecificLength
+from ....finite.permset_finite_specificlength import PermSetFiniteSpecificLength
 from ....finite.permset_static import PermSetStatic
 from ....unbounded.all.permset_all import PermSetAll
 from ..permset_described import PermSetDescribed
@@ -13,6 +12,7 @@ from ..permset_described import PermSetDescribed
 
 class Avoiding(PermSetDescribed):
     """The base class for all avoidance classes."""
+
     # NOTE: Monkey patching of default subclass happens at end of file
     DESCRIPTOR_CLASS = AbstractBasis
 
@@ -30,7 +30,7 @@ class Avoiding(PermSetDescribed):
         return "Av({})".format(tuple(self.basis))
 
     def __str__(self):
-        return "Av({})".format(', '.join(map(str, self.basis)))
+        return "Av({})".format(", ".join(map(str, self.basis)))
 
 
 class AvoidingGeneric(Avoiding):
@@ -44,25 +44,55 @@ class AvoidingGeneric(Avoiding):
         else:
             instance = super(AvoidingGeneric, cls).__new__(cls)
             # Generic case includes empty permutation
-            instance.cache = [set([Perm()])]
+            instance.cache = [{Perm(): [0]}]
             AvoidingGeneric.__CLASS_CACHE[basis] = instance
             return instance
 
     def _ensure_level(self, level_number):
         # Ensure level is available
         while len(self.cache) <= level_number:
-            new_level = set()
-            total_indices = len(self.cache)  # really: len(perm) + 1
+            nplusone = len(self.cache)  # really: len(perm) + 1
             if isinstance(self.basis, Basis):
                 # Smart way when basis consists only of Perms
-                for perm in self.cache[-1]:
-                    for index in range(total_indices):
-                        new_perm = perm.insert(index)
-                        if new_perm.avoids(*self.basis):
-                            new_level.add(new_perm)
+                # We will build the length n + 1 perms, from the length n perms
+
+                n = nplusone - 1
+                new_level = dict()
+                max_size = max(len(p) for p in self.basis)
+                last_level = self.cache[-1]
+
+                # If we are currently building a length for which there is a
+                #   basis element of that length, we set this to True
+                check_length = nplusone in [len(b) for b in self.basis]
+                # and get the basis element of this nplusone
+                smaller_elems = [b for b in self.basis if len(b) == nplusone]
+
+                def valid_insertions(perm):
+                    res = None
+                    for i in range(max(0, n - max_size), n):
+                        val = perm[i]
+                        subperm = perm.remove(i)
+                        spots = self.cache[n - 1][subperm]
+                        acceptable = [k for k in spots if k <= val] + [
+                            k + 1 for k in spots if k >= val
+                        ]
+                        if res is None:
+                            res = frozenset(acceptable)
+                        res = res.intersection(acceptable)
+                        if not res:
+                            break
+                    return res if res is not None else frozenset(range(nplusone))
+
+                for perm in last_level.keys():
+                    for value in valid_insertions(perm):
+                        new_perm = perm.insert(index=nplusone, new_element=value)
+                        if not check_length or new_perm not in smaller_elems:
+                            new_level[new_perm] = []
+                            last_level[perm].append(value)
             else:
                 # Necessary non-smart way for e.g. MeshBasis
-                for new_perm in PermSetAll().of_length(total_indices):
+                new_level = set()
+                for new_perm in PermSetAll().of_length(nplusone):
                     if new_perm.avoids(*self.basis):
                         new_level.add(new_perm)
             self.cache.append(new_level)
@@ -70,7 +100,10 @@ class AvoidingGeneric(Avoiding):
     def _get_level(self, level_number):
         with AvoidingGeneric._CACHE_LOCK:
             self._ensure_level(level_number)
-        return self.cache[level_number]
+        res = self.cache[level_number]
+        if isinstance(res, dict):
+            return self.cache[level_number].keys()
+        return res
 
     def of_length(self, length):
         # TODO: Cache of instances?
@@ -89,8 +122,7 @@ class AvoidingGeneric(Avoiding):
 
     def __next__(self):
         if self._iter is None:
-            self._ensure_level(self._iter_number)
-            cached_perms = self.cache[self._iter_number]
+            cached_perms = self._get_level(self._iter_number)
             if len(cached_perms) == 0:
                 raise StopIteration
             self._iter = iter(cached_perms)
@@ -111,8 +143,7 @@ class AvoidingGeneric(Avoiding):
         #       in the basis instead
         if isinstance(perm, Perm):
             length = len(perm)
-            self._ensure_level(length)
-            return perm in self.cache[length]
+            return perm in self._get_level(length)
         else:
             raise TypeError
 
@@ -160,12 +191,12 @@ class AvoidingGenericSpecificLength(PermSetFiniteSpecificLength):
         return next(self._iter)
 
     def __str__(self):
-        return ("<PermSet of all perms of length {} avoiding {}>"
-                "".format(self._length, self._basis))
+        return "<PermSet of all perms of length {} avoiding {}>" "".format(
+            self._length, self._basis
+        )
 
     def __repr__(self):
-        return ("Av({}).of_length({})"
-                "".format(repr(tuple(self._basis)), self._length))
+        return "Av({}).of_length({})" "".format(repr(tuple(self._basis)), self._length)
 
 
 # Set default Avoiding class to be dispatched
