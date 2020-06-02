@@ -25,6 +25,8 @@ permuta
 Permuta is a Python library for working with perms (short for permutations),
 patterns, and mesh patterns.
 
+If you need support, you can join us in our `Discord support server<https://discord.gg/ngPZVT5>`_.
+
 Installing
 ==========
 
@@ -117,7 +119,7 @@ Printing perms gives zero-based strings.
     >>> print(Perm((2, 1, 0)))
     210
     >>> print(Perm((6, 2, 10, 9, 3, 8, 0, 1, 5, 11, 4, 7)))
-    62(10)938015(11)47
+    (6)(2)(10)(9)(3)(8)(0)(1)(5)(11)(4)(7)
 
 The avoids, contains, and occurrence methods enable working with patterns:
 
@@ -247,6 +249,205 @@ but indexing has yet to be implemented:
     False
     >>> next(iter(perm_class_14)) in perm_class_14
     True
+
+The BiSC algorithm
+==================
+
+The BiSC algorithm can tell you what mesh patterns are avoided by a set of
+permutations. Although the output of the algorithm is only guaranteed to
+describe the finite inputted set of permutations, the user usually hopes that
+the patterns found by the algorithm describe an infinite set of permutatations.
+To use the algorithm we first need to import it.
+
+.. code-block:: python
+
+    >>> from permuta.bisc import *
+
+A classic example of a set of permutations described by pattern avoidance are
+the permutations sortable in one pass through a stack. We start by loading a
+function ``stack_sortable`` which returns ``True`` for permutations that
+satisfy this property. The user now has two choices: Run
+``auto_bisc(stack_sortable)`` and let the algorithm run without any more user
+input. It will try to use sensible values, starting by learning small patterns
+from small permutations, and only considering longer patterns when that fails.
+If the user wants to have more control over what happens that is also possible
+and we now walk through that: We input the property into ``bisc`` and ask it to
+search for patterns of length 3.
+
+.. code-block:: python
+
+    >>> from permuta.bisc.permsets.perm_properties import stack_sortable
+    >>> bisc(stack_sortable, 3)
+    I will use permutations up to length 7
+    {3: {Perm((1, 2, 0)): [set()]}}
+
+When this command is run without specifying what length of permutations you
+want to consider, ``bisc`` will create permutations up to length 7 that satisfy
+the property of being stack-sortable. The output means: There is a single
+length 3 pattern found, and its underlying classical pattern is the permutation
+``Perm((1, 2, 0))``. Ignore the ``[set()]`` in the output for now. We can use
+``show_me`` to get a better visualization of the patterns found. In this call
+to the algorithm we also specify that only permutations up to length 5 should
+be considered.
+
+.. code-block:: python
+
+    >>> SG = bisc(stack_sortable, 3, 5)
+    >>> show_me(SG)
+    There are 1 underlying classical patterns of length 3
+    There are 1 different shadings on 120
+    The number of sets to monitor at the start of the clean-up phase is 1
+    <BLANKLINE>
+    Now displaying the patterns
+    <BLANKLINE>
+     | | |
+    -+-●-+-
+     | | |
+    -●-+-+-
+     | | |
+    -+-+-●-
+     | | |
+    <BLANKLINE>
+
+We should ignore the ``The number of sets to monitor at the start of the clean-up phase
+is 1`` message for now.
+
+We do not really need this algorithm for sets of permutations described by the
+avoidance of classical patterns. Its main purpose is to describe sets with mesh
+patterns, such as the West-2-stack-sortable permutations
+
+.. code-block:: python
+
+    >>> from permuta.bisc.permsets.perm_properties import West_2_stack_sortable
+    >>> SG = bisc(West_2_stack_sortable, 5, 7)
+    >>> show_me(SG)
+    There are 2 underlying classical patterns of length 4
+    There are 1 different shadings on 1230
+    There are 1 different shadings on 2130
+    The number of sets to monitor at the start of the clean-up phase is 1
+    There are 1 underlying classical patterns of length 5
+    There are 1 different shadings on 42130
+    <BLANKLINE>
+    Now displaying the patterns
+    <BLANKLINE>
+     | | | |
+    -+-+-●-+-
+     | | | |
+    -+-●-+-+-
+     | | | |
+    -●-+-+-+-
+     | | | |
+    -+-+-+-●-
+     | | | |
+    <BLANKLINE>
+     |▒| | |
+    -+-+-●-+-
+     | | | |
+    -●-+-+-+-
+     | | | |
+    -+-●-+-+-
+     | | | |
+    -+-+-+-●-
+     | | | |
+    <BLANKLINE>
+     |▒| | | |
+    -●-+-+-+-+-
+     | |▒| | |
+    -+-+-+-●-+-
+     | | | | |
+    -+-●-+-+-+-
+     | | | | |
+    -+-+-●-+-+-
+     | | | | |
+    -+-+-+-+-●-
+     | | | | |
+    <BLANKLINE>
+
+This is good news and bad news. Good because we quickly got a description of the
+set we were looking at, that would have taken a long time to find by hand. The bad news
+is that there is actually some redundancy in the output. To understand better what is
+going on we will start by putting the permutations under investigation in a dictionary,
+which keeps them separated by length.
+
+.. code-block:: python
+
+    >>> A, B = create_bisc_input(7, West_2_stack_sortable)
+
+This creates two dictionaries with keys 1, 2, ..., 7 such that ``A[i]`` points
+to the list of permutations of length ``i`` that are West-2-stack-sortable, and
+``B[i]`` points to the complement. We can pass the A dictionary directly into
+BiSC since only the permutations satisfying the property are used to find the
+patterns. We can use the second dictionary to check whether every permutation
+in the complement contains at least one of the patterns we found.
+
+.. code-block:: python
+
+    >>> SG = bisc(A, 5, 7)
+    >>> patterns_suffice_for_bad(SG, 7, B)
+    Starting sanity check with bad perms
+    Now checking permutations of length 0
+    Now checking permutations of length 1
+    Now checking permutations of length 2
+    Now checking permutations of length 3
+    Now checking permutations of length 4
+    Now checking permutations of length 5
+    Now checking permutations of length 6
+    Now checking permutations of length 7
+    Sanity check passes for the bad perms
+    (True, [])
+
+In this case it is true that every permutation in B, up to length 7, contains
+at least one of the patterns found. Had that not been the case a list of
+permutations would have been outputted (instead of just the empty list).
+
+Now, we claim that there is actually redundancy in the patterns we found, and
+the length 4 mesh patterns should be enough to describe the set. This can occur
+and it can be tricky to theoretically prove that one mesh pattern is implied
+by another pattern (or a set of others, as is the case here). We use the dictionary
+``B`` again and run
+
+.. code-block:: python
+
+    >>> bases, dict_numbs_to_patts = run_clean_up(SG, B)
+    <BLANKLINE>
+    The bases found have lengths
+    [2]
+
+There is one basis of mesh patterns found, with 2 patterns
+
+.. code-block:: python
+
+    >>> show_me_basis(bases[0], dict_numbs_to_patts)
+    <BLANKLINE>
+    Displaying the patterns in the basis
+    <BLANKLINE>
+     | | | |
+    -+-+-●-+-
+     | | | |
+    -+-●-+-+-
+     | | | |
+    -●-+-+-+-
+     | | | |
+    -+-+-+-●-
+     | | | |
+    <BLANKLINE>
+     |▒| | |
+    -+-+-●-+-
+     | | | |
+    -●-+-+-+-
+     | | | |
+    -+-●-+-+-
+     | | | |
+    -+-+-+-●-
+     | | | |
+    <BLANKLINE>
+
+This is the output we were expecting. There are several other properties of
+permutations that can be imported from ``permuta.bisc.permsets.perm_properties``, such
+as ``smooth``, ``forest-like``, ``Baxter``, ``Simsun``, ``quick_sortable``, etc.
+
+Both ``bisc`` and ``auto_bisc`` can accept input in the form of a property,
+or a list of permutations (satisfying some property).
 
 License
 #######

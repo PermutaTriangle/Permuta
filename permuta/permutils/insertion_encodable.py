@@ -3,9 +3,9 @@
 
 def is_incr_next_incr(perm):
     for i in range(len(perm) - 1):
-        if perm[i+1] < perm[i]:
-            for j in range(i+1, len(perm) - 1):
-                if perm[j+1] < perm[j]:
+        if perm[i + 1] < perm[i]:
+            for j in range(i + 1, len(perm) - 1):
+                if perm[j + 1] < perm[j]:
                     return False
             break
     return True
@@ -13,9 +13,9 @@ def is_incr_next_incr(perm):
 
 def is_incr_next_decr(perm):
     for i in range(len(perm) - 1):
-        if perm[i+1] < perm[i]:
-            for j in range(i+1, len(perm) - 1):
-                if perm[j+1] > perm[j]:
+        if perm[i + 1] < perm[i]:
+            for j in range(i + 1, len(perm) - 1):
+                if perm[j + 1] > perm[j]:
                     return False
             break
     return True
@@ -23,9 +23,9 @@ def is_incr_next_decr(perm):
 
 def is_decr_next_incr(perm):
     for i in range(len(perm) - 1):
-        if perm[i+1] > perm[i]:
-            for j in range(i+1, len(perm) - 1):
-                if perm[j+1] < perm[j]:
+        if perm[i + 1] > perm[i]:
+            for j in range(i + 1, len(perm) - 1):
+                if perm[j + 1] < perm[j]:
                     return False
             break
     return True
@@ -33,9 +33,9 @@ def is_decr_next_incr(perm):
 
 def is_decr_next_decr(perm):
     for i in range(len(perm) - 1):
-        if perm[i+1] > perm[i]:
-            for j in range(i+1, len(perm) - 1):
-                if perm[j+1] > perm[j]:
+        if perm[i + 1] > perm[i]:
+            for j in range(i + 1, len(perm) - 1):
+                if perm[j + 1] > perm[j]:
                     return False
             break
     return True
@@ -87,5 +87,6 @@ def is_insertion_encodable_maximum(basis):
 
 
 def is_insertion_encodable(basis):
-    return (is_insertion_encodable_rightmost(basis) or
-            is_insertion_encodable_maximum(basis))
+    return is_insertion_encodable_rightmost(basis) or is_insertion_encodable_maximum(
+        basis
+    )

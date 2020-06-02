@@ -4,7 +4,6 @@ ABC = abc.ABCMeta("ABC", (object,), {})
 
 
 class Flippable(ABC):
-
     @abc.abstractmethod
     def flip_horizontal(self):
         """Return self flipped horizontally."""
