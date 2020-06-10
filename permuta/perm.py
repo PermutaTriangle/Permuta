@@ -1210,7 +1210,7 @@ class Perm(tuple, Patt, Rotatable, Shiftable, Flippable):
                 bit[0] += bit[element]
                 element &= element - 1
             while bit_index < bit_len:
-                bit[bit_index] += 1 
+                bit[bit_index] += 1
                 bit_index += bit_index & -bit_index
         return bit[0]
 
