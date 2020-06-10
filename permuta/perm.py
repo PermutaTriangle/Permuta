@@ -1206,11 +1206,15 @@ class Perm(tuple, Patt, Rotatable, Shiftable, Flippable):
         bit = [0] * bit_len
         for element in reversed(self):
             bit_index = element + 1
+            # Count lesser elements to the right
             while element:
                 bit[0] += bit[element]
+                # Flip the right most set bit
                 element &= element - 1
+            # Increment frequency for current element
             while bit_index < bit_len:
                 bit[bit_index] += 1
+                # Increase index by the largest power of two that divides it
                 bit_index += bit_index & -bit_index
         return bit[0]
 
