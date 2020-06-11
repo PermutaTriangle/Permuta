@@ -1202,7 +1202,21 @@ class Perm(tuple, Patt, Rotatable, Shiftable, Flippable):
             >>> Perm.monotone_increasing(7).count_inversions()
             0
         """
-        return sum(1 for _ in self.inversions())
+        bit_len = len(self) + 1
+        bit = [0] * bit_len
+        for element in reversed(self):
+            bit_index = element + 1
+            # Count lesser elements to the right
+            while element:
+                bit[0] += bit[element]
+                # Flip the right most set bit
+                element &= element - 1
+            # Increment frequency for current element
+            while bit_index < bit_len:
+                bit[bit_index] += 1
+                # Increase index by the largest power of two that divides it
+                bit_index += bit_index & -bit_index
+        return bit[0]
 
     def inversions(self):
         """Yield the inversions of the permutation, i.e., the pairs i,j
@@ -1229,7 +1243,8 @@ class Perm(tuple, Patt, Rotatable, Shiftable, Flippable):
             >>> Perm.monotone_increasing(7).count_non_inversions() == (6 * 7)/2
             True
         """
-        return sum(1 for _ in self.non_inversions())
+        n = len(self)
+        return n * (n - 1) // 2 - self.count_inversions()
 
     def non_inversions(self):
         """Yields the non_inversions of the permutation, i.e., the pairs i,j
