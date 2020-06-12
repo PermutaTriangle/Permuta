@@ -6,6 +6,13 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 
 ## Unreleased
 
+## 1.4.1 - 2020-06-12
+### Removed
+- The unused `permuta.misc.misc` module
+
+### Fixed
+- Installation on windows
+
 ## 1.4.0 - 2020-05-11
 ### Added
 - The BiSC algorithm that can tell you what mesh patterns are avoided by a set

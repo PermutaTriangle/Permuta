@@ -1104,8 +1104,8 @@ class Perm(tuple, Patt, Rotatable, Shiftable, Flippable):
             1
         """
         acc = 1
-        for l in map(len, self.cycle_decomp()):
-            acc = (acc * l) // math.gcd(acc, l)
+        for cycle in map(len, self.cycle_decomp()):
+            acc = (acc * cycle) // math.gcd(acc, cycle)
         return acc
 
     # TODO: reimplement the following four functions to return generators
@@ -1202,7 +1202,21 @@ class Perm(tuple, Patt, Rotatable, Shiftable, Flippable):
             >>> Perm.monotone_increasing(7).count_inversions()
             0
         """
-        return sum(1 for _ in self.inversions())
+        bit_len = len(self) + 1
+        bit = [0] * bit_len
+        for element in reversed(self):
+            bit_index = element + 1
+            # Count lesser elements to the right
+            while element:
+                bit[0] += bit[element]
+                # Flip the right most set bit
+                element &= element - 1
+            # Increment frequency for current element
+            while bit_index < bit_len:
+                bit[bit_index] += 1
+                # Increase index by the largest power of two that divides it
+                bit_index += bit_index & -bit_index
+        return bit[0]
 
     def inversions(self):
         """Yield the inversions of the permutation, i.e., the pairs i,j
@@ -1229,7 +1243,8 @@ class Perm(tuple, Patt, Rotatable, Shiftable, Flippable):
             >>> Perm.monotone_increasing(7).count_non_inversions() == (6 * 7)/2
             True
         """
-        return sum(1 for _ in self.non_inversions())
+        n = len(self)
+        return n * (n - 1) // 2 - self.count_inversions()
 
     def non_inversions(self):
         """Yields the non_inversions of the permutation, i.e., the pairs i,j
@@ -1787,13 +1802,6 @@ class Perm(tuple, Patt, Rotatable, Shiftable, Flippable):
             L.append(newS)
         return L
 
-    def sum_indecomposable_sequence(self):
-        S = self.downset()
-        return [
-            len([p for p in S if len(p) == i and not p.sum_decomposable()])
-            for i in range(1, max([len(p) for p in S]) + 1)
-        ]
-
     def count_rtlmax_ltrmin_layers(self):
         """Counts the layers in the right-to-left maxima, left-to-right minima
         decomposition.
@@ -2159,7 +2167,7 @@ class Perm(tuple, Patt, Rotatable, Shiftable, Flippable):
         for i in range(n):
             array[self[i]][i] = point_char
         array.reverse()
-        lines = [("-" * cell_size).join([""] + l + [""]) + "\n" for l in array]
+        lines = [("-" * cell_size).join([""] + line + [""]) + "\n" for line in array]
         vline = (" " * cell_size + "|") * n + "\n"
         s = (vline * cell_size).join([""] + lines + [""])
         return s[:-1]
