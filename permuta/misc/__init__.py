@@ -4,7 +4,6 @@ from .counting import binomial, catalan, factorial
 from .dancing_links import DancingLinks
 from .exact_cover import exact_cover, exact_cover_smallest
 from .iterable_floor_and_ceiling import left_floor_and_ceiling, right_floor_and_ceiling
-from .misc import binary_search, choose, flatten, subsets
 from .ordered_set_partitions import (
     ordered_set_partitions,
     ordered_set_partitions_no_cache,
@@ -32,10 +31,6 @@ __all__ = [
     "exact_cover_smallest",
     "left_floor_and_ceiling",
     "right_floor_and_ceiling",
-    "binary_search",
-    "choose",
-    "flatten",
-    "subsets",
     "ordered_set_partitions",
     "ordered_set_partitions_no_cache",
     "ProgressBar",
