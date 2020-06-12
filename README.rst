@@ -25,7 +25,9 @@ permuta
 Permuta is a Python library for working with perms (short for permutations),
 patterns, and mesh patterns.
 
-If you need support, you can join us in our `Discord support server<https://discord.gg/ngPZVT5>`_.
+If you need support, you can join us in our `Discord support server`_.
+
+.. _Discord support server: https://discord.gg/ngPZVT5
 
 Installing
 ==========
