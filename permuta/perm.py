@@ -1104,8 +1104,8 @@ class Perm(tuple, Patt, Rotatable, Shiftable, Flippable):
             1
         """
         acc = 1
-        for l in map(len, self.cycle_decomp()):
-            acc = (acc * l) // math.gcd(acc, l)
+        for cycle in map(len, self.cycle_decomp()):
+            acc = (acc * cycle) // math.gcd(acc, cycle)
         return acc
 
     # TODO: reimplement the following four functions to return generators
@@ -2167,7 +2167,7 @@ class Perm(tuple, Patt, Rotatable, Shiftable, Flippable):
         for i in range(n):
             array[self[i]][i] = point_char
         array.reverse()
-        lines = [("-" * cell_size).join([""] + l + [""]) + "\n" for l in array]
+        lines = [("-" * cell_size).join([""] + line + [""]) + "\n" for line in array]
         vline = (" " * cell_size + "|") * n + "\n"
         s = (vline * cell_size).join([""] + lines + [""])
         return s[:-1]
