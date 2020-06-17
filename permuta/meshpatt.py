@@ -899,7 +899,7 @@ class MeshPatt(MeshPatternBase, Patt, Rotatable, Shiftable, Flippable):
         for i in range(n):
             array[self.pattern[i]][i] = point_char
         array.reverse()
-        lines = [("-" * cell_size).join([""] + l + [""]) + "\n" for l in array]
+        lines = [("-" * cell_size).join([""] + line + [""]) + "\n" for line in array]
         vlines = [
             ("|".join(fill_char((j, i)) * cell_size for j in range(n + 1)) + "\n")
             * cell_size
