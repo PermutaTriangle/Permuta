@@ -6,6 +6,10 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 
 ## Unreleased
 
+## 1.4.2 - 2020-06-17
+### Fixed
+- Make `permuta.bisc.permsets` a proper package.
+
 ## 1.4.1 - 2020-06-12
 ### Removed
 - The unused `permuta.misc.misc` module
