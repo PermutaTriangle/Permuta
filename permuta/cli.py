@@ -4,15 +4,6 @@ import sys
 
 from permuta import Av, Perm
 
-parser = argparse.ArgumentParser(
-    description="A tool quickly get the enumeration of permutation classes"
-)
-parser.add_argument(
-    "basis",
-    help="The basis as a string where the permutations are separated by '_' "
-    "(e.g. '231_4321')",
-)
-
 
 def signal_handler(sig, frame):
     print()
@@ -20,8 +11,7 @@ def signal_handler(sig, frame):
     sys.exit(0)
 
 
-def main():
-    args = parser.parse_args()
+def enumerate_class(args):
     basis = []
     for perm_str in args.basis.split("_"):
         perm_tuple = tuple(map(int, perm_str))
@@ -37,6 +27,30 @@ def main():
         num = len(list(perm_class.of_length(n)))
         print(f"{num}, ", end="", flush=True)
         n += 1
+
+
+parser = argparse.ArgumentParser(description="A set of tools to work with permutations")
+subparsers = parser.add_subparsers(title="subcommands")
+
+
+# The count command
+count_parser = subparsers.add_parser(
+    "count", description="A tool to quickly get the enumeration of permutation classes"
+)
+count_parser.set_defaults(func=enumerate_class)
+count_parser.add_argument(
+    "basis",
+    help="The basis as a string where the permutations are separated by '_' "
+    "(e.g. '231_4321')",
+)
+
+
+def main():
+    args = parser.parse_args()
+    if not hasattr(args, "func"):
+        parser.error("Invalid command")
+    args.func(args)
+    sys.exit(0)
 
 
 if __name__ == "__main__":
