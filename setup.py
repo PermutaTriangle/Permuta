@@ -40,4 +40,5 @@ setup(
         "Topic :: Education",
         "Topic :: Scientific/Engineering :: Mathematics",
     ],
+    entry_points={"console_scripts": ["foo=permuta.cli:main"]},
 )
