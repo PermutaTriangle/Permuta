@@ -9,7 +9,8 @@ parser = argparse.ArgumentParser(
 )
 parser.add_argument(
     "basis",
-    help="The basis as a string where the permutations are separated by '_' (e.g. '231_4321')",
+    help="The basis as a string where the permutations are separated by '_' "
+    "(e.g. '231_4321')",
 )
 
 
