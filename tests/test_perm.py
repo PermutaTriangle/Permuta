@@ -640,7 +640,26 @@ def test_is_skew_decomposable():
     assert not p5.is_skew_decomposable()
 
     assert not Perm((0, 1, 2, 3, 4)).is_skew_decomposable()
-    assert not Perm((5, 0, 4, 1, 3, 2, 1)).is_skew_decomposable()
+    assert not Perm((0, 5, 4, 3, 2, 1)).is_skew_decomposable()
+
+
+def test_skew_decomposition():
+    p1 = Perm((0, 1, 3, 2))
+    p2 = Perm((0, 4, 2, 1, 3))
+    p3 = Perm((2, 0, 1))
+    p4 = Perm((0,))
+    p5 = Perm()
+    p6 = Perm((0, 1))
+
+    assert p3.skew_decomposition() == [p4, p6]
+    assert p1.skew_sum(p2).skew_decomposition() == [p1, p2]
+    assert p1.skew_sum(p2, p3).skew_decomposition() == [p1, p2, p4, p6]
+    assert p1.skew_sum(p2, p3, p4).skew_decomposition() == [p1, p2, p4, p6, p4]
+    assert p5.skew_decomposition() == []
+    assert p4.skew_decomposition() == [p4]
+    assert p1.skew_decomposition() == [p1]
+    assert Perm((0, 1, 2, 3, 4)).skew_decomposition() == [Perm((0, 1, 2, 3, 4))]
+    assert Perm((0, 5, 4, 3, 2, 1)).skew_decomposition() == [Perm((0, 5, 4, 3, 2, 1))]
 
 
 def test_is_sum_decomposable():
@@ -658,6 +677,31 @@ def test_is_sum_decomposable():
     assert not p2.is_sum_decomposable()
     assert not p3.is_sum_decomposable()
     assert not Perm((4, 3, 2, 1, 0)).is_sum_decomposable()
+
+
+def test_sum_decomposition():
+    p1 = Perm((0, 1, 3, 2))
+    p2 = Perm((4, 2, 1, 3, 0))
+    p3 = Perm((2, 0, 1))
+    p4 = Perm((0,))
+    p5 = Perm()
+    p6 = Perm((1, 0))
+
+    assert p1.sum_decomposition() == [p4, p4, p6]
+    assert p1.direct_sum(p2, p3).sum_decomposition() == [p4, p4, p6, p2, p3]
+    assert p1.direct_sum(p2, p3, p4).sum_decomposition() == [
+        p4,
+        p4,
+        p6,
+        p2,
+        p3,
+        p4,
+    ]
+    assert p4.sum_decomposition() == [p4]
+    assert p5.sum_decomposition() == []
+    assert p2.sum_decomposition() == [p2]
+    assert p3.sum_decomposition() == [p3]
+    assert Perm((4, 3, 2, 1, 0)).sum_decomposition() == [Perm((4, 3, 2, 1, 0))]
 
 
 def test_descent_set():
