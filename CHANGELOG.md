@@ -6,6 +6,11 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 
 ## Unreleased
 
+## 1.5.0 - 2020-06-23
+## Added
+- A quick command line interface to compute the enumeration of a permutation class.
+- `Perm.skew_decomposition` and `Perm.sum_decomposition` methods.
+
 ## 1.4.2 - 2020-06-17
 ### Fixed
 - Make `permuta.bisc.permsets` a proper package.

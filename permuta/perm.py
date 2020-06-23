@@ -5,6 +5,7 @@ import math
 import numbers
 import operator
 import random
+from typing import List
 
 from .interfaces.flippable import Flippable
 from .interfaces.patt import Patt
@@ -1582,6 +1583,33 @@ class Perm(tuple, Patt, Rotatable, Shiftable, Flippable):
     #
     # Decomposition and generation from self methods
     #
+    def sum_decomposition(self) -> List["Perm"]:
+        """
+        Return the sum decomposition of the permutation.
+        """
+        res: List[Perm] = []
+        max_val = -1
+        curr_block_start_idx = 0
+        for idx, val in enumerate(self):
+            max_val = max(max_val, val)
+            if idx == max_val:
+                res.append(Perm.to_standard(self[curr_block_start_idx : idx + 1]))
+                curr_block_start_idx = idx + 1
+        return res
+
+    def skew_decomposition(self) -> List["Perm"]:
+        """
+        Return the skew decomposition of the permutation.
+        """
+        res: List[Perm] = []
+        min_val = len(self) + 1
+        curr_block_start_idx = 0
+        for idx, val in enumerate(self):
+            min_val = min(min_val, val)
+            if len(self) - idx - 1 == min_val:
+                res.append(Perm.to_standard(self[curr_block_start_idx : idx + 1]))
+                curr_block_start_idx = idx + 1
+        return res
 
     def block_decomposition(self, return_patterns=False):
         """Returns the list of all blocks(intervals) in the permutation that
