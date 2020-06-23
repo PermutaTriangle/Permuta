@@ -11,7 +11,7 @@ def read(fname):
 
 setup(
     name="permuta",
-    version="1.4.2",
+    version="1.5.0",
     author="Permuta Triangle",
     author_email="permutatriangle@gmail.com",
     description="A comprehensive high performance permutation library.",
