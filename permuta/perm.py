@@ -74,7 +74,7 @@ class Perm(tuple, Patt, Rotatable, Shiftable, Flippable):
                 raise ValueError("Duplicate element: {}".format(val))
             used[val] = True
 
-    _to_standard_cache: Dict[Tuple, "Perm"] = {}
+    _to_standard_cache: ClassVar[Dict[Tuple, "Perm"]] = {}
 
     @classmethod
     def to_standard(cls, iterable: Iterable) -> "Perm":
@@ -149,7 +149,7 @@ class Perm(tuple, Patt, Rotatable, Shiftable, Flippable):
         # TODO: throw exception when not a string
 
     @classmethod
-    def one_based(cls, iterable: Iterable) -> "Perm":
+    def one_based(cls, iterable: Iterable[int]) -> "Perm":
         """A way to enter a perm in the traditional permuta way.
 
         Examples:
@@ -352,9 +352,9 @@ class Perm(tuple, Patt, Rotatable, Shiftable, Flippable):
                 raise TypeError(Perm._TYPE_ERROR.format(repr(other)))
             if len(other) != len(self):
                 raise ValueError("Perm length mismatch")
-        return Perm(self._composed_value(idx, others) for idx in range(len(self)))
+        return Perm(self._composed_value(idx, *others) for idx in range(len(self)))
 
-    def _composed_value(self, idx, others):
+    def _composed_value(self, idx: int, *others: "Perm") -> int:
         for other in reversed(others):
             idx = other[idx]
         return self[idx]
@@ -539,7 +539,7 @@ class Perm(tuple, Patt, Rotatable, Shiftable, Flippable):
 
     def contract_bonds(self) -> None:
         # TODO: reimplement by calling contract_{inc,dec}_bonds or remove
-        pass
+        raise NotImplementedError()
 
     #
     # Methods for basic Perm transforming
