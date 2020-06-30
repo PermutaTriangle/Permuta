@@ -16,7 +16,7 @@ from .misc.iterable_floor_and_ceiling import left_floor_and_ceiling
 __all__ = ("Perm",)
 
 
-class Perm(tuple, Patt, Rotatable, Shiftable, Flippable):
+class Perm(Tuple[int], Patt, Rotatable, Shiftable, Flippable):
     """A perm class."""
 
     _TYPE_ERROR: ClassVar[str] = "'{}' object is not a perm"
