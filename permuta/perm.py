@@ -28,13 +28,6 @@ class Perm(Tuple[int], Patt, Rotatable, Shiftable, Flippable):
     def __new__(cls, iterable: Iterable = (), check: bool = False) -> "Perm":
         """Return a Perm instance.
 
-        Args:
-            cls:
-                The class of which an instance is requested.
-            iterable: <collections.Iterable> or <numbers.Integral>
-                An iterable corresponding to a legal perm.
-                Also supports passing just a number with unique digits.
-
         Raises:
             TypeError:
                 Bad argument type.
@@ -61,7 +54,7 @@ class Perm(Tuple[int], Patt, Rotatable, Shiftable, Flippable):
         if check:
             self._init_checked()
 
-    def _init_checked(self):
+    def _init_checked(self) -> None:
         """Checks if a suitable iterable given when initialised."""
         used = [False] * len(self)
         for val in self:
@@ -93,7 +86,6 @@ class Perm(Tuple[int], Patt, Rotatable, Shiftable, Flippable):
             >>> Perm.to_standard("caaba")
             Perm((4, 0, 1, 3, 2))
         """
-        # TODO: Do performance testing
         iterable = tuple(iterable)
         if iterable not in Perm._to_standard_cache:
             Perm._to_standard_cache[iterable] = cls(
@@ -118,19 +110,15 @@ class Perm(Tuple[int], Patt, Rotatable, Shiftable, Flippable):
             >>> Perm.from_integer(201)
             Perm((2, 0, 1))
         """
-        if isinstance(integer, numbers.Integral):
-            if not 0 <= integer <= 9876543210:
-                raise ValueError("Illegal perm: {}".format(integer))
-            digit_list: List[int] = []
-            if integer == 0:
-                digit_list.append(integer)
-            else:
-                while integer != 0:
-                    digit_list.append(integer % 10)
-                    integer //= 10
-                digit_list.reverse()
-            return Perm.to_standard(digit_list)
-        raise TypeError("{} is not an integer".format(repr(integer)))
+        if not 0 <= integer <= 9876543210:
+            raise ValueError(f"Illegal perm: {integer}")
+        if integer == 0:
+            return Perm((0,))
+        digit_list: List[int] = []
+        while integer != 0:
+            digit_list.append(integer % 10)
+            integer //= 10
+        return Perm.to_standard(reversed(digit_list))
 
     @classmethod
     def from_string(cls, string: str, check: bool = False) -> "Perm":
@@ -142,11 +130,9 @@ class Perm(Tuple[int], Patt, Rotatable, Shiftable, Flippable):
             >>> Perm.from_string("40132")
             Perm((4, 0, 1, 3, 2))
         """
-        if isinstance(string, str):
-            if string == "ε":
-                return cls([], check=check)
-            return cls(map(int, string), check=check)
-        # TODO: throw exception when not a string
+        if string == "ε":
+            return cls((), check=check)
+        return cls(map(int, string), check=check)
 
     @classmethod
     def one_based(cls, iterable: Iterable[int]) -> "Perm":
@@ -215,6 +201,7 @@ class Perm(Tuple[int], Patt, Rotatable, Shiftable, Flippable):
     @classmethod
     def unrank(cls, number: int, length: Optional[int] = None) -> "Perm":
         """
+        Get permutation by lexicographical order.
 
         Examples:
             >>> Perm.unrank(0)
@@ -232,35 +219,28 @@ class Perm(Tuple[int], Patt, Rotatable, Shiftable, Flippable):
             >>> Perm.unrank(1, 3)
             Perm((0, 2, 1))
         """
-        # TODO: Docstring, and do better? Assertions and messages
-        #       Implement readably, nicely, and efficiently
+        factorial = [1, 1]
         if length is None:
-            # Work out the length and number from the number given
-            assert isinstance(number, numbers.Integral)
-            assert number >= 0
             if number == 0:
                 return cls()
             length = 1
-            amount = 1  # Amount of perms of length
-            while number > amount:
-                number -= amount
+            while number > factorial[-1]:
+                number -= factorial[-1]
                 length += 1
-                amount *= length
+                factorial.append(factorial[-1] * length)
             number -= 1
-        else:
-            assert isinstance(length, numbers.Integral)
-            assert length >= 0
-            assert 0 <= number < math.factorial(length)
-        return cls(Perm.__unrank(number, length))
+        return cls(Perm._unrank(number, length, factorial))
 
     @staticmethod
-    def __unrank(number: int, length: int) -> Iterator[int]:
+    def _unrank(number: int, length: int, factorial: List[int]) -> Iterator[int]:
+        for i in range(len(factorial), length + 1):
+            factorial.append(i * factorial[-1])
+        assert length >= 0
+        assert 0 <= number < factorial[length]
         candidates = list(range(length))
         for val in range(1, length + 1):
-            factorial = math.factorial(length - val)
-            division = number // factorial
+            division, number = divmod(number, factorial[length - val])
             yield candidates.pop(division)
-            number %= factorial
 
     ind2perm = unrank  # permpy backwards compatibility
 
@@ -271,15 +251,6 @@ class Perm(Tuple[int], Patt, Rotatable, Shiftable, Flippable):
     def direct_sum(self, *others: "Perm") -> "Perm":
         """Return the direct sum of two or more perms.
 
-        Args:
-            self:
-                A perm.
-            others: <permuta.Perm> argument list
-                Perms.
-
-        Returns: <permuta.Perm>
-            The direct sum of all the perms.
-
         Examples:
             >>> Perm((0,)).direct_sum(Perm((1, 0)))
             Perm((0, 2, 1))
@@ -289,23 +260,12 @@ class Perm(Tuple[int], Patt, Rotatable, Shiftable, Flippable):
         result = list(self)
         shift = len(self)
         for other in others:
-            if not isinstance(other, Perm):
-                raise TypeError(Perm._TYPE_ERROR.format(repr(other)))
             result.extend(val + shift for val in other)
             shift += len(other)
         return Perm(result)
 
     def skew_sum(self, *others: "Perm") -> "Perm":
         """Return the skew sum of two or more perms.
-
-        Args:
-            self:
-                A perm.
-            others: <permuta.Perm> argument list
-                Perms.
-
-        Returns: <permuta.Perm>
-            The skew sum of all the perms.
 
         Examples:
             >>> Perm((0,)).skew_sum(Perm((0, 1)))
@@ -316,8 +276,6 @@ class Perm(Tuple[int], Patt, Rotatable, Shiftable, Flippable):
         shift = sum(len(other) for other in others)
         result = [val + shift for val in self]
         for other in others:
-            if not isinstance(other, Perm):
-                raise TypeError(Perm._TYPE_ERROR.format(repr(other)))
             shift -= len(other)
             result.extend(val + shift for val in other)
         return Perm(result)
@@ -325,33 +283,15 @@ class Perm(Tuple[int], Patt, Rotatable, Shiftable, Flippable):
     def compose(self, *others: "Perm") -> "Perm":
         """Return the composition of two or more perms.
 
-        Args:
-            self:
-                A perm.
-            others: <permuta.Perm> argument list
-                Perms.
-
-        Returns: <permuta.Perm>
-            The consecutive pointwise application of all the above perms
-            in reverse order.
-
-        Raises:
-            TypeError:
-                An object in the argument list is not a perm.
-            ValueError:
-                A perm in the argument list is of the wrong length.
-
         Examples:
             >>> Perm((0, 3, 1, 2)).compose(Perm((2, 1, 0, 3)))
             Perm((1, 3, 0, 2))
             >>> Perm((1, 0, 2)).compose(Perm((0, 1, 2)), Perm((2, 1, 0)))
             Perm((2, 0, 1))
         """
-        for other in others:
-            if not isinstance(other, Perm):
-                raise TypeError(Perm._TYPE_ERROR.format(repr(other)))
-            if len(other) != len(self):
-                raise ValueError("Perm length mismatch")
+        assert all(
+            isinstance(other, Perm) and len(other) == len(self) for other in others
+        )
         return Perm(self._composed_value(idx, *others) for idx in range(len(self)))
 
     def _composed_value(self, idx: int, *others: "Perm") -> int:
@@ -364,27 +304,14 @@ class Perm(Tuple[int], Patt, Rotatable, Shiftable, Flippable):
     def insert(
         self, index: Optional[int] = None, new_element: Optional[int] = None
     ) -> "Perm":
-        """Return the perm acquired by adding a new element.
-
-        Args:
-            index: <int>
-                Where in the perm the value is to occur.
-                If None, the value defaults to len(self)+1.
-            new_element: <int>
-                An integer in the range of 0 to len(self) inclusive.
-                If None, the element defaults to len(self).
-
-        Returns: <permuta.Perm>
-            The perm with the added element (and other elements adjusted
-            as needed).
+        """Return the perm acquired by adding a new element at index. The index defaults
+        to the right end and value defaults to len(self).
 
         Raises:
             IndexError:
                 Index is not valid.
             ValueError:
                 Element passed cannot legally be added to perm.
-            TypeError:
-                Element passed is not an integer.
 
         Examples:
             >>> Perm((0, 1)).insert()
@@ -399,10 +326,6 @@ class Perm(Tuple[int], Patt, Rotatable, Shiftable, Flippable):
         if new_element is None:
             new_element = len(self)
         else:
-            if not isinstance(new_element, numbers.Integral):
-                raise TypeError(
-                    "'{}' object is not an integer".format(repr(new_element))
-                )
             if not 0 <= new_element <= len(self):
                 raise ValueError("Element out of range: {}".format(new_element))
         slice_1 = (
@@ -416,15 +339,8 @@ class Perm(Tuple[int], Patt, Rotatable, Shiftable, Flippable):
         return Perm(itertools.chain(slice_1, (new_element,), slice_2))
 
     def remove(self, index: Optional[int] = None) -> "Perm":
-        """Return the perm acquired by removing an element at a specified index.
-
-        Args:
-            index: <int>
-                The index of the element to be removed.
-                If None, the greatest element of the perm is removed.
-
-        Returns: <permuta.Perm>
-            The perm without the element (and other elements adjusted).
+        """Return the perm acquired by removing an element at a specified index. It
+        defaults to the greatest element.
 
         Raises:
             IndexError:
@@ -448,23 +364,12 @@ class Perm(Tuple[int], Patt, Rotatable, Shiftable, Flippable):
         )
 
     def remove_element(self, selected: Optional[int] = None) -> "Perm":
-        """Return the perm acquired by removing a specific element from self.
-
-        Args:
-            selected: <int>
-                The element selected to be removed. It is an integer in the
-                range of 0 to len(self) inclusive. If None, it defaults to
-                len(self) - 1.
-
-        Returns: <permuta.Perm>
-            The perm with the selected element removed (and other
-            elements adjusted as needed).
+        """Return the perm acquired by removing a specific element from self. It
+        defaults to the largest element.
 
         Raises:
             ValueError:
                 Selected element does not belong to perm.
-            TypeError:
-                Element passed is not an integer.
 
         Examples:
             >>> Perm((3, 0, 1, 2)).remove_element()
@@ -475,8 +380,6 @@ class Perm(Tuple[int], Patt, Rotatable, Shiftable, Flippable):
         if selected is None:
             selected = len(self) - 1
         else:
-            if not isinstance(selected, numbers.Integral):
-                raise TypeError("'{}' object is not an integer".format(repr(selected)))
             if not 0 <= selected < len(self):
                 raise ValueError("Element out of range: {}".format(selected))
         return Perm(
@@ -486,56 +389,41 @@ class Perm(Tuple[int], Patt, Rotatable, Shiftable, Flippable):
     def inflate(self, components: Iterable["Perm"]) -> "Perm":
         """Inflate elements of the permutation to create a new one.
 
-        Args:
-            component: <collections.Iterable> of <permuta.Perm>
-                This can also be a dict with keys and perms...
-
-        Returns: <permuta.Perm>
-
         Examples:
             >>> Perm((0, 1)).inflate([Perm((1, 0)), Perm((2, 1, 0))])
             Perm((1, 0, 4, 3, 2))
             >>> Perm((1, 0, 2)).inflate([None, Perm((0, 1)), Perm((0, 1))])
             Perm((2, 0, 1, 3, 4))
-            >>> Perm((0, 2, 1)).inflate({2: Perm((0, 1, 2))})
-            Traceback (most recent call last):
-                ...
-            NotImplementedError
             >>> # Can also deflate points
             >>> Perm((0, 1)).inflate([Perm(), Perm()])
             Perm(())
         """
-        # TODO: Spitshine method and docstring
-        if isinstance(components, collections.abc.Mapping):
-            raise NotImplementedError
-        if isinstance(components, collections.abc.Iterable):
-            components = tuple(components)
-            assert len(components) == len(self)
-            shift = 0
-            shifts = [0] * len(self)
-            for index in self.inverse():
-                shifts[index] = shift
-                component = components[index]
-                shift += 1 if component is None else len(component)
-            perm_elements = []
-            for index, component in enumerate(components):
-                if component is None:
-                    perm_elements.append(shifts[index])
-                else:
-                    shift = shifts[index]
-                    perm_elements.extend(element + shift for element in component)
-            return Perm(perm_elements)
-        raise TypeError
+        components = tuple(components)
+        assert len(components) == len(self)
+        shift = 0
+        shifts = [0] * len(self)
+        for index in self.inverse():
+            shifts[index] = shift
+            component = components[index]
+            shift += 1 if component is None else len(component)
+        perm_elements: List[int] = []
+        for index, component in enumerate(components):
+            if component is None:
+                perm_elements.append(shifts[index])
+            else:
+                shift = shifts[index]
+                perm_elements.extend(element + shift for element in component)
+        return Perm(perm_elements)
 
     def contract_inc_bonds(self) -> "Perm":
         # TODO: test
         monblocks = self.monotone_block_decomposition_ascending(with_ones=True)
-        return Perm.to_standard([start for (start, end) in monblocks])
+        return Perm.to_standard([start for start, _ in monblocks])
 
     def contract_dec_bonds(self) -> "Perm":
         # TODO: test
         monblocks = self.monotone_block_decompositon_descending(with_ones=True)
-        return Perm.to_standard([start for (start, end) in monblocks])
+        return Perm.to_standard([start for start, _ in monblocks])
 
     def contract_bonds(self) -> None:
         # TODO: reimplement by calling contract_{inc,dec}_bonds or remove
@@ -585,9 +473,8 @@ class Perm(Tuple[int], Patt, Rotatable, Shiftable, Flippable):
         return Perm(base - element for element in self)
 
     def reverse_complement(self) -> "Perm":
-        """Return the reverse complement of self.
-
-        Equivalent to two left or right rotations.
+        """Return the reverse complement of self. Equivalent to two left or right
+        rotations.
 
         Examples:
             >>> Perm((1, 2, 3, 0, 4)).reverse_complement()
@@ -599,9 +486,8 @@ class Perm(Tuple[int], Patt, Rotatable, Shiftable, Flippable):
         return Perm(base - element for element in reversed(self))
 
     def shift_right(self, times: int = 1) -> "Perm":
-        """Return self shifted times steps to the right.
-
-        If shift is negative, shifted to the left.
+        """Return self shifted times steps to the right. If shift is negative, shifted
+        to the left.
 
         Examples:
             >>> Perm((0, 1, 2)).shift_right()
@@ -620,9 +506,8 @@ class Perm(Tuple[int], Patt, Rotatable, Shiftable, Flippable):
         return Perm(itertools.chain(slice_2, slice_1))
 
     def shift_left(self, times: int = 1) -> "Perm":
-        """Return self shifted times steps to the left.
-
-        If shift is negative, shifted to the right.
+        """Return self shifted times steps to the left. If shift is negative, shifted
+        to the right.
 
         Examples:
             >>> Perm((0, 1, 2)).shift_left()
@@ -638,9 +523,7 @@ class Perm(Tuple[int], Patt, Rotatable, Shiftable, Flippable):
     cyclic_shift_left = shift_left
 
     def shift_up(self, times: int = 1) -> "Perm":
-        """Return self shifted times steps up.
-
-        If times is negative, shifted down.
+        """Return self shifted times steps up. If times is negative, shifted down.
 
         Examples:
             >>> Perm((0, 1, 2, 3)).shift_up(1)
@@ -659,9 +542,7 @@ class Perm(Tuple[int], Patt, Rotatable, Shiftable, Flippable):
         return Perm((val + times) % bound for val in self)
 
     def shift_down(self, times: int = 1) -> "Perm":
-        """Return self shifted times steps down.
-
-        If times is negative, shifted up.
+        """Return self shifted times steps down. If times is negative, shifted up.
 
         Examples:
             >>> Perm((0, 1, 2, 3)).shift_down(1)
@@ -719,9 +600,7 @@ class Perm(Tuple[int], Patt, Rotatable, Shiftable, Flippable):
         """
         n = len(self)
         result = [0] * n
-
         flipped_pairs = ((n - val - 1, n - idx - 1) for idx, val in enumerate(self))
-
         for idx, val in flipped_pairs:
             result[idx] = val
         return Perm(result)
@@ -750,20 +629,12 @@ class Perm(Tuple[int], Patt, Rotatable, Shiftable, Flippable):
         """Returns all symmetries of the permutation in a PermSet, all possible
         combinations of revers, complement and inverse.
         """
-        syms = set([self, self.inverse()])
+        syms = {self, self.inverse()}
         curr = self
         for _ in range(3):
             curr = curr.rotate()
-            syms.add(curr)
-            syms.add(curr.inverse())
+            syms.update((curr, curr.inverse()))
         return tuple(syms)
-
-    def is_representative(self) -> bool:
-        """Checks if the permutation is representative, that is, all the
-        symmetries of the permutation are the same.
-        """
-        # return self == sorted(self.all_syms())[0]
-        raise NotImplementedError()
 
     #
     # Statistical methods
@@ -937,10 +808,8 @@ class Perm(Tuple[int], Patt, Rotatable, Shiftable, Flippable):
     num_ascents = count_ascents  # permpy backwards compatibility
 
     def peaks(self) -> Iterator[int]:
-        """Yield the indices of the peaks of self.
-
-        The i-th element of a perm is a peak if
-            self[i-1] < self[i] > self[i+1].
+        """Yield the indices of the peaks of self. The i-th element of a perm is a peak
+        if self[i-1] < self[i] > self[i+1].
 
         Examples:
             >>> tuple(Perm((5, 3, 4, 0, 2, 1)).peaks())
@@ -963,9 +832,8 @@ class Perm(Tuple[int], Patt, Rotatable, Shiftable, Flippable):
         )
 
     def peak_list(self) -> List[int]:
-        """Return the list of peaks of self.
-
-        This method is for backwards compatibility with permpy.
+        """Return the list of peaks of self. This method is for backwards compatibility
+        with permpy.
         """
         return list(self.peaks())
 
@@ -985,10 +853,8 @@ class Perm(Tuple[int], Patt, Rotatable, Shiftable, Flippable):
     num_peaks = count_peaks  # permpy backwards compatibility
 
     def valleys(self) -> Iterator[int]:
-        """Yield the indices of the valleys of self.
-
-        The i-th element of a perm is a valley if
-            self[i-1] > self[i] < self[i+1].
+        """Yield the indices of the valleys of self. The i-th element of a perm is a
+        valley if self[i-1] > self[i] < self[i+1].
 
         Examples:
             >>> tuple(Perm((5, 3, 4, 0, 2, 1)).valleys())
@@ -1011,9 +877,8 @@ class Perm(Tuple[int], Patt, Rotatable, Shiftable, Flippable):
         )
 
     def valley_list(self) -> List[int]:
-        """Return the list of valleys of self.
-
-        This method is for backwards compatibility with permpy.
+        """Return the list of valleys of self. This method is for backwards
+        compatibility with permpy.
         """
         return list(self.valleys())
 
@@ -1204,9 +1069,9 @@ class Perm(Tuple[int], Patt, Rotatable, Shiftable, Flippable):
             ((0, 1), (0, 2), (0, 3), (2, 3))
         """
         n = len(self)
-        for i in range(n):
+        for i, prev in enumerate(self):
             for j in range(i + 1, n):
-                if self[i] > self[j]:
+                if prev > self[j]:
                     yield i, j
 
     def count_non_inversions(self) -> int:
@@ -1231,29 +1096,23 @@ class Perm(Tuple[int], Patt, Rotatable, Shiftable, Flippable):
             ((0, 4), (1, 2), (1, 3), (1, 4), (2, 4), (3, 4))
         """
         n = len(self)
-        for i in range(n):
+        for i, prev in enumerate(self):
             for j in range(i + 1, n):
-                if self[i] < self[j]:
+                if prev < self[j]:
                     yield i, j
 
     def min_gapsize(self) -> int:
         """Returns the minimum gap between any two entries in the permutation
         (computed with the taxicab metric).
 
-        TODO: currently uses the naive algorithm --- can be improved
-
         Examples:
             >>> Perm((2, 0, 3, 1)).min_gapsize()
             3
         """
-        min_dist = len(self)
-        for i, j in itertools.combinations(range(len(self)), 2):
-            h_dist = abs(i - j)
-            v_dist = abs(self[i] - self[j])
-            dist = h_dist + v_dist
-            if dist < min_dist:
-                min_dist = dist
-        return min_dist
+        return min(
+            abs(i - j) + abs(self[i] - self[j])
+            for i, j in itertools.combinations(range(len(self)), 2)
+        )
 
     def count_bonds(self) -> int:
         """Counts the number of bonds, that is the number of adjacent locations
@@ -1280,9 +1139,13 @@ class Perm(Tuple[int], Patt, Rotatable, Shiftable, Flippable):
             >>> list(Perm((2, 3, 4, 5, 0, 1)).inc_bonds())
             [0, 1, 2, 4]
         """
-        for i in range(len(self) - 1):
-            if self[i + 1] == self[i] + 1:
-                yield i
+        return (
+            idx
+            for idx, (prev, curr) in enumerate(
+                zip(self, itertools.islice(self, 1, None))
+            )
+            if curr == prev + 1
+        )
 
     def count_inc_bonds(self) -> int:
         """Counts the number of increasing bonds.
@@ -1305,9 +1168,13 @@ class Perm(Tuple[int], Patt, Rotatable, Shiftable, Flippable):
             >>> list(Perm((1, 0, 3, 2, 5, 4)).dec_bonds())
             [0, 2, 4]
         """
-        for i in range(len(self) - 1):
-            if self[i] == self[i + 1] + 1:
-                yield i
+        return (
+            idx
+            for idx, (prev, curr) in enumerate(
+                zip(self, itertools.islice(self, 1, None))
+            )
+            if prev == curr + 1
+        )
 
     def count_dec_bonds(self) -> int:
         """Counts the number of decreasing bonds.
@@ -1332,8 +1199,7 @@ class Perm(Tuple[int], Patt, Rotatable, Shiftable, Flippable):
             >>> Perm((0, 2, 1)).major_index()
             2
         """
-        desc = list(self.descents())
-        return sum(desc) + len(desc)
+        return sum(1 + desc for desc in self.descents())
 
     def longestruns_ascending(self) -> Tuple[int, List[int]]:
         """Returns the longest ascending runs in the permutation as a pair of
@@ -1684,10 +1550,8 @@ class Perm(Tuple[int], Patt, Rotatable, Shiftable, Flippable):
     def maximum_block(self) -> Tuple[int, int]:
         """Finds the biggest interval, and returns (i,j) is one is found,
         where i is the size of the interval, and j is the index of the first
-        entry in the interval.
-
-        Returns (0,0) if no interval is found, i.e., if the permutation is
-        simple.
+        entry in the interval. Returns (0,0) if no interval is found, i.e.,
+        if the permutation is simple.
 
         Example:
             >>> Perm((0, 2, 1, 5, 6, 7, 4, 3)).maximum_block()
@@ -1761,22 +1625,6 @@ class Perm(Tuple[int], Patt, Rotatable, Shiftable, Flippable):
         n = len(self)
         return list({self.insert(i, j) for i in range(n + 1) for j in range(n + 1)})
 
-    # TODO: discuss return value conventions, should this return PermSet
-    # instead of set of Perm? maybe list of Perm?
-    def buildupset(self, height: int) -> List[Set["Perm"]]:
-        """Returns height-th layer of the upset of the permutation
-        """
-        n = len(self)
-        lis: List[Set["Perm"]] = [set() for _ in range(n)]
-        lis.append(set([self]))
-        for i in range(n + 1, height):
-            old_set = list(lis[i - 1])
-            new_set: Set["Perm"] = set()
-            for perm in old_set:
-                new_set = new_set.union(perm.coveredby())
-            lis.append(new_set)
-        return lis
-
     def count_rtlmax_ltrmin_layers(self) -> int:
         """Counts the layers in the right-to-left maxima, left-to-right minima
         decomposition.
@@ -1812,15 +1660,6 @@ class Perm(Tuple[int], Patt, Rotatable, Shiftable, Flippable):
     def contains(self, *patts: "Patt") -> bool:
         """Check if self contains patts.
 
-        Args:
-            self:
-                A perm.
-            patts: <permuta.interfaces.Patt> argument list
-                Classical/mesh patterns.
-
-        Returns: <bool>
-            True if and only if all patterns in patts are contained in self.
-
         Examples:
             >>> Perm.monotone_decreasing(7).avoids(Perm((0, 1)))
             True
@@ -1840,15 +1679,6 @@ class Perm(Tuple[int], Patt, Rotatable, Shiftable, Flippable):
 
     def avoids(self, *patts: "Patt") -> bool:
         """Check if self avoids patts.
-
-        Args:
-            self:
-                A perm.
-            patts: <permuta.interfaces.Patt> argument list
-                Classical/mesh patterns.
-
-        Returns: <bool>
-            True if and only if self avoids all patterns in patts.
 
         Examples:
             >>> Perm.monotone_increasing(8).avoids(Perm((1, 0)))
@@ -1880,15 +1710,6 @@ class Perm(Tuple[int], Patt, Rotatable, Shiftable, Flippable):
     def count_occurrences_of(self, patt: "Patt") -> int:
         """Count the number of occurrences of patt in self.
 
-        Args:
-            self:
-                A perm.
-            patt: <permuta.interfaces.Patt>
-                A classical/mesh pattern.
-
-        Returns: <int>
-            The number of times patt occurs in self.
-
         Examples:
             >>> Perm((0, 1, 2)).count_occurrences_of(Perm((0, 1)))
             3
@@ -1905,27 +1726,9 @@ class Perm(Tuple[int], Patt, Rotatable, Shiftable, Flippable):
         self_colours: List[int] = None,
         patt_colours: List[int] = None,
     ) -> Union[Iterator[List[Tuple[int]]], Iterator[Tuple[()]]]:
-        """Find all indices of occurrences of self in patt.
-
-        If the optional colours are provided, in an occurrences the colours of
-        the patterns have to match the colours of the permutation.
-
-        Args:
-            self:
-                The classical pattern whose occurrences are to be found.
-            patt: <permuta.interfaces.Patt>
-                The patt to search for occurrences in.
-            self_colours: <tuple>
-                Optional colours on each entry of the permutation.
-            patt_colours: <tuple>
-                Optional colours on each entry of the pattern.
-
-
-        Yields: <tuple> of <int>
-            The indices of the occurrences of self in patt.
-            Each yielded element l is a tuple of integer indices of the
-            pattern patt such that:
-            self == permuta.Perm.to_standard([patt[i] for i in l])
+        """Find all indices of occurrences of self in patt. If the optional colours
+        are provided, in an occurrences the colours of the patterns have to match the
+        colours of the permutation.
 
         Examples:
             >>> list(Perm((2, 0, 1)).occurrences_in(Perm((5, 3, 0, 4, 2, 1))))
@@ -2024,20 +1827,9 @@ class Perm(Tuple[int], Patt, Rotatable, Shiftable, Flippable):
     def occurrences_of(
         self, patt: "Patt"
     ) -> Union[Iterator[List[Tuple[int]]], Iterator[Tuple[()]]]:
-        """Find all indices of occurrences of patt in self.
-
-        This method is complementary to permuta.Perm.occurrences_in.
-        It just calls patt.occurrences_in(self) internally.
-        See permuta.Perm.occurrences_in for documentation.
-
-        Args:
-            self:
-                A perm.
-            patt: <permuta.interfaces.Patt>
-                A classical/mesh pattern.
-
-        Yields: <tuple> of <int>
-            The indices of the occurrences of self in perm.
+        """Find all indices of occurrences of patt in self. This method is complementary
+        to permuta.Perm.occurrences_in. It just calls patt.occurrences_in(self)
+        internally. See permuta.Perm.occurrences_in for documentation.
 
         Examples:
             >>> list(Perm((5, 3, 0, 4, 2, 1)).occurrences_of(Perm((2, 0, 1))))
@@ -2082,19 +1874,6 @@ class Perm(Tuple[int], Patt, Rotatable, Shiftable, Flippable):
     def apply(self, iterable: Iterable[int]) -> Tuple[int, ...]:
         """Permute an iterable using the perm.
 
-        Args:
-            self:
-                A perm.
-            iterable: <collections.Iterable>
-                An iterable of len(self) elements.
-
-        Returns: <tuple>
-            The elements of iterable in the permuted order.
-
-        Raises:
-            TypeError:
-                Bad argument type.
-
         Examples:
             >>> Perm((4, 1, 2, 0, 3)).apply((1, 2, 3, 4, 5))
             (5, 2, 3, 1, 4)
@@ -2117,15 +1896,6 @@ class Perm(Tuple[int], Patt, Rotatable, Shiftable, Flippable):
     #
     def ascii_plot(self, cell_size: int = 1) -> str:
         """Return an ascii plot of the given Permutation.
-
-        Args:
-            self:
-                A perm.
-            cell_size: <int>
-                The size of the cell of the grid
-
-        Returns: <str>
-            The ascii art string of the permutation
 
         Examples:
             >>> print(Perm((0,1,2)).ascii_plot())
@@ -2152,7 +1922,7 @@ class Perm(Tuple[int], Patt, Rotatable, Shiftable, Flippable):
         lines = [("-" * cell_size).join([""] + line + [""]) + "\n" for line in array]
         vline = (" " * cell_size + "|") * n + "\n"
         s = (vline * cell_size).join([""] + lines + [""])
-        return s[:-1]
+        return str(s[:-1])
 
     def cycle_notation(self) -> str:
         """Returns the cycle notation representation of the permutation.
@@ -2171,15 +1941,6 @@ class Perm(Tuple[int], Patt, Rotatable, Shiftable, Flippable):
         return " ".join(stringlist)
 
     cycles = cycle_notation  # permpy backwards compatibility
-
-    def plot(self, **kwargs) -> None:
-        """
-        Draws a plot of the permutation.
-
-        Todo:
-            * Implement this function using matplotlib or some other tools
-        """
-        raise NotImplementedError("Use `ascii_plot` or `to_tikz` method")
 
     def to_tikz(self) -> str:
         """
@@ -2225,10 +1986,7 @@ class Perm(Tuple[int], Patt, Rotatable, Shiftable, Flippable):
             >>> Perm((3, 1, 2, 0))(3)
             0
         """
-        if not isinstance(value, numbers.Integral):
-            raise TypeError("'{}' object is not an integer".format(repr(value)))
-        if not 0 <= value < len(self):
-            raise ValueError("Element out of range: {}".format(value))
+        assert 0 <= value < len(self)
         return self[value]
 
     def __add__(self, other) -> "Perm":
@@ -2244,22 +2002,16 @@ class Perm(Tuple[int], Patt, Rotatable, Shiftable, Flippable):
         return self.compose(other)
 
     def __repr__(self) -> "str":
-        return "Perm({})".format(super(Perm, self).__repr__())
+        return f"Perm({super(Perm, self).__repr__()})"
 
     def __str__(self) -> "str":
         if not self:
             return "\u03B5"
         if len(self) <= 10:
             return "".join(str(i) for i in self)
-        return "".join("({})".format(i) for i in self)
+        return "".join(f"({i})" for i in self)
 
     def __lt__(self, other: tuple) -> bool:
-        """
-        >>> p1 = Perm((0,1,2,3))
-        >>> p2 = Perm((0,1,2))
-        >>> p2 <= p1
-        True
-        """
         return (len(self), tuple(self)) < (len(other), tuple(other))
 
     def __le__(self, other: tuple) -> bool:
@@ -2272,15 +2024,10 @@ class Perm(Tuple[int], Patt, Rotatable, Shiftable, Flippable):
         return other.__le__(self)
 
     def __contains__(self, patt) -> bool:
-        """Check if self contains patt.
-
-        Args:
-            self:
-                A perm.
-            patt: <permuta.interfaces.Patt>
-                A classical/mesh pattern.
-
-        Returns: <bool>
-            True if and only if the pattern patt is contained in self.
-        """
         return any(True for _ in patt.occurrences_in(self))
+
+    def __getitem__(self, key):
+        return tuple.__getitem__(self, key)
+
+    def __len__(self):
+        return tuple.__len__(self)

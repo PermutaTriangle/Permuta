@@ -315,26 +315,26 @@ def test_compose():
     assert p4 * p5 * p6 == p7
     assert p5 * p6 * p7 * p4 == p7
 
-    with pytest.raises(TypeError):
+    with pytest.raises(AssertionError):
         p1.compose(None)
-    with pytest.raises(TypeError):
+    with pytest.raises(AssertionError):
         p1 * None
-    with pytest.raises(TypeError):
+    with pytest.raises(AssertionError):
         p2.compose(p2, None)
-    with pytest.raises(TypeError):
+    with pytest.raises(AssertionError):
         p3.compose(1237)
-    with pytest.raises(TypeError):
+    with pytest.raises(AssertionError):
         p5 * ("hahaha")
-    with pytest.raises(TypeError):
+    with pytest.raises(AssertionError):
         p5 * (p1,)
 
-    with pytest.raises(ValueError):
+    with pytest.raises(AssertionError):
         p1.compose(p0)
-    with pytest.raises(ValueError):
+    with pytest.raises(AssertionError):
         p0.compose(p5)
-    with pytest.raises(ValueError):
+    with pytest.raises(AssertionError):
         p2.compose(p3, p0)
-    with pytest.raises(ValueError):
+    with pytest.raises(AssertionError):
         p4.compose(p5, p6, p1)
 
 
@@ -348,11 +348,6 @@ def test_insert():
     assert Perm((0, 3, 1, 2)).insert(3, 4) == Perm((0, 3, 1, 4, 2))
     assert Perm((0, 3, 1, 2)).insert(3, 3) == Perm((0, 4, 1, 3, 2))
     assert Perm((0, 3, 1, 2)).insert(1, 0) == Perm((1, 0, 4, 2, 3))
-
-    with pytest.raises(TypeError):
-        Perm((2, 1, 0, 3)).insert(new_element="hehe")
-    with pytest.raises(TypeError):
-        Perm((2, 1, 0, 3)).insert(3, "hehe")
 
     with pytest.raises(ValueError):
         Perm((2, 1, 0, 3)).insert(2, 100)
@@ -410,11 +405,6 @@ def test_inflate():
         (2, 0, 1, 3, 4)
     )
     assert Perm((0, 1)).inflate([Perm(), Perm()]) == Perm()
-
-    with pytest.raises(TypeError):
-        Perm((0, 1, 2, 3)).inflate(237)
-    with pytest.raises(TypeError):
-        Perm((0, 1, 2, 3)).inflate("hehe")
 
 
 # TODO: The following three functions have yet to be implemented
@@ -1267,12 +1257,10 @@ def test_call_1():
     p = Perm((0, 1, 2, 3))
     for i in range(len(p)):
         assert p(i) == i
-    with pytest.raises(ValueError):
+    with pytest.raises(AssertionError):
         p(-1)
-    with pytest.raises(ValueError):
+    with pytest.raises(AssertionError):
         p(4)
-    with pytest.raises(TypeError):
-        p("abc")
 
 
 def test_call_2():
@@ -1282,12 +1270,10 @@ def test_call_2():
     assert p(2) == 0
     assert p(3) == 2
     assert p(4) == 1
-    with pytest.raises(ValueError):
+    with pytest.raises(AssertionError):
         p(-1)
-    with pytest.raises(ValueError):
+    with pytest.raises(AssertionError):
         p(5)
-    with pytest.raises(TypeError):
-        p([1, 2, 3])
 
 
 def test_eq():
