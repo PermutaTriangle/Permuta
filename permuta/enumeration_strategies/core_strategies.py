@@ -1,4 +1,5 @@
 from abc import abstractproperty, abstractstaticmethod
+from typing import List
 
 from permuta import Av, MeshPatt, Perm
 from permuta.enumeration_strategies.abstract_strategy import (
@@ -20,7 +21,7 @@ class CoreStrategy(EnumerationStrategyWithSymmetry):
     """
 
     @abstractproperty
-    def patterns_needed():
+    def patterns_needed(self):
         """
         Return the set of patterns that are needed for the strategy to be
         useful.
@@ -221,7 +222,7 @@ class Ru2143CoreStrategy(CoreStrategy):
         return patt.avoids(mp) and last_skew_component(patt) not in Av([Perm((1, 0))])
 
 
-core_strategies = [
+core_strategies: List = [
     RuCuCoreStrategy,
     RdCdCoreStrategy,
     RuCuRdCdCoreStrategy,
