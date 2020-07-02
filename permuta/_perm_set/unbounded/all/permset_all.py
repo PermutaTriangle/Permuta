@@ -92,11 +92,7 @@ class PermSetAllSpecificLength(PermSetFiniteSpecificLength):
         return Perm.unrank(key, self.length)
 
     def __iter__(self):
-        # Need to return new instance because permutations of itertools
-        # depletes self
-        # This probably needs looking into because the iter isn't a subclass of
-        # PermSet
-        return PermSetAllSpecificLengthIterator(self.domain)
+        return (Perm(x) for x in itertools.permutations(self.domain))
 
     def __len__(self):
         return factorial(self.length)
@@ -106,11 +102,6 @@ class PermSetAllSpecificLength(PermSetFiniteSpecificLength):
 
     def __str__(self):
         return "<The set of all perms of length {}>".format(self.length)
-
-
-class PermSetAllSpecificLengthIterator(itertools.permutations):
-    def __next__(self):
-        return Perm(super(PermSetAllSpecificLengthIterator, self).__next__())
 
 
 class PermSetAllFiniteLengthSubset(PermSetFinite):
