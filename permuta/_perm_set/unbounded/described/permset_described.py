@@ -1,3 +1,5 @@
+from typing import Any
+
 from ..permset_unbounded import PermSetUnbounded
 
 
@@ -7,7 +9,7 @@ class PermSetDescribed(PermSetUnbounded):
     # TODO: Make things abstract properties as a solution?
 
     # TODO: These two attribute needs to be defined in all immediate subclasses
-    DEFAULT_CLASS = None
+    DEFAULT_CLASS: Any = None
     DESCRIPTOR_CLASS = None
 
     # TODO: This needs to be defined in classes for specific descriptors

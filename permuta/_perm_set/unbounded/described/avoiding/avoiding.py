@@ -1,6 +1,7 @@
 import functools
 import multiprocessing
 import random
+from typing import Any, Dict
 
 from .....descriptors.basis import AbstractBasis, Basis
 from .....perm import Perm
@@ -14,7 +15,7 @@ class Avoiding(PermSetDescribed):
     """The base class for all avoidance classes."""
 
     # NOTE: Monkey patching of default subclass happens at end of file
-    DESCRIPTOR_CLASS = AbstractBasis
+    DESCRIPTOR_CLASS: Any = AbstractBasis
 
     @property
     def basis(self):
@@ -35,7 +36,7 @@ class Avoiding(PermSetDescribed):
 
 class AvoidingGeneric(Avoiding):
     # Empty basis is dispatched to correct/another class (AvoidingEmpty)
-    __CLASS_CACHE = {}
+    __CLASS_CACHE: Dict = {}
     _CACHE_LOCK = multiprocessing.Lock()
 
     def __new__(cls, basis):
