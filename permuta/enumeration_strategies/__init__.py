@@ -1,11 +1,15 @@
+from typing import List
+
 from .core_strategies import core_strategies
 from .insertion_encodable import InsertionEncodingStrategy
 
-fast_enumeration_strategies = [InsertionEncodingStrategy] + core_strategies
+fast_enumeration_strategies: List = [InsertionEncodingStrategy] + core_strategies
 
-long_enumeration_strategies = []
+long_enumeration_strategies: List = []
 
-all_enumeration_strategies = fast_enumeration_strategies + long_enumeration_strategies
+all_enumeration_strategies: List = (
+    fast_enumeration_strategies + long_enumeration_strategies
+)
 
 
 def find_strategies(basis, long_runnning=True):

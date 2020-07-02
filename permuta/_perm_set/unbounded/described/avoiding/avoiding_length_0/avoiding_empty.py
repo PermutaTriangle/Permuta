@@ -1,3 +1,5 @@
+from typing import Any
+
 from ......descriptors.basis import Basis
 from ......perm import Perm
 from .....finite.permset_static import PermSetStatic
@@ -7,7 +9,7 @@ from ..avoiding import Avoiding
 class AvoidingEmpty(Avoiding):
     """The empty perm set class."""
 
-    DESCRIPTOR = Basis(Perm())
+    DESCRIPTOR: Any = Basis(Perm())
     __CLASS_CACHE = None
 
     def __new__(cls, basis):

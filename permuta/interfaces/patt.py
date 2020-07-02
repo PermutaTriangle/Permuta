@@ -1,9 +1,8 @@
 import abc
+from typing import Iterator, List, Tuple, Union
 
-ABC = abc.ABCMeta("ABC", (object,), {})
 
-
-class Patt(ABC):
+class Patt(abc.ABC):
     def avoided_by(self, *perms):
         """Check if self is avoided by perms.
 
@@ -32,7 +31,7 @@ class Patt(ABC):
         """
         return all(self in perm for perm in perms)
 
-    def count_occurrences_in(self, perm):
+    def count_occurrences_in(self, perm) -> int:
         """Count the number of occurrences of self in perm.
 
         Args:
@@ -47,6 +46,16 @@ class Patt(ABC):
         return sum(1 for _ in self.occurrences_in(perm))
 
     @abc.abstractmethod
-    def occurrences_in(self, perm):
+    def occurrences_in(
+        self, perm
+    ) -> Union[Iterator[List[Tuple[int, ...]]], Iterator[Tuple[()]]]:
         """Find all indices of occurrences of self in perm."""
         pass
+
+    @abc.abstractmethod
+    def __len__(self):
+        pass
+
+    @property
+    def pattern(self):
+        return self
