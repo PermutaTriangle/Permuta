@@ -1,5 +1,7 @@
 """Function for testing if a basis has a regular insertion encoding."""
 
+from typing import Dict, Tuple
+
 
 def is_incr_next_incr(perm):
     for i in range(len(perm) - 1):
@@ -41,7 +43,7 @@ def is_decr_next_decr(perm):
     return True
 
 
-mem = dict()
+mem: Dict[Tuple, int] = dict()
 
 
 def insertion_encodable_properties(perm):

@@ -1,3 +1,5 @@
+from typing import Dict
+
 # Will return the set of polynomial types it intersects with
 #   (W_++, W+-, W^-1 ++, L_2, L_2^R etc)
 # 1: W++
@@ -10,7 +12,7 @@
 # 8: Winv--
 # 9: L2
 # 10: L2inv
-mem = {}
+mem: Dict = {}
 
 
 def types(perm):
