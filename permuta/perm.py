@@ -5,7 +5,18 @@ import math
 import numbers
 import operator
 import random
-from typing import ClassVar, Dict, Iterable, Iterator, List, Optional, Set, Tuple, Union
+from typing import (
+    TYPE_CHECKING,
+    ClassVar,
+    Dict,
+    Iterable,
+    Iterator,
+    List,
+    Optional,
+    Set,
+    Tuple,
+    Union,
+)
 
 from .interfaces.flippable import Flippable
 from .interfaces.patt import Patt
@@ -15,8 +26,13 @@ from .misc.iterable_floor_and_ceiling import left_floor_and_ceiling
 
 __all__ = ("Perm",)
 
+if TYPE_CHECKING:
+    tuple_class = Tuple[int]
+else:
+    tuple_class = tuple
 
-class Perm(tuple, Patt, Rotatable, Shiftable, Flippable):
+
+class Perm(tuple_class, Patt, Rotatable, Shiftable, Flippable):
     """A perm class."""
 
     _TYPE_ERROR: ClassVar[str] = "'{}' object is not a perm"
