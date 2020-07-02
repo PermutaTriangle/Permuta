@@ -41,7 +41,7 @@ class Perm(tuple_class, Patt, Rotatable, Shiftable, Flippable):
     # Methods returning a single Perm instance
     #
 
-    def __new__(cls, iterable: Iterable = (), check: bool = False) -> "Perm":
+    def __new__(cls, iterable: Iterable[int] = (), check: bool = False) -> "Perm":
         """Return a Perm instance.
 
         Raises:
@@ -62,7 +62,7 @@ class Perm(tuple_class, Patt, Rotatable, Shiftable, Flippable):
         """
         return tuple.__new__(cls, iterable)
 
-    def __init__(self, iterable: Iterable = (), check: bool = False) -> None:
+    def __init__(self, iterable: Iterable[int] = (), check: bool = False) -> None:
         # Cache for data used when finding occurrences of self in a perm
         self._cached_pattern_details: Optional[
             List[Tuple[Optional[int], Optional[int], int, int]]
@@ -1741,7 +1741,7 @@ class Perm(tuple_class, Patt, Rotatable, Shiftable, Flippable):
         patt: "Patt",
         self_colours: List[int] = None,
         patt_colours: List[int] = None,
-    ) -> Union[Iterator[List[Tuple[int]]], Iterator[Tuple[()]]]:
+    ) -> Union[Iterator[List[Tuple[int, ...]]], Iterator[Tuple[()]]]:
         """Find all indices of occurrences of self in patt. If the optional colours
         are provided, in an occurrences the colours of the patterns have to match the
         colours of the permutation.
@@ -1842,7 +1842,7 @@ class Perm(tuple_class, Patt, Rotatable, Shiftable, Flippable):
 
     def occurrences_of(
         self, patt: "Patt"
-    ) -> Union[Iterator[List[Tuple[int]]], Iterator[Tuple[()]]]:
+    ) -> Union[Iterator[List[Tuple[int, ...]]], Iterator[Tuple[()]]]:
         """Find all indices of occurrences of patt in self. This method is complementary
         to permuta.Perm.occurrences_in. It just calls patt.occurrences_in(self)
         internally. See permuta.Perm.occurrences_in for documentation.
@@ -2007,6 +2007,8 @@ class Perm(tuple_class, Patt, Rotatable, Shiftable, Flippable):
 
     def __add__(self, other) -> "Perm":
         """Return the direct sum of the perms self and other."""
+        if not isinstance(other, Perm):
+            raise NotImplementedError
         return self.direct_sum(other)
 
     def __sub__(self, other) -> "Perm":

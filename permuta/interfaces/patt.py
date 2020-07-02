@@ -1,8 +1,6 @@
 import abc
 from typing import Iterator, List, Tuple, Union
 
-# ABC: Type = abc.ABCMeta("ABC", (object,), {})
-
 
 class Patt(abc.ABC):
     def avoided_by(self, *perms):
@@ -50,7 +48,7 @@ class Patt(abc.ABC):
     @abc.abstractmethod
     def occurrences_in(
         self, perm
-    ) -> Union[Iterator[List[Tuple[int]]], Iterator[Tuple[()]]]:
+    ) -> Union[Iterator[List[Tuple[int, ...]]], Iterator[Tuple[()]]]:
         """Find all indices of occurrences of self in perm."""
         pass
 

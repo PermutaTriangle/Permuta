@@ -1,7 +1,5 @@
 import abc
 
-# ABC = abc.ABCMeta("ABC", (object,), {})
-
 
 class Rotatable(abc.ABC):
     def rotate(self, times=1):

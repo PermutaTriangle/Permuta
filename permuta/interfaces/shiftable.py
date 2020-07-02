@@ -1,7 +1,5 @@
 import abc
 
-# ABC = abc.ABCMeta("ABC", (object,), {})
-
 
 class Shiftable(abc.ABC):
     @abc.abstractmethod
