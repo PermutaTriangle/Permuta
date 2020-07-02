@@ -1,5 +1,5 @@
 import abc
-from typing import Iterator, List, Tuple, Type, Union
+from typing import Iterator, List, Tuple, Union
 
 # ABC: Type = abc.ABCMeta("ABC", (object,), {})
 
