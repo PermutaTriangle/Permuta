@@ -2007,8 +2007,6 @@ class Perm(tuple_class, Patt, Rotatable, Shiftable, Flippable):
 
     def __add__(self, other) -> "Perm":
         """Return the direct sum of the perms self and other."""
-        if not isinstance(other, Perm):
-            raise NotImplementedError
         return self.direct_sum(other)
 
     def __sub__(self, other) -> "Perm":
