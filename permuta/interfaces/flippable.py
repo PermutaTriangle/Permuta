@@ -1,9 +1,9 @@
 import abc
 
-ABC = abc.ABCMeta("ABC", (object,), {})
+# ABC = abc.ABCMeta("ABC", (object,), {})
 
 
-class Flippable(ABC):
+class Flippable(abc.ABC):
     @abc.abstractmethod
     def flip_horizontal(self):
         """Return self flipped horizontally."""
