@@ -4,31 +4,40 @@ import pytest
 from permuta import Perm, PermSet
 
 
-def test_init():
+def test_from_iterable_validated():
     with pytest.raises(ValueError):
-        Perm([0, 1, 1], check=True)
+        Perm.from_iterable_validated([0, 1, 1])
     with pytest.raises(ValueError):
-        Perm([1, 0, 1], check=True)
+        Perm.from_iterable_validated([1, 0, 1])
     with pytest.raises(ValueError):
-        Perm([0, 0], check=True)
+        Perm.from_iterable_validated([0, 0])
     with pytest.raises(ValueError):
-        Perm([1], check=True)
+        Perm.from_iterable_validated([1])
     with pytest.raises(ValueError):
-        Perm((1,), check=True)
+        Perm.from_iterable_validated((1,))
     with pytest.raises(TypeError):
-        Perm(101, check=True)
+        Perm.from_iterable_validated(101)
     with pytest.raises(TypeError):
-        Perm(-234, check=True)
+        Perm.from_iterable_validated(-234)
     with pytest.raises(TypeError):
-        Perm(None, check=True)
+        Perm.from_iterable_validated(None)
     with pytest.raises(TypeError):
-        Perm([0.1, 0.2, 0.3], check=True)
-    Perm(check=True)
-    Perm([], check=True)
-    Perm((0,), check=True)
-    Perm([0], check=True)
-    Perm([3, 0, 2, 1], check=True)
-    Perm(set([0, 1, 2]), check=True)
+        Perm.from_iterable_validated([0.1, 0.2, 0.3])
+    with pytest.raises(ValueError):
+        Perm.from_iterable_validated("132")
+    with pytest.raises(ValueError):
+        Perm.from_iterable_validated("134")
+    with pytest.raises(ValueError):
+        Perm.from_iterable_validated("112")
+    with pytest.raises(ValueError):
+        Perm.from_iterable_validated("5")
+    try:
+        Perm.from_iterable_validated(())
+        Perm.from_iterable_validated((1, 0))
+        Perm.from_iterable_validated([5, 1, 0, 2, 4, 3])
+        Perm.from_iterable_validated("1302")
+    except (ValueError, TypeError):
+        pytest.fail("Exception raised when it shouldn't")
 
 
 def test_to_standard():
@@ -47,6 +56,14 @@ def test_to_standard():
         perm = Perm.random(random.randint(0, 20))
         assert perm == Perm.to_standard(perm)
         assert perm == Perm.to_standard(gen(perm))
+
+
+def test_from_integer():
+    assert Perm.from_integer(123) == Perm((0, 1, 2))
+    assert Perm.from_integer(321) == Perm((2, 1, 0))
+    assert Perm.from_integer(201) == Perm((2, 0, 1))
+    assert Perm.from_integer(0) == Perm((0,))
+    assert Perm.from_integer(1) == Perm((0,))
 
 
 def test_from_string():
@@ -224,9 +241,9 @@ def test_occurrences_in():
 
 
 def test_apply():
-    with pytest.raises(ValueError):
+    with pytest.raises(AssertionError):
         Perm((1, 2, 4, 0, 3, 5)).apply(Perm((0, 2, 1, 3)))
-    with pytest.raises(ValueError):
+    with pytest.raises(AssertionError):
         Perm().apply(Perm((0,)))
 
     for i in range(100):
@@ -349,11 +366,11 @@ def test_insert():
     assert Perm((0, 3, 1, 2)).insert(3, 3) == Perm((0, 4, 1, 3, 2))
     assert Perm((0, 3, 1, 2)).insert(1, 0) == Perm((1, 0, 4, 2, 3))
 
-    with pytest.raises(ValueError):
+    with pytest.raises(AssertionError):
         Perm((2, 1, 0, 3)).insert(2, 100)
-    with pytest.raises(ValueError):
+    with pytest.raises(AssertionError):
         Perm((2, 1, 0, 3)).insert(0, 5)
-    with pytest.raises(ValueError):
+    with pytest.raises(AssertionError):
         Perm((2, 1, 0, 3)).insert(3, -3)
 
 
@@ -363,7 +380,6 @@ def test_remove():
     assert Perm((3, 0, 1, 2)).remove(0) == Perm((0, 1, 2))
     assert Perm((2, 0, 1)).remove(2) == Perm((1, 0))
     assert Perm((0,)).remove(0) == Perm()
-
     assert Perm((3, 0, 1, 2)).remove(3) == Perm((2, 0, 1))
     assert Perm((0, 3, 1, 4, 2)).remove(3) == Perm((0, 3, 1, 2))
     assert Perm((0, 4, 1, 3, 2)).remove(4) == Perm((0, 3, 1, 2))
@@ -383,17 +399,12 @@ def test_remove_element():
     assert Perm((1, 0, 4, 2, 3)).remove_element() == Perm((1, 0, 2, 3))
     assert Perm((0, 4, 1, 3, 2)).remove_element() == Perm((0, 1, 3, 2))
 
-    with pytest.raises(ValueError):
+    with pytest.raises(AssertionError):
         Perm((1, 0, 4, 2, 3)).remove_element(5)
-    with pytest.raises(ValueError):
+    with pytest.raises(AssertionError):
         Perm((1, 0, 4, 2, 3)).remove_element(51)
-    with pytest.raises(ValueError):
+    with pytest.raises(AssertionError):
         Perm((1, 0, 4, 2, 3)).remove_element(-5)
-
-    with pytest.raises(TypeError):
-        Perm((2, 1, 0, 3)).remove_element("ble")
-    with pytest.raises(TypeError):
-        Perm((2, 1, 0, 3)).remove_element([0])
 
 
 def test_inflate():
@@ -606,6 +617,36 @@ def test_fixed_points():
     assert list(Perm((5, 4, 3, 2, 1, 0)).fixed_points()) == []
     assert list(Perm((4, 1, 0, 3, 2, 5)).fixed_points()) == [1, 3, 5]
     assert list(Perm((0, 1, 2, 3, 4, 5)).fixed_points()) == [0, 1, 2, 3, 4, 5]
+
+
+def test_strong_fixed_points():
+    assert list(Perm().strong_fixed_points()) == []
+    assert list(Perm((5, 4, 3, 2, 1, 0)).strong_fixed_points()) == []
+    assert list(Perm((4, 1, 0, 3, 2, 5)).strong_fixed_points()) == [5]
+    assert list(Perm((0, 1, 2, 3, 4, 5)).strong_fixed_points()) == [0, 1, 2, 3, 4, 5]
+    assert list(Perm((0, 1)).strong_fixed_points()) == [0, 1]
+    assert list(Perm((0,)).strong_fixed_points()) == [0]
+    assert list(Perm((2, 1, 0)).strong_fixed_points()) == []
+    assert list(Perm((2, 0, 7, 4, 1, 5, 3, 6)).strong_fixed_points()) == []
+    assert list(Perm((6, 4, 5, 3, 2, 0, 1)).strong_fixed_points()) == []
+    assert list(Perm((4, 7, 2, 6, 0, 1, 5, 3)).strong_fixed_points()) == []
+    assert list(Perm((0, 1, 2)).strong_fixed_points()) == [0, 1, 2]
+    assert list(Perm((1, 6, 4, 3, 2, 0, 7, 5)).strong_fixed_points()) == []
+    assert list(Perm((4, 1, 2, 6, 3, 5, 0)).strong_fixed_points()) == []
+    assert list(Perm((5, 1, 0, 7, 4, 2, 3, 6)).strong_fixed_points()) == []
+    assert list(Perm((0, 6, 5, 4, 3, 2, 1, 7)).strong_fixed_points()) == [0, 7]
+    assert list(Perm((1, 4, 6, 2, 3, 5, 7, 0)).strong_fixed_points()) == []
+    assert list(Perm((1, 3, 2, 0, 4, 6, 7, 5)).strong_fixed_points()) == [4]
+    assert list(Perm((0, 1, 5, 4, 6, 3, 2, 7)).strong_fixed_points()) == [0, 1, 7]
+    assert list(Perm((5, 6, 0, 2, 4, 3, 7, 1)).strong_fixed_points()) == []
+    assert list(Perm((3, 6, 2, 5, 1, 4, 7, 0)).strong_fixed_points()) == []
+    assert list(Perm((7, 6, 2, 3, 0, 1, 4, 5)).strong_fixed_points()) == []
+    assert list(Perm((0, 2, 1)).strong_fixed_points()) == [0]
+    assert list(Perm((7, 3, 2, 4, 5, 1, 6, 0)).strong_fixed_points()) == []
+    assert list(Perm((1, 0, 2)).strong_fixed_points()) == [2]
+    assert list(Perm((5, 3, 0, 6, 1, 4, 2, 7)).strong_fixed_points()) == [7]
+    assert list(Perm((7, 1, 2, 3, 4, 5, 6, 0)).strong_fixed_points()) == []
+    assert list(Perm((1, 0, 2, 4, 3, 5, 7, 6)).strong_fixed_points()) == [2, 5]
 
 
 def test_count_fixed_points():
@@ -827,12 +868,12 @@ def test_order():
 
 
 def test_ltrmin():
-    assert Perm().ltrmin() == []
-    assert Perm((0,)).ltrmin() == [0]
-    assert Perm((2, 4, 3, 0, 1)).ltrmin() == [0, 3]
+    assert list(Perm().ltrmin()) == []
+    assert list(Perm((0,)).ltrmin()) == [0]
+    assert list(Perm((2, 4, 3, 0, 1)).ltrmin()) == [0, 3]
     for _ in range(100):
         perm = Perm.random(random.randint(2, 20))
-        ltrmin_list = perm.ltrmin()
+        ltrmin_list = list(perm.ltrmin())
         assert ltrmin_list[0] == 0
         for i in range(len(ltrmin_list)):
             for j in range(ltrmin_list[i] + 1, len(perm)):
@@ -842,12 +883,12 @@ def test_ltrmin():
 
 
 def test_rtlmin():
-    assert Perm().rtlmin() == []
-    assert Perm((0,)).rtlmin() == [0]
-    assert Perm((2, 4, 3, 0, 1)).rtlmin() == [3, 4]
+    assert list(Perm().rtlmin()) == []
+    assert list(Perm((0,)).rtlmin()) == [0]
+    assert list(Perm((2, 4, 3, 0, 1)).rtlmin()) == [3, 4]
     for _ in range(100):
         perm = Perm.random(random.randint(2, 20))
-        rtlmin_list = perm.rtlmin()
+        rtlmin_list = list(perm.rtlmin())
         rtlmin_list.reverse()
         assert rtlmin_list[0] == len(perm) - 1
         for i in range(len(rtlmin_list)):
@@ -858,12 +899,12 @@ def test_rtlmin():
 
 
 def test_ltrmax():
-    assert Perm().ltrmax() == []
-    assert Perm((0,)).ltrmax() == [0]
-    assert Perm((2, 0, 4, 1, 5, 3)).ltrmax() == [0, 2, 4]
+    assert list(Perm().ltrmax()) == []
+    assert list(Perm((0,)).ltrmax()) == [0]
+    assert list(Perm((2, 0, 4, 1, 5, 3)).ltrmax()) == [0, 2, 4]
     for _ in range(100):
         perm = Perm.random(random.randint(2, 20))
-        ltrmax_list = perm.ltrmax()
+        ltrmax_list = list(perm.ltrmax())
         assert ltrmax_list[0] == 0
         for i in range(len(ltrmax_list)):
             for j in range(ltrmax_list[i] + 1, len(perm)):
@@ -873,12 +914,12 @@ def test_ltrmax():
 
 
 def test_rtlmax():
-    assert Perm().rtlmax() == []
-    assert Perm((0,)).rtlmax() == [0]
-    assert Perm((2, 4, 3, 0, 1)).rtlmax() == [1, 2, 4]
+    assert list(Perm().rtlmax()) == []
+    assert list(Perm((0,)).rtlmax()) == [0]
+    assert list(Perm((2, 4, 3, 0, 1)).rtlmax()) == [1, 2, 4]
     for _ in range(100):
         perm = Perm.random(random.randint(2, 20))
-        rtlmax_list = perm.rtlmax()
+        rtlmax_list = list(perm.rtlmax())
         rtlmax_list.reverse()
         assert rtlmax_list[0] == len(perm) - 1
         for i in range(len(rtlmax_list)):
@@ -990,12 +1031,15 @@ def test_longestruns_descending():
     )
 
 
-def test_longestruns():
-    assert Perm().longestruns() == (0, [])
-    assert Perm((0, 1, 2, 3)).longestruns() == (4, [0])
-    assert Perm((4, 3, 2, 1, 0)).longestruns() == (1, [0, 1, 2, 3, 4])
-    assert Perm((8, 1, 7, 5, 6, 2, 9, 3, 0, 4)).longestruns() == (2, [1, 3, 5, 8])
-    assert Perm((1, 2, 3, 4, 6, 0, 9, 7, 8, 5)).longestruns() == (5, [0])
+def test_longestruns_ascending():
+    assert Perm().longestruns_ascending() == (0, [])
+    assert Perm((0, 1, 2, 3)).longestruns_ascending() == (4, [0])
+    assert Perm((4, 3, 2, 1, 0)).longestruns_ascending() == (1, [0, 1, 2, 3, 4])
+    assert Perm((8, 1, 7, 5, 6, 2, 9, 3, 0, 4)).longestruns_ascending() == (
+        2,
+        [1, 3, 5, 8],
+    )
+    assert Perm((1, 2, 3, 4, 6, 0, 9, 7, 8, 5)).longestruns_ascending() == (5, [0])
 
 
 def test_length_of_longestrun_ascending():
@@ -1004,6 +1048,10 @@ def test_length_of_longestrun_ascending():
     assert Perm((0, 1, 2)).length_of_longestrun_ascending() == 3
     assert Perm((0, 1, 2, 3, 4, 5, 6, 7, 8, 9)).length_of_longestrun_ascending() == 10
     assert Perm((6, 0, 9, 1, 4, 7, 3, 8, 5, 2)).length_of_longestrun_ascending() == 3
+    assert Perm((6, 1, 3, 7, 4, 5, 9, 8, 0, 2)).length_of_longestrun_ascending() == 3
+    assert Perm((4, 0, 9, 5, 3, 7, 1, 6, 8, 2)).length_of_longestrun_ascending() == 3
+    assert Perm((1, 9, 4, 6, 0, 8, 2, 7, 5, 3)).length_of_longestrun_ascending() == 2
+    assert Perm((2, 5, 8, 6, 0, 1, 3, 7, 9, 4)).length_of_longestrun_ascending() == 5
 
 
 def test_length_of_longestrun_descending():
@@ -1012,13 +1060,6 @@ def test_length_of_longestrun_descending():
     assert Perm((0, 1, 2)).length_of_longestrun_descending() == 1
     assert Perm((3, 5, 2, 7, 1, 8, 0, 6, 9, 4)).length_of_longestrun_descending() == 2
     assert Perm((5, 4, 8, 9, 7, 3, 2, 1, 0, 6)).length_of_longestrun_descending() == 6
-
-
-def test_length_of_longestrun():
-    assert Perm((6, 1, 3, 7, 4, 5, 9, 8, 0, 2)).length_of_longestrun() == 3
-    assert Perm((4, 0, 9, 5, 3, 7, 1, 6, 8, 2)).length_of_longestrun() == 3
-    assert Perm((1, 9, 4, 6, 0, 8, 2, 7, 5, 3)).length_of_longestrun() == 2
-    assert Perm((2, 5, 8, 6, 0, 1, 3, 7, 9, 4)).length_of_longestrun() == 5
 
 
 def test_count_cycles():

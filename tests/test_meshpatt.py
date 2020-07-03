@@ -28,47 +28,29 @@ mesh3 = MeshPatt(patt3, shad3)
 
 
 def test_init():
-    with pytest.raises(ValueError):
-        MeshPatt(Perm([0, 1, 1], check=True), ())
-    with pytest.raises(ValueError):
-        MeshPatt(Perm([1, 0, 1], check=True), ())
-    with pytest.raises(ValueError):
-        MeshPatt(Perm([0, 0], check=True), ())
-    with pytest.raises(ValueError):
-        MeshPatt(Perm([1], check=True), ())
-    with pytest.raises(ValueError):
-        MeshPatt(Perm((1,), check=True), ())
     with pytest.raises(TypeError):
-        MeshPatt(Perm(101, check=True), ())
+        MeshPatt(Perm(()), (0, 1))
     with pytest.raises(TypeError):
-        MeshPatt(Perm(-234, check=True), ())
+        MeshPatt(Perm((0, 1, 2)), [(1, "a")])
     with pytest.raises(TypeError):
-        MeshPatt(Perm(None, check=True), ())
-    with pytest.raises(TypeError):
-        MeshPatt(Perm([0.1, 0.2, 0.3], check=True), ())
-    with pytest.raises(TypeError):
-        MeshPatt(Perm((), check=True), (0, 1))
-    with pytest.raises(TypeError):
-        MeshPatt(Perm((0, 1, 2), check=True), [(1, "a")])
-    with pytest.raises(TypeError):
-        MeshPatt(Perm((0, 1, 2), check=True), [("a", 1)])
+        MeshPatt(Perm((0, 1, 2),), [("a", 1)])
     with pytest.raises(ValueError):
         MeshPatt(Perm.random(5), [(0,), (1, 1)])
     with pytest.raises(ValueError):
         MeshPatt(Perm.random(5), [(0, 0, 0), (1, 1, 1)])
     with pytest.raises(ValueError):
-        MeshPatt(Perm((), check=True), [(0, 1), (1, 0)])
+        MeshPatt(Perm(()), [(0, 1), (1, 0)])
     with pytest.raises(ValueError):
         MeshPatt(Perm.random(3), [(0, -1), (0, 0)])
     with pytest.raises(ValueError):
         MeshPatt(Perm.random(10), [(0, 0), (12, 7)])
-    MeshPatt(Perm(check=True), ())
-    MeshPatt(Perm([], check=True), ())
-    MeshPatt(Perm((0,), check=True), ())
-    MeshPatt(Perm([0], check=True), ())
-    MeshPatt(Perm([3, 0, 2, 1], check=True), ())
+    MeshPatt(Perm(), ())
+    MeshPatt(Perm([]), ())
+    MeshPatt(Perm((0,)), ())
+    MeshPatt(Perm([0]), ())
+    MeshPatt(Perm([3, 0, 2, 1]), ())
     MeshPatt(
-        Perm([3, 0, 2, 1], check=True),
+        Perm([3, 0, 2, 1]),
         [
             (0, 0),
             (0, 1),
@@ -97,7 +79,7 @@ def test_init():
             (4, 4),
         ],
     )
-    MeshPatt(Perm([3, 0, 2, 1], check=True), [(0, 0), (0, 1), (0, 2), (0, 3), (0, 4)])
+    MeshPatt(Perm([3, 0, 2, 1]), [(0, 0), (0, 1), (0, 2), (0, 3), (0, 4)])
     MeshPatt([3, 0, 2, 1], [(0, 2), (0, 3), (0, 4)])
     MeshPatt(set([3, 0, 2, 1]), [(0, 2), (0, 3), (0, 4)])
 
