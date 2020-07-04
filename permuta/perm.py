@@ -7,7 +7,9 @@ import operator
 import random
 from typing import (
     TYPE_CHECKING,
+    Callable,
     ClassVar,
+    Deque,
     Dict,
     Iterable,
     Iterator,
@@ -176,6 +178,33 @@ class Perm(TupleType, Patt, Rotatable, Shiftable, Flippable):
         return cls(result)
 
     @classmethod
+    def of_length(cls, length: int) -> Iterator["Perm"]:
+        """Generate all permutations of a given length in lexicographical order.
+
+        Examples:
+            >>> list(Perm.of_length(2))
+            [Perm((0, 1)), Perm((1, 0))]
+        """
+        yield from (cls(perm) for perm in itertools.permutations(range(length)))
+
+    @classmethod
+    def first(cls, count: int) -> Iterator["Perm"]:
+        """Generate all permutations in lexicographical order up to a count.
+
+        Examples:
+            >>> list(Perm.first(5))
+            [Perm(()), Perm((0,)), Perm((0, 1)), Perm((1, 0)), Perm((0, 1, 2))]
+        """
+        yield from itertools.islice(Perm._all(), count)
+
+    @classmethod
+    def _all(cls):
+        length = 0
+        while True:
+            yield from Perm.of_length(length)
+            length += 1
+
+    @classmethod
     def identity(cls, length: int) -> "Perm":
         """Return the identity perm of the specified length.
 
@@ -312,19 +341,20 @@ class Perm(TupleType, Patt, Rotatable, Shiftable, Flippable):
             >>> Perm((2, 0, 1)).insert(2, 1)
             Perm((3, 0, 1, 2))
         """
+        n = len(self)
         if index is None:
-            index = len(self) + 1
+            index = n + 1
         if new_element is None:
-            new_element = len(self)
-        assert 0 <= index <= len(self) + 1
-        assert 0 <= new_element <= len(self)
+            new_element = n
+        assert 0 <= index <= n + 1
+        assert 0 <= new_element <= n
         slice_1 = (
             val if val < new_element else val + 1
             for val in itertools.islice(self, index)
         )
         slice_2 = (
             val if val < new_element else val + 1
-            for val in itertools.islice(self, index, len(self))
+            for val in itertools.islice(self, index, n)
         )
         return Perm(itertools.chain(slice_1, (new_element,), slice_2))
 
@@ -376,7 +406,6 @@ class Perm(TupleType, Patt, Rotatable, Shiftable, Flippable):
             Perm((1, 0, 4, 3, 2))
             >>> Perm((1, 0, 2)).inflate([None, Perm((0, 1)), Perm((0, 1))])
             Perm((2, 0, 1, 3, 4))
-            >>> # Can also deflate points
             >>> Perm((0, 1)).inflate([Perm(), Perm()])
             Perm(())
         """
@@ -396,20 +425,6 @@ class Perm(TupleType, Patt, Rotatable, Shiftable, Flippable):
                 shift = shifts[index]
                 perm_elements.extend(element + shift for element in component)
         return Perm(perm_elements)
-
-    def contract_inc_bonds(self) -> "Perm":
-        # TODO: test
-        monblocks = self.monotone_block_decomposition_ascending(with_ones=True)
-        return Perm.to_standard([start for start, _ in monblocks])
-
-    def contract_dec_bonds(self) -> "Perm":
-        # TODO: test
-        monblocks = self.monotone_block_decompositon_descending(with_ones=True)
-        return Perm.to_standard([start for start, _ in monblocks])
-
-    def contract_bonds(self) -> None:
-        # TODO: reimplement by calling contract_{inc,dec}_bonds or remove
-        raise NotImplementedError()
 
     def inverse(self) -> "Perm":
         """Return the inverse of the perm self.
@@ -537,7 +552,7 @@ class Perm(TupleType, Patt, Rotatable, Shiftable, Flippable):
     flip_diagonal = inverse
 
     def flip_antidiagonal(self) -> "Perm":
-        """Return self flipped along the antidiagonal..
+        """Return self flipped along the antidiagonal.
 
         Examples:
             >>> Perm((3, 2, 0, 1)).flip_antidiagonal()
@@ -554,7 +569,6 @@ class Perm(TupleType, Patt, Rotatable, Shiftable, Flippable):
         return Perm(result)
 
     def _rotate_right(self) -> "Perm":
-        """Return self rotated 90 degrees to the right."""
         n = len(self)
         result = [0] * n
         for idx, val in enumerate(self):
@@ -562,7 +576,6 @@ class Perm(TupleType, Patt, Rotatable, Shiftable, Flippable):
         return Perm(result)
 
     def _rotate_left(self) -> "Perm":
-        """Return self rotated 90 degrees to the left."""
         n = len(self)
         result = [0] * n
         for idx, val in enumerate(self):
@@ -574,6 +587,10 @@ class Perm(TupleType, Patt, Rotatable, Shiftable, Flippable):
     def all_syms(self) -> Tuple["Perm", ...]:
         """Returns all symmetries of the permutation in a PermSet, all possible
         combinations of revers, complement and inverse.
+
+        Examples:
+            >>> Perm((0, 2, 1)).all_syms()
+            (Perm((1, 0, 2)), Perm((2, 0, 1)), Perm((0, 2, 1)), Perm((1, 2, 0)))
         """
         syms = {self, self.inverse()}
         curr = self
@@ -583,11 +600,25 @@ class Perm(TupleType, Patt, Rotatable, Shiftable, Flippable):
         return tuple(syms)
 
     def is_increasing(self) -> bool:
-        """Return True if the perm is increasing, and False otherwise."""
+        """Return True if the perm is increasing, and False otherwise.
+
+        Examples:
+            >>> Perm((0, 2, 1, 3)).is_increasing()
+            False
+            >>> Perm((0, 1)).flip_antidiagonal()
+            True
+        """
         return all(idx == val for idx, val in enumerate(self))
 
     def is_decreasing(self) -> bool:
-        """Return True if the perm is decreasing, and False otherwise."""
+        """Return True if the perm is decreasing, and False otherwise.
+
+        Examples:
+            >>> Perm((3, 2, 0, 1)).is_decreasing()
+            False
+            >>> Perm((3, 2, 1, 0)).is_decreasing()
+            True
+        """
         n = len(self)
         return all(val == n - idx - 1 for idx, val in enumerate(self))
 
@@ -681,7 +712,13 @@ class Perm(TupleType, Patt, Rotatable, Shiftable, Flippable):
     def descent_set(self) -> List[int]:
         """Return the list of descents of self.
 
-        This method is for backwards compatibility with permpy.
+        Examples:
+            >>> Perm((0, 1, 3, 2, 4)).descent_set()
+            [2]
+            >>> Perm((3, 2, 1, 0)).descent_set()
+            [0, 1, 2]
+            >>> Perm((0, 1, 2)).descent_set()
+            []
         """
         return list(self.descents())
 
@@ -721,7 +758,13 @@ class Perm(TupleType, Patt, Rotatable, Shiftable, Flippable):
     def ascent_set(self) -> List[int]:
         """Return the list of ascents of self.
 
-        This method is for backwards compatibility with permpy.
+        Examples:
+            >>> Perm((0, 1, 3, 2, 4)).ascent_set()
+            [0, 1, 3]
+            >>> Perm((0, 4, 3, 2, 1)).ascent_set()
+            [0]
+            >>> Perm((3, 2, 1, 0)).ascent_set()
+            []
         """
         return list(self.ascents())
 
@@ -765,8 +808,15 @@ class Perm(TupleType, Patt, Rotatable, Shiftable, Flippable):
         )
 
     def peak_list(self) -> List[int]:
-        """Return the list of peaks of self. This method is for backwards compatibility
-        with permpy.
+        """Return the list of peaks of self.
+
+        Examples:
+            >>> Perm((5, 3, 4, 0, 2, 1)).peak_list()
+            [2, 4]
+            >>> Perm((1, 2, 0)).peak_list()
+            [1]
+            >>> Perm((2, 1, 0)).peak_list()
+            []
         """
         return list(self.peaks())
 
@@ -810,8 +860,15 @@ class Perm(TupleType, Patt, Rotatable, Shiftable, Flippable):
         )
 
     def valley_list(self) -> List[int]:
-        """Return the list of valleys of self. This method is for backwards
-        compatibility with permpy.
+        """Return the list of valleys of self.
+
+        Examples:
+            >>> Perm((5, 3, 4, 0, 2, 1)).valley_list()
+            [1, 3]
+            >>> Perm((2, 0, 1)).valley_list()
+            [1]
+            >>> Perm((1, 2, 0)).valley_list()
+            []
         """
         return list(self.valleys())
 
@@ -886,7 +943,7 @@ class Perm(TupleType, Patt, Rotatable, Shiftable, Flippable):
         """Returns the positions of the left-to-right minima.
 
         Examples:
-            >>> Perm((2, 4, 3, 0, 1)).ltrmin()
+            >>> list(Perm((2, 4, 3, 0, 1)).ltrmin())
             [0, 3]
         """
         min_val = len(self)
@@ -899,7 +956,7 @@ class Perm(TupleType, Patt, Rotatable, Shiftable, Flippable):
         """Returns the positions of the right-to-left minima.
 
         Examples:
-            >>> Perm((2, 0, 4, 1, 5, 3)).rtlmin()
+            >>> list(Perm((2, 0, 4, 1, 5, 3)).rtlmin())
             [1, 3, 5]
         """
         yield from reversed(self._rtlmin_reverse_list())
@@ -916,7 +973,7 @@ class Perm(TupleType, Patt, Rotatable, Shiftable, Flippable):
         """Returns the positions of the left-to-right maxima.
 
         Examples:
-            >>> Perm((2, 0, 4, 1, 5, 3)).ltrmax()
+            >>> list(Perm((2, 0, 4, 1, 5, 3)).ltrmax())
             [0, 2, 4]
         """
         max_val = -1
@@ -929,7 +986,7 @@ class Perm(TupleType, Patt, Rotatable, Shiftable, Flippable):
         """Returns the positions of the right-to-left maxima.
 
         Examples:
-            >>> Perm((2, 4, 3, 0, 1)).rtlmax()
+            >>> list(Perm((2, 4, 3, 0, 1)).rtlmax())
             [1, 2, 4]
         """
         yield from reversed(self._rtlmax_reverse_list())
@@ -1062,6 +1119,25 @@ class Perm(TupleType, Patt, Rotatable, Shiftable, Flippable):
             for i, j in itertools.combinations(range(len(self)), 2)
         )
 
+    def all_bonds(self) -> Iterator[int]:
+        """Generate all bonds, that is the adjacent locations with adjacent values.
+
+        Examples:
+            >>> list(Perm((0, 1, 2)).all_bonds())
+            [0, 1]
+            >>> list(Perm((2, 1, 0)).all_bonds())
+            [0, 1]
+            >>> list(Perm((4, 0, 3, 2, 1, 5)).all_bonds())
+            [2, 3]
+        """
+        return (
+            idx
+            for idx, (prev, curr) in enumerate(
+                zip(self, itertools.islice(self, 1, None))
+            )
+            if curr == prev + 1 or prev == curr + 1
+        )
+
     def count_bonds(self) -> int:
         """Counts the number of bonds, that is the number of adjacent locations
         with adjacent values.
@@ -1074,7 +1150,7 @@ class Perm(TupleType, Patt, Rotatable, Shiftable, Flippable):
             >>> Perm((4, 0, 3, 2, 1, 5)).count_bonds()
             2
         """
-        return self.count_dec_bonds() + self.count_inc_bonds()
+        return sum(1 for _ in self.all_bonds())
 
     num_bonds = count_bonds
     bonds = count_bonds
@@ -1104,7 +1180,7 @@ class Perm(TupleType, Patt, Rotatable, Shiftable, Flippable):
             >>> Perm((2, 3, 4, 5, 0, 1)).count_inc_bonds()
             4
         """
-        return len(list(self.inc_bonds()))
+        return sum(1 for _ in self.inc_bonds())
 
     num_inc_bonds = count_inc_bonds
 
@@ -1133,7 +1209,7 @@ class Perm(TupleType, Patt, Rotatable, Shiftable, Flippable):
             >>> Perm((1, 0, 3, 2, 5, 4)).count_dec_bonds()
             3
         """
-        return len(list(self.dec_bonds()))
+        return sum(1 for _ in self.dec_bonds())
 
     num_dec_bonds = count_dec_bonds
 
@@ -1149,9 +1225,40 @@ class Perm(TupleType, Patt, Rotatable, Shiftable, Flippable):
         """
         return sum(1 + desc for desc in self.descents())
 
+    def maximal_decreasing_run(self) -> int:
+        """Returns the longest decreasing run of consecutive elements starting
+        from the leargest.
+
+        Examples:
+            >>> Perm((3, 1, 2, 4, 0)).maximal_decreasing_run()
+            1
+            >>> Perm((0, 2, 1)).maximal_decreasing_run()
+            2
+            >>> Perm((5, 0, 4, 1, 2, 3)).maximal_decreasing_run()
+            3
+        """
+        n = len(self)
+        next_val, max_not_included = n - 1, -1
+        for val in self:
+            if val == next_val:
+                next_val -= 1
+            elif val > max_not_included:
+                max_not_included = val
+            if next_val < max_not_included:
+                break
+        return n - next_val - 1
+
     def longestruns_ascending(self) -> Tuple[int, List[int]]:
         """Returns the longest ascending runs in the permutation as a pair of
         the length and a list of the starting indices.
+
+        Examples:
+            >>> Perm((0, 2, 1, 4, 3, 5)).longestruns_ascending()
+            (2, [0, 2, 4])
+            >>> Perm((4, 3, 0, 1, 2)).longestruns_ascending()
+            (3, [2])
+            >>> Perm((2, 1, 0)).longestruns_ascending()
+            (1, [0, 1, 2])
         """
         n = len(self)
         if n == 0:
@@ -1174,40 +1281,59 @@ class Perm(TupleType, Patt, Rotatable, Shiftable, Flippable):
     def longestruns_descending(self) -> Tuple[int, List[int]]:
         """Returns the longest descending runs in the permutation as a pair of
         the length and a list of the starting indices.
+
+        Examples:
+            >>> Perm((0, 1, 2, 3)).longestruns_descending()
+            (1, [0, 1, 2, 3])
+            >>> Perm((1, 2, 0)).longestruns_descending()
+            (2, [1])
+            >>> Perm((2, 1, 3, 0)).longestruns_descending()
+            (2, [0, 2])
         """
         return self.complement().longestruns_ascending()
 
     def length_of_longestrun_ascending(self) -> int:
         """Returns the length of the longest ascending run in the permutation.
+
+        Examples:
+            >>> Perm((0, 1, 2, 3)).length_of_longestrun_ascending()
+            4
+            >>> Perm((1, 2, 0)).length_of_longestrun_ascending()
+            2
         """
         return self.longestruns_ascending()[0]
 
     def length_of_longestrun_descending(self) -> int:
         """Returns the length of the longest descending run in the permutation.
+
+        Examples:
+            >>> Perm((0, 1, 2, 3)).length_of_longestrun_descending()
+            1
+            >>> Perm((1, 2, 0)).length_of_longestrun_descending()
+            2
         """
         return self.complement().length_of_longestrun_ascending()
 
-    def cycle_decomp(self) -> List[List[int]]:
+    def cycle_decomp(self) -> Deque[List[int]]:
         """Calculates the cycle decomposition of the permutation. Returns a list
         of cycles, each of which is represented as a list.
 
-        >>> Perm((4, 2, 7, 0, 3, 1, 6, 5)).cycle_decomp()
-        [[4, 3, 0], [6], [7, 5, 1, 2]]
+        Examples:
+            >>> Perm((4, 2, 7, 0, 3, 1, 6, 5)).cycle_decomp()
+            [[4, 3, 0], [6], [7, 5, 1, 2]]
         """
         n = len(self)
-        seen: Set[int] = set()
-        cyclelist = []
-        while len(seen) < n:
-            max_not_seen = max(set(range(n)) - seen)
-            cycle = [max_not_seen]
-            val = self[max_not_seen]
-            seen.add(val)
+        remaining_elements = set(range(n))
+        cyclelist: Deque[List[int]] = collections.deque()
+        while remaining_elements:
+            max_not_seen = max(remaining_elements)
+            cycle, val = [max_not_seen], self[max_not_seen]
+            remaining_elements.remove(val)
             while val != max_not_seen:
                 cycle.append(val)
                 val = self(val)
-                seen.add(val)
-            cyclelist.append(cycle)
-        cyclelist.reverse()
+                remaining_elements.remove(val)
+            cyclelist.appendleft(cycle)
         return cyclelist
 
     def count_cycles(self) -> int:
@@ -1242,13 +1368,10 @@ class Perm(TupleType, Patt, Rotatable, Shiftable, Flippable):
             >>> Perm((0, 2, 1, 3)).rank()
             12
         """
-        n = len(self)
-        if n == 0:
-            return 0
+        n, res = len(self), 0
         fact = [1]
         for i in range(n):
             fact.append(fact[i] * (i + 1))
-        res = 0
         vals: List[int] = list()
         for idx, val in enumerate(self):
             ordered_pos = bisect.bisect_left(vals, val)
@@ -1306,8 +1429,13 @@ class Perm(TupleType, Patt, Rotatable, Shiftable, Flippable):
         return rank_encoding
 
     def sum_decomposition(self) -> List["Perm"]:
-        """
-        Return the sum decomposition of the permutation.
+        """Return the sum decomposition of the permutation.
+
+        Examples:
+            >>> Perm((0, 1, 2)).sum_decomposition()
+            [Perm((0,)), Perm((0,)), Perm((0,))]
+            >>> Perm((1, 2, 0, 4, 3)).sum_decomposition()
+            [Perm((1, 2, 0)), Perm((1, 0))]
         """
         res: List[Perm] = []
         max_val = -1
@@ -1320,40 +1448,47 @@ class Perm(TupleType, Patt, Rotatable, Shiftable, Flippable):
         return res
 
     def skew_decomposition(self) -> List["Perm"]:
+        """Return the skew decomposition of the permutation.
+
+        Examples:
+            >>> Perm((5, 3, 4, 1, 0, 2)).skew_decomposition()
+            [Perm((0,)), Perm((0, 1)), Perm((1, 0, 2))]
+            >>> Perm((5, 1, 2, 0, 3, 4)).skew_decomposition()
+            [Perm((0,)), Perm((1, 2, 0, 3, 4))]
         """
-        Return the skew decomposition of the permutation.
-        """
+        n = len(self)
         res: List[Perm] = []
-        min_val = len(self) + 1
+        min_val = n + 1
         curr_block_start_idx = 0
         for idx, val in enumerate(self):
             min_val = min(min_val, val)
-            if len(self) - idx - 1 == min_val:
+            if n - idx - 1 == min_val:
                 res.append(Perm.to_standard(self[curr_block_start_idx : idx + 1]))
                 curr_block_start_idx = idx + 1
         return res
 
-    #######################
-    # JSE CLEANUP POINTER #
-    #######################
+    def block_decomposition_as_pattern(self) -> List["Perm"]:
+        """Return block decomposition as a list of perm.
 
-    def block_decomposition(
-        self, return_patterns: bool = False
-    ) -> Union[List[List[int]], List["Perm"]]:
-        """Returns the list of all blocks(intervals) in the permutation that
+        Examples:
+            >>> sorted(Perm((4, 1, 0, 5, 2, 3)).block_decomposition_as_pattern())
+            [Perm((0, 1)), Perm((1, 0))]
+        """
+        patterns: Set["Perm"] = set()
+        for length, block in enumerate(self.block_decomposition()):
+            for start in block:
+                patterns.add(Perm.to_standard(self[start : start + length]))
+        return list(patterns)
+
+    def block_decomposition(self) -> List[List[int]]:
+        """Returns the list of all blocks (intervals) in the permutation that
         are of length at least 2. The returned list of lists contains the
         indices of blocks of length i in index i.
-
-        When return_patterns is set to True, a list of patterns is returned
-        instead of list of list of indices.
 
         Examples:
             >>> Perm((5, 3, 0, 1, 2, 4, 7, 6)).block_decomposition()
             [[], [], [2, 3, 6], [2], [1], [1], [0], []]
-            >>> sorted(Perm((4, 1, 0, 5, 2, 3)).block_decomposition(True))
-            [Perm((0, 1)), Perm((1, 0))]
         """
-        # TODO: Split in two
         n = len(self)
         blocks: List[List[int]] = [[] for i in range(n)]
         for idx, val in enumerate(self):
@@ -1365,13 +1500,6 @@ class Perm(TupleType, Patt, Rotatable, Shiftable, Flippable):
                 min_val, max_val = min(min_val, self[end]), max(max_val, self[end])
                 if max_val - min_val == length - 1:
                     blocks[length].append(idx)
-
-        if return_patterns:
-            patterns: Set["Perm"] = set()
-            for length, block in enumerate(blocks):
-                for start in block:
-                    patterns.add(Perm.to_standard(self[start : start + length]))
-            return list(patterns)
         return blocks
 
     all_intervals = block_decomposition
@@ -1379,70 +1507,94 @@ class Perm(TupleType, Patt, Rotatable, Shiftable, Flippable):
 
     def monotone_block_decomposition(
         self, with_ones: bool = False
-    ) -> List[Tuple[int, int]]:
-        """Returns the list of all monotone blocks(intervals) in the
+    ) -> Iterator[Tuple[int, int]]:
+        """Returns the iterator of all monotone blocks(intervals) in the
         permutation. Depending on the with_ones parameter it will return the
         length 1 blocks. The blocks are pairs of indices, the start and end
         index.
 
         Examples:
-            >>> Perm((2, 6, 3, 7, 4, 5, 1, 0)).monotone_block_decomposition()
+            >>> list(Perm((2, 6, 3, 7, 4, 5, 1, 0)).monotone_block_decomposition())
             [(4, 5), (6, 7)]
-            >>> Perm((2, 6, 3, 4, 5, 1, 0)).monotone_block_decomposition(True)
+            >>> list(Perm((2, 6, 3, 4, 5, 1, 0)).monotone_block_decomposition(True))
             [(0, 0), (1, 1), (2, 4), (5, 6)]
-            >>> Perm((0, 1, 2, 3, 4, 5)).monotone_block_decomposition()
+            >>> list(Perm((0, 1, 2, 3, 4, 5)).monotone_block_decomposition())
             [(0, 5)]
         """
-        blocks = []
-        diff, start, length = (0,) * 3
-        for i in range(1, len(self)):
-            if math.fabs(self[i] - self[i - 1]) == 1 and (
-                length == 0 or self[i] - self[i - 1] == diff
-            ):
-                length += 1
-                diff = self[i] - self[i - 1]
-            else:
-                blocks.append((start, start + length))
-                start = i
-                length = 0
-                diff = 0
-        if len(self) != 0:
-            blocks.append((start, start + length))
-
-        if with_ones:
-            return blocks
-        return [block for block in blocks if block[1] - block[0] > 0]
+        yield from self._block_decomposition_generator(
+            lambda curr, prev: abs(curr - prev) == 1, with_ones
+        )
 
     def monotone_block_decomposition_ascending(
         self, with_ones: bool = False
-    ) -> List[Tuple[int, int]]:
-        # TODO: test, untested
-        # TODO: rename to refer to runs, which this function basically
-        #       computes, brakes the permutation up into its runs.
-        blocks = []
-        start = 0
-        length = 0
-        for i in range(1, len(self)):
-            if self[i] + 1 == self[i - 1]:
-                length += 1
-            else:
-                blocks.append((start, start + length))
-                start = i
-                length = 0
-        if len(self) != 0:
-            blocks.append((start, start + length))
+    ) -> Iterable[Tuple[int, int]]:
+        """Returns the iterator of all ascending blocks(intervals) in the
+        permutation. Depending on the with_ones parameter it will return the
+        length 1 blocks. The blocks are pairs of indices, the start and end
+        index.
 
-        if with_ones:
-            return blocks
-        return [block for block in blocks if block[1] - block[0] > 0]
+        Examples:
+            >>> list(Perm((1, 0, 2, 3)).monotone_block_decomposition_ascending(True))
+            [(0, 0), (1, 1), (2, 3)]
+            >>> list(Perm((0, 2, 1)).monotone_block_decomposition_ascending(False))
+            []
+        """
+        yield from self._block_decomposition_generator(
+            lambda prev, curr: curr - prev == 1, with_ones
+        )
 
-    def monotone_block_decompositon_descending(
+    def monotone_block_decomposition_descending(
         self, with_ones: bool = False
-    ) -> List[Tuple[int, int]]:
-        # TODO: test, untested
-        return self.complement().monotone_block_decomposition_ascending(with_ones)
+    ) -> Iterator[Tuple[int, int]]:
+        """Returns the iterator of all descending blocks(intervals) in the
+        permutation. Depending on the with_ones parameter it will return the
+        length 1 blocks. The blocks are pairs of indices, the start and end
+        index.
+
+        Examples:
+            >>> list(Perm((2,1,0,5,4,3)).monotone_block_decomposition_descending(True))
+            [(0, 2), (3, 5)]
+            >>> list(Perm((0, 2, 1)).monotone_block_decomposition_descending(False))
+            [(1, 2)]
+        """
+        yield from self._block_decomposition_generator(
+            lambda prev, curr: prev - curr == 1, with_ones
+        )
 
     all_monotone_intervals = monotone_block_decomposition
+
+    def _block_decomposition_generator(
+        self, comparator: Callable[[int, int], bool], with_ones: bool = False
+    ) -> Iterator[Tuple[int, int]]:
+        diff, start, length = (0,) * 3
+        for idx, (prev, curr) in enumerate(zip(self, itertools.islice(self, 1, None))):
+            if comparator(prev, curr) and (length == 0 or curr - prev == diff):
+                length += 1
+                diff = curr - prev
+            else:
+                if length > 0 or with_ones:
+                    yield start, start + length
+                diff, start, length = 0, idx + 1, 0
+        if len(self) != 0 and (length > 0 or with_ones):
+            yield start, start + length
+
+    def contract_increasing_bonds(self) -> "Perm":
+        """[summary]
+        """
+        monblocks = self.monotone_block_decomposition_ascending(with_ones=True)
+        return Perm.to_standard(self[start] for start, _ in monblocks)
+
+    def contract_decreasing_bonds(self) -> "Perm":
+        """[summary]
+        """
+        monblocks = self.monotone_block_decomposition_descending(with_ones=True)
+        return Perm.to_standard(self[start] for start, _ in monblocks)
+
+    def contract_bonds(self) -> "Perm":
+        """[summary]
+        """
+        monblocks = self.monotone_block_decomposition(with_ones=True)
+        return Perm.to_standard(self[start] for start, _ in monblocks)
 
     def monotone_quotient(self) -> "Perm":
         """Return the permutation pattern consisting of the starting values of
@@ -1603,10 +1755,7 @@ class Perm(TupleType, Patt, Rotatable, Shiftable, Flippable):
         return all(patt not in self for patt in patts)
 
     def avoids_set(self, patts: Iterable["Patt"]) -> bool:
-        """Check if self avoids patts.
-
-        This method is for backwards compatibility with permpy.
-        """
+        """Check if self avoids patts for an iterable of patterns."""
         return self.avoids(*tuple(patts))
 
     def count_occurrences_of(self, patt: "Patt") -> int:
@@ -1829,71 +1978,35 @@ class Perm(TupleType, Patt, Rotatable, Shiftable, Flippable):
         """
         Return the tikz code to plot the permutation.
         """
-        return "".join(
-            (
-                "".join(
-                    (
-                        r"\begin{tikzpicture}",
-                        r"[scale=.3,baseline=(current bounding box.center)]",
-                        "\n\t",
-                        r"\foreach \x in {1,...," + str(len(self)) + "} {",
-                        "\n\t\t",
-                        r"\draw[ultra thin] (\x,0)--(\x,"
-                        + str(len(self) + 1)
-                        + "); %vline",
-                        "\n\t\t",
-                        r"\draw[ultra thin] (0,\x)--("
-                        + str(len(self) + 1)
-                        + r",\x); %hline",
-                        "\n\t",
-                        r"}",
-                        "\n\t",
-                    )
-                ),
-                "\n\t".join(
-                    (
-                        r"\draw[fill=black] ("
-                        + str(idx + 1)
-                        + ","
-                        + str(val + 1)
-                        + ") circle (5pt);"
-                    )
-                    for (idx, val) in enumerate(self)
-                ),
-                "".join(("\n", r"\end{tikzpicture}")),
-            )
+        return (
+            "\\begin{{tikzpicture}}[scale=.3,baseline=(current bounding box.center)]\n"
+            "\t\\foreach \\x in {{1,...,{0}}} {{\n\t\t\\draw[ultra thin] (\\x,0)--(\\x,"
+            "{1}); %vline\n\t\t\\draw[ultra thin] (0,\\x)--({1},\\x); %hline\n\t}}"
+            "\n\t{2}\n\\end{{tikzpicture}}"
+        ).format(
+            str(len(self)),
+            str(len(self) + 1),
+            "\n\t".join(
+                f"\\draw[fill=black] ({str(idx + 1)},{str(val + 1)}) circle (5pt);"
+                for (idx, val) in enumerate(self)
+            ),
         )
 
     def __call__(self, value: int) -> int:
-        """Map value to its image defined by the perm.
-
-        Examples:
-            >>> Perm((3, 1, 2, 0))(0)
-            3
-            >>> Perm((3, 1, 2, 0))(1)
-            1
-            >>> Perm((3, 1, 2, 0))(2)
-            2
-            >>> Perm((3, 1, 2, 0))(3)
-            0
-        """
         assert 0 <= value < len(self)
         return self[value]
 
     def __add__(self, other: object) -> "Perm":
-        """Return the direct sum of the perms self and other."""
         if not isinstance(other, self.__class__):
             return NotImplemented
         return self.direct_sum(other)
 
     def __sub__(self, other: object) -> "Perm":
-        """Return the skew sum of the perms self and other."""
         if not isinstance(other, self.__class__):
             return NotImplemented
         return self.skew_sum(other)
 
     def __mul__(self, other: object) -> "Perm":
-        """Return the composition of two perms."""
         if not isinstance(other, self.__class__):
             return NotImplemented
         return self.compose(other)
@@ -1920,11 +2033,10 @@ class Perm(TupleType, Patt, Rotatable, Shiftable, Flippable):
     def __ge__(self, other: tuple) -> bool:
         return other.__le__(self)
 
-    def __contains__(self, patt) -> bool:
-        return any(True for _ in patt.occurrences_in(self))
-
-    def __getitem__(self, key: Union[int, slice]):
-        return tuple.__getitem__(self, key)
+    def __contains__(self, patt: object) -> bool:
+        if isinstance(patt, Patt):
+            return any(True for _ in patt.occurrences_in(self))
+        return False
 
     def __len__(self) -> int:
         return tuple.__len__(self)
