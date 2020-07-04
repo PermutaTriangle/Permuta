@@ -1578,20 +1578,35 @@ class Perm(TupleType, Patt, Rotatable, Shiftable, Flippable):
         if len(self) != 0 and (length > 0 or with_ones):
             yield start, start + length
 
-    def contract_increasing_bonds(self) -> "Perm":
-        """[summary]
+    def contract_inc_bonds(self) -> "Perm":
+        """Turn entries, consecutive in position and increasing in value, then
+        standardize the resulting permutation.
+
+        Examples:
+            >>> Perm((1, 0, 5, 3, 4, 2)).contract_inc_bonds()
+            Perm((1, 0, 4, 3, 2))
         """
         monblocks = self.monotone_block_decomposition_ascending(with_ones=True)
         return Perm.to_standard(self[start] for start, _ in monblocks)
 
-    def contract_decreasing_bonds(self) -> "Perm":
-        """[summary]
+    def contract_dec_bonds(self) -> "Perm":
+        """Turn entries, consecutive in position and decreasing in value, then
+        standardize the resulting permutation.
+
+        Examples:
+            >>> Perm((1, 0, 5, 3, 4, 2)).contract_dec_bonds()
+            Perm((0, 4, 2, 3, 1))
         """
         monblocks = self.monotone_block_decomposition_descending(with_ones=True)
         return Perm.to_standard(self[start] for start, _ in monblocks)
 
     def contract_bonds(self) -> "Perm":
-        """[summary]
+        """Turn entries, consecutive in position and decreasing or increasing in value,
+        into a single element, then standardize the resulting permutation.
+
+        Examples:
+            >>> Perm((1, 0, 5, 3, 4, 2)).contract_bonds()
+            Perm((0, 3, 2, 1))
         """
         monblocks = self.monotone_block_decomposition(with_ones=True)
         return Perm.to_standard(self[start] for start, _ in monblocks)
@@ -1615,7 +1630,7 @@ class Perm(TupleType, Patt, Rotatable, Shiftable, Flippable):
         )
 
     def maximum_block(self) -> Tuple[int, int]:
-        """Finds the biggest interval, and returns (i,j) is one is found,
+        """Finds the biggest interval, and returns (i,j) if one is found,
         where i is the size of the interval, and j is the index of the first
         entry in the interval. Returns (0,0) if no interval is found, i.e.,
         if the permutation is simple.
@@ -1669,8 +1684,6 @@ class Perm(TupleType, Patt, Rotatable, Shiftable, Flippable):
 
     shrink_by_one = children
 
-    # TODO: discuss return value conventions, should this return PermSet
-    # instead of set of Perm? maybe list of Perm?
     def coveredby(self) -> List["Perm"]:
         """Returns one layer of the upset of the permutation.
 
@@ -1679,8 +1692,9 @@ class Perm(TupleType, Patt, Rotatable, Shiftable, Flippable):
             [Perm((0, 1, 2)), Perm((0, 2, 1)), Perm((1, 0, 2))]
         """
         n = len(self)
-        return list({self.insert(i, j) for i in range(n + 1) for j in range(n + 1)})
+        return list(set(self.insert(i, j) for i in range(n + 1) for j in range(n + 1)))
 
+    # JSE: WAS IST DAS?
     def count_rtlmax_ltrmin_layers(self) -> int:
         """Counts the layers in the right-to-left maxima, left-to-right minima
         decomposition.
@@ -1689,6 +1703,7 @@ class Perm(TupleType, Patt, Rotatable, Shiftable, Flippable):
 
     num_rtlmax_ltrmin_layers = count_rtlmax_ltrmin_layers
 
+    # JSE: WAS IST DAS?
     def rtlmax_ltrmin_decomposition(self) -> List[List[int]]:
         """Returns the right-to-left maxima, left-to-right minima
         decomposition. The decomposition consists of layers, starting with the
@@ -1755,7 +1770,14 @@ class Perm(TupleType, Patt, Rotatable, Shiftable, Flippable):
         return all(patt not in self for patt in patts)
 
     def avoids_set(self, patts: Iterable["Patt"]) -> bool:
-        """Check if self avoids patts for an iterable of patterns."""
+        """Check if self avoids patts for an iterable of patterns.
+
+        Examples:
+            >>> (Perm([4, 0, 1, 2, 3]).avoids_set([Perm([2, 1, 0]), Perm([1, 0])]))
+            False
+            >>> Perm([4, 0, 1, 2, 3]).avoids_set([Perm([2, 1, 0]), Perm([1, 2, 0])])
+            True
+        """
         return self.avoids(*tuple(patts))
 
     def count_occurrences_of(self, patt: "Patt") -> int:
@@ -1964,12 +1986,8 @@ class Perm(TupleType, Patt, Rotatable, Shiftable, Flippable):
             """
         if len(self) == 0:
             return "( )"
-        return (
-            "( )"
-            if len(self) == 0
-            else " ".join(
-                f'( {" ".join(str(x) for x in cyc)} )' for cyc in self.cycle_decomp()
-            )
+        return " ".join(
+            f'( {" ".join(str(x) for x in cyc)} )' for cyc in self.cycle_decomp()
         )
 
     cycles = cycle_notation
@@ -1977,6 +1995,18 @@ class Perm(TupleType, Patt, Rotatable, Shiftable, Flippable):
     def to_tikz(self) -> str:
         """
         Return the tikz code to plot the permutation.
+
+        Examples:
+            >>> Perm((3, 2, 1)).to_tikz()
+            \\begin{tikzpicture}[scale=.3,baseline=(current bounding box.center)]
+                    \\foreach \\x in {1,...,3} {
+                            \\draw[ultra thin] (\\x,0)--(\\x,4); %vline
+                            \\draw[ultra thin] (0,\\x)--(4,\\x); %hline
+                    }
+                    \\draw[fill=black] (1,4) circle (5pt);
+                    \\draw[fill=black] (2,3) circle (5pt);
+                    \\draw[fill=black] (3,2) circle (5pt);
+            \\end{tikzpicture}
         """
         return (
             "\\begin{{tikzpicture}}[scale=.3,baseline=(current bounding box.center)]\n"

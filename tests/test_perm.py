@@ -469,28 +469,28 @@ def test_inflate():
     assert Perm((0, 1)).inflate([Perm(), Perm()]) == Perm()
 
 
-def test_contract_increasing_bonds():
-    assert Perm().contract_increasing_bonds() == Perm()
-    assert Perm((0,)).contract_increasing_bonds() == Perm((0,))
-    assert Perm((0, 1)).contract_increasing_bonds() == Perm((0,))
-    assert Perm((0, 1, 2)).contract_increasing_bonds() == Perm((0,))
-    assert Perm((2, 1, 0)).contract_increasing_bonds() == Perm((2, 1, 0))
-    assert Perm((0, 3, 1, 4, 2)).contract_increasing_bonds() == Perm((0, 3, 1, 4, 2))
-    assert Perm((1, 0, 4, 2, 3)).contract_increasing_bonds() == Perm((1, 0, 3, 2))
-    assert Perm((1, 0, 2, 3, 4)).contract_increasing_bonds() == Perm((1, 0, 2))
-    assert Perm((0, 4, 1, 2, 3)).contract_increasing_bonds() == Perm((0, 2, 1))
+def test_contract_inc_bonds():
+    assert Perm().contract_inc_bonds() == Perm()
+    assert Perm((0,)).contract_inc_bonds() == Perm((0,))
+    assert Perm((0, 1)).contract_inc_bonds() == Perm((0,))
+    assert Perm((0, 1, 2)).contract_inc_bonds() == Perm((0,))
+    assert Perm((2, 1, 0)).contract_inc_bonds() == Perm((2, 1, 0))
+    assert Perm((0, 3, 1, 4, 2)).contract_inc_bonds() == Perm((0, 3, 1, 4, 2))
+    assert Perm((1, 0, 4, 2, 3)).contract_inc_bonds() == Perm((1, 0, 3, 2))
+    assert Perm((1, 0, 2, 3, 4)).contract_inc_bonds() == Perm((1, 0, 2))
+    assert Perm((0, 4, 1, 2, 3)).contract_inc_bonds() == Perm((0, 2, 1))
 
 
-def test_contract_decreasing_bonds():
-    assert Perm().contract_decreasing_bonds() == Perm()
-    assert Perm((0,)).contract_decreasing_bonds() == Perm((0,))
-    assert Perm((2, 1)).contract_decreasing_bonds() == Perm((0,))
-    assert Perm((2, 1, 0)).contract_decreasing_bonds() == Perm((0,))
-    assert Perm((0, 1, 2)).contract_decreasing_bonds() == Perm((0, 1, 2))
-    assert Perm((0, 3, 1, 4, 2)).contract_decreasing_bonds() == Perm((0, 3, 1, 4, 2))
-    assert Perm((0, 4, 3, 2, 1)).contract_decreasing_bonds() == Perm((0, 1))
-    assert Perm((1, 0, 4, 2, 3)).contract_decreasing_bonds() == Perm((0, 3, 1, 2))
-    assert Perm((0, 4, 1, 3, 2)).contract_decreasing_bonds() == Perm((0, 3, 1, 2))
+def test_contract_dec_bonds():
+    assert Perm().contract_dec_bonds() == Perm()
+    assert Perm((0,)).contract_dec_bonds() == Perm((0,))
+    assert Perm((2, 1)).contract_dec_bonds() == Perm((0,))
+    assert Perm((2, 1, 0)).contract_dec_bonds() == Perm((0,))
+    assert Perm((0, 1, 2)).contract_dec_bonds() == Perm((0, 1, 2))
+    assert Perm((0, 3, 1, 4, 2)).contract_dec_bonds() == Perm((0, 3, 1, 4, 2))
+    assert Perm((0, 4, 3, 2, 1)).contract_dec_bonds() == Perm((0, 1))
+    assert Perm((1, 0, 4, 2, 3)).contract_dec_bonds() == Perm((0, 3, 1, 2))
+    assert Perm((0, 4, 1, 3, 2)).contract_dec_bonds() == Perm((0, 3, 1, 2))
 
 
 def test_contract_bonds():
@@ -1116,6 +1116,12 @@ def test_length_of_longestrun_ascending():
     assert Perm((2, 5, 8, 6, 0, 1, 3, 7, 9, 4)).length_of_longestrun_ascending() == 5
 
 
+def test_len():
+    assert len(Perm()) == 0
+    assert len(Perm((0,))) == 1
+    assert len(Perm((1, 2, 0, 4, 3))) == 5
+
+
 def test_length_of_longestrun_descending():
     assert Perm().length_of_longestrun_descending() == 0
     assert Perm((2, 1, 0)).length_of_longestrun_descending() == 3
@@ -1415,6 +1421,17 @@ def test_monotone_quotient():
         assert monblocks in list(perm.occurrences_of(perm.monotone_quotient()))
 
 
+def test_maximum_block():
+    assert Perm((0, 1, 2)).maximum_block() == (2, 0)
+    assert Perm((0, 2, 1)).maximum_block() == (2, 1)
+    assert Perm((1, 0, 2)).maximum_block() == (2, 0)
+    assert Perm((1, 2, 0)).maximum_block() == (2, 0)
+    assert Perm((2, 0, 1)).maximum_block() == (2, 1)
+    assert Perm((2, 1, 0)).maximum_block() == (2, 0)
+    assert Perm((4, 0, 6, 3, 5, 1, 2)).maximum_block() == (2, 5)
+    assert Perm((1, 2, 7, 8, 6, 0, 3, 5, 4)).maximum_block() == (3, 2)
+
+
 def test_simple_location():
     assert Perm().simple_location() == (0, 0)
     assert Perm((0,)).simple_location() == (0, 0)
@@ -1479,6 +1496,24 @@ def test_coveredby():
         perm = Perm.random(random.randint(0, 12))
         for p in perm.coveredby():
             assert perm in p.children()
+
+
+def test_children():
+    assert Perm().children() == []
+    assert Perm((0,)).children() == [Perm()]
+    assert sorted(Perm((0, 4, 3, 1, 2)).children()) == [
+        Perm((0, 3, 1, 2)),
+        Perm((0, 3, 2, 1)),
+        Perm((3, 2, 0, 1)),
+    ]
+    assert sorted(Perm((5, 0, 2, 4, 3, 1, 6)).children()) == [
+        Perm((0, 2, 4, 3, 1, 5)),
+        Perm((4, 0, 1, 3, 2, 5)),
+        Perm((4, 0, 2, 3, 1, 5)),
+        Perm((4, 0, 3, 2, 1, 5)),
+        Perm((4, 1, 3, 2, 0, 5)),
+        Perm((5, 0, 2, 4, 3, 1)),
+    ]
 
 
 def test_call_1():
