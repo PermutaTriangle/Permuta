@@ -1694,7 +1694,6 @@ class Perm(TupleType, Patt, Rotatable, Shiftable, Flippable):
         n = len(self)
         return list(set(self.insert(i, j) for i in range(n + 1) for j in range(n + 1)))
 
-    # JSE: WAS IST DAS?
     def count_rtlmax_ltrmin_layers(self) -> int:
         """Counts the layers in the right-to-left maxima, left-to-right minima
         decomposition.
@@ -1703,7 +1702,6 @@ class Perm(TupleType, Patt, Rotatable, Shiftable, Flippable):
 
     num_rtlmax_ltrmin_layers = count_rtlmax_ltrmin_layers
 
-    # JSE: WAS IST DAS?
     def rtlmax_ltrmin_decomposition(self) -> List[List[int]]:
         """Returns the right-to-left maxima, left-to-right minima
         decomposition. The decomposition consists of layers, starting with the
