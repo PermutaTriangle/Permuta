@@ -3,17 +3,14 @@ import numbers
 import random
 from itertools import cycle, islice
 
-from .interfaces.flippable import Flippable
 from .interfaces.patt import Patt
-from .interfaces.rotatable import Rotatable
-from .interfaces.shiftable import Shiftable
 from .misc import DIR_EAST, DIR_NONE, DIR_NORTH, DIR_SOUTH, DIR_WEST
 from .perm import Perm
 
 MeshPatternBase = collections.namedtuple("MeshPatternBase", ["pattern", "shading"])
 
 
-class MeshPatt(MeshPatternBase, Patt, Rotatable, Shiftable, Flippable):
+class MeshPatt(MeshPatternBase, Patt):
     """A mesh pattern class.
 
     Attributes:
@@ -217,63 +214,35 @@ class MeshPatt(MeshPatternBase, Patt, Rotatable, Shiftable, Flippable):
         """
         return self.inverse()
 
-    def _rotate_right(self):
-        """Return the pattern rotated 90 degrees to the right.
-
-        Returns: <permuta.MeshPatt>
-            The meshpatt rotated 90 degrees to the right.
-
-        Examples:
-            >>> MeshPatt(Perm((0,)),
-            ... frozenset({(0, 1), (1, 1)}))._rotate_right()
-            MeshPatt(Perm((0,)), [(1, 0), (1, 1)])
-        """
-        return MeshPatt(
-            self.pattern.rotate(),
-            set(
-                [
-                    _rotate_right(len(self.pattern), coordinate)
-                    for coordinate in self.shading
-                ]
-            ),
-        )
-
-    def _rotate_left(self):
-        """Return the pattern rotated 90 degrees to the left.
-
-        Returns: <permuta.MeshPatt>
-            The meshpatt rotated 90 degrees to the left.
-
-        Examples:
-            >>> MeshPatt(Perm((0,)),
-            ... frozenset({(0, 1), (1, 1)}))._rotate_left()
-            MeshPatt(Perm((0,)), [(0, 0), (0, 1)])
-        """
+    def rotate(self, times: int = 1) -> "MeshPatt":
+        times = times % 4
+        if times == 0:
+            return self
+        if times == 1:
+            return MeshPatt(
+                self.pattern.rotate(),
+                set(
+                    [
+                        _rotate_right(len(self.pattern), coordinate)
+                        for coordinate in self.shading
+                    ]
+                ),
+            )
+        if times == 2:
+            return MeshPatt(
+                self.pattern.rotate(2),
+                set(
+                    [
+                        _rotate_180(len(self.pattern), coordinate)
+                        for coordinate in self.shading
+                    ]
+                ),
+            )
         return MeshPatt(
             self.pattern.rotate(3),
             set(
                 [
                     _rotate_left(len(self.pattern), coordinate)
-                    for coordinate in self.shading
-                ]
-            ),
-        )
-
-    def _rotate_180(self):
-        """Return the pattern rotated 180 degrees.
-
-        Returns: <permuta.MeshPatt>
-            The meshpatt rotated 180 degrees.
-
-        Examples:
-            >>> MeshPatt(Perm((0,)), frozenset({(0, 1), (1, 1)}))._rotate_180()
-            MeshPatt(Perm((0,)), [(0, 0), (1, 0)])
-        """
-        return MeshPatt(
-            self.pattern.rotate(2),
-            set(
-                [
-                    _rotate_180(len(self.pattern), coordinate)
                     for coordinate in self.shading
                 ]
             ),
@@ -290,7 +259,7 @@ class MeshPatt(MeshPatternBase, Patt, Rotatable, Shiftable, Flippable):
         symmetries.add(current)
         symmetries.add(current.inverse())
         for i in range(3):
-            current = current._rotate_left()
+            current = current.rotate(-1)
             symmetries.add(current)
             symmetries.add(current.inverse())
         return symmetries
@@ -676,7 +645,7 @@ class MeshPatt(MeshPatternBase, Patt, Rotatable, Shiftable, Flippable):
                 for j in range((-i) % 4):
                     ans = _rotate_right(len(self.pattern) - 1, ans)
                 poss.append(ans[1])
-            mp = mp.rotate_right()
+            mp = mp.rotate()
             pos = _rotate_right(len(self.pattern), pos)
         return poss
 
@@ -746,7 +715,7 @@ class MeshPatt(MeshPatternBase, Patt, Rotatable, Shiftable, Flippable):
                 for j in range((-i) % 4):
                     ans = _rotate_right(len(self.pattern) - 1, ans)
                 poss.append(ans[1])
-            mp = mp.rotate_right()
+            mp = mp.rotate()
             pos1 = _rotate_right(len(self.pattern), pos1)
             pos2 = _rotate_right(len(self.pattern), pos2)
         return poss

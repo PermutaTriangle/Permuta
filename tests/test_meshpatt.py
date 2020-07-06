@@ -187,21 +187,21 @@ def test_flip_diagonal():
 
 
 def test_rotate():
-    assert MeshPatt(Perm(), [])._rotate_right() == MeshPatt(Perm(), [])
-    assert MeshPatt(Perm(), [])._rotate_left() == MeshPatt(Perm(), [])
-    assert MeshPatt(Perm(), [])._rotate_180() == MeshPatt(Perm(), [])
+    assert MeshPatt(Perm(), []).rotate() == MeshPatt(Perm(), [])
+    assert MeshPatt(Perm(), []).rotate(-1) == MeshPatt(Perm(), [])
+    assert MeshPatt(Perm(), []).rotate(2) == MeshPatt(Perm(), [])
 
-    assert MeshPatt(Perm((0,)), [])._rotate_right() == MeshPatt(Perm((0,)), [])
-    assert MeshPatt(Perm((0,)), [])._rotate_left() == MeshPatt(Perm((0,)), [])
-    assert MeshPatt(Perm((0,)), [])._rotate_180() == MeshPatt(Perm((0,)), [])
+    assert MeshPatt(Perm((0,)), []).rotate() == MeshPatt(Perm((0,)), [])
+    assert MeshPatt(Perm((0,)), []).rotate(-1) == MeshPatt(Perm((0,)), [])
+    assert MeshPatt(Perm((0,)), []).rotate(2) == MeshPatt(Perm((0,)), [])
 
     for _ in range(50):
         mpatt = MeshPatt.random(6)
-        assert mpatt._rotate_right()._rotate_right() == mpatt._rotate_180()
-        assert mpatt._rotate_left()._rotate_left() == mpatt._rotate_180()
-        assert mpatt._rotate_right()._rotate_left() == mpatt
-        assert mpatt._rotate_left()._rotate_right() == mpatt
-        assert mpatt._rotate_180()._rotate_180() == mpatt
+        assert mpatt.rotate().rotate() == mpatt.rotate(2)
+        assert mpatt.rotate(-1).rotate(-1) == mpatt.rotate(2)
+        assert mpatt.rotate().rotate(-1) == mpatt
+        assert mpatt.rotate(-1).rotate() == mpatt
+        assert mpatt.rotate(2).rotate(2) == mpatt
 
 
 def test_shade():

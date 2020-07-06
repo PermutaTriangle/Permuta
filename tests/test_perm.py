@@ -539,28 +539,23 @@ def test_reverse_complement():
 
 def test_rotate_right():
     for i in range(10):
-        assert Perm(range(i - 1, -1, -1)) == Perm(range(i)).rotate_right()
-    assert Perm([2, 1, 3, 4, 0, 5, 6]) == Perm([6, 5, 3, 2, 0, 1, 4]).rotate_right()
-    assert (
-        Perm([4, 5, 3, 1, 7, 0, 2, 6]) == Perm([4, 7, 1, 0, 2, 6, 3, 5]).rotate_right()
-    )
-    assert Perm([0, 1, 2]) == Perm([2, 1, 0]).rotate_right(5)
-    assert Perm([4, 5, 3, 1, 0, 2]) == Perm([4, 5, 3, 1, 0, 2]).rotate_right(4)
+        assert Perm(range(i - 1, -1, -1)) == Perm(range(i)).rotate()
+    assert Perm([2, 1, 3, 4, 0, 5, 6]) == Perm([6, 5, 3, 2, 0, 1, 4]).rotate()
+    assert Perm([4, 5, 3, 1, 7, 0, 2, 6]) == Perm([4, 7, 1, 0, 2, 6, 3, 5]).rotate()
+    assert Perm([0, 1, 2]) == Perm([2, 1, 0]).rotate(5)
+    assert Perm([4, 5, 3, 1, 0, 2]) == Perm([4, 5, 3, 1, 0, 2]).rotate(4)
 
 
 def test_rotate_left():
     for i in range(10):
-        assert Perm(list(range(i - 1, -1, -1))) == Perm(range(i)).rotate_right()
-    assert Perm([6, 5, 3, 2, 0, 1, 4]).rotate_left() == Perm(
-        [6, 5, 3, 2, 0, 1, 4]
-    ).rotate_right(3)
-    assert Perm([6, 5, 3, 2, 0, 1, 4]).rotate_left() == Perm(
-        [6, 5, 3, 2, 0, 1, 4]
-    ).rotate_right(-1)
-    assert Perm([4, 7, 1, 0, 2, 6, 3, 5]).rotate_left() == Perm(
+        assert Perm(list(range(i - 1, -1, -1))) == Perm(range(i)).rotate()
+    assert Perm([6, 5, 3, 2, 0, 1, 4]).rotate(-1) == Perm([6, 5, 3, 2, 0, 1, 4]).rotate(
+        3
+    )
+    assert Perm([4, 7, 1, 0, 2, 6, 3, 5]).rotate(-1) == Perm(
         [4, 7, 1, 0, 2, 6, 3, 5]
-    ).rotate_right(7)
-    assert Perm([]).rotate_left() == Perm([]).rotate_left(123)
+    ).rotate(7)
+    assert Perm([]).rotate(-1) == Perm([]).rotate(-123)
 
 
 def test_shift_left():
@@ -632,10 +627,10 @@ def test_flip_antidiagonal():
         assert perm.reverse().complement().inverse() == perm.flip_antidiagonal()
 
 
-def test__rotate_180():
+def test_rotate_180():
     for _ in range(100):
         perm = Perm.random(random.randint(0, 20))
-        assert perm._rotate_180() == perm.rotate().rotate()
+        assert perm.rotate(times=2) == perm.rotate().rotate()
 
 
 def test_all_syms():
@@ -646,6 +641,57 @@ def test_all_syms():
         Perm((1, 2, 0)),
         Perm((2, 0, 1)),
     ]
+    assert set(Perm((2, 1, 5, 3, 4, 0)).all_syms()) == {
+        Perm((3, 4, 0, 2, 1, 5)),
+        Perm((0, 4, 5, 2, 1, 3)),
+        Perm((2, 4, 3, 0, 1, 5)),
+        Perm((5, 1, 0, 3, 4, 2)),
+        Perm((0, 4, 3, 5, 1, 2)),
+        Perm((3, 1, 2, 5, 4, 0)),
+        Perm((2, 1, 5, 3, 4, 0)),
+        Perm((5, 1, 2, 0, 4, 3)),
+    }
+    assert set(Perm((1, 3, 4, 0, 2)).all_syms()) == {
+        Perm((3, 1, 0, 4, 2)),
+        Perm((1, 4, 0, 3, 2)),
+        Perm((1, 3, 4, 0, 2)),
+        Perm((2, 3, 0, 4, 1)),
+        Perm((2, 0, 4, 3, 1)),
+        Perm((2, 1, 4, 0, 3)),
+        Perm((2, 4, 0, 1, 3)),
+        Perm((3, 0, 4, 1, 2)),
+    }
+    assert set(Perm((2, 1, 0)).all_syms()) == {Perm((2, 1, 0)), Perm((0, 1, 2))}
+    assert set(Perm((0, 2, 1, 3, 4)).all_syms()) == {
+        Perm((4, 2, 3, 1, 0)),
+        Perm((0, 1, 3, 2, 4)),
+        Perm((0, 2, 1, 3, 4)),
+        Perm((4, 3, 1, 2, 0)),
+    }
+    assert set(Perm((2, 1, 0)).all_syms()) == {Perm((2, 1, 0)), Perm((0, 1, 2))}
+    assert set(Perm(()).all_syms()) == {Perm(())}
+    assert set(Perm((0,)).all_syms()) == {Perm((0,))}
+    assert set(Perm((3, 1, 6, 8, 5, 7, 4, 0, 2)).all_syms()) == {
+        Perm((5, 7, 2, 0, 3, 1, 4, 8, 6)),
+        Perm((2, 0, 4, 7, 5, 8, 6, 1, 3)),
+        Perm((3, 5, 2, 4, 6, 0, 8, 1, 7)),
+        Perm((6, 8, 4, 1, 3, 0, 2, 7, 5)),
+        Perm((3, 1, 6, 8, 5, 7, 4, 0, 2)),
+        Perm((5, 3, 6, 4, 2, 8, 0, 7, 1)),
+        Perm((7, 1, 8, 0, 6, 4, 2, 5, 3)),
+        Perm((1, 7, 0, 8, 2, 4, 6, 3, 5)),
+    }
+    assert set(Perm((6, 1, 3, 2, 5, 0, 4)).all_syms()) == {
+        Perm((4, 0, 5, 2, 3, 1, 6)),
+        Perm((6, 2, 0, 4, 3, 5, 1)),
+        Perm((2, 6, 1, 4, 3, 5, 0)),
+        Perm((0, 4, 6, 2, 3, 1, 5)),
+        Perm((6, 1, 3, 2, 5, 0, 4)),
+        Perm((1, 5, 3, 4, 0, 2, 6)),
+        Perm((0, 5, 3, 4, 1, 6, 2)),
+        Perm((5, 1, 3, 2, 6, 4, 0)),
+    }
+    assert set(Perm((1, 0)).all_syms()) == {Perm((1, 0)), Perm((0, 1))}
 
 
 def test_fixed_points():
@@ -1300,6 +1346,60 @@ def test_block_decomposition():
                     == length - 1
                 )
                 assert Perm.to_standard(perm[start : start + length]) in patts
+
+
+def test_count_rtlmax_ltrmin_layers():
+    assert Perm((2, 1, 3, 0)).count_rtlmax_ltrmin_layers() == 1
+    assert Perm((2, 0, 1, 3)).count_rtlmax_ltrmin_layers() == 2
+    assert Perm((1, 3, 2, 7, 6, 5, 8, 0, 4)).count_rtlmax_ltrmin_layers() == 2
+    assert Perm((0, 8, 2, 4, 5, 6, 3, 7, 1)).count_rtlmax_ltrmin_layers() == 4
+    assert Perm((1, 0, 2)).count_rtlmax_ltrmin_layers() == 1
+    assert Perm((1, 2, 0, 3)).count_rtlmax_ltrmin_layers() == 2
+    assert Perm((3, 0, 2, 1)).count_rtlmax_ltrmin_layers() == 1
+    assert Perm((2, 0, 1)).count_rtlmax_ltrmin_layers() == 1
+    assert Perm((1, 3, 2, 0)).count_rtlmax_ltrmin_layers() == 1
+    assert Perm(()).count_rtlmax_ltrmin_layers() == 0
+    assert Perm((5, 3, 7, 4, 2, 0, 6, 1)).count_rtlmax_ltrmin_layers() == 2
+    assert Perm((0, 2, 1, 6, 4, 3, 5, 7, 8)).count_rtlmax_ltrmin_layers() == 4
+    assert Perm((2, 1, 0)).count_rtlmax_ltrmin_layers() == 1
+    assert Perm((0, 2, 1)).count_rtlmax_ltrmin_layers() == 1
+    assert Perm((0, 8, 3, 5, 7, 4, 2, 6, 1)).count_rtlmax_ltrmin_layers() == 2
+
+
+def test_rtlmax_ltrmin_decomposition():
+    assert list(Perm(()).rtlmax_ltrmin_decomposition()) == []
+    assert list(Perm((0,)).rtlmax_ltrmin_decomposition()) == [[0]]
+    assert list(Perm((2, 0, 3, 1)).rtlmax_ltrmin_decomposition()) == [[0, 1, 2, 3]]
+    assert list(Perm((0, 1, 2, 3)).rtlmax_ltrmin_decomposition()) == [[0, 3], [0, 1]]
+    assert list(Perm((1, 0, 2)).rtlmax_ltrmin_decomposition()) == [[0, 1, 2]]
+    assert list(Perm((2, 1, 0)).rtlmax_ltrmin_decomposition()) == [[0, 1, 2]]
+    assert list(Perm((0, 1)).rtlmax_ltrmin_decomposition()) == [[0, 1]]
+    assert list(Perm((2, 1, 3, 0)).rtlmax_ltrmin_decomposition()) == [[0, 1, 2, 3]]
+    assert list(Perm((0, 2, 1)).rtlmax_ltrmin_decomposition()) == [[0, 1, 2]]
+    assert list(Perm((2, 3, 0, 1)).rtlmax_ltrmin_decomposition()) == [[0, 1, 2, 3]]
+    assert list(Perm((1, 3, 0, 2)).rtlmax_ltrmin_decomposition()) == [[0, 1, 2, 3]]
+    assert list(Perm((1, 2, 3, 0)).rtlmax_ltrmin_decomposition()) == [[0, 2, 3], [0]]
+    assert list(Perm((0, 1, 6, 5, 4, 3, 2)).rtlmax_ltrmin_decomposition()) == [
+        [0, 2, 3, 4, 5, 6],
+        [0],
+    ]
+    assert list(Perm((0, 1, 4, 3, 2, 5)).rtlmax_ltrmin_decomposition()) == [
+        [0, 5],
+        [0, 1, 2, 3],
+    ]
+    assert list(Perm((2, 3, 0, 4, 1, 5)).rtlmax_ltrmin_decomposition()) == [
+        [0, 2, 5],
+        [1, 2],
+        [0],
+    ]
+    assert list(Perm((4, 0, 2, 5, 3, 1)).rtlmax_ltrmin_decomposition()) == [
+        [0, 1, 3, 4, 5],
+        [0],
+    ]
+    assert list(Perm((1, 5, 0, 3, 2, 4)).rtlmax_ltrmin_decomposition()) == [
+        [0, 1, 2, 5],
+        [0, 1],
+    ]
 
 
 def test_monotone_block_decomposition():

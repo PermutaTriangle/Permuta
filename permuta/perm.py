@@ -20,21 +20,19 @@ from typing import (
     Union,
 )
 
-from .interfaces.flippable import Flippable
-from .interfaces.patt import Patt
-from .interfaces.rotatable import Rotatable
-from .interfaces.shiftable import Shiftable
+from .interfaces import Patt
 from .misc.iterable_floor_and_ceiling import left_floor_and_ceiling
 
 __all__ = ("Perm",)
 
+# Remove when pypy is 3.7 compatible andn replace TupleType with Tuple[int]
 if TYPE_CHECKING:
     TupleType = Tuple[int]
 else:
     TupleType = tuple
 
 
-class Perm(TupleType, Patt, Rotatable, Shiftable, Flippable):
+class Perm(TupleType, Patt):
     """A perm class."""
 
     _TYPE_ERROR: ClassVar[str] = "'{}' object is not a perm"
@@ -568,21 +566,42 @@ class Perm(TupleType, Patt, Rotatable, Shiftable, Flippable):
             result[idx] = val
         return Perm(result)
 
-    def _rotate_right(self) -> "Perm":
+    def rotate(self, times: int = 1) -> "Perm":
+        """Rotate the permutation. The parameter determines how often it is rotated.
+        A negative value rotates it to the left.
+
+        Examples:
+            >>> Perm((0, 4, 1, 3, 2)).rotate(-3)
+            Perm((4, 2, 0, 1, 3))
+            >>> Perm((0, 4, 1, 3, 2)).rotate(-2)
+            Perm((2, 1, 3, 0, 4))
+            >>> Perm((0, 4, 1, 3, 2)).rotate(-1)
+            Perm((1, 3, 4, 2, 0))
+            >>> Perm((0, 4, 1, 3, 2)).rotate(0)
+            Perm((0, 4, 1, 3, 2))
+            >>> Perm((0, 4, 1, 3, 2)).rotate(1)
+            Perm((4, 2, 0, 1, 3))
+            >>> Perm((0, 4, 1, 3, 2)).rotate()
+            Perm((4, 2, 0, 1, 3))
+            >>> Perm((0, 4, 1, 3, 2)).rotate(2)
+            Perm((2, 1, 3, 0, 4))
+            >>> Perm((0, 4, 1, 3, 2)).rotate(3)
+            Perm((1, 3, 4, 2, 0))
+        """
+        times = times % 4
+        if times == 0:
+            return self
+        if times == 2:
+            return self.reverse_complement()
         n = len(self)
         result = [0] * n
-        for idx, val in enumerate(self):
-            result[val] = n - idx - 1
+        if times == 1:
+            for idx, val in enumerate(self):
+                result[val] = n - idx - 1
+        else:
+            for idx, val in enumerate(self):
+                result[n - val - 1] = idx
         return Perm(result)
-
-    def _rotate_left(self) -> "Perm":
-        n = len(self)
-        result = [0] * n
-        for idx, val in enumerate(self):
-            result[n - val - 1] = idx
-        return Perm(result)
-
-    _rotate_180 = reverse_complement
 
     def all_syms(self) -> Tuple["Perm", ...]:
         """Returns all symmetries of the permutation in a PermSet, all possible
@@ -593,7 +612,7 @@ class Perm(TupleType, Patt, Rotatable, Shiftable, Flippable):
             (Perm((1, 0, 2)), Perm((2, 0, 1)), Perm((0, 2, 1)), Perm((1, 2, 0)))
         """
         syms = {self, self.inverse()}
-        curr = self
+        curr: "Perm" = self
         for _ in range(3):
             curr = curr.rotate()
             syms.update((curr, curr.inverse()))
@@ -1697,32 +1716,35 @@ class Perm(TupleType, Patt, Rotatable, Shiftable, Flippable):
     def count_rtlmax_ltrmin_layers(self) -> int:
         """Counts the layers in the right-to-left maxima, left-to-right minima
         decomposition.
+
+        Examples:
+            >>> Perm((2, 7, 3, 1, 4, 8, 6, 0, 5)).count_rtlmax_ltrmin_layers()
+            3
+            >>> Perm((5, 4, 3, 0, 2, 1)).count_rtlmax_ltrmin_layers()
+            1
         """
-        return len(self.rtlmax_ltrmin_decomposition())
+        return sum(1 for _ in self.rtlmax_ltrmin_decomposition())
 
     num_rtlmax_ltrmin_layers = count_rtlmax_ltrmin_layers
 
-    def rtlmax_ltrmin_decomposition(self) -> List[List[int]]:
+    def rtlmax_ltrmin_decomposition(self) -> Iterator[List[int]]:
         """Returns the right-to-left maxima, left-to-right minima
         decomposition. The decomposition consists of layers, starting with the
         first layer which is union of the right-to-left maximas and the
         left-to-right minimas and the next layer is defined similarly for the
         permutation with the first layer removed and so on.
 
-        TODO: If this function is to be kept, then it probably should return
-        the layers as indices in the original permutation.
+        Examples:
+            >>> list(Perm((2, 7, 3, 1, 4, 8, 6, 0, 5)).rtlmax_ltrmin_decomposition())
+            [[0, 3, 5, 6, 7, 8], [0, 2], [0]]
+            >>> list(Perm((5, 4, 3, 0, 2, 1)).rtlmax_ltrmin_decomposition())
+            [[0, 1, 2, 3, 4, 5]]
         """
-        perm = Perm(self)
-        num_layers = 0
-        layers = []
+        perm = self
         while len(perm) > 0:
-            num_layers += 1
-            positions = sorted(
-                list({idx for idx in itertools.chain(perm.rtlmax(), perm.ltrmin())})
-            )
-            layers.append(positions)
-            perm = Perm([perm[i] for i in range(len(perm)) if i not in positions])
-        return layers
+            pos_set = set(itertools.chain(perm.rtlmax(), perm.ltrmin()))
+            yield sorted(pos_set)
+            perm = Perm(perm[i] for i in range(len(perm)) if i not in pos_set)
 
     def contains(self, *patts: "Patt") -> bool:
         """Check if self contains patts.
@@ -1827,7 +1849,7 @@ class Perm(TupleType, Patt, Rotatable, Shiftable, Flippable):
         occurrence_indices = [None] * len(self)
 
         # Get left to right scan details
-        pattern_details = self.__pattern_details()
+        pattern_details = self._pattern_details()
 
         # Define function that works with the above defined variables
         # i is the index of the element in perm that is to be considered
@@ -1913,7 +1935,7 @@ class Perm(TupleType, Patt, Rotatable, Shiftable, Flippable):
         """
         return patt.occurrences_in(self)
 
-    def __pattern_details(self) -> List[Tuple[Optional[int], Optional[int], int, int]]:
+    def _pattern_details(self) -> List[Tuple[Optional[int], Optional[int], int, int]]:
         """Subroutine of occurrences_in method."""
         # If details have been calculated before, return cached result
         if self._cached_pattern_details is not None:

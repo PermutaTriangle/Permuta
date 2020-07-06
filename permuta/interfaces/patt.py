@@ -3,7 +3,7 @@ from typing import Iterator, List, Tuple, Union
 
 
 class Patt(abc.ABC):
-    def avoided_by(self, *perms):
+    def avoided_by(self, *perms) -> bool:
         """Check if self is avoided by perms.
 
         Args:
@@ -17,7 +17,7 @@ class Patt(abc.ABC):
         """
         return all(self not in perm for perm in perms)
 
-    def contained_in(self, *perms):
+    def contained_in(self, *perms) -> bool:
         """Check if self is a pattern of perms.
 
         Args:
@@ -50,10 +50,9 @@ class Patt(abc.ABC):
         self, perm
     ) -> Union[Iterator[List[Tuple[int, ...]]], Iterator[Tuple[()]]]:
         """Find all indices of occurrences of self in perm."""
-        pass
 
     @abc.abstractmethod
-    def __len__(self):
+    def __len__(self) -> int:
         pass
 
     @property
