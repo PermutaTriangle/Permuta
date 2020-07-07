@@ -205,7 +205,7 @@ class MeshPatt(Patt):
 
         Exampes:
         >>> p = MeshPatt(Perm((0, 1)), [(0, 1), (1, 1)])
-        >>> print("\n".join(repr(s) for s in sorted(p.all_syms())))
+        >>> print("\\n".join(repr(s) for s in sorted(p.all_syms())))
         MeshPatt(Perm((0, 1)), [(0, 1), (1, 1)])
         MeshPatt(Perm((0, 1)), [(1, 0), (1, 1)])
         MeshPatt(Perm((0, 1)), [(1, 1), (1, 2)])
