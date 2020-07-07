@@ -272,6 +272,15 @@ class Perm(TupleType, Patt):
 
     ind2perm = unrank
 
+    def get_perm(self) -> "Perm":
+        """Returns the permutation part of the pattern.
+
+        Examples:
+            >>> Perm((3,2,1,0)).get_perm()
+            Perm((3,2,1,0))
+        """
+        return self
+
     def direct_sum(self, *others: "Perm") -> "Perm":
         """Return the direct sum of two or more perms.
 
@@ -1814,11 +1823,8 @@ class Perm(TupleType, Patt):
     occurrences = count_occurrences_of
 
     def occurrences_in(
-        self,
-        patt: "Patt",
-        self_colours: List[int] = None,
-        patt_colours: List[int] = None,
-    ) -> Union[Iterator[List[Tuple[int, ...]]], Iterator[Tuple[()]]]:
+        self, patt: "Patt", *args, **kwargs
+    ) -> Union[Iterator[Tuple[int, ...]], Iterator[Tuple[()]]]:
         """Find all indices of occurrences of self in patt. If the optional colours
         are provided, in an occurrences the colours of the patterns have to match the
         colours of the permutation.
@@ -1833,7 +1839,8 @@ class Perm(TupleType, Patt):
             >>> list(Perm().occurrences_in(Perm((1, 2, 3, 0))))
             [()]
         """
-        patt = patt.pattern
+        self_colours, patt_colours = (None, None) if len(args) < 2 else args
+        patt = patt.get_perm()
 
         # Special cases
         if len(self) == 0:
@@ -1918,7 +1925,7 @@ class Perm(TupleType, Patt):
 
     def occurrences_of(
         self, patt: "Patt"
-    ) -> Union[Iterator[List[Tuple[int, ...]]], Iterator[Tuple[()]]]:
+    ) -> Union[Iterator[Tuple[int, ...]], Iterator[Tuple[()]]]:
         """Find all indices of occurrences of patt in self. This method is complementary
         to permuta.Perm.occurrences_in. It just calls patt.occurrences_in(self)
         internally. See permuta.Perm.occurrences_in for documentation.
@@ -2034,10 +2041,10 @@ class Perm(TupleType, Patt):
             "{1}); %vline\n\t\t\\draw[ultra thin] (0,\\x)--({1},\\x); %hline\n\t}}"
             "\n\t{2}\n\\end{{tikzpicture}}"
         ).format(
-            str(len(self)),
-            str(len(self) + 1),
+            len(self),
+            len(self) + 1,
             "\n\t".join(
-                f"\\draw[fill=black] ({str(idx + 1)},{str(val + 1)}) circle (5pt);"
+                f"\\draw[fill=black] ({idx + 1},{val + 1}) circle (5pt);"
                 for (idx, val) in enumerate(self)
             ),
         )
@@ -2083,10 +2090,10 @@ class Perm(TupleType, Patt):
     def __ge__(self, other: tuple) -> bool:
         return other.__le__(self)
 
+    def __len__(self) -> int:
+        return tuple.__len__(self)
+
     def __contains__(self, patt: object) -> bool:
         if isinstance(patt, Patt):
             return any(True for _ in patt.occurrences_in(self))
         return False
-
-    def __len__(self) -> int:
-        return tuple.__len__(self)
