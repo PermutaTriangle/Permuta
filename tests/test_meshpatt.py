@@ -1407,23 +1407,22 @@ def test_to_tikz():
     assert (
         mesh_pattern.to_tikz()
         == "\\begin{tikzpicture}[scale=.3,baseline=(current bounding box.center)]\n"
-        "\t\\foreach \\x in {1,...,4} {\n"
-        "\t\t\\draw[ultra thin] (\\x,0)--(\\x,5); %vline\n"
-        "\t\t\\draw[ultra thin] (0,\\x)--(5,\\x); %hline\n"
-        "\t\n"
-        "\t}\n"
-        "\t\\fill[pattern color = black!75, pattern=north east lines] (0, 0) rectangle +(1,1);\n"  # noqa: E501
-        "\t\\fill[pattern color = black!75, pattern=north east lines] (0, 4) rectangle +(1,1);\n"  # noqa: E501
-        "\t\\fill[pattern color = black!75, pattern=north east lines] (2, 1) rectangle +(1,1);\n"  # noqa: E501
-        "\t\\fill[pattern color = black!75, pattern=north east lines] (2, 2) rectangle +(1,1);\n"  # noqa: E501
-        "\t\\fill[pattern color = black!75, pattern=north east lines] (3, 3) rectangle +(1,1);\n"  # noqa: E501
-        "\t\\fill[pattern color = black!75, pattern=north east lines] (4, 0) rectangle +(1,1);\n"  # noqa: E501
-        "\t\\fill[pattern color = black!75, pattern=north east lines] (4, 1) rectangle +(1,1);\n"  # noqa: E501
-        "\t\\fill[pattern color = black!75, pattern=north east lines] (4, 2) rectangle +(1,1);\n"  # noqa: E501
-        "\t\\draw[fill=black] (1,2) circle (5pt);\n"
-        "\t\\draw[fill=black] (2,4) circle (5pt);\n"
-        "\t\\draw[fill=black] (3,3) circle (5pt);\n"
-        "\t\\draw[fill=black] (4,1) circle (5pt);\n"
+        "    \\foreach \\x in {1,...,4} {\n"
+        "        \\draw[ultra thin] (\\x,0)--(\\x,5); %vline\n"
+        "        \\draw[ultra thin] (0,\\x)--(5,\\x); %hline\n"
+        "    }\n"
+        "    \\fill[pattern color = black!75, pattern=north east lines] (0, 0) rectangle +(1,1);\n"  # noqa: E501
+        "    \\fill[pattern color = black!75, pattern=north east lines] (0, 4) rectangle +(1,1);\n"  # noqa: E501
+        "    \\fill[pattern color = black!75, pattern=north east lines] (2, 1) rectangle +(1,1);\n"  # noqa: E501
+        "    \\fill[pattern color = black!75, pattern=north east lines] (2, 2) rectangle +(1,1);\n"  # noqa: E501
+        "    \\fill[pattern color = black!75, pattern=north east lines] (3, 3) rectangle +(1,1);\n"  # noqa: E501
+        "    \\fill[pattern color = black!75, pattern=north east lines] (4, 0) rectangle +(1,1);\n"  # noqa: E501
+        "    \\fill[pattern color = black!75, pattern=north east lines] (4, 1) rectangle +(1,1);\n"  # noqa: E501
+        "    \\fill[pattern color = black!75, pattern=north east lines] (4, 2) rectangle +(1,1);\n"  # noqa: E501
+        "    \\draw[fill=black] (1,2) circle (5pt);\n"
+        "    \\draw[fill=black] (2,4) circle (5pt);\n"
+        "    \\draw[fill=black] (3,3) circle (5pt);\n"
+        "    \\draw[fill=black] (4,1) circle (5pt);\n"
         "\\end{tikzpicture}"
     )
 

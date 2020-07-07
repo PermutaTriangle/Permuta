@@ -134,14 +134,20 @@ class Perm(TupleType, Patt):
 
         Examples:
             >>> Perm.from_iterable_validated((0, 4, 1, 3, 2))
-            Perm((0, 3, 0, 2, 1))
+            Perm((0, 4, 1, 3, 2))
             >>> Perm.from_iterable_validated("04132")
-            Perm((0, 3, 0, 2, 1))
+            Perm((0, 4, 1, 3, 2))
             >>> Perm.from_iterable_validated((2, 3, 1))
+            Traceback (most recent call last):
+            ...
             ValueError: Element out of range: 3
             >>> Perm.from_iterable_validated((2, 1, 1))
+            Traceback (most recent call last):
+            ...
             ValueError: Duplicate element: 1
             >>> Perm.from_iterable_validated((2, None, 1))
+            Traceback (most recent call last):
+            ...
             TypeError: 'None' object is not an integer
 
         Raises:
@@ -277,7 +283,7 @@ class Perm(TupleType, Patt):
 
         Examples:
             >>> Perm((3,2,1,0)).get_perm()
-            Perm((3,2,1,0))
+            Perm((3, 2, 1, 0))
         """
         return self
 
@@ -633,7 +639,7 @@ class Perm(TupleType, Patt):
         Examples:
             >>> Perm((0, 2, 1, 3)).is_increasing()
             False
-            >>> Perm((0, 1)).flip_antidiagonal()
+            >>> Perm((0, 1)).is_increasing()
             True
         """
         return all(idx == val for idx, val in enumerate(self))
@@ -1348,7 +1354,7 @@ class Perm(TupleType, Patt):
 
         Examples:
             >>> Perm((4, 2, 7, 0, 3, 1, 6, 5)).cycle_decomp()
-            [[4, 3, 0], [6], [7, 5, 1, 2]]
+            deque([[4, 3, 0], [6], [7, 5, 1, 2]])
         """
         n = len(self)
         remaining_elements = set(range(n))
@@ -1645,7 +1651,7 @@ class Perm(TupleType, Patt):
         blocks.
 
         Examples:
-            >>> Perm((0, 2, 1, 5, 6, 4, 3)).monotone_block_decomposition(True)
+            >>> list(Perm((0, 2, 1, 5, 6, 4, 3)).monotone_block_decomposition(True))
             [(0, 0), (1, 2), (3, 4), (5, 6)]
             >>> Perm((0, 2, 1, 5, 6, 4, 3)).monotone_quotient()
             Perm((0, 1, 3, 2))
@@ -2022,31 +2028,20 @@ class Perm(TupleType, Patt):
     def to_tikz(self) -> str:
         """
         Return the tikz code to plot the permutation.
-
-        Examples:
-            >>> Perm((3, 2, 1)).to_tikz()
-            \\begin{tikzpicture}[scale=.3,baseline=(current bounding box.center)]
-                    \\foreach \\x in {1,...,3} {
-                            \\draw[ultra thin] (\\x,0)--(\\x,4); %vline
-                            \\draw[ultra thin] (0,\\x)--(4,\\x); %hline
-                    }
-                    \\draw[fill=black] (1,4) circle (5pt);
-                    \\draw[fill=black] (2,3) circle (5pt);
-                    \\draw[fill=black] (3,2) circle (5pt);
-            \\end{tikzpicture}
         """
-        return (
-            "\\begin{{tikzpicture}}[scale=.3,baseline=(current bounding box.center)]\n"
-            "\t\\foreach \\x in {{1,...,{0}}} {{\n\t\t\\draw[ultra thin] (\\x,0)--(\\x,"
-            "{1}); %vline\n\t\t\\draw[ultra thin] (0,\\x)--({1},\\x); %hline\n\t}}"
-            "\n\t{2}\n\\end{{tikzpicture}}"
-        ).format(
-            len(self),
-            len(self) + 1,
-            "\n\t".join(
-                f"\\draw[fill=black] ({idx + 1},{val + 1}) circle (5pt);"
-                for (idx, val) in enumerate(self)
-            ),
+        n, tab = len(self), "    "
+        return "".join(
+            [
+                "\\begin{tikzpicture}[scale=.3,baseline=(current bounding box.center)]",
+                f"\n{tab}\\foreach \\x in {{1,...,{n}}} {{\n{tab*2}",
+                f"\\draw[ultra thin] (\\x,0)--(\\x,{n+1}); %vline\n{tab*2}",
+                f"\\draw[ultra thin] (0,\\x)--({n+1},\\x); %hline\n{tab}}}\n{tab}",
+                f"\n{tab}".join(
+                    f"\\draw[fill=black] ({idx + 1},{val + 1}) circle (5pt);"
+                    for (idx, val) in enumerate(self)
+                ),
+                "\n\\end{tikzpicture}",
+            ]
         )
 
     def __call__(self, value: int) -> int:

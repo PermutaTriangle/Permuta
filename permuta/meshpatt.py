@@ -44,7 +44,7 @@ class MeshPatt(Patt):
         Examples:
             >>> bin(22563)
             '0b101100000100011'
-            >>> MeshPatt.unrank((0, 1, 2), 386)
+            >>> MeshPatt.unrank(Perm((0, 1, 2)), 386)
             MeshPatt(Perm((0, 1, 2)), [(0, 1), (1, 3), (2, 0)])
         """
         assert 0 <= number < 2 ** ((len(pattern) + 1) ** 2)
@@ -241,8 +241,8 @@ class MeshPatt(Patt):
         MeshPatt(Perm((0,)), [])
         >>> p = MeshPatt(Perm((0, 1, 2)), [(1, 0), (2, 1), (3, 2)])
         >>> p.add_point((2, 0), shade_dir=DIR_SOUTH)
-        MeshPatt(Perm((1, 2, 0, 3)),
-        ... [(1, 0), (1, 1), (2, 0), (2, 2), (3, 0), (3, 2), (4, 3)])
+        MeshPatt(Perm((1, 2, 0, 3)), [(1, 0), (1, 1), (2, 0), (2, 2), (3, 0), (3, 2), \
+(4, 3)])
         """
         assert pos not in self.shading
         x, y = pos
@@ -546,15 +546,15 @@ class MeshPatt(Patt):
         pos2 and to the northeast of a point, satisfy the shading lemma's conditions.
 
         Examples:
-            >>> MeshPath((0,2,1)).north_east_simul_shading_lemma_conditions((1,1),(1,0))
+            >>> MeshPatt((0,2,1)).north_east_simul_shading_lemma_conditions((1,1),(1,0))
             True
-            >>> MeshPath((0,2,1)).north_east_simul_shading_lemma_conditions((2,3),(2,2))
+            >>> MeshPatt((0,2,1)).north_east_simul_shading_lemma_conditions((2,3),(2,2))
             True
-            >>> MeshPath((0,2,1)).north_east_simul_shading_lemma_conditions((3,2),(3,1))
+            >>> MeshPatt((0,2,1)).north_east_simul_shading_lemma_conditions((3,2),(3,1))
             True
-            >>> MeshPath((0,2,1)).north_east_simul_shading_lemma_conditions((3,3),(3,2))
+            >>> MeshPatt((0,2,1)).north_east_simul_shading_lemma_conditions((3,3),(3,2))
             False
-            >>> MeshPath((0,2,1)).north_east_simul_shading_lemma_conditions((3,1),(3,0))
+            >>> MeshPatt((0,2,1)).north_east_simul_shading_lemma_conditions((3,1),(3,0))
             False
         """
         assert pos1[1] >= pos2[1]
@@ -735,43 +735,29 @@ class MeshPatt(Patt):
         """
         Return the tikz code to plot the mesh pattern. The tikz code requires
         the TikZ library patter.
-
-        Examples:
-        >>> MeshPatt(Perm((1,2,0)), [(0, 0), (0, 2)]).to_tikz()
-        \\begin{tikzpicture}[scale=.3,baseline=(current bounding box.center)]
-            \\foreach \\x in {1,...,3} {
-                    \\draw[ultra thin] (\\x,0)--(\\x,4); %vline
-                    \\draw[ultra thin] (0,\\x)--(4,\\x); %hline
-            }
-            \\fill[pattern color = black!75, pattern=north east lines] (0, 0) rectangle
-                +(1,1);
-            \\fill[pattern color = black!75, pattern=north east lines] (0, 2) rectangle
-                +(1,1);
-            \\draw[fill=black] (1,2) circle (5pt);
-            \\draw[fill=black] (2,3) circle (5pt);
-            \\draw[fill=black] (3,1) circle (5pt);
-        \\end{tikzpicture}
         """
-        return (
-            "\\begin{{tikzpicture}}[scale=.3,baseline=(current bounding box.center)]"
-            "\n\t\\foreach \\x in {{1,...,{0}}} {{\n\t\t\\draw[ultra thin] (\\x,0)--"
-            "(\\x,{1}); %vline\n\t\t\\draw[ultra thin] (0,\\x)--({1},\\x); %hline\n\t"
-            "\n\t}}\n\t{2}\n\t{3}\n\\end{{tikzpicture}}"
-        ).format(
-            len(self),
-            len(self) + 1,
-            "\n\t".join(
+        n, tab = len(self), " " * 4
+        lis = [
+            "\\begin{tikzpicture}",
+            f"[scale=.3,baseline=(current bounding box.center)]\n{tab}",
+            f"\\foreach \\x in {{1,...,{n}}} {{\n{tab*2}",
+            f"\\draw[ultra thin] (\\x,0)--(\\x,{n+1}); %vline\n{tab*2}",
+            f"\\draw[ultra thin] (0,\\x)--({n+1},\\x); %hline\n{tab}}}",
+            "".join(
                 (
-                    f"\\fill[pattern color = black!75, pattern=north east lines] {cell}"
-                    " rectangle +(1,1);"
+                    f"\n{tab}\\fill[pattern color = black!75, pattern="
+                    f"north east lines] {cell} rectangle +(1,1);"
                 )
                 for cell in sorted(self.shading)
             ),
-            "\n\t".join(
-                f"\\draw[fill=black] ({i+1},{e+1}) circle (5pt);"
-                for (i, e) in enumerate(self.pattern)
+            f"\n{tab}",
+            f"\n{tab}".join(
+                f"\\draw[fill=black] ({idx+1},{val+1}) circle (5pt);"
+                for idx, val in enumerate(self.pattern)
             ),
-        )
+            "\n\\end{tikzpicture}",
+        ]
+        return "".join(lis)
 
     def __eq__(self, other: object) -> bool:
         if isinstance(other, self.__class__):

@@ -1801,7 +1801,7 @@ def test_to_tikz():
         "\t\t\\draw[ultra thin] (0,\\x)--(6,\\x); %hline\n\t}\n\t\\draw[fill=black] (1,"
         "2) circle (5pt);\n\t\\draw[fill=black] (2,1) circle (5pt);\n\t\\draw[fill=blac"
         "k] (3,5) circle (5pt);\n\t\\draw[fill=black] (4,3) circle (5pt);\n\t\\draw[fil"
-        "l=black] (5,4) circle (5pt);\n\\end{tikzpicture}"
+        "l=black] (5,4) circle (5pt);\n\\end{tikzpicture}".replace("\t", " "*4)
     )
 
 
