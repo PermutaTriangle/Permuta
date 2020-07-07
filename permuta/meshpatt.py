@@ -506,10 +506,6 @@ class MeshPatt(Patt):
             )
         )
 
-    ########################
-    # JSE REFACTOR POINTER #
-    ########################
-
     def can_simul_shade(
         self, pos1: Tuple[int, int], pos2: Tuple[int, int]
     ) -> List[int]:
