@@ -623,8 +623,8 @@ class Perm(TupleType, Patt):
         combinations of revers, complement and inverse.
 
         Examples:
-            >>> Perm((0, 2, 1)).all_syms()
-            (Perm((1, 0, 2)), Perm((2, 0, 1)), Perm((0, 2, 1)), Perm((1, 2, 0)))
+            >>> sorted(Perm((0, 2, 1)).all_syms())
+            [Perm((0, 2, 1)), Perm((1, 0, 2)), Perm((1, 2, 0)), Perm((2, 0, 1))]
         """
         syms = {self, self.inverse()}
         curr: "Perm" = self
