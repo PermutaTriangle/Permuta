@@ -207,6 +207,348 @@ def test_contained_in():
     assert not Perm([0, 1, 2, 3]).contained_in(Perm([4, 7, 5, 1, 6, 2, 3, 0]))
 
 
+def test_left_floor_and_ceiling():
+    iterable = Perm([4, 5, 1, 2, 3, 6])
+    expected = [
+        (-1, -1),  # 4
+        (0, -1),  # 5
+        (-1, 0),  # 1
+        (2, 0),  # 2
+        (3, 0),  # 3
+        (1, -1),  # 6
+    ]
+    index = 0
+    for fac in iterable.left_floor_and_ceiling():
+        assert fac == expected[index]
+        index += 1
+
+    iterable = Perm([4, 1, 2, 5, 3])
+    expected = [(-1, -1), (-1, 0), (1, 0), (0, -1), (2, 0)]  # 4  # 1  # 2  # 5  # 3
+    index = 0
+    for fac in iterable.left_floor_and_ceiling():
+        assert fac == expected[index]
+        index += 1
+
+    iterable = Perm([1, 2, 3])
+    expected = [(-1, -1), (0, -1), (1, -1)]  # 1  # 2  # 3
+    index = 0
+    for fac in iterable.left_floor_and_ceiling():
+        assert fac == expected[index]
+        index += 1
+
+    iterable = Perm([3, 2, 1])
+    expected = [(-1, -1), (-1, 0), (-1, 1)]  # 3  # 2  # 1
+    index = 0
+    for fac in iterable.left_floor_and_ceiling():
+        assert fac == expected[index]
+        index += 1
+    assert list(Perm(()).left_floor_and_ceiling()) == []
+    assert list(Perm((0,)).left_floor_and_ceiling()) == [(-1, -1)]
+    assert list(Perm((0, 1)).left_floor_and_ceiling()) == [(-1, -1), (0, -1)]
+    assert list(Perm((1, 0)).left_floor_and_ceiling()) == [(-1, -1), (-1, 0)]
+    assert list(Perm((2, 1, 0, 3)).left_floor_and_ceiling()) == [
+        (-1, -1),
+        (-1, 0),
+        (-1, 1),
+        (0, -1),
+    ]
+    assert list(Perm((3, 2, 0, 1)).left_floor_and_ceiling()) == [
+        (-1, -1),
+        (-1, 0),
+        (-1, 1),
+        (2, 1),
+    ]
+    assert list(Perm((0, 4, 1, 2, 3)).left_floor_and_ceiling()) == [
+        (-1, -1),
+        (0, -1),
+        (0, 1),
+        (2, 1),
+        (3, 1),
+    ]
+    assert list(Perm((1, 2, 4, 3, 0)).left_floor_and_ceiling()) == [
+        (-1, -1),
+        (0, -1),
+        (1, -1),
+        (1, 2),
+        (-1, 0),
+    ]
+    assert list(Perm((3, 0, 2, 5, 1, 4)).left_floor_and_ceiling()) == [
+        (-1, -1),
+        (-1, 0),
+        (1, 0),
+        (0, -1),
+        (1, 2),
+        (0, 3),
+    ]
+    assert list(Perm((2, 5, 0, 3, 4, 1)).left_floor_and_ceiling()) == [
+        (-1, -1),
+        (0, -1),
+        (-1, 0),
+        (0, 1),
+        (3, 1),
+        (2, 0),
+    ]
+    assert list(Perm((6, 5, 0, 2, 1, 3, 4)).left_floor_and_ceiling()) == [
+        (-1, -1),
+        (-1, 0),
+        (-1, 1),
+        (2, 1),
+        (2, 3),
+        (3, 1),
+        (5, 1),
+    ]
+    assert list(Perm((0, 2, 6, 5, 4, 1, 3)).left_floor_and_ceiling()) == [
+        (-1, -1),
+        (0, -1),
+        (1, -1),
+        (1, 2),
+        (1, 3),
+        (0, 1),
+        (1, 4),
+    ]
+    assert list(Perm((3, 6, 2, 7, 5, 0, 1, 4)).left_floor_and_ceiling()) == [
+        (-1, -1),
+        (0, -1),
+        (-1, 0),
+        (1, -1),
+        (0, 1),
+        (-1, 2),
+        (5, 2),
+        (0, 4),
+    ]
+    assert list(Perm((2, 0, 5, 6, 1, 7, 4, 3)).left_floor_and_ceiling()) == [
+        (-1, -1),
+        (-1, 0),
+        (0, -1),
+        (2, -1),
+        (1, 0),
+        (3, -1),
+        (0, 2),
+        (0, 6),
+    ]
+    assert list(Perm((8, 5, 0, 7, 1, 2, 4, 6, 3)).left_floor_and_ceiling()) == [
+        (-1, -1),
+        (-1, 0),
+        (-1, 1),
+        (1, 0),
+        (2, 1),
+        (4, 1),
+        (5, 1),
+        (1, 3),
+        (5, 6),
+    ]
+    assert list(Perm((0, 3, 7, 8, 2, 6, 4, 5, 1)).left_floor_and_ceiling()) == [
+        (-1, -1),
+        (0, -1),
+        (1, -1),
+        (2, -1),
+        (0, 1),
+        (1, 2),
+        (1, 5),
+        (6, 5),
+        (0, 4),
+    ]
+    assert list(Perm((5, 3, 4, 1, 7, 9, 0, 6, 8, 2)).left_floor_and_ceiling()) == [
+        (-1, -1),
+        (-1, 0),
+        (1, 0),
+        (-1, 1),
+        (0, -1),
+        (4, -1),
+        (-1, 3),
+        (0, 4),
+        (4, 5),
+        (3, 1),
+    ]
+    assert list(Perm((9, 2, 0, 5, 3, 6, 1, 8, 7, 4)).left_floor_and_ceiling()) == [
+        (-1, -1),
+        (-1, 0),
+        (-1, 1),
+        (1, 0),
+        (1, 3),
+        (3, 0),
+        (2, 1),
+        (5, 0),
+        (5, 7),
+        (4, 3),
+    ]
+    assert list(Perm((9, 0, 6, 2, 3, 1, 4, 5, 7, 8, 10)).left_floor_and_ceiling()) == [
+        (-1, -1),
+        (-1, 0),
+        (1, 0),
+        (1, 2),
+        (3, 2),
+        (1, 3),
+        (4, 2),
+        (6, 2),
+        (2, 0),
+        (8, 0),
+        (0, -1),
+    ]
+    assert list(Perm((10, 0, 1, 2, 3, 5, 7, 6, 4, 8, 9)).left_floor_and_ceiling()) == [
+        (-1, -1),
+        (-1, 0),
+        (1, 0),
+        (2, 0),
+        (3, 0),
+        (4, 0),
+        (5, 0),
+        (5, 6),
+        (4, 5),
+        (6, 0),
+        (9, 0),
+    ]
+    assert list(
+        Perm((4, 10, 11, 3, 9, 7, 2, 8, 6, 1, 5, 0)).left_floor_and_ceiling()
+    ) == [
+        (-1, -1),
+        (0, -1),
+        (1, -1),
+        (-1, 0),
+        (0, 1),
+        (0, 4),
+        (-1, 3),
+        (5, 4),
+        (0, 5),
+        (-1, 6),
+        (0, 8),
+        (-1, 9),
+    ]
+    assert list(
+        Perm((3, 4, 11, 8, 9, 10, 0, 2, 5, 1, 7, 6)).left_floor_and_ceiling()
+    ) == [
+        (-1, -1),
+        (0, -1),
+        (1, -1),
+        (1, 2),
+        (3, 2),
+        (4, 2),
+        (-1, 0),
+        (6, 0),
+        (1, 3),
+        (6, 7),
+        (8, 3),
+        (8, 10),
+    ]
+    assert list(
+        Perm((2, 9, 8, 4, 1, 5, 10, 12, 7, 3, 11, 0, 6)).left_floor_and_ceiling()
+    ) == [
+        (-1, -1),
+        (0, -1),
+        (0, 1),
+        (0, 2),
+        (-1, 0),
+        (3, 2),
+        (1, -1),
+        (6, -1),
+        (5, 2),
+        (0, 3),
+        (6, 7),
+        (-1, 4),
+        (5, 8),
+    ]
+    assert list(
+        Perm((7, 9, 6, 3, 0, 2, 4, 12, 1, 5, 11, 10, 8)).left_floor_and_ceiling()
+    ) == [
+        (-1, -1),
+        (0, -1),
+        (-1, 0),
+        (-1, 2),
+        (-1, 3),
+        (4, 3),
+        (3, 2),
+        (1, -1),
+        (4, 5),
+        (6, 2),
+        (1, 7),
+        (1, 10),
+        (0, 1),
+    ]
+    assert list(
+        Perm((8, 3, 4, 12, 5, 13, 2, 6, 1, 7, 9, 10, 11, 0)).left_floor_and_ceiling()
+    ) == [
+        (-1, -1),
+        (-1, 0),
+        (1, 0),
+        (0, -1),
+        (2, 0),
+        (3, -1),
+        (-1, 1),
+        (4, 0),
+        (-1, 6),
+        (7, 0),
+        (0, 3),
+        (10, 3),
+        (11, 3),
+        (-1, 8),
+    ]
+    assert list(
+        Perm((9, 12, 8, 11, 6, 13, 1, 5, 4, 3, 10, 2, 0, 7)).left_floor_and_ceiling()
+    ) == [
+        (-1, -1),
+        (0, -1),
+        (-1, 0),
+        (0, 1),
+        (-1, 2),
+        (1, -1),
+        (-1, 4),
+        (6, 4),
+        (6, 7),
+        (6, 8),
+        (0, 3),
+        (6, 9),
+        (-1, 6),
+        (4, 2),
+    ]
+    assert list(
+        Perm(
+            (11, 4, 12, 1, 8, 9, 10, 14, 3, 2, 13, 0, 5, 6, 7)
+        ).left_floor_and_ceiling()
+    ) == [
+        (-1, -1),
+        (-1, 0),
+        (0, -1),
+        (-1, 1),
+        (1, 0),
+        (4, 0),
+        (5, 0),
+        (2, -1),
+        (3, 1),
+        (3, 8),
+        (2, 7),
+        (-1, 3),
+        (1, 4),
+        (12, 4),
+        (13, 4),
+    ]
+    assert list(
+        Perm(
+            (8, 3, 16, 0, 17, 5, 9, 10, 6, 19, 18, 2, 11, 14, 12, 13, 15, 4, 7, 1)
+        ).left_floor_and_ceiling()
+    ) == [
+        (-1, -1),
+        (-1, 0),
+        (0, -1),
+        (-1, 1),
+        (2, -1),
+        (1, 0),
+        (0, 2),
+        (6, 2),
+        (5, 0),
+        (4, -1),
+        (4, 9),
+        (3, 1),
+        (7, 2),
+        (12, 2),
+        (12, 13),
+        (14, 13),
+        (13, 2),
+        (1, 5),
+        (8, 0),
+        (3, 11),
+    ]
+
+
 def test_count_occurrences_in():
     assert Perm([]).count_occurrences_in(Perm([4, 1, 2, 3, 0])) == 1
     assert Perm([0]).count_occurrences_in(Perm([4, 1, 2, 3, 0])) == 5

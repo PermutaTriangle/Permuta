@@ -1,7 +1,7 @@
 from itertools import chain
+from math import factorial
 
 from permuta.meshpatt import MeshPatt
-from permuta.misc import factorial
 from permuta.perm import Perm
 from permuta.permset import PermSet
 

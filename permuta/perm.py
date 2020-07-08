@@ -1,3 +1,7 @@
+# pylint: disable=super-init-not-called
+# pylint: disable=too-many-lines
+# pylint: disable=too-many-public-methods
+
 import bisect
 import collections
 import itertools
@@ -21,7 +25,6 @@ from typing import (
 )
 
 from .interfaces import Patt
-from .misc.iterable_floor_and_ceiling import left_floor_and_ceiling
 
 __all__ = ("Perm",)
 
@@ -51,9 +54,7 @@ class Perm(TupleType, Patt):
 
     def __init__(self, _iterable: Iterable[int] = ()) -> None:
         # Cache for data used when finding occurrences of self in a perm
-        self._cached_pattern_details: Optional[
-            List[Tuple[Optional[int], Optional[int], int, int]]
-        ] = None
+        self._cached_pattern_details: Optional[List[Tuple[int, int, int, int]]] = None
 
     @classmethod
     def to_standard(cls, iterable: Iterable) -> "Perm":
@@ -1846,22 +1847,16 @@ class Perm(TupleType, Patt):
             [()]
         """
         self_colours, patt_colours = (None, None) if len(args) < 2 else args
-        patt = patt.get_perm()
+        n, patt = len(self), patt.get_perm()
 
-        # Special cases
-        if len(self) == 0:
-            # Pattern is empty, occurs in all perms
-            # This is needed for the occurrences function to work correctly
+        if n == 0:
             yield ()
             return
-        if len(self) > len(patt):
-            # Pattern is too long to occur in perm
+        if n > len(patt):
             return
 
         # The indices of the occurrence in perm
-        occurrence_indices = [None] * len(self)
-
-        # Get left to right scan details
+        occurrence_indices = [0] * n
         pattern_details = self._pattern_details()
 
         # Define function that works with the above defined variables
@@ -1870,17 +1865,16 @@ class Perm(TupleType, Patt):
         # occurrence
         def occurrences(i, k):
             elements_remaining = len(patt) - i
-            elements_needed = len(self) - k
+            elements_needed = n - k
 
-            # Get the following variables:
-            #   - lfi: Left Floor Index
-            #   - lci: Left Ceiling Index
-            #   - lbp: Lower Bound Pre-computation
-            #   - ubp: Upper Bound Pre-computation
+            # lfi = left floor index
+            # lci = left ceiling index
+            # lbp = lower bound pre-computation
+            # ubp = upper bound pre-computation
             lfi, lci, lbp, ubp = pattern_details[k]
 
             # Set the bounds for the new element
-            if lfi is None:
+            if lfi == -1:
                 # The new element of the occurrence must be at least self[k];
                 # i.e., the k-th element of the pattern
                 # In this case, lbp = self[k]
@@ -1891,7 +1885,7 @@ class Perm(TupleType, Patt):
                 # In this case, lbp = self[k] - self[lfi]
                 occurrence_left_floor = patt[occurrence_indices[lfi]]
                 lower_bound = occurrence_left_floor + lbp
-            if lci is None:
+            if lci == -1:
                 # The new element of the occurrence must be at least as less
                 # than its maximum possible element---i.e., len(perm)---as
                 # self[k] is to its maximum possible element---i.e., len(self)
@@ -1915,23 +1909,14 @@ class Perm(TupleType, Patt):
                 if compare_colours and lower_bound <= element <= upper_bound:
                     occurrence_indices[k] = i
                     if elements_needed == 1:
-                        # Yield occurrence
                         yield tuple(occurrence_indices)
                     else:
-                        # Yield occurrences where the i-th element is chosen
-                        for occurrence in occurrences(i + 1, k + 1):
-                            yield occurrence
-                # Increment i, that also means elements_remaining should
-                # decrement
-                i += 1
-                elements_remaining -= 1
+                        yield from occurrences(i + 1, k + 1)
+                i, elements_remaining = i + 1, elements_remaining - 1
 
-        for occurrence in occurrences(0, 0):
-            yield occurrence
+        yield from occurrences(0, 0)
 
-    def occurrences_of(
-        self, patt: "Patt"
-    ) -> Union[Iterator[Tuple[int, ...]], Iterator[Tuple[()]]]:
+    def occurrences_of(self, patt: "Patt") -> Union[Iterator[Tuple[int, ...]]]:
         """Find all indices of occurrences of patt in self. This method is complementary
         to permuta.Perm.occurrences_in. It just calls patt.occurrences_in(self)
         internally. See permuta.Perm.occurrences_in for documentation.
@@ -1948,29 +1933,54 @@ class Perm(TupleType, Patt):
         """
         return patt.occurrences_in(self)
 
-    def _pattern_details(self) -> List[Tuple[Optional[int], Optional[int], int, int]]:
-        """Subroutine of occurrences_in method."""
-        # If details have been calculated before, return cached result
-        if self._cached_pattern_details is not None:
-            return self._cached_pattern_details
-        result = []
-        index = 0
-        for fac_indices in left_floor_and_ceiling(self):
-            base_element = self[index]
-            compiled = (
-                fac_indices.floor,
-                fac_indices.ceiling,
-                self[index]
-                if fac_indices.floor is None
-                else base_element - self[fac_indices.floor],
-                len(self) - self[index]
-                if fac_indices.ceiling is None
-                else self[fac_indices.ceiling] - base_element,
-            )
-            result.append(compiled)
-            index += 1
-        self._cached_pattern_details = result
-        return result
+    def left_floor_and_ceiling(self) -> Iterator[Tuple[int, int]]:
+        """Find the left floor and ceiling indices of self. Define left_floor of an
+        element in a sequence to be the index of the greatest smaller element to the
+        left of said element, or -1 if there is none. Similarly define default_ceiling.
+
+        Examples:
+            >>> Perm((2, 5, 0, 3, 6, 4, 7, 1)).left_floor_and_ceiling()
+            [(-1, -1), (0, -1), (-1, 0), (0, 1), (1, -1), (3, 1), (4, -1), (2, 0)]
+        """
+        deq: Deque[Tuple[int, int]] = collections.deque()
+        smallest, biggest = -1, -1
+        for idx, val in enumerate(self):
+            if idx == 0:
+                deq.append((val, idx))
+                smallest, biggest = val, val
+                yield (-1, -1)
+            elif val < smallest:
+                # Rotate until smallest val is at front
+                while deq[0][0] != smallest:
+                    deq.rotate(-1)
+                yield (-1, deq[0][1])
+                deq.appendleft((val, idx))
+                smallest = val
+            elif val > biggest:
+                # Rotate until biggest val is at end
+                while deq[-1][0] != biggest:
+                    deq.rotate(-1)
+                yield (deq[-1][1], -1)
+                deq.append((val, idx))
+                biggest = val
+            else:
+                while not deq[-1][0] <= val <= deq[0][0]:
+                    deq.rotate(1)
+                yield (deq[-1][1], deq[0][1])
+                deq.appendleft((val, idx))
+
+    def _pattern_details(self) -> List[Tuple[int, int, int, int]]:
+        if self._cached_pattern_details is None:
+            self._cached_pattern_details = [
+                (
+                    floor,
+                    ceiling,
+                    val if floor == -1 else val - self[floor],
+                    len(self) - val if ceiling == -1 else self[ceiling] - val,
+                )
+                for val, (floor, ceiling) in zip(self, self.left_floor_and_ceiling())
+            ]
+        return self._cached_pattern_details
 
     def apply(self, iterable: Iterable[int]) -> Tuple[int, ...]:
         """Permute an iterable using the perm.
