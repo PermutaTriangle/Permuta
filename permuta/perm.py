@@ -202,7 +202,7 @@ class Perm(TupleType, Patt):
         yield from itertools.islice(Perm._all(), count)
 
     @classmethod
-    def _all(cls):
+    def _all(cls) -> Iterator["Perm"]:
         length = 0
         while True:
             yield from Perm.of_length(length)
