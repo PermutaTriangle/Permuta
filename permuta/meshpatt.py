@@ -217,7 +217,7 @@ class MeshPatt(Patt):
         """
         current, symmetries = self, {self, self.inverse()}
         for _ in range(3):
-            current = current.rotate(-1)
+            current = current.rotate()
             symmetries.update((current, current.inverse()))
         return tuple(symmetries)
 
@@ -333,9 +333,7 @@ class MeshPatt(Patt):
         """
         return all(patt not in self for patt in patts)
 
-    def occurrences_in(
-        self, patt: Patt, *args, **kwargs
-    ) -> Union[Iterator[Tuple[int, ...]], Iterator[Tuple[()]]]:
+    def occurrences_in(self, patt: Patt, *args, **kwargs) -> Iterator[Tuple[int, ...]]:
         """
         Find all indices of self in patt. Each yielded element is a tuple of integer
         indices of the pattern such that
@@ -365,18 +363,14 @@ class MeshPatt(Patt):
         else:
             yield from self._occurrences_in_mesh(patt)
 
-    def _occurrences_in_mesh(
-        self, patt
-    ) -> Union[Iterator[Tuple[int, ...]], Iterator[Tuple[()]]]:
+    def _occurrences_in_mesh(self, patt) -> Iterator[Tuple[int, ...]]:
         return (
             occurrence
             for occurrence in self.occurrences_in(patt.pattern)
             if self.shading <= patt.sub_mesh_pattern(occurrence).shading
         )
 
-    def _occurrences_in_perm(
-        self, patt: Perm
-    ) -> Union[Iterator[Tuple[int, ...]], Iterator[Tuple[()]]]:
+    def _occurrences_in_perm(self, patt: Perm) -> Iterator[Tuple[int, ...]]:
         for candidate_indices in self.pattern.occurrences_in(patt):
             candidate = [patt[index] for index in candidate_indices]
             x = 0
@@ -653,16 +647,12 @@ class MeshPatt(Patt):
             >>> m.has_anchored_point()
             (False, False, False, True)
         """
-        counter, result, n = 4, [True] * 4, len(self)
-        for i in range(n + 1):
-            for j, pnt in enumerate(((n, i), (i, n), (0, i), (i, 0))):
-                if result[j] and pnt not in self.shading:
-                    result[j] = False
-                    counter -= 1
-            if counter == 0:
-                break
-        right, top, left, bottom = result
-        return right, top, left, bottom
+        n = len(self)
+        right = all((n, i) in self.shading for i in range(n + 1))
+        top = all((i, n) in self.shading for i in range(n + 1))
+        left = all((0, i) in self.shading for i in range(n + 1))
+        bottom = all((i, 0) in self.shading for i in range(n + 1))
+        return (right, top, left, bottom)
 
     def rank(self) -> int:
         """Computes the rank of the mesh pattern, the bit string of the

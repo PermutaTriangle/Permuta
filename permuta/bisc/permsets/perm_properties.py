@@ -1,7 +1,5 @@
 from permuta.meshpatt import MeshPatt
 from permuta.perm import Perm
-from sympy.combinatorics import Permutation
-from sympy.combinatorics.named_groups import AlternatingGroup, DihedralGroup
 
 
 def is_sorted(w):
@@ -214,7 +212,7 @@ def dihedral(perm):
     We use the convention that D1 and D2 are not subgrroups of S1 and S2,
     respectively."""
 
-    return Permutation(list(perm)) in DihedralGroup(len(perm))
+    raise NotImplementedError
 
 
 def in_alternating_group(perm):
@@ -222,10 +220,7 @@ def in_alternating_group(perm):
     We use the convention that D1 and D2 are not subgrroups of S1 and S2,
     respectively."""
 
-    if perm == Perm(()):
-        return True
-
-    return Permutation(list(perm)) in AlternatingGroup(len(perm))
+    raise NotImplementedError
 
 
 def perm_to_yt(perm):

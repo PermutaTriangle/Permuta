@@ -620,7 +620,7 @@ class Perm(TupleType, Patt):
 
     def all_syms(self) -> Tuple["Perm", ...]:
         """Returns all symmetries of the permutation in a PermSet, all possible
-        combinations of revers, complement and inverse.
+        combinations of reverse, complement and inverse.
 
         Examples:
             >>> sorted(Perm((0, 2, 1)).all_syms())
@@ -1830,7 +1830,7 @@ class Perm(TupleType, Patt):
 
     def occurrences_in(
         self, patt: "Patt", *args, **kwargs
-    ) -> Union[Iterator[Tuple[int, ...]], Iterator[Tuple[()]]]:
+    ) -> Iterator[Tuple[int, ...]]:
         """Find all indices of occurrences of self in patt. If the optional colours
         are provided, in an occurrences the colours of the patterns have to match the
         colours of the permutation.

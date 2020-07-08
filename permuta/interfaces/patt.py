@@ -1,5 +1,5 @@
 import abc
-from typing import TYPE_CHECKING, Iterator, Tuple, Union
+from typing import TYPE_CHECKING, Iterator, Tuple
 
 if TYPE_CHECKING:
     from ..perm import Perm
@@ -23,7 +23,7 @@ class Patt(abc.ABC):
     @abc.abstractmethod
     def occurrences_in(
         self, patt: "Patt", *args, **kwargs
-    ) -> Union[Iterator[Tuple[int, ...]], Iterator[Tuple[()]]]:
+    ) -> Iterator[Tuple[int, ...]]:
         """Find all indices of occurrences of self in pattern."""
 
     @abc.abstractmethod
