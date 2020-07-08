@@ -2,7 +2,7 @@ import abc
 from typing import TYPE_CHECKING, Iterator, Tuple
 
 if TYPE_CHECKING:
-    from ..perm import Perm
+    from permuta.perm import Perm
 
 
 class Patt(abc.ABC):
