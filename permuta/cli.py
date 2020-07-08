@@ -23,7 +23,7 @@ def parse_basis(args):
         perm_tuple = tuple(map(int, perm_str))
         if 0 not in perm_tuple:
             perm_tuple = tuple(i - 1 for i in perm_tuple)
-        perm = Perm(perm_tuple, check=True)
+        perm = Perm.from_iterable_validated(perm_tuple)
         basis.append(perm)
     return basis
 

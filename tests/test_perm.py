@@ -1,34 +1,45 @@
+import itertools
 import random
+from collections import deque
 
 import pytest
 from permuta import Perm, PermSet
 
 
-def test_init():
+def test_from_iterable_validated():
     with pytest.raises(ValueError):
-        Perm([0, 1, 1], check=True)
+        Perm.from_iterable_validated([0, 1, 1])
     with pytest.raises(ValueError):
-        Perm([1, 0, 1], check=True)
+        Perm.from_iterable_validated([1, 0, 1])
     with pytest.raises(ValueError):
-        Perm([0, 0], check=True)
+        Perm.from_iterable_validated([0, 0])
     with pytest.raises(ValueError):
-        Perm([1], check=True)
+        Perm.from_iterable_validated([1])
     with pytest.raises(ValueError):
-        Perm((1,), check=True)
+        Perm.from_iterable_validated((1,))
     with pytest.raises(TypeError):
-        Perm(101, check=True)
+        Perm.from_iterable_validated(101)
     with pytest.raises(TypeError):
-        Perm(-234, check=True)
+        Perm.from_iterable_validated(-234)
     with pytest.raises(TypeError):
-        Perm(None, check=True)
+        Perm.from_iterable_validated(None)
     with pytest.raises(TypeError):
-        Perm([0.1, 0.2, 0.3], check=True)
-    Perm(check=True)
-    Perm([], check=True)
-    Perm((0,), check=True)
-    Perm([0], check=True)
-    Perm([3, 0, 2, 1], check=True)
-    Perm(set([0, 1, 2]), check=True)
+        Perm.from_iterable_validated([0.1, 0.2, 0.3])
+    with pytest.raises(ValueError):
+        Perm.from_iterable_validated("132")
+    with pytest.raises(ValueError):
+        Perm.from_iterable_validated("134")
+    with pytest.raises(ValueError):
+        Perm.from_iterable_validated("112")
+    with pytest.raises(ValueError):
+        Perm.from_iterable_validated("5")
+    try:
+        Perm.from_iterable_validated(())
+        Perm.from_iterable_validated((1, 0))
+        Perm.from_iterable_validated([5, 1, 0, 2, 4, 3])
+        Perm.from_iterable_validated("1302")
+    except (ValueError, TypeError):
+        pytest.fail("Exception raised when it shouldn't")
 
 
 def test_to_standard():
@@ -48,6 +59,19 @@ def test_to_standard():
         assert perm == Perm.to_standard(perm)
         assert perm == Perm.to_standard(gen(perm))
 
+    assert Perm.to_standard("aaa") == Perm((0, 1, 2))
+    assert Perm.to_standard("cba") == Perm((2, 1, 0))
+
+
+def test_from_integer():
+    assert Perm.from_integer(123) == Perm((0, 1, 2))
+    assert Perm.from_integer(321) == Perm((2, 1, 0))
+    assert Perm.from_integer(201) == Perm((2, 0, 1))
+    assert Perm.from_integer(0) == Perm((0,))
+    assert Perm.from_integer(1) == Perm((0,))
+    assert Perm.from_integer(123456789) == Perm((0, 1, 2, 3, 4, 5, 6, 7, 8))
+    assert Perm.from_integer(9876543210) == Perm((9, 8, 7, 6, 5, 4, 3, 2, 1, 0))
+
 
 def test_from_string():
     assert Perm.from_string("203451") == Perm((2, 0, 3, 4, 5, 1))
@@ -65,6 +89,39 @@ def test_str_representation():
         str(Perm((0, 11, 1, 10, 2, 9, 3, 8, 4, 7, 5, 6)))
         == "(0)(11)(1)(10)(2)(9)(3)(8)(4)(7)(5)(6)"
     )
+    assert str(Perm(())) == "\u03B5"
+
+
+def test_of_length():
+    assert list(Perm.of_length(3)) == [
+        Perm((0, 1, 2)),
+        Perm((0, 2, 1)),
+        Perm((1, 0, 2)),
+        Perm((1, 2, 0)),
+        Perm((2, 0, 1)),
+        Perm((2, 1, 0)),
+    ]
+    assert list(Perm.of_length(0)) == [Perm(())]
+    assert list(Perm.of_length(1)) == [Perm((0,))]
+
+
+def test_first():
+    assert list(Perm.first(3)) == [Perm(()), Perm((0,)), Perm((0, 1))]
+    assert list(Perm.first(0)) == []
+    assert list(Perm.first(1)) == [Perm(())]
+    assert list(Perm.first(11)) == [
+        Perm(()),
+        Perm((0,)),
+        Perm((0, 1)),
+        Perm((1, 0)),
+        Perm((0, 1, 2)),
+        Perm((0, 2, 1)),
+        Perm((1, 0, 2)),
+        Perm((1, 2, 0)),
+        Perm((2, 0, 1)),
+        Perm((2, 1, 0)),
+        Perm((0, 1, 2, 3)),
+    ]
 
 
 def test_one_based():
@@ -88,12 +145,7 @@ def test_random():
         for _ in range(10):
             perm = Perm.random(length)
             assert len(perm) == length
-            Perm(perm)
-
-
-def test_monotone_increasing():
-    for length in range(11):
-        assert Perm.monotone_increasing(length) == Perm(range(length))
+            assert set(perm) == set(range(length))
 
 
 def test_monotone_decreasing():
@@ -102,28 +154,15 @@ def test_monotone_decreasing():
 
 
 def test_unrank():
-    assert Perm.unrank(0) == Perm()
-    assert Perm.unrank(1) == Perm((0,))
-    assert Perm.unrank(2) == Perm((0, 1))
-    assert Perm.unrank(3) == Perm((1, 0))
-    assert Perm.unrank(4) == Perm((0, 1, 2))
-    assert Perm.unrank(5) == Perm((0, 2, 1))
-    assert Perm.unrank(6) == Perm((1, 0, 2))
-    assert Perm.unrank(10) == Perm((0, 1, 2, 3))
-    amount = 1 + 1 + 2 + 6 + 24
-    assert Perm.unrank(amount) == Perm((0, 1, 2, 3, 4))
-    amount = (1 + 1 + 2 + 6 + 24 + 120) - 1
-    assert Perm.unrank(amount) == Perm((4, 3, 2, 1, 0))
+    counter = 0
+    for n in range(8):
+        for i, perm in enumerate(itertools.permutations(range(n))):
+            assert Perm(perm) == Perm.unrank(i, n) == Perm.unrank(counter)
+            counter += 1
     with pytest.raises(AssertionError):
         Perm.unrank(-1)
     with pytest.raises(AssertionError):
         Perm.unrank(6, 3)
-
-
-def test_unrank_2():
-    length = 7
-    for number, perm in enumerate(PermSet(length)):
-        assert Perm.unrank(number, length) == perm
 
 
 def test_contained_in():
@@ -224,9 +263,9 @@ def test_occurrences_in():
 
 
 def test_apply():
-    with pytest.raises(ValueError):
+    with pytest.raises(AssertionError):
         Perm((1, 2, 4, 0, 3, 5)).apply(Perm((0, 2, 1, 3)))
-    with pytest.raises(ValueError):
+    with pytest.raises(AssertionError):
         Perm().apply(Perm((0,)))
 
     for i in range(100):
@@ -292,6 +331,32 @@ def test_skew_sum():
         p5 - "hahaha"
 
 
+def test_maximal_decreasing_run():
+    assert Perm((1, 3, 2, 5, 0, 4)).maximal_decreasing_run() == 2
+    assert Perm((0, 1)).maximal_decreasing_run() == 1
+    assert Perm((3, 1, 0, 4, 2, 5)).maximal_decreasing_run() == 1
+    assert Perm((0,)).maximal_decreasing_run() == 1
+    assert Perm((1, 2, 4, 0, 3, 5)).maximal_decreasing_run() == 1
+    assert Perm((2, 1, 0)).maximal_decreasing_run() == 3
+    assert Perm((5, 2, 4, 1, 0, 3)).maximal_decreasing_run() == 3
+    assert Perm((5, 3, 2, 4, 0, 1)).maximal_decreasing_run() == 2
+    assert Perm((5, 0, 4, 1, 3, 2)).maximal_decreasing_run() == 4
+    assert Perm((2, 0, 5, 4, 1, 3)).maximal_decreasing_run() == 3
+    assert Perm((1, 2, 0)).maximal_decreasing_run() == 1
+    assert Perm((1, 0)).maximal_decreasing_run() == 2
+    assert Perm((2, 0, 1)).maximal_decreasing_run() == 2
+    assert Perm((0, 3, 4, 1, 2)).maximal_decreasing_run() == 1
+    assert Perm(()).maximal_decreasing_run() == 0
+    assert Perm((0, 3, 5, 4, 1, 2)).maximal_decreasing_run() == 2
+    assert Perm((0, 1, 2)).maximal_decreasing_run() == 1
+    assert Perm((4, 3, 5, 2, 1, 0)).maximal_decreasing_run() == 1
+    assert Perm((1, 0, 2)).maximal_decreasing_run() == 1
+    assert Perm((0, 2, 1)).maximal_decreasing_run() == 2
+    for i in range(1, 100):
+        assert Perm.monotone_increasing(i).maximal_decreasing_run() == 1
+        assert Perm.monotone_decreasing(i).maximal_decreasing_run() == i
+
+
 def test_compose():
     p0 = Perm()
 
@@ -317,15 +382,15 @@ def test_compose():
 
     with pytest.raises(AssertionError):
         p1.compose(None)
-    with pytest.raises(AssertionError):
+    with pytest.raises(TypeError):
         p1 * None
     with pytest.raises(AssertionError):
         p2.compose(p2, None)
     with pytest.raises(AssertionError):
         p3.compose(1237)
-    with pytest.raises(AssertionError):
+    with pytest.raises(TypeError):
         p5 * ("hahaha")
-    with pytest.raises(AssertionError):
+    with pytest.raises(TypeError):
         p5 * (p1,)
 
     with pytest.raises(AssertionError):
@@ -339,6 +404,8 @@ def test_compose():
 
 
 def test_insert():
+    assert Perm(()).insert() == Perm((0,))
+    assert Perm(()).insert(0) == Perm((0,))
     assert Perm((0, 1)).insert() == Perm((0, 1, 2))
     assert Perm((0, 1)).insert(0) == Perm((2, 0, 1))
     assert Perm((0, 1)).insert(1) == Perm((0, 2, 1))
@@ -349,11 +416,11 @@ def test_insert():
     assert Perm((0, 3, 1, 2)).insert(3, 3) == Perm((0, 4, 1, 3, 2))
     assert Perm((0, 3, 1, 2)).insert(1, 0) == Perm((1, 0, 4, 2, 3))
 
-    with pytest.raises(ValueError):
+    with pytest.raises(AssertionError):
         Perm((2, 1, 0, 3)).insert(2, 100)
-    with pytest.raises(ValueError):
+    with pytest.raises(AssertionError):
         Perm((2, 1, 0, 3)).insert(0, 5)
-    with pytest.raises(ValueError):
+    with pytest.raises(AssertionError):
         Perm((2, 1, 0, 3)).insert(3, -3)
 
 
@@ -363,13 +430,14 @@ def test_remove():
     assert Perm((3, 0, 1, 2)).remove(0) == Perm((0, 1, 2))
     assert Perm((2, 0, 1)).remove(2) == Perm((1, 0))
     assert Perm((0,)).remove(0) == Perm()
-
     assert Perm((3, 0, 1, 2)).remove(3) == Perm((2, 0, 1))
     assert Perm((0, 3, 1, 4, 2)).remove(3) == Perm((0, 3, 1, 2))
     assert Perm((0, 4, 1, 3, 2)).remove(4) == Perm((0, 3, 1, 2))
     assert Perm((1, 0, 4, 2, 3)).remove(0) == Perm((0, 3, 1, 2))
     assert Perm((1, 0, 4, 2, 3)).remove() == Perm((1, 0, 2, 3))
     assert Perm((0, 4, 1, 3, 2)).remove() == Perm((0, 1, 3, 2))
+    with pytest.raises(IndexError):
+        assert Perm((0, 5, 4, 3, 2, 1)).remove(100)
 
 
 def test_remove_element():
@@ -383,21 +451,15 @@ def test_remove_element():
     assert Perm((1, 0, 4, 2, 3)).remove_element() == Perm((1, 0, 2, 3))
     assert Perm((0, 4, 1, 3, 2)).remove_element() == Perm((0, 1, 3, 2))
 
-    with pytest.raises(ValueError):
+    with pytest.raises(AssertionError):
         Perm((1, 0, 4, 2, 3)).remove_element(5)
-    with pytest.raises(ValueError):
+    with pytest.raises(AssertionError):
         Perm((1, 0, 4, 2, 3)).remove_element(51)
-    with pytest.raises(ValueError):
+    with pytest.raises(AssertionError):
         Perm((1, 0, 4, 2, 3)).remove_element(-5)
-
-    with pytest.raises(TypeError):
-        Perm((2, 1, 0, 3)).remove_element("ble")
-    with pytest.raises(TypeError):
-        Perm((2, 1, 0, 3)).remove_element([0])
 
 
 def test_inflate():
-    # TODO: make proper tests when the Perm.inflate has been implemented.
     assert Perm((0, 1)).inflate([Perm((1, 0)), Perm((2, 1, 0))]) == Perm(
         (1, 0, 4, 3, 2)
     )
@@ -407,49 +469,42 @@ def test_inflate():
     assert Perm((0, 1)).inflate([Perm(), Perm()]) == Perm()
 
 
-# TODO: The following three functions have yet to be implemented
-@pytest.mark.xfail
 def test_contract_inc_bonds():
     assert Perm().contract_inc_bonds() == Perm()
     assert Perm((0,)).contract_inc_bonds() == Perm((0,))
-    assert Perm((1, 2)).contract_inc_bonds() == Perm((0,))
-    assert Perm((1, 2, 3)).contract_inc_bonds() == Perm((0,))
-    assert Perm((3, 2, 1)).contract_inc_bonds() == Perm((3, 2, 1))
-
+    assert Perm((0, 1)).contract_inc_bonds() == Perm((0,))
+    assert Perm((0, 1, 2)).contract_inc_bonds() == Perm((0,))
+    assert Perm((2, 1, 0)).contract_inc_bonds() == Perm((2, 1, 0))
     assert Perm((0, 3, 1, 4, 2)).contract_inc_bonds() == Perm((0, 3, 1, 4, 2))
     assert Perm((1, 0, 4, 2, 3)).contract_inc_bonds() == Perm((1, 0, 3, 2))
     assert Perm((1, 0, 2, 3, 4)).contract_inc_bonds() == Perm((1, 0, 2))
-    assert Perm((0, 4, 1, 2, 3)).contract_inc_bonds() == Perm((0, 2, 2))
+    assert Perm((0, 4, 1, 2, 3)).contract_inc_bonds() == Perm((0, 2, 1))
 
 
-@pytest.mark.xfail
 def test_contract_dec_bonds():
     assert Perm().contract_dec_bonds() == Perm()
     assert Perm((0,)).contract_dec_bonds() == Perm((0,))
     assert Perm((2, 1)).contract_dec_bonds() == Perm((0,))
-    assert Perm((3, 2, 1)).contract_dec_bonds() == Perm((0,))
-    assert Perm((1, 2, 3)).contract_inc_bonds() == Perm((1, 2, 3))
-
+    assert Perm((2, 1, 0)).contract_dec_bonds() == Perm((0,))
+    assert Perm((0, 1, 2)).contract_dec_bonds() == Perm((0, 1, 2))
     assert Perm((0, 3, 1, 4, 2)).contract_dec_bonds() == Perm((0, 3, 1, 4, 2))
     assert Perm((0, 4, 3, 2, 1)).contract_dec_bonds() == Perm((0, 1))
     assert Perm((1, 0, 4, 2, 3)).contract_dec_bonds() == Perm((0, 3, 1, 2))
     assert Perm((0, 4, 1, 3, 2)).contract_dec_bonds() == Perm((0, 3, 1, 2))
 
 
-@pytest.mark.xfail
 def test_contract_bonds():
     assert Perm().contract_bonds() == Perm()
     assert Perm((0,)).contract_bonds() == Perm((0,))
-    assert Perm((2, 1)).contract_bonds() == Perm((0,))
-    assert Perm((1, 2)).contract_bonds() == Perm((0,))
-    assert Perm((3, 2, 1)).contract_bonds() == Perm((0,))
-    assert Perm((1, 2, 3)).contract_bonds() == Perm((0,))
-
+    assert Perm((1, 0)).contract_bonds() == Perm((0,))
+    assert Perm((0, 1)).contract_bonds() == Perm((0,))
+    assert Perm((2, 1, 0)).contract_bonds() == Perm((0,))
+    assert Perm((0, 1, 2)).contract_bonds() == Perm((0,))
     assert Perm((0, 3, 1, 4, 2)).contract_bonds() == Perm((0, 3, 1, 4, 2))
     assert Perm((0, 4, 3, 2, 1)).contract_bonds() == Perm((0, 1))
     assert Perm((1, 0, 4, 2, 3)).contract_bonds() == Perm((0, 2, 1))
     assert Perm((0, 4, 1, 3, 2)).contract_bonds() == Perm((0, 3, 1, 2))
-    assert Perm((1, 0, 2, 3, 4)).contract_bonds() == Perm((0, 1, 2))
+    assert Perm((1, 0, 2, 3, 4)).contract_bonds() == Perm((0, 1))
 
 
 def test_inverse():
@@ -484,28 +539,23 @@ def test_reverse_complement():
 
 def test_rotate_right():
     for i in range(10):
-        assert Perm(range(i - 1, -1, -1)) == Perm(range(i)).rotate_right()
-    assert Perm([2, 1, 3, 4, 0, 5, 6]) == Perm([6, 5, 3, 2, 0, 1, 4]).rotate_right()
-    assert (
-        Perm([4, 5, 3, 1, 7, 0, 2, 6]) == Perm([4, 7, 1, 0, 2, 6, 3, 5]).rotate_right()
-    )
-    assert Perm([0, 1, 2]) == Perm([2, 1, 0]).rotate_right(5)
-    assert Perm([4, 5, 3, 1, 0, 2]) == Perm([4, 5, 3, 1, 0, 2]).rotate_right(4)
+        assert Perm(range(i - 1, -1, -1)) == Perm(range(i)).rotate()
+    assert Perm([2, 1, 3, 4, 0, 5, 6]) == Perm([6, 5, 3, 2, 0, 1, 4]).rotate()
+    assert Perm([4, 5, 3, 1, 7, 0, 2, 6]) == Perm([4, 7, 1, 0, 2, 6, 3, 5]).rotate()
+    assert Perm([0, 1, 2]) == Perm([2, 1, 0]).rotate(5)
+    assert Perm([4, 5, 3, 1, 0, 2]) == Perm([4, 5, 3, 1, 0, 2]).rotate(4)
 
 
 def test_rotate_left():
     for i in range(10):
-        assert Perm(list(range(i - 1, -1, -1))) == Perm(range(i)).rotate_right()
-    assert Perm([6, 5, 3, 2, 0, 1, 4]).rotate_left() == Perm(
-        [6, 5, 3, 2, 0, 1, 4]
-    ).rotate_right(3)
-    assert Perm([6, 5, 3, 2, 0, 1, 4]).rotate_left() == Perm(
-        [6, 5, 3, 2, 0, 1, 4]
-    ).rotate_right(-1)
-    assert Perm([4, 7, 1, 0, 2, 6, 3, 5]).rotate_left() == Perm(
+        assert Perm(list(range(i - 1, -1, -1))) == Perm(range(i)).rotate()
+    assert Perm([6, 5, 3, 2, 0, 1, 4]).rotate(-1) == Perm([6, 5, 3, 2, 0, 1, 4]).rotate(
+        3
+    )
+    assert Perm([4, 7, 1, 0, 2, 6, 3, 5]).rotate(-1) == Perm(
         [4, 7, 1, 0, 2, 6, 3, 5]
-    ).rotate_right(7)
-    assert Perm([]).rotate_left() == Perm([]).rotate_left(123)
+    ).rotate(7)
+    assert Perm([]).rotate(-1) == Perm([]).rotate(-123)
 
 
 def test_shift_left():
@@ -577,10 +627,10 @@ def test_flip_antidiagonal():
         assert perm.reverse().complement().inverse() == perm.flip_antidiagonal()
 
 
-def test__rotate_180():
+def test_rotate_180():
     for _ in range(100):
         perm = Perm.random(random.randint(0, 20))
-        assert perm._rotate_180() == perm.rotate().rotate()
+        assert perm.rotate(times=2) == perm.rotate().rotate()
 
 
 def test_all_syms():
@@ -591,13 +641,57 @@ def test_all_syms():
         Perm((1, 2, 0)),
         Perm((2, 0, 1)),
     ]
-
-
-@pytest.mark.xfail
-def test_is_representative():
-    # TODO: write proper tests when the function is working
-    assert Perm().is_representative()
-    assert Perm((0,)).is_representative()
+    assert set(Perm((2, 1, 5, 3, 4, 0)).all_syms()) == {
+        Perm((3, 4, 0, 2, 1, 5)),
+        Perm((0, 4, 5, 2, 1, 3)),
+        Perm((2, 4, 3, 0, 1, 5)),
+        Perm((5, 1, 0, 3, 4, 2)),
+        Perm((0, 4, 3, 5, 1, 2)),
+        Perm((3, 1, 2, 5, 4, 0)),
+        Perm((2, 1, 5, 3, 4, 0)),
+        Perm((5, 1, 2, 0, 4, 3)),
+    }
+    assert set(Perm((1, 3, 4, 0, 2)).all_syms()) == {
+        Perm((3, 1, 0, 4, 2)),
+        Perm((1, 4, 0, 3, 2)),
+        Perm((1, 3, 4, 0, 2)),
+        Perm((2, 3, 0, 4, 1)),
+        Perm((2, 0, 4, 3, 1)),
+        Perm((2, 1, 4, 0, 3)),
+        Perm((2, 4, 0, 1, 3)),
+        Perm((3, 0, 4, 1, 2)),
+    }
+    assert set(Perm((2, 1, 0)).all_syms()) == {Perm((2, 1, 0)), Perm((0, 1, 2))}
+    assert set(Perm((0, 2, 1, 3, 4)).all_syms()) == {
+        Perm((4, 2, 3, 1, 0)),
+        Perm((0, 1, 3, 2, 4)),
+        Perm((0, 2, 1, 3, 4)),
+        Perm((4, 3, 1, 2, 0)),
+    }
+    assert set(Perm((2, 1, 0)).all_syms()) == {Perm((2, 1, 0)), Perm((0, 1, 2))}
+    assert set(Perm(()).all_syms()) == {Perm(())}
+    assert set(Perm((0,)).all_syms()) == {Perm((0,))}
+    assert set(Perm((3, 1, 6, 8, 5, 7, 4, 0, 2)).all_syms()) == {
+        Perm((5, 7, 2, 0, 3, 1, 4, 8, 6)),
+        Perm((2, 0, 4, 7, 5, 8, 6, 1, 3)),
+        Perm((3, 5, 2, 4, 6, 0, 8, 1, 7)),
+        Perm((6, 8, 4, 1, 3, 0, 2, 7, 5)),
+        Perm((3, 1, 6, 8, 5, 7, 4, 0, 2)),
+        Perm((5, 3, 6, 4, 2, 8, 0, 7, 1)),
+        Perm((7, 1, 8, 0, 6, 4, 2, 5, 3)),
+        Perm((1, 7, 0, 8, 2, 4, 6, 3, 5)),
+    }
+    assert set(Perm((6, 1, 3, 2, 5, 0, 4)).all_syms()) == {
+        Perm((4, 0, 5, 2, 3, 1, 6)),
+        Perm((6, 2, 0, 4, 3, 5, 1)),
+        Perm((2, 6, 1, 4, 3, 5, 0)),
+        Perm((0, 4, 6, 2, 3, 1, 5)),
+        Perm((6, 1, 3, 2, 5, 0, 4)),
+        Perm((1, 5, 3, 4, 0, 2, 6)),
+        Perm((0, 5, 3, 4, 1, 6, 2)),
+        Perm((5, 1, 3, 2, 6, 4, 0)),
+    }
+    assert set(Perm((1, 0)).all_syms()) == {Perm((1, 0)), Perm((0, 1))}
 
 
 def test_fixed_points():
@@ -606,6 +700,36 @@ def test_fixed_points():
     assert list(Perm((5, 4, 3, 2, 1, 0)).fixed_points()) == []
     assert list(Perm((4, 1, 0, 3, 2, 5)).fixed_points()) == [1, 3, 5]
     assert list(Perm((0, 1, 2, 3, 4, 5)).fixed_points()) == [0, 1, 2, 3, 4, 5]
+
+
+def test_strong_fixed_points():
+    assert list(Perm().strong_fixed_points()) == []
+    assert list(Perm((5, 4, 3, 2, 1, 0)).strong_fixed_points()) == []
+    assert list(Perm((4, 1, 0, 3, 2, 5)).strong_fixed_points()) == [5]
+    assert list(Perm((0, 1, 2, 3, 4, 5)).strong_fixed_points()) == [0, 1, 2, 3, 4, 5]
+    assert list(Perm((0, 1)).strong_fixed_points()) == [0, 1]
+    assert list(Perm((0,)).strong_fixed_points()) == [0]
+    assert list(Perm((2, 1, 0)).strong_fixed_points()) == []
+    assert list(Perm((2, 0, 7, 4, 1, 5, 3, 6)).strong_fixed_points()) == []
+    assert list(Perm((6, 4, 5, 3, 2, 0, 1)).strong_fixed_points()) == []
+    assert list(Perm((4, 7, 2, 6, 0, 1, 5, 3)).strong_fixed_points()) == []
+    assert list(Perm((0, 1, 2)).strong_fixed_points()) == [0, 1, 2]
+    assert list(Perm((1, 6, 4, 3, 2, 0, 7, 5)).strong_fixed_points()) == []
+    assert list(Perm((4, 1, 2, 6, 3, 5, 0)).strong_fixed_points()) == []
+    assert list(Perm((5, 1, 0, 7, 4, 2, 3, 6)).strong_fixed_points()) == []
+    assert list(Perm((0, 6, 5, 4, 3, 2, 1, 7)).strong_fixed_points()) == [0, 7]
+    assert list(Perm((1, 4, 6, 2, 3, 5, 7, 0)).strong_fixed_points()) == []
+    assert list(Perm((1, 3, 2, 0, 4, 6, 7, 5)).strong_fixed_points()) == [4]
+    assert list(Perm((0, 1, 5, 4, 6, 3, 2, 7)).strong_fixed_points()) == [0, 1, 7]
+    assert list(Perm((5, 6, 0, 2, 4, 3, 7, 1)).strong_fixed_points()) == []
+    assert list(Perm((3, 6, 2, 5, 1, 4, 7, 0)).strong_fixed_points()) == []
+    assert list(Perm((7, 6, 2, 3, 0, 1, 4, 5)).strong_fixed_points()) == []
+    assert list(Perm((0, 2, 1)).strong_fixed_points()) == [0]
+    assert list(Perm((7, 3, 2, 4, 5, 1, 6, 0)).strong_fixed_points()) == []
+    assert list(Perm((1, 0, 2)).strong_fixed_points()) == [2]
+    assert list(Perm((5, 3, 0, 6, 1, 4, 2, 7)).strong_fixed_points()) == [7]
+    assert list(Perm((7, 1, 2, 3, 4, 5, 6, 0)).strong_fixed_points()) == []
+    assert list(Perm((1, 0, 2, 4, 3, 5, 7, 6)).strong_fixed_points()) == [2, 5]
 
 
 def test_count_fixed_points():
@@ -710,15 +834,6 @@ def test_count_descents():
     assert Perm((2, 1, 0, 4, 3, 5)).count_descents() == 3
     assert Perm((1, 2, 3, 0, 6, 5, 4)).count_descents() == 3
     assert Perm((3, 1, 4, 5, 0, 7, 6, 2)).count_descents() == 4
-
-
-def test_ascents():
-    assert list(Perm().ascents()) == []
-    assert list(Perm((0, 1, 2, 3)).ascents()) == [0, 1, 2]
-    assert list(Perm((3, 2, 1, 0)).ascents()) == []
-    assert list(Perm((2, 1, 0, 4, 3, 5)).ascents()) == [2, 4]
-    assert list(Perm((1, 2, 3, 0, 6, 5, 4)).ascents()) == [0, 1, 3]
-    assert list(Perm((3, 1, 4, 5, 0, 7, 6, 2)).ascents()) == [1, 2, 4]
 
 
 def test_ascent_set():
@@ -827,12 +942,12 @@ def test_order():
 
 
 def test_ltrmin():
-    assert Perm().ltrmin() == []
-    assert Perm((0,)).ltrmin() == [0]
-    assert Perm((2, 4, 3, 0, 1)).ltrmin() == [0, 3]
+    assert list(Perm().ltrmin()) == []
+    assert list(Perm((0,)).ltrmin()) == [0]
+    assert list(Perm((2, 4, 3, 0, 1)).ltrmin()) == [0, 3]
     for _ in range(100):
         perm = Perm.random(random.randint(2, 20))
-        ltrmin_list = perm.ltrmin()
+        ltrmin_list = list(perm.ltrmin())
         assert ltrmin_list[0] == 0
         for i in range(len(ltrmin_list)):
             for j in range(ltrmin_list[i] + 1, len(perm)):
@@ -842,12 +957,12 @@ def test_ltrmin():
 
 
 def test_rtlmin():
-    assert Perm().rtlmin() == []
-    assert Perm((0,)).rtlmin() == [0]
-    assert Perm((2, 4, 3, 0, 1)).rtlmin() == [3, 4]
+    assert list(Perm().rtlmin()) == []
+    assert list(Perm((0,)).rtlmin()) == [0]
+    assert list(Perm((2, 4, 3, 0, 1)).rtlmin()) == [3, 4]
     for _ in range(100):
         perm = Perm.random(random.randint(2, 20))
-        rtlmin_list = perm.rtlmin()
+        rtlmin_list = list(perm.rtlmin())
         rtlmin_list.reverse()
         assert rtlmin_list[0] == len(perm) - 1
         for i in range(len(rtlmin_list)):
@@ -858,12 +973,12 @@ def test_rtlmin():
 
 
 def test_ltrmax():
-    assert Perm().ltrmax() == []
-    assert Perm((0,)).ltrmax() == [0]
-    assert Perm((2, 0, 4, 1, 5, 3)).ltrmax() == [0, 2, 4]
+    assert list(Perm().ltrmax()) == []
+    assert list(Perm((0,)).ltrmax()) == [0]
+    assert list(Perm((2, 0, 4, 1, 5, 3)).ltrmax()) == [0, 2, 4]
     for _ in range(100):
         perm = Perm.random(random.randint(2, 20))
-        ltrmax_list = perm.ltrmax()
+        ltrmax_list = list(perm.ltrmax())
         assert ltrmax_list[0] == 0
         for i in range(len(ltrmax_list)):
             for j in range(ltrmax_list[i] + 1, len(perm)):
@@ -873,12 +988,12 @@ def test_ltrmax():
 
 
 def test_rtlmax():
-    assert Perm().rtlmax() == []
-    assert Perm((0,)).rtlmax() == [0]
-    assert Perm((2, 4, 3, 0, 1)).rtlmax() == [1, 2, 4]
+    assert list(Perm().rtlmax()) == []
+    assert list(Perm((0,)).rtlmax()) == [0]
+    assert list(Perm((2, 4, 3, 0, 1)).rtlmax()) == [1, 2, 4]
     for _ in range(100):
         perm = Perm.random(random.randint(2, 20))
-        rtlmax_list = perm.rtlmax()
+        rtlmax_list = list(perm.rtlmax())
         rtlmax_list.reverse()
         assert rtlmax_list[0] == len(perm) - 1
         for i in range(len(rtlmax_list)):
@@ -950,6 +1065,14 @@ def test_count_non_inversions():
         assert perm.count_non_inversions() == invs
 
 
+def test_all_bonds():
+    assert list(Perm().all_bonds()) == []
+    assert list(Perm((0, 1, 4, 2, 3)).all_bonds()) == [0, 3]
+    assert list(Perm((0,)).all_bonds()) == []
+    assert list(Perm.identity(10).all_bonds()) == list(range(9))
+    assert list(Perm.monotone_decreasing(10).all_bonds()) == list(range(9))
+
+
 def test_count_bonds():
     assert Perm().count_bonds() == 0
     assert Perm((0,)).count_bonds() == 0
@@ -960,6 +1083,32 @@ def test_count_bonds():
             if perm[i] + 1 == perm[i + 1] or perm[i] == perm[i + 1] + 1:
                 bons += 1
         assert bons == perm.count_bonds()
+
+
+def test_inc_bonds():
+    assert list(Perm().inc_bonds()) == []
+    assert list(Perm((1, 0, 4, 2, 3)).inc_bonds()) == [3]
+    assert list(Perm((0,)).inc_bonds()) == []
+    assert list(Perm.identity(10).inc_bonds()) == list(range(9))
+    assert list(Perm.monotone_decreasing(10).inc_bonds()) == []
+
+
+def test_count_inc_bonds():
+    assert Perm((0, 2, 3, 1)).count_inc_bonds() == 1
+    assert Perm((2, 3, 4, 5, 0, 1)).count_inc_bonds() == 4
+
+
+def test_dec_bonds():
+    assert list(Perm().dec_bonds()) == []
+    assert list(Perm((1, 0, 4, 2, 3)).dec_bonds()) == [0]
+    assert list(Perm((0,)).dec_bonds()) == []
+    assert list(Perm.identity(10).dec_bonds()) == []
+    assert list(Perm.monotone_decreasing(10).dec_bonds()) == list(range(9))
+
+
+def test_count_dec_bonds():
+    assert Perm((2, 1, 0, 3)).count_dec_bonds() == 2
+    assert Perm((1, 0, 3, 2, 5, 4)).count_dec_bonds() == 3
 
 
 def test_major_index():
@@ -990,12 +1139,15 @@ def test_longestruns_descending():
     )
 
 
-def test_longestruns():
-    assert Perm().longestruns() == (0, [])
-    assert Perm((0, 1, 2, 3)).longestruns() == (4, [0])
-    assert Perm((4, 3, 2, 1, 0)).longestruns() == (1, [0, 1, 2, 3, 4])
-    assert Perm((8, 1, 7, 5, 6, 2, 9, 3, 0, 4)).longestruns() == (2, [1, 3, 5, 8])
-    assert Perm((1, 2, 3, 4, 6, 0, 9, 7, 8, 5)).longestruns() == (5, [0])
+def test_longestruns_ascending():
+    assert Perm().longestruns_ascending() == (0, [])
+    assert Perm((0, 1, 2, 3)).longestruns_ascending() == (4, [0])
+    assert Perm((4, 3, 2, 1, 0)).longestruns_ascending() == (1, [0, 1, 2, 3, 4])
+    assert Perm((8, 1, 7, 5, 6, 2, 9, 3, 0, 4)).longestruns_ascending() == (
+        2,
+        [1, 3, 5, 8],
+    )
+    assert Perm((1, 2, 3, 4, 6, 0, 9, 7, 8, 5)).longestruns_ascending() == (5, [0])
 
 
 def test_length_of_longestrun_ascending():
@@ -1004,6 +1156,16 @@ def test_length_of_longestrun_ascending():
     assert Perm((0, 1, 2)).length_of_longestrun_ascending() == 3
     assert Perm((0, 1, 2, 3, 4, 5, 6, 7, 8, 9)).length_of_longestrun_ascending() == 10
     assert Perm((6, 0, 9, 1, 4, 7, 3, 8, 5, 2)).length_of_longestrun_ascending() == 3
+    assert Perm((6, 1, 3, 7, 4, 5, 9, 8, 0, 2)).length_of_longestrun_ascending() == 3
+    assert Perm((4, 0, 9, 5, 3, 7, 1, 6, 8, 2)).length_of_longestrun_ascending() == 3
+    assert Perm((1, 9, 4, 6, 0, 8, 2, 7, 5, 3)).length_of_longestrun_ascending() == 2
+    assert Perm((2, 5, 8, 6, 0, 1, 3, 7, 9, 4)).length_of_longestrun_ascending() == 5
+
+
+def test_len():
+    assert len(Perm()) == 0
+    assert len(Perm((0,))) == 1
+    assert len(Perm((1, 2, 0, 4, 3))) == 5
 
 
 def test_length_of_longestrun_descending():
@@ -1012,13 +1174,6 @@ def test_length_of_longestrun_descending():
     assert Perm((0, 1, 2)).length_of_longestrun_descending() == 1
     assert Perm((3, 5, 2, 7, 1, 8, 0, 6, 9, 4)).length_of_longestrun_descending() == 2
     assert Perm((5, 4, 8, 9, 7, 3, 2, 1, 0, 6)).length_of_longestrun_descending() == 6
-
-
-def test_length_of_longestrun():
-    assert Perm((6, 1, 3, 7, 4, 5, 9, 8, 0, 2)).length_of_longestrun() == 3
-    assert Perm((4, 0, 9, 5, 3, 7, 1, 6, 8, 2)).length_of_longestrun() == 3
-    assert Perm((1, 9, 4, 6, 0, 8, 2, 7, 5, 3)).length_of_longestrun() == 2
-    assert Perm((2, 5, 8, 6, 0, 1, 3, 7, 9, 4)).length_of_longestrun() == 5
 
 
 def test_count_cycles():
@@ -1038,8 +1193,52 @@ def test_is_involution():
         assert perm.is_involution() == all(map(lambda x: len(x) <= 2, cyclelist))
 
 
+def test_cycle_decomp():
+    assert Perm(()).cycle_decomp() == deque([])
+    assert Perm((0,)).cycle_decomp() == deque([[0]])
+    assert Perm((0, 1)).cycle_decomp() == deque([[0], [1]])
+    assert Perm((0, 2, 1)).cycle_decomp() == deque([[0], [2, 1]])
+    assert Perm((2, 3, 1, 0)).cycle_decomp() == deque([[3, 0, 2, 1]])
+    assert Perm((0, 2, 4, 3, 1)).cycle_decomp() == deque([[0], [3], [4, 1, 2]])
+    assert Perm((0, 1, 4, 3, 2, 5)).cycle_decomp() == deque(
+        [[0], [1], [3], [4, 2], [5]]
+    )
+    assert Perm((0, 5, 4, 2, 1, 3, 6)).cycle_decomp() == deque(
+        [[0], [5, 3, 2, 4, 1], [6]]
+    )
+    assert Perm((1, 7, 3, 5, 0, 2, 4, 6)).cycle_decomp() == deque(
+        [[5, 2, 3], [7, 6, 4, 0, 1]]
+    )
+    assert Perm((0, 5, 1, 3, 2, 4, 6, 7, 8)).cycle_decomp() == deque(
+        [[0], [3], [5, 4, 2, 1], [6], [7], [8]]
+    )
+    25
+    assert Perm(
+        (10, 0, 1, 3, 7, 11, 5, 2, 9, 13, 4, 8, 14, 6, 12)
+    ).cycle_decomp() == deque(
+        [[3], [10, 4, 7, 2, 1, 0], [13, 6, 5, 11, 8, 9], [14, 12]]
+    )
+    assert Perm(
+        (13, 10, 4, 1, 6, 9, 2, 3, 8, 7, 5, 14, 12, 11, 0)
+    ).cycle_decomp() == deque(
+        [[6, 2, 4], [8], [10, 5, 9, 7, 3, 1], [12], [14, 0, 13, 11]]
+    )
+    assert Perm(
+        (4, 1, 12, 14, 0, 5, 2, 7, 13, 3, 9, 6, 10, 8, 11)
+    ).cycle_decomp() == deque(
+        [[1], [4, 0], [5], [7], [13, 8], [14, 11, 6, 2, 12, 10, 9, 3]]
+    )
+    assert Perm(
+        (6, 8, 5, 7, 0, 14, 2, 1, 3, 13, 12, 11, 4, 10, 9)
+    ).cycle_decomp() == deque([[8, 3, 7, 1], [11], [14, 9, 13, 10, 12, 4, 0, 6, 2, 5]])
+    assert Perm(
+        (12, 6, 4, 0, 3, 2, 14, 13, 8, 1, 9, 7, 10, 11, 5)
+    ).cycle_decomp() == deque([[8], [13, 11, 7], [14, 5, 2, 4, 3, 0, 12, 10, 9, 1, 6]])
+
+
 def test_rank():
-    assert list(map(lambda x: x.rank(), PermSet(5))) == list(range(34, 154))
+    for i, perm in enumerate(Perm.first(1000)):
+        assert perm.rank() == i
 
 
 def test_threepats():
@@ -1132,13 +1331,13 @@ def test_block_decomposition():
         [0],
         [],
     ]
-    assert set(Perm((4, 1, 0, 5, 2, 3)).block_decomposition(True)) == set(
+    assert set(Perm((4, 1, 0, 5, 2, 3)).block_decomposition_as_pattern()) == set(
         [Perm((0, 1)), Perm((1, 0))]
     )
     for _ in range(20):
         perm = Perm.random(random.randint(0, 20))
         blocks = perm.block_decomposition()
-        patts = set(perm.block_decomposition(True))
+        patts = set(perm.block_decomposition_as_pattern())
         for length in range(len(blocks)):
             for start in blocks[length]:
                 assert (
@@ -1149,15 +1348,69 @@ def test_block_decomposition():
                 assert Perm.to_standard(perm[start : start + length]) in patts
 
 
+def test_count_rtlmax_ltrmin_layers():
+    assert Perm((2, 1, 3, 0)).count_rtlmax_ltrmin_layers() == 1
+    assert Perm((2, 0, 1, 3)).count_rtlmax_ltrmin_layers() == 2
+    assert Perm((1, 3, 2, 7, 6, 5, 8, 0, 4)).count_rtlmax_ltrmin_layers() == 2
+    assert Perm((0, 8, 2, 4, 5, 6, 3, 7, 1)).count_rtlmax_ltrmin_layers() == 4
+    assert Perm((1, 0, 2)).count_rtlmax_ltrmin_layers() == 1
+    assert Perm((1, 2, 0, 3)).count_rtlmax_ltrmin_layers() == 2
+    assert Perm((3, 0, 2, 1)).count_rtlmax_ltrmin_layers() == 1
+    assert Perm((2, 0, 1)).count_rtlmax_ltrmin_layers() == 1
+    assert Perm((1, 3, 2, 0)).count_rtlmax_ltrmin_layers() == 1
+    assert Perm(()).count_rtlmax_ltrmin_layers() == 0
+    assert Perm((5, 3, 7, 4, 2, 0, 6, 1)).count_rtlmax_ltrmin_layers() == 2
+    assert Perm((0, 2, 1, 6, 4, 3, 5, 7, 8)).count_rtlmax_ltrmin_layers() == 4
+    assert Perm((2, 1, 0)).count_rtlmax_ltrmin_layers() == 1
+    assert Perm((0, 2, 1)).count_rtlmax_ltrmin_layers() == 1
+    assert Perm((0, 8, 3, 5, 7, 4, 2, 6, 1)).count_rtlmax_ltrmin_layers() == 2
+
+
+def test_rtlmax_ltrmin_decomposition():
+    assert list(Perm(()).rtlmax_ltrmin_decomposition()) == []
+    assert list(Perm((0,)).rtlmax_ltrmin_decomposition()) == [[0]]
+    assert list(Perm((2, 0, 3, 1)).rtlmax_ltrmin_decomposition()) == [[0, 1, 2, 3]]
+    assert list(Perm((0, 1, 2, 3)).rtlmax_ltrmin_decomposition()) == [[0, 3], [0, 1]]
+    assert list(Perm((1, 0, 2)).rtlmax_ltrmin_decomposition()) == [[0, 1, 2]]
+    assert list(Perm((2, 1, 0)).rtlmax_ltrmin_decomposition()) == [[0, 1, 2]]
+    assert list(Perm((0, 1)).rtlmax_ltrmin_decomposition()) == [[0, 1]]
+    assert list(Perm((2, 1, 3, 0)).rtlmax_ltrmin_decomposition()) == [[0, 1, 2, 3]]
+    assert list(Perm((0, 2, 1)).rtlmax_ltrmin_decomposition()) == [[0, 1, 2]]
+    assert list(Perm((2, 3, 0, 1)).rtlmax_ltrmin_decomposition()) == [[0, 1, 2, 3]]
+    assert list(Perm((1, 3, 0, 2)).rtlmax_ltrmin_decomposition()) == [[0, 1, 2, 3]]
+    assert list(Perm((1, 2, 3, 0)).rtlmax_ltrmin_decomposition()) == [[0, 2, 3], [0]]
+    assert list(Perm((0, 1, 6, 5, 4, 3, 2)).rtlmax_ltrmin_decomposition()) == [
+        [0, 2, 3, 4, 5, 6],
+        [0],
+    ]
+    assert list(Perm((0, 1, 4, 3, 2, 5)).rtlmax_ltrmin_decomposition()) == [
+        [0, 5],
+        [0, 1, 2, 3],
+    ]
+    assert list(Perm((2, 3, 0, 4, 1, 5)).rtlmax_ltrmin_decomposition()) == [
+        [0, 2, 5],
+        [1, 2],
+        [0],
+    ]
+    assert list(Perm((4, 0, 2, 5, 3, 1)).rtlmax_ltrmin_decomposition()) == [
+        [0, 1, 3, 4, 5],
+        [0],
+    ]
+    assert list(Perm((1, 5, 0, 3, 2, 4)).rtlmax_ltrmin_decomposition()) == [
+        [0, 1, 2, 5],
+        [0, 1],
+    ]
+
+
 def test_monotone_block_decomposition():
-    assert Perm().monotone_block_decomposition(True) == []
-    assert Perm((0,)).monotone_block_decomposition() == []
-    assert Perm((0,)).monotone_block_decomposition(True) == [(0, 0)]
-    assert Perm((6, 7, 5, 3, 0, 1, 2, 4)).monotone_block_decomposition() == [
+    assert list(Perm().monotone_block_decomposition(True)) == []
+    assert list(Perm((0,)).monotone_block_decomposition()) == []
+    assert list(Perm((0,)).monotone_block_decomposition(True)) == [(0, 0)]
+    assert list(Perm((6, 7, 5, 3, 0, 1, 2, 4)).monotone_block_decomposition()) == [
         (0, 1),
         (4, 6),
     ]
-    assert Perm((0, 2, 1, 5, 6, 7, 4, 3)).monotone_block_decomposition() == [
+    assert list(Perm((0, 2, 1, 5, 6, 7, 4, 3)).monotone_block_decomposition()) == [
         (1, 2),
         (3, 5),
         (6, 7),
@@ -1175,6 +1428,87 @@ def test_monotone_block_decomposition():
             )
 
 
+def test_monotone_block_decomposition_ascending():
+    assert list(Perm().monotone_block_decomposition_ascending()) == []
+    for i in range(1, 10):
+        assert list(Perm.identity(i).monotone_block_decomposition_ascending(True)) == [
+            (0, i - 1)
+        ]
+    assert list(
+        Perm((0, 1, 3, 6, 5, 4, 2)).monotone_block_decomposition_ascending(True)
+    ) == [(0, 1), (2, 2), (3, 3), (4, 4), (5, 5), (6, 6)]
+    assert list(
+        Perm((0, 1, 5, 6, 3, 2, 4)).monotone_block_decomposition_ascending(False)
+    ) == [(0, 1), (2, 3)]
+    assert list(
+        Perm((2, 3, 1, 4, 5, 0)).monotone_block_decomposition_ascending(False)
+    ) == [(0, 1), (3, 4)]
+    assert (
+        list(Perm((3, 5, 1, 4, 0, 2)).monotone_block_decomposition_ascending(False))
+        == []
+    )
+    assert list(
+        Perm((5, 2, 4, 0, 3, 1)).monotone_block_decomposition_ascending(True)
+    ) == [(0, 0), (1, 1), (2, 2), (3, 3), (4, 4), (5, 5)]
+    assert list(
+        Perm((3, 1, 2, 5, 4, 0)).monotone_block_decomposition_ascending(False)
+    ) == [(1, 2)]
+    assert (
+        list(Perm((4, 0, 3, 2, 5, 1)).monotone_block_decomposition_ascending(False))
+        == []
+    )
+    assert list(
+        Perm((3, 2, 5, 4, 0, 1)).monotone_block_decomposition_ascending(True)
+    ) == [(0, 0), (1, 1), (2, 2), (3, 3), (4, 5)]
+    assert list(
+        Perm((0, 1, 2, 4, 3, 5)).monotone_block_decomposition_ascending(False)
+    ) == [(0, 2)]
+    assert (
+        list(Perm((3, 5, 1, 0, 4, 2)).monotone_block_decomposition_ascending(False))
+        == []
+    )
+
+
+def test_test_monotone_block_decomposition_descending():
+    assert list(Perm().monotone_block_decomposition_descending()) == []
+    for i in range(1, 10):
+        assert list(
+            Perm.monotone_decreasing(i).monotone_block_decomposition_descending(True)
+        ) == [(0, i - 1)]
+    assert (
+        list(Perm((5, 0, 3, 1, 2, 4)).monotone_block_decomposition_descending(False))
+        == []
+    )
+    assert list(
+        Perm((0, 5, 2, 3, 4, 1)).monotone_block_decomposition_descending(True)
+    ) == [(0, 0), (1, 1), (2, 2), (3, 3), (4, 4), (5, 5)]
+    assert list(
+        Perm((5, 4, 2, 1, 0, 3)).monotone_block_decomposition_descending(False)
+    ) == [(0, 1), (2, 4)]
+    assert list(
+        Perm((1, 3, 2, 0, 4)).monotone_block_decomposition_descending(True)
+    ) == [(0, 0), (1, 2), (3, 3), (4, 4)]
+    assert list(
+        Perm((4, 5, 2, 3, 1, 0)).monotone_block_decomposition_descending(True)
+    ) == [(0, 0), (1, 1), (2, 2), (3, 3), (4, 5)]
+    assert list(
+        Perm((2, 1, 3, 4, 0)).monotone_block_decomposition_descending(True)
+    ) == [(0, 1), (2, 2), (3, 3), (4, 4)]
+    assert list(
+        Perm((0, 5, 1, 3, 2, 4)).monotone_block_decomposition_descending(True)
+    ) == [(0, 0), (1, 1), (2, 2), (3, 4), (5, 5)]
+    assert (
+        list(Perm((2, 4, 0, 1, 5, 3)).monotone_block_decomposition_descending(False))
+        == []
+    )
+    assert list(
+        Perm((5, 4, 0, 1, 3, 2)).monotone_block_decomposition_descending(False)
+    ) == [(0, 1), (4, 5)]
+    assert list(
+        Perm((5, 2, 1, 4, 3, 0)).monotone_block_decomposition_descending(True)
+    ) == [(0, 0), (1, 2), (3, 4), (5, 5)]
+
+
 def test_monotone_quotient():
     assert Perm().monotone_quotient() == Perm()
     assert Perm((0,)).monotone_quotient() == Perm((0,))
@@ -1185,6 +1519,17 @@ def test_monotone_quotient():
             start for (start, end) in perm.monotone_block_decomposition(True)
         )
         assert monblocks in list(perm.occurrences_of(perm.monotone_quotient()))
+
+
+def test_maximum_block():
+    assert Perm((0, 1, 2)).maximum_block() == (2, 0)
+    assert Perm((0, 2, 1)).maximum_block() == (2, 1)
+    assert Perm((1, 0, 2)).maximum_block() == (2, 0)
+    assert Perm((1, 2, 0)).maximum_block() == (2, 0)
+    assert Perm((2, 0, 1)).maximum_block() == (2, 1)
+    assert Perm((2, 1, 0)).maximum_block() == (2, 0)
+    assert Perm((4, 0, 6, 3, 5, 1, 2)).maximum_block() == (2, 5)
+    assert Perm((1, 2, 7, 8, 6, 0, 3, 5, 4)).maximum_block() == (3, 2)
 
 
 def test_simple_location():
@@ -1251,6 +1596,24 @@ def test_coveredby():
         perm = Perm.random(random.randint(0, 12))
         for p in perm.coveredby():
             assert perm in p.children()
+
+
+def test_children():
+    assert Perm().children() == []
+    assert Perm((0,)).children() == [Perm()]
+    assert sorted(Perm((0, 4, 3, 1, 2)).children()) == [
+        Perm((0, 3, 1, 2)),
+        Perm((0, 3, 2, 1)),
+        Perm((3, 2, 0, 1)),
+    ]
+    assert sorted(Perm((5, 0, 2, 4, 3, 1, 6)).children()) == [
+        Perm((0, 2, 4, 3, 1, 5)),
+        Perm((4, 0, 1, 3, 2, 5)),
+        Perm((4, 0, 2, 3, 1, 5)),
+        Perm((4, 0, 3, 2, 1, 5)),
+        Perm((4, 1, 3, 2, 0, 5)),
+        Perm((5, 0, 2, 4, 3, 1)),
+    ]
 
 
 def test_call_1():
@@ -1429,6 +1792,17 @@ def test_ascii_plot():
         plot = perm.ascii_plot(cell_size=0).split("\n")
         for i in range(len(perm)):
             assert plot[len(perm) - perm[i] - 1][2 * i] == "\u25cf"
+
+
+def test_to_tikz():
+    assert Perm((1, 0, 4, 2, 3)).to_tikz() == (
+        "\\begin{tikzpicture}[scale=.3,baseline=(current bounding box.center)]\n\t\\"
+        "foreach \\x in {1,...,5} {\n\t\t\\draw[ultra thin] (\\x,0)--(\\x,6); %vline\n"
+        "\t\t\\draw[ultra thin] (0,\\x)--(6,\\x); %hline\n\t}\n\t\\draw[fill=black] (1,"
+        "2) circle (5pt);\n\t\\draw[fill=black] (2,1) circle (5pt);\n\t\\draw[fill=blac"
+        "k] (3,5) circle (5pt);\n\t\\draw[fill=black] (4,3) circle (5pt);\n\t\\draw[fil"
+        "l=black] (5,4) circle (5pt);\n\\end{tikzpicture}".replace("\t", " " * 4)
+    )
 
 
 def test_cycle_notation():

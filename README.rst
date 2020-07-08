@@ -82,18 +82,6 @@ Permutations are zero-based in Permuta and can be created using any iterable.
     Perm((0, 1, 2, 3))
     >>> Perm((2, 1, 3)) # Warning: it will initialise with any iterable
     Perm((2, 1, 3))
-    >>> Perm((2, 1, 3), check=True) # If you are unsure, you can check
-    Traceback (most recent call last):
-        ...
-    ValueError: Element out of range: 3
-    >>> Perm((4, 2, 3, 0, 0), check=True)
-    Traceback (most recent call last):
-        ...
-    ValueError: Duplicate element: 0
-    >>> Perm("123", check=True)
-    Traceback (most recent call last):
-        ...
-    TypeError: ''1'' object is not an integer
 
 Permutations can also be created using some specific class methods.
 

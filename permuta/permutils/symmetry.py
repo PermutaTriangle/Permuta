@@ -3,7 +3,7 @@
 
 def rotate_90_clockwise_set(perms):
     try:
-        return perms.__class__([p._rotate_right() for p in perms])
+        return perms.__class__([p.rotate() for p in perms])
     except (AttributeError, TypeError):
         raise TypeError(
             ("perms parameter must be of type list, set, tuple of" " permuta.Perms")
@@ -12,7 +12,7 @@ def rotate_90_clockwise_set(perms):
 
 def rotate_180_clockwise_set(perms):
     try:
-        return perms.__class__([p._rotate_180() for p in perms])
+        return perms.__class__([p.rotate(2) for p in perms])
     except (AttributeError, TypeError):
         raise TypeError(
             ("perms parameter must be of type list, set, tuple of" " permuta.Perms")
@@ -21,7 +21,7 @@ def rotate_180_clockwise_set(perms):
 
 def rotate_270_clockwise_set(perms):
     try:
-        return perms.__class__([p._rotate_left() for p in perms])
+        return perms.__class__([p.rotate(3) for p in perms])
     except (AttributeError, TypeError):
         raise TypeError(
             ("perms parameter must be of type list, set, tuple of" " permuta.Perms")

@@ -114,7 +114,7 @@ class MeshBasis(AbstractBasis):
         return super().__new__(
             cls,
             {
-                patt if isinstance(patt, MeshPatt) else MeshPatt(patt, [])
+                patt if isinstance(patt, MeshPatt) else MeshPatt(Perm(patt), [])
                 for patt in patts
             },
         )

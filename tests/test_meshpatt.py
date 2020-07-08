@@ -7,7 +7,8 @@ from permuta.meshpattset import gen_meshpatts
 from permuta.misc import DIR_EAST, DIR_NORTH, DIR_SOUTH, DIR_WEST, factorial
 
 mesh_pattern = MeshPatt(
-    [1, 3, 2, 0], set([(0, 0), (4, 0), (2, 1), (4, 1), (2, 2), (4, 2), (3, 3), (0, 4)])
+    Perm([1, 3, 2, 0]),
+    set([(0, 0), (4, 0), (2, 1), (4, 1), (2, 2), (4, 2), (3, 3), (0, 4)]),
 )
 perm1 = Perm([5, 2, 8, 6, 7, 9, 4, 3, 1, 0])  # Occurrence: E.g., [1, 3, 6, 9]
 perm2 = Perm([1, 2, 8, 6, 5, 9, 4, 3, 7, 0])  # Occurrence: E.g., [1, 6, 7, 9]
@@ -28,47 +29,29 @@ mesh3 = MeshPatt(patt3, shad3)
 
 
 def test_init():
-    with pytest.raises(ValueError):
-        MeshPatt(Perm([0, 1, 1], check=True), ())
-    with pytest.raises(ValueError):
-        MeshPatt(Perm([1, 0, 1], check=True), ())
-    with pytest.raises(ValueError):
-        MeshPatt(Perm([0, 0], check=True), ())
-    with pytest.raises(ValueError):
-        MeshPatt(Perm([1], check=True), ())
-    with pytest.raises(ValueError):
-        MeshPatt(Perm((1,), check=True), ())
-    with pytest.raises(TypeError):
-        MeshPatt(Perm(101, check=True), ())
-    with pytest.raises(TypeError):
-        MeshPatt(Perm(-234, check=True), ())
-    with pytest.raises(TypeError):
-        MeshPatt(Perm(None, check=True), ())
-    with pytest.raises(TypeError):
-        MeshPatt(Perm([0.1, 0.2, 0.3], check=True), ())
-    with pytest.raises(TypeError):
-        MeshPatt(Perm((), check=True), (0, 1))
-    with pytest.raises(TypeError):
-        MeshPatt(Perm((0, 1, 2), check=True), [(1, "a")])
-    with pytest.raises(TypeError):
-        MeshPatt(Perm((0, 1, 2), check=True), [("a", 1)])
-    with pytest.raises(ValueError):
+    with pytest.raises(AssertionError):
+        MeshPatt(Perm(()), (0, 1))
+    with pytest.raises(AssertionError):
+        MeshPatt(Perm((0, 1, 2)), [(1, "a")])
+    with pytest.raises(AssertionError):
+        MeshPatt(Perm((0, 1, 2),), [("a", 1)])
+    with pytest.raises(AssertionError):
         MeshPatt(Perm.random(5), [(0,), (1, 1)])
-    with pytest.raises(ValueError):
+    with pytest.raises(AssertionError):
         MeshPatt(Perm.random(5), [(0, 0, 0), (1, 1, 1)])
-    with pytest.raises(ValueError):
-        MeshPatt(Perm((), check=True), [(0, 1), (1, 0)])
-    with pytest.raises(ValueError):
+    with pytest.raises(AssertionError):
+        MeshPatt(Perm(()), [(0, 1), (1, 0)])
+    with pytest.raises(AssertionError):
         MeshPatt(Perm.random(3), [(0, -1), (0, 0)])
-    with pytest.raises(ValueError):
+    with pytest.raises(AssertionError):
         MeshPatt(Perm.random(10), [(0, 0), (12, 7)])
-    MeshPatt(Perm(check=True), ())
-    MeshPatt(Perm([], check=True), ())
-    MeshPatt(Perm((0,), check=True), ())
-    MeshPatt(Perm([0], check=True), ())
-    MeshPatt(Perm([3, 0, 2, 1], check=True), ())
+    MeshPatt(Perm(), ())
+    MeshPatt(Perm([]), ())
+    MeshPatt(Perm((0,)), ())
+    MeshPatt(Perm([0]), ())
+    MeshPatt(Perm([3, 0, 2, 1]), ())
     MeshPatt(
-        Perm([3, 0, 2, 1], check=True),
+        Perm([3, 0, 2, 1]),
         [
             (0, 0),
             (0, 1),
@@ -97,7 +80,7 @@ def test_init():
             (4, 4),
         ],
     )
-    MeshPatt(Perm([3, 0, 2, 1], check=True), [(0, 0), (0, 1), (0, 2), (0, 3), (0, 4)])
+    MeshPatt(Perm([3, 0, 2, 1]), [(0, 0), (0, 1), (0, 2), (0, 3), (0, 4)])
     MeshPatt([3, 0, 2, 1], [(0, 2), (0, 3), (0, 4)])
     MeshPatt(set([3, 0, 2, 1]), [(0, 2), (0, 3), (0, 4)])
 
@@ -205,45 +188,361 @@ def test_flip_diagonal():
 
 
 def test_rotate():
-    assert MeshPatt(Perm(), [])._rotate_right() == MeshPatt(Perm(), [])
-    assert MeshPatt(Perm(), [])._rotate_left() == MeshPatt(Perm(), [])
-    assert MeshPatt(Perm(), [])._rotate_180() == MeshPatt(Perm(), [])
+    assert MeshPatt(Perm(), []).rotate() == MeshPatt(Perm(), [])
+    assert MeshPatt(Perm(), []).rotate(-1) == MeshPatt(Perm(), [])
+    assert MeshPatt(Perm(), []).rotate(2) == MeshPatt(Perm(), [])
 
-    assert MeshPatt(Perm((0,)), [])._rotate_right() == MeshPatt(Perm((0,)), [])
-    assert MeshPatt(Perm((0,)), [])._rotate_left() == MeshPatt(Perm((0,)), [])
-    assert MeshPatt(Perm((0,)), [])._rotate_180() == MeshPatt(Perm((0,)), [])
+    assert MeshPatt(Perm((0,)), []).rotate() == MeshPatt(Perm((0,)), [])
+    assert MeshPatt(Perm((0,)), []).rotate(-1) == MeshPatt(Perm((0,)), [])
+    assert MeshPatt(Perm((0,)), []).rotate(2) == MeshPatt(Perm((0,)), [])
 
     for _ in range(50):
         mpatt = MeshPatt.random(6)
-        assert mpatt._rotate_right()._rotate_right() == mpatt._rotate_180()
-        assert mpatt._rotate_left()._rotate_left() == mpatt._rotate_180()
-        assert mpatt._rotate_right()._rotate_left() == mpatt
-        assert mpatt._rotate_left()._rotate_right() == mpatt
-        assert mpatt._rotate_180()._rotate_180() == mpatt
+        assert mpatt.rotate().rotate() == mpatt.rotate(2)
+        assert mpatt.rotate(-1).rotate(-1) == mpatt.rotate(2)
+        assert mpatt.rotate().rotate(-1) == mpatt
+        assert mpatt.rotate(-1).rotate() == mpatt
+        assert mpatt.rotate(2).rotate(2) == mpatt
 
 
 def test_shade():
     assert MeshPatt().shade((0, 0)).is_shaded((0, 0))
-    assert MeshPatt().shade([(0, 0)]).is_shaded((0, 0))
 
     newshad = [(1, 2), (3, 3), (4, 4)]
-    mesh1shaded = mesh1.shade(newshad)
+    mesh1shaded = mesh1.shade(*newshad)
     for shading in shad1:
         assert mesh1shaded.is_shaded(shading)
     for shading in newshad:
         assert mesh1shaded.is_shaded((shading))
 
     newshad = [(2, 2), (1, 1), (0, 2), (1, 2), (3, 3), (4, 4)]
-    mesh2shaded = mesh2.shade(newshad)
+    mesh2shaded = mesh2.shade(*newshad)
     for shading in shad2:
         assert mesh2shaded.is_shaded(shading)
     for shading in newshad:
         assert mesh2shaded.is_shaded(shading)
 
-    with pytest.raises(ValueError):
-        mesh2.shade(())
-    with pytest.raises(ValueError):
-        mesh1.shade(())
+
+def test_occurrences_in_perm():
+    assert sorted(
+        MeshPatt(Perm((1, 0, 2)), [(1, 2), (2, 2), (2, 3)]).occurrences_in(
+            Perm((3, 1, 0, 2, 4))
+        )
+    ) == [(0, 1, 4), (0, 2, 4), (0, 3, 4), (1, 2, 3)]
+    # 102 is not as there is a larger point between 02
+    assert sorted(
+        MeshPatt(Perm((1, 0, 2)), [(1, 2), (2, 2), (2, 3)]).occurrences_in(
+            Perm((1, 0, 3, 2))
+        )
+    ) == [(0, 1, 2)]
+    assert list(
+        MeshPatt(
+            Perm((1, 0, 2)), [(0, 1), (0, 2), (1, 0), (1, 1), (2, 1), (2, 2)]
+        ).occurrences_in(Perm((2, 3, 1, 0, 4)))
+    )[0] == (0, 2, 4)
+    assert sorted(
+        MeshPatt(Perm((1, 3, 0, 2)), [(0, 1), (0, 3)]).occurrences_in(
+            Perm((0, 2, 5, 4, 1, 3))
+        )
+    ) == [(1, 2, 4, 5), (1, 3, 4, 5)]
+    assert sorted(
+        MeshPatt(Perm((2, 1, 0, 3)), [(0, 3)]).occurrences_in(Perm((2, 5, 1, 3, 0, 4)))
+    ) == [(0, 2, 4, 5)]
+    assert sorted(
+        MeshPatt(Perm((3, 2, 1, 0)), [(0, 0), (0, 1), (0, 2)]).occurrences_in(
+            Perm((4, 3, 0, 2, 1, 5))
+        )
+    ) == [(0, 1, 3, 4)]
+    assert sorted(
+        MeshPatt(Perm((1, 3, 2, 0)), [(0, 0), (0, 2)]).occurrences_in(
+            Perm((1, 2, 5, 3, 0, 4))
+        )
+    ) == [(0, 2, 3, 4), (1, 2, 3, 4)]
+    assert sorted(
+        MeshPatt(Perm((2, 3, 0, 1)), [(0, 0), (0, 2)]).occurrences_in(
+            Perm((3, 4, 5, 1, 0, 2))
+        )
+    ) == [(0, 1, 3, 5), (0, 1, 4, 5), (0, 2, 3, 5), (0, 2, 4, 5)]
+    assert sorted(
+        MeshPatt(Perm((1, 3, 0, 2)), [(0, 3)]).occurrences_in(Perm((2, 3, 5, 0, 4, 1)))
+    ) == [(0, 2, 3, 4), (1, 2, 3, 4)]
+    assert sorted(
+        MeshPatt(Perm((2, 0, 3, 1)), [(0, 0), (0, 3)]).occurrences_in(
+            Perm((4, 1, 2, 5, 3, 0))
+        )
+    ) == [(0, 1, 3, 4), (0, 2, 3, 4)]
+    assert sorted(
+        MeshPatt(Perm((2, 3, 0, 1)), [(0, 0), (0, 2)]).occurrences_in(
+            Perm((3, 5, 1, 2, 0, 4))
+        )
+    ) == [(0, 1, 2, 3)]
+    assert sorted(
+        MeshPatt(Perm((2, 0, 1, 3)), [(0, 0), (0, 3)]).occurrences_in(
+            Perm((2, 0, 4, 1, 5, 3))
+        )
+    ) == [(0, 1, 3, 4), (0, 1, 3, 5)]
+    assert sorted(
+        MeshPatt(Perm((2, 0, 3, 1)), [(0, 0), (0, 1), (0, 2)]).occurrences_in(
+            Perm((5, 2, 0, 3, 4, 1))
+        )
+    ) == [(1, 2, 3, 5), (1, 2, 4, 5)]
+    assert sorted(
+        MeshPatt(Perm((2, 1, 0, 3)), [(0, 3)]).occurrences_in(Perm((3, 2, 5, 0, 1, 4)))
+    ) == [(0, 1, 3, 5), (0, 1, 4, 5)]
+
+
+def test_occurrences_in_mesh():
+    assert sorted(
+        MeshPatt(Perm((1, 0, 2)), [(1, 2), (2, 2), (2, 3)]).occurrences_in(
+            MeshPatt(
+                Perm((3, 1, 0, 2, 4)),
+                [
+                    (0, 0),
+                    (0, 1),
+                    (0, 2),
+                    (1, 4),
+                    (2, 4),
+                    (3, 3),
+                    (3, 4),
+                    (3, 5),
+                    (4, 0),
+                    (4, 3),
+                    (4, 4),
+                    (4, 5),
+                    (5, 0),
+                ],
+            )
+        )
+    ) == [(0, 2, 4), (0, 3, 4)]
+    assert list(
+        MeshPatt(Perm((1, 0, 2)), [(0, 1), (0, 2), (1, 0), (2, 2)]).occurrences_in(
+            MeshPatt(
+                Perm((3, 1, 2, 0, 4)),
+                [
+                    (1, 0),
+                    (0, 1),
+                    (1, 1),
+                    (2, 1),
+                    (0, 2),
+                    (1, 2),
+                    (2, 2),
+                    (3, 2),
+                    (4, 2),
+                    (0, 3),
+                    (1, 3),
+                    (2, 3),
+                    (4, 3),
+                    (0, 4),
+                    (1, 4),
+                    (2, 4),
+                    (3, 4),
+                    (4, 4),
+                ],
+            )
+        )
+    )[0] == (0, 1, 4)
+    assert sorted(
+        MeshPatt.unrank(Perm((0, 3, 1, 2)), 5).occurrences_in(
+            MeshPatt(
+                Perm((0, 3, 5, 4, 1, 2)),
+                [(0, 0), (0, 1), (0, 2), (0, 4), (0, 6), (1, 0), (1, 1), (1, 3)],
+            )
+        )
+    ) == [(0, 1, 4, 5), (0, 2, 4, 5), (0, 3, 4, 5)]
+    assert list(
+        MeshPatt(Perm((1, 3, 0, 2)), [(0, 1), (0, 3)]).occurrences_in(
+            MeshPatt(
+                Perm((0, 2, 5, 4, 1, 3)),
+                [
+                    (0, 2),
+                    (0, 3),
+                    (0, 4),
+                    (0, 5),
+                    (0, 6),
+                    (1, 1),
+                    (1, 2),
+                    (1, 3),
+                    (1, 4),
+                ],
+            )
+        )
+    )[0] == (1, 3, 4, 5)
+    assert sorted(
+        MeshPatt(Perm((2, 1, 0, 3)), [(0, 3)]).occurrences_in(
+            MeshPatt(
+                Perm((2, 5, 1, 3, 0, 4)),
+                [
+                    (0, 1),
+                    (0, 2),
+                    (0, 3),
+                    (0, 4),
+                    (0, 5),
+                    (1, 1),
+                    (1, 2),
+                    (1, 4),
+                    (1, 5),
+                ],
+            )
+        )
+    ) == [(0, 2, 4, 5)]
+    assert sorted(
+        MeshPatt(Perm((3, 2, 1, 0)), [(0, 0), (0, 1), (0, 2)]).occurrences_in(
+            MeshPatt(
+                Perm((4, 3, 0, 2, 1, 5)),
+                [(0, 0), (0, 1), (0, 2), (0, 3), (0, 6), (1, 1), (1, 2), (1, 6)],
+            )
+        )
+    ) == [(0, 1, 3, 4)]
+    assert sorted(
+        MeshPatt(Perm((1, 3, 2, 0)), [(0, 0), (0, 2)]).occurrences_in(
+            MeshPatt(
+                Perm((1, 2, 5, 3, 0, 4)),
+                [(0, 0), (0, 2), (0, 3), (0, 4), (1, 0), (1, 1), (1, 3)],
+            )
+        )
+    ) == [(0, 2, 3, 4), (1, 2, 3, 4)]
+    assert sorted(
+        MeshPatt(Perm((2, 3, 0, 1)), [(0, 0), (0, 2)]).occurrences_in(
+            MeshPatt(
+                Perm((3, 4, 5, 1, 0, 2)),
+                [
+                    (0, 0),
+                    (0, 3),
+                    (0, 4),
+                    (0, 5),
+                    (0, 6),
+                    (1, 0),
+                    (1, 1),
+                    (1, 3),
+                    (1, 6),
+                ],
+            )
+        )
+    ) == [(0, 1, 4, 5), (0, 2, 4, 5)]
+    assert sorted(
+        MeshPatt(Perm((1, 3, 0, 2)), [(0, 3)]).occurrences_in(
+            MeshPatt(
+                Perm((2, 3, 5, 0, 4, 1)),
+                [(0, 2), (0, 3), (0, 4), (0, 5), (0, 6), (1, 0), (1, 1), (1, 5)],
+            )
+        )
+    ) == [(0, 2, 3, 4), (1, 2, 3, 4)]
+    assert sorted(
+        MeshPatt(Perm((2, 0, 3, 1)), [(0, 0), (0, 3)]).occurrences_in(
+            MeshPatt(
+                Perm((4, 1, 2, 5, 3, 0)),
+                [
+                    (0, 0),
+                    (0, 1),
+                    (0, 2),
+                    (0, 4),
+                    (0, 5),
+                    (0, 6),
+                    (1, 2),
+                    (1, 3),
+                    (1, 5),
+                ],
+            )
+        )
+    ) == [(0, 1, 3, 4), (0, 2, 3, 4)]
+    assert sorted(
+        MeshPatt(Perm((2, 3, 0, 1)), [(0, 0), (0, 2)]).occurrences_in(
+            MeshPatt(
+                Perm((3, 5, 1, 2, 0, 4)),
+                [(0, 0), (0, 1), (0, 3), (0, 4), (0, 5), (0, 6), (1, 0), (1, 5)],
+            )
+        )
+    ) == [(0, 1, 2, 3)]
+    assert sorted(
+        MeshPatt(Perm((2, 0, 1, 3)), [(0, 0), (0, 3)]).occurrences_in(
+            MeshPatt(
+                Perm((2, 0, 4, 1, 5, 3)),
+                [(0, 0), (0, 3), (0, 4), (0, 6), (1, 1), (1, 5)],
+            )
+        )
+    ) == [(0, 1, 3, 5)]
+    assert sorted(
+        MeshPatt(Perm((2, 0, 3, 1)), [(0, 0), (0, 1), (0, 2)]).occurrences_in(
+            MeshPatt(
+                Perm((5, 2, 0, 3, 4, 1)),
+                [
+                    (0, 0),
+                    (0, 1),
+                    (0, 2),
+                    (0, 3),
+                    (0, 5),
+                    (0, 6),
+                    (1, 0),
+                    (1, 1),
+                    (1, 2),
+                    (1, 3),
+                    (1, 5),
+                ],
+            )
+        )
+    ) == [(1, 2, 3, 5), (1, 2, 4, 5)]
+    assert sorted(
+        MeshPatt(Perm((2, 1, 0, 3)), [(0, 3)]).occurrences_in(
+            MeshPatt(
+                Perm((3, 2, 5, 0, 1, 4)),
+                [
+                    (0, 1),
+                    (0, 2),
+                    (0, 3),
+                    (0, 4),
+                    (0, 5),
+                    (0, 6),
+                    (1, 0),
+                    (1, 1),
+                    (1, 2),
+                    (1, 5),
+                ],
+            )
+        )
+    ) == [(0, 1, 3, 5), (0, 1, 4, 5)]
+
+
+def test_all_syms():
+    assert sorted(MeshPatt(Perm((2, 0, 1)), [(0, 3), (1, 1), (2, 0)]).all_syms()) == [
+        MeshPatt(Perm((0, 2, 1)), [(0, 0), (1, 2), (2, 3)]),
+        MeshPatt(Perm((0, 2, 1)), [(0, 0), (2, 1), (3, 2)]),
+        MeshPatt(Perm((1, 0, 2)), [(0, 1), (1, 2), (3, 3)]),
+        MeshPatt(Perm((1, 0, 2)), [(1, 0), (2, 1), (3, 3)]),
+        MeshPatt(Perm((1, 2, 0)), [(0, 2), (1, 1), (3, 0)]),
+        MeshPatt(Perm((1, 2, 0)), [(1, 3), (2, 2), (3, 0)]),
+        MeshPatt(Perm((2, 0, 1)), [(0, 3), (1, 1), (2, 0)]),
+        MeshPatt(Perm((2, 0, 1)), [(0, 3), (2, 2), (3, 1)]),
+    ]
+    assert sorted(
+        MeshPatt(
+            Perm((1, 4, 3, 0, 2)), [(0, 0), (1, 4), (2, 0), (2, 1), (3, 0), (5, 2)]
+        ).all_syms()
+    ) == [
+        MeshPatt(
+            Perm((1, 2, 4, 0, 3)), [(1, 1), (3, 5), (4, 2), (5, 0), (5, 2), (5, 3)]
+        ),
+        MeshPatt(
+            Perm((1, 4, 0, 2, 3)), [(0, 2), (0, 3), (0, 5), (1, 3), (2, 0), (4, 4)]
+        ),
+        MeshPatt(
+            Perm((1, 4, 3, 0, 2)), [(0, 0), (1, 4), (2, 0), (2, 1), (3, 0), (5, 2)]
+        ),
+        MeshPatt(
+            Perm((2, 0, 3, 4, 1)), [(0, 2), (2, 0), (3, 0), (3, 1), (4, 4), (5, 0)]
+        ),
+        MeshPatt(
+            Perm((2, 4, 1, 0, 3)), [(0, 3), (2, 5), (3, 4), (3, 5), (4, 1), (5, 5)]
+        ),
+        MeshPatt(
+            Perm((3, 0, 1, 4, 2)), [(0, 5), (1, 1), (2, 4), (2, 5), (3, 5), (5, 3)]
+        ),
+        MeshPatt(
+            Perm((3, 0, 4, 2, 1)), [(0, 0), (0, 2), (0, 3), (1, 2), (2, 5), (4, 1)]
+        ),
+        MeshPatt(
+            Perm((3, 2, 0, 4, 1)), [(1, 4), (3, 0), (4, 3), (5, 2), (5, 3), (5, 5)]
+        ),
+    ]
 
 
 def test_add_point():
@@ -291,7 +590,7 @@ def test_add_point():
 
     with pytest.raises(TypeError):
         mpatt.add_point(("a", (0,)))
-    with pytest.raises(ValueError):
+    with pytest.raises(AssertionError):
         mpatt.add_point((2, 1))
 
 
@@ -320,7 +619,9 @@ def test_add_decrease():
 
 
 def test_contained_in():
-    assert Perm([0, 1, 2]).contains(MeshPatt([0, 1], set([(1, 0), (1, 1), (1, 2)])))
+    assert Perm([0, 1, 2]).contains(
+        MeshPatt(Perm([0, 1]), set([(1, 0), (1, 1), (1, 2)]))
+    )
     assert mesh_pattern.contained_in(perm1)
     assert mesh_pattern.contained_in(perm2)
     assert not (mesh_pattern.contained_in(perm3))
@@ -340,6 +641,384 @@ def test_meshpatt_contains_meshpatt():
     assert big_mesh_patt_2nd_col not in small_mesh_patt
     assert big_mesh_patt_1st_col not in big_mesh_patt_2nd_col
     assert big_mesh_patt_2nd_col not in big_mesh_patt_1st_col
+
+
+def test_contains():
+    assert MeshPatt(
+        Perm((0, 2, 1, 3)),
+        [
+            (0, 2),
+            (0, 4),
+            (1, 0),
+            (1, 4),
+            (2, 0),
+            (2, 1),
+            (2, 2),
+            (3, 0),
+            (3, 1),
+            (3, 3),
+            (3, 4),
+            (4, 0),
+            (4, 1),
+            (4, 2),
+            (4, 3),
+            (4, 4),
+        ],
+    ).contains(MeshPatt(Perm((0, 1)), [(1, 0), (2, 1)]))
+    assert MeshPatt(
+        Perm((0, 1)), [(0, 1), (1, 0), (1, 1), (1, 2), (2, 0), (2, 2)]
+    ).contains(MeshPatt(Perm((0, 1)), [(1, 2), (2, 0), (2, 2)]))
+    assert MeshPatt(
+        Perm((2, 1, 0, 3, 4, 5)),
+        [
+            (0, 0),
+            (0, 2),
+            (1, 1),
+            (1, 2),
+            (1, 4),
+            (1, 5),
+            (2, 2),
+            (2, 3),
+            (2, 4),
+            (2, 5),
+            (2, 6),
+            (3, 1),
+            (3, 2),
+            (3, 5),
+            (4, 0),
+            (4, 1),
+            (4, 2),
+            (4, 3),
+            (4, 4),
+            (4, 5),
+            (4, 6),
+            (5, 0),
+            (5, 1),
+            (5, 2),
+            (5, 4),
+            (5, 6),
+            (6, 0),
+            (6, 1),
+            (6, 4),
+            (6, 6),
+        ],
+    ).contains(MeshPatt(Perm((0, 1)), [(2, 0), (2, 2)]))
+    assert MeshPatt(
+        Perm((2, 4, 1, 5, 3, 0)),
+        [
+            (0, 4),
+            (0, 5),
+            (0, 6),
+            (1, 2),
+            (1, 3),
+            (1, 4),
+            (1, 5),
+            (1, 6),
+            (2, 0),
+            (2, 1),
+            (2, 4),
+            (2, 5),
+            (2, 6),
+            (3, 3),
+            (3, 6),
+            (4, 0),
+            (4, 2),
+            (4, 3),
+            (4, 4),
+            (4, 5),
+            (4, 6),
+            (5, 1),
+            (5, 2),
+            (5, 4),
+            (5, 5),
+            (6, 1),
+            (6, 3),
+            (6, 6),
+        ],
+    ).contains(MeshPatt(Perm((1, 0)), [(0, 1)]))
+    assert MeshPatt(
+        Perm((1, 0, 2, 3, 4)),
+        [
+            (0, 0),
+            (0, 3),
+            (0, 4),
+            (0, 5),
+            (1, 0),
+            (1, 4),
+            (2, 0),
+            (2, 1),
+            (2, 2),
+            (2, 4),
+            (2, 5),
+            (3, 1),
+            (3, 2),
+            (3, 3),
+            (4, 0),
+            (4, 1),
+            (4, 2),
+            (4, 3),
+            (4, 4),
+            (5, 2),
+            (5, 3),
+            (5, 4),
+            (5, 5),
+        ],
+    ).contains(MeshPatt(Perm((0, 1)), [(0, 0)]))
+    assert MeshPatt(
+        Perm((0, 3, 1, 2)),
+        [(0, 1), (0, 4), (1, 0), (1, 1), (2, 1), (3, 2), (4, 2), (4, 4)],
+    ).contains(MeshPatt(Perm((0, 1)), [(1, 1), (2, 1)]))
+    assert MeshPatt(
+        Perm((1, 0, 2, 3)),
+        [
+            (0, 1),
+            (0, 4),
+            (1, 1),
+            (1, 2),
+            (1, 3),
+            (1, 4),
+            (2, 0),
+            (2, 2),
+            (3, 0),
+            (3, 1),
+            (3, 3),
+            (3, 4),
+            (4, 1),
+            (4, 2),
+        ],
+    ).contains(MeshPatt(Perm((1, 0)), [(0, 1), (1, 1)]))
+    assert MeshPatt(
+        Perm((0, 1, 3, 2)),
+        [
+            (0, 3),
+            (1, 1),
+            (2, 0),
+            (2, 1),
+            (2, 4),
+            (3, 0),
+            (3, 4),
+            (4, 2),
+            (4, 3),
+            (4, 4),
+        ],
+    ).contains(MeshPatt(Perm((1, 0)), [(2, 2)]))
+    assert MeshPatt(
+        Perm((1, 0)), [(0, 0), (0, 1), (0, 2), (1, 1), (2, 0), (2, 1), (2, 2)]
+    ).contains(MeshPatt(Perm((1, 0)), [(1, 1), (2, 0), (2, 1)]))
+    assert MeshPatt(
+        Perm((0, 1)), [(0, 0), (0, 1), (0, 2), (1, 0), (1, 1), (1, 2), (2, 2)]
+    ).contains(MeshPatt(Perm((0, 1)), [(0, 0), (0, 1), (1, 0), (2, 2)]))
+
+
+def test_avoids():
+    assert MeshPatt(
+        Perm((1, 3, 2, 0)),
+        [
+            (0, 1),
+            (0, 2),
+            (1, 1),
+            (1, 3),
+            (1, 4),
+            (2, 0),
+            (2, 1),
+            (2, 3),
+            (2, 4),
+            (3, 0),
+            (3, 2),
+            (3, 3),
+            (4, 0),
+        ],
+    ).avoids(MeshPatt(Perm((2, 1, 0)), [(0, 1), (0, 2), (1, 3), (2, 3), (3, 1)]))
+    assert MeshPatt(
+        Perm((2, 1, 0, 3)),
+        [
+            (0, 0),
+            (0, 1),
+            (0, 2),
+            (1, 0),
+            (1, 1),
+            (2, 0),
+            (2, 1),
+            (2, 3),
+            (3, 1),
+            (3, 2),
+            (3, 3),
+            (4, 1),
+        ],
+    ).avoids(MeshPatt(Perm((1, 0)), [(0, 0), (0, 1), (0, 2), (1, 0), (2, 1), (2, 2)]))
+    assert MeshPatt(
+        Perm((0, 1)), [(0, 1), (1, 0), (1, 1), (1, 2), (2, 1), (2, 2)]
+    ).avoids(
+        MeshPatt(
+            Perm((2, 0, 1)),
+            [(0, 1), (0, 3), (1, 1), (2, 1), (2, 2), (2, 3), (3, 0), (3, 1)],
+        )
+    )
+    assert MeshPatt(
+        Perm((0, 1, 3, 2)),
+        [
+            (0, 2),
+            (1, 1),
+            (1, 3),
+            (2, 0),
+            (2, 1),
+            (2, 2),
+            (2, 3),
+            (2, 4),
+            (3, 0),
+            (3, 1),
+            (3, 2),
+            (4, 0),
+            (4, 4),
+        ],
+    ).avoids(MeshPatt(Perm((1, 0)), [(1, 2), (2, 1), (2, 2)]))
+    assert MeshPatt(Perm((0, 1)), [(0, 1), (0, 2), (1, 1), (2, 1)]).avoids(
+        MeshPatt(
+            Perm((2, 3, 1, 0)),
+            [
+                (0, 3),
+                (0, 4),
+                (1, 0),
+                (1, 1),
+                (1, 4),
+                (2, 0),
+                (2, 4),
+                (3, 1),
+                (3, 2),
+                (3, 3),
+                (3, 4),
+                (4, 0),
+                (4, 1),
+                (4, 2),
+                (4, 3),
+                (4, 4),
+            ],
+        )
+    )
+    assert MeshPatt(
+        Perm((3, 2, 0, 1)),
+        [(0, 0), (1, 4), (3, 0), (3, 3), (4, 0), (4, 2), (4, 3), (4, 4)],
+    ).avoids(
+        MeshPatt(
+            Perm((1, 2, 3, 0)),
+            [
+                (0, 0),
+                (0, 4),
+                (1, 1),
+                (2, 1),
+                (2, 3),
+                (2, 4),
+                (3, 0),
+                (3, 1),
+                (3, 2),
+                (3, 4),
+                (4, 1),
+                (4, 2),
+                (4, 3),
+            ],
+        )
+    )
+    assert MeshPatt(Perm((0, 1)), [(0, 1), (1, 0), (1, 1), (2, 1)]).avoids(
+        MeshPatt(Perm((0, 1, 2)), [(0, 0), (1, 1), (3, 0), (3, 1)])
+    )
+    assert MeshPatt(Perm((0, 2, 1)), [(0, 1), (3, 0), (3, 1), (3, 2)]).avoids(
+        MeshPatt(
+            Perm((0, 1, 2)),
+            [
+                (0, 0),
+                (0, 1),
+                (0, 3),
+                (1, 0),
+                (1, 1),
+                (1, 2),
+                (1, 3),
+                (2, 1),
+                (2, 3),
+                (3, 1),
+                (3, 3),
+            ],
+        )
+    )
+    assert MeshPatt(
+        Perm((3, 0, 2, 1)),
+        [
+            (0, 0),
+            (0, 1),
+            (0, 4),
+            (1, 0),
+            (1, 1),
+            (1, 2),
+            (1, 3),
+            (1, 4),
+            (2, 1),
+            (3, 0),
+            (3, 2),
+            (3, 3),
+            (3, 4),
+            (4, 0),
+            (4, 3),
+            (4, 4),
+        ],
+    ).avoids(
+        MeshPatt(Perm((1, 0, 2)), [(0, 1), (0, 3), (1, 1), (1, 3), (3, 2), (3, 3)])
+    )
+    assert MeshPatt(
+        Perm((0, 2, 1)), [(0, 0), (0, 1), (0, 2), (1, 0), (2, 0), (3, 1), (3, 2)]
+    ).avoids(
+        MeshPatt(
+            Perm((2, 1, 0)),
+            [(0, 2), (0, 3), (1, 1), (1, 2), (1, 3), (2, 1), (2, 2), (3, 0), (3, 3)],
+        )
+    )
+    assert MeshPatt(Perm((1, 0)), [(0, 1), (0, 2), (1, 0)]).avoids(
+        MeshPatt(Perm((1, 0)), [(0, 0), (0, 1), (0, 2), (1, 0), (2, 0), (2, 1)]),
+        MeshPatt(Perm((0, 1)), [(1, 0), (1, 2), (2, 1), (2, 2)]),
+        MeshPatt(Perm((0, 1)), [(0, 2), (1, 2), (2, 1)]),
+        MeshPatt(
+            Perm((0, 1)), [(0, 0), (0, 1), (1, 0), (1, 1), (1, 2), (2, 0), (2, 1)]
+        ),
+        MeshPatt(
+            Perm((1, 2, 3, 0)),
+            [
+                (0, 0),
+                (0, 4),
+                (1, 0),
+                (1, 3),
+                (2, 0),
+                (2, 1),
+                (2, 3),
+                (2, 4),
+                (3, 3),
+                (3, 4),
+                (4, 1),
+                (4, 4),
+            ],
+        ),
+        MeshPatt(
+            Perm((2, 0, 1, 3)),
+            [
+                (0, 0),
+                (1, 1),
+                (1, 4),
+                (2, 2),
+                (3, 0),
+                (3, 1),
+                (3, 3),
+                (4, 0),
+                (4, 1),
+                (4, 2),
+                (4, 4),
+            ],
+        ),
+        MeshPatt(
+            Perm((0, 1)), [(0, 2), (1, 0), (1, 1), (1, 2), (2, 0), (2, 1), (2, 2)]
+        ),
+        MeshPatt(Perm((1, 2, 0)), [(0, 2), (1, 2), (2, 2), (2, 3)]),
+        MeshPatt(
+            Perm((2, 0, 1)), [(0, 0), (0, 1), (1, 0), (1, 3), (2, 0), (2, 3), (3, 1)]
+        ),
+        MeshPatt(Perm((1, 0, 2)), [(1, 1), (1, 2), (1, 3), (2, 1), (2, 2)]),
+    )
 
 
 def test_avoided_by():
@@ -368,7 +1047,7 @@ def test_is_shaded():
     for (x0, y0) in itertools.combinations(range(len(mpatt) + 1), 2):
         for (x1, y1) in itertools.combinations(range(len(mpatt) + 1), 2):
             if x0 > x1 or y0 > y1:
-                with pytest.raises(ValueError):
+                with pytest.raises(AssertionError):
                     mpatt.is_shaded((x0, y0), (x1, y1))
             elif x0 == x1 and y0 == y1:
                 if (x0 + y0) % 2 == 0:
@@ -376,13 +1055,13 @@ def test_is_shaded():
                     assert mpatt.is_shaded((x0, y0), (x1, y1))
             else:
                 assert not mpatt.is_shaded((x0, y0), (x1, y1))
-    with pytest.raises(ValueError):
+    with pytest.raises(AssertionError):
         mpatt.is_shaded((4, 0))
-    with pytest.raises(ValueError):
+    with pytest.raises(AssertionError):
         mpatt.is_shaded((0, 4))
-    with pytest.raises(ValueError):
+    with pytest.raises(AssertionError):
         mpatt.is_shaded((-1, 2))
-    with pytest.raises(ValueError):
+    with pytest.raises(AssertionError):
         mpatt.is_shaded((0, 0), (0, 4))
 
 
@@ -395,27 +1074,47 @@ def test_is_pointfree():
     assert not mpatt.is_pointfree((0, 1), (2, 2))
     mpatt = MeshPatt((0, 1, 2), [(0, 1), (1, 1), (1, 2), (2, 1), (2, 2), (3, 1)])
     assert not mpatt.is_pointfree((1, 1), (2, 2))
+    with pytest.raises(AssertionError):
+        mpatt.is_shaded((-1, 0), (0, 4))
+    with pytest.raises(AssertionError):
+        mpatt.is_shaded((0, -1), (0, 4))
+    with pytest.raises(AssertionError):
+        mpatt.is_shaded((0, 0), (-1, 4))
+    with pytest.raises(AssertionError):
+        mpatt.is_shaded((0, 0), (0, -1))
+    with pytest.raises(AssertionError):
+        mpatt.is_shaded((100, 0), (0, 4))
+    with pytest.raises(AssertionError):
+        mpatt.is_shaded((0, 100), (0, 4))
+    with pytest.raises(AssertionError):
+        mpatt.is_shaded((0, 0), (100, 4))
+    with pytest.raises(AssertionError):
+        mpatt.is_shaded((0, 0), (0, 100))
+    with pytest.raises(AssertionError):
+        mpatt.is_shaded((1, 0), (0, 4))
+    with pytest.raises(AssertionError):
+        mpatt.is_shaded((0, 3), (0, 2))
 
 
 def test_can_shade():
     assert not (MeshPatt().can_shade((0, 0)))
-    assert MeshPatt((0,)).can_shade((0, 0)) == [0]
-    assert MeshPatt((0,)).can_shade((1, 0)) == [0]
-    assert not (MeshPatt((0,), [(0, 0)]).can_shade((0, 0)))
-    assert not (MeshPatt((0,), [(0, 0)]).can_shade((1, 1)))
+    assert MeshPatt(Perm((0,))).can_shade((0, 0)) == [0]
+    assert MeshPatt(Perm((0,))).can_shade((1, 0)) == [0]
+    assert not (MeshPatt(Perm((0,)), [(0, 0)]).can_shade((0, 0)))
+    assert not (MeshPatt(Perm((0,)), [(0, 0)]).can_shade((1, 1)))
     assert not mesh_pattern.can_shade((1, 1))
     assert not mesh_pattern.can_shade((3, 2))
     assert not mesh_pattern.can_shade((1, 2))
     assert mesh_pattern.can_shade((0, 1)) == [1]
-    mpatt = MeshPatt((1, 2, 0), [(2, 2), (3, 0), (3, 2), (3, 3)])
+    mpatt = MeshPatt(Perm((1, 2, 0)), [(2, 2), (3, 0), (3, 2), (3, 3)])
     assert list(sorted(mpatt.can_shade((1, 2)))) == [1, 2]
     assert mpatt.can_shade((3, 1)) == [0]
 
 
 def test_can_simul_shade():
     assert not (MeshPatt().can_simul_shade((0, 0), (0, 0)))
-    assert MeshPatt((0,)).can_simul_shade((0, 0), (0, 1)) == [0]
-    assert not (MeshPatt((0, 1, 2)).can_simul_shade((2, 0), (2, 2)))
+    assert MeshPatt(Perm((0,))).can_simul_shade((0, 0), (0, 1)) == [0]
+    assert not (MeshPatt(Perm((0, 1, 2))).can_simul_shade((2, 0), (2, 2)))
     assert not mesh1.can_simul_shade((2, 2), (3, 2))
     assert not mesh1.can_simul_shade((1, 2), (2, 2))
     assert not mesh2.can_simul_shade((3, 3), (4, 3))
@@ -425,11 +1124,11 @@ def test_can_simul_shade():
     assert mesh1.can_simul_shade((5, 4), (5, 5)) == [4]
 
     mpatt = MeshPatt(
-        (2, 3, 0, 1), [(0, 4), (1, 3), (2, 1), (2, 2), (3, 4), (4, 0), (4, 4)]
+        Perm((2, 3, 0, 1)), [(0, 4), (1, 3), (2, 1), (2, 2), (3, 4), (4, 0), (4, 4)]
     )
     assert mpatt.can_simul_shade((4, 1), (4, 2)) == [1]
     mpatt = MeshPatt(
-        (1, 2, 0), [(0, 2), (0, 3), (1, 1), (2, 0), (2, 1), (3, 2), (3, 3)]
+        Perm((1, 2, 0)), [(0, 2), (0, 3), (1, 1), (2, 0), (2, 1), (3, 2), (3, 3)]
     )
     assert mpatt.can_simul_shade((2, 2), (2, 3)) == [2]
     assert not mpatt.can_simul_shade((1, 2), (2, 2))
@@ -438,9 +1137,13 @@ def test_can_simul_shade():
 
 def test_shadable_boxes():
     assert not (MeshPatt().shadable_boxes())
-    assert len(MeshPatt((0,)).shadable_boxes()[0]) == 8
-    assert len(MeshPatt((0, 1)).shadable_boxes()[0]) == 8
-    assert len(MeshPatt((0, 1)).shadable_boxes()[1]) == 8
+    assert len(MeshPatt(Perm((0,))).shadable_boxes()[0]) == 8
+    assert len(MeshPatt(Perm((0, 1))).shadable_boxes()[0]) == 8
+    assert len(MeshPatt(Perm((0, 1))).shadable_boxes()[1]) == 8
+
+
+def test_get_perm():
+    assert MeshPatt(Perm((3, 0, 2, 1)), ((1, 0),)).get_perm() == Perm((3, 0, 2, 1))
 
 
 def test_non_pointless_boxes():
@@ -480,7 +1183,6 @@ def test_has_anchered_point():
     assert not any(MeshPatt(Perm()).has_anchored_point())
     assert all(MeshPatt(Perm(), [(0, 0)]).has_anchored_point())
     assert not any(MeshPatt(Perm.random(5)).has_anchored_point())
-    assert all(MeshPatt.unrank((1, 2, 0), 65535))
     right, top, left, bottom = MeshPatt(
         (0, 1, 2), [(0, i) for i in range(4)]
     ).has_anchored_point()
@@ -503,13 +1205,13 @@ def test_has_anchered_point():
     rightshad = [(len(mpatt), i) for i in range(len(mpatt) + 1)]
     upshad = [(i, len(mpatt)) for i in range(len(mpatt) + 1)]
     bottomshad = [(i, 0) for i in range(len(mpatt) + 1)]
-    right, top, left, bottom = mpatt.shade(leftshad).has_anchored_point()
+    right, top, left, bottom = mpatt.shade(*leftshad).has_anchored_point()
     assert left
-    right, top, left, bottom = mpatt.shade(rightshad).has_anchored_point()
+    right, top, left, bottom = mpatt.shade(*rightshad).has_anchored_point()
     assert right
-    right, top, left, bottom = mpatt.shade(upshad).has_anchored_point()
+    right, top, left, bottom = mpatt.shade(*upshad).has_anchored_point()
     assert top
-    right, top, left, bottom = mpatt.shade(bottomshad).has_anchored_point()
+    right, top, left, bottom = mpatt.shade(*bottomshad).has_anchored_point()
     assert bottom
 
 
@@ -611,17 +1313,13 @@ def test_unrank():
         m = MeshPatt.unrank(Perm.random(length), 2 ** ((length + 1) ** 2) - 1)
         assert len(m.shading) == (length + 1) ** 2
 
-    with pytest.raises(ValueError):
+    with pytest.raises(AssertionError):
         MeshPatt.unrank([1, 2, 3], -1)
-    with pytest.raises(ValueError):
+    with pytest.raises(AssertionError):
         MeshPatt.unrank(Perm([1]), 16)
-    with pytest.raises(ValueError):
+    with pytest.raises(AssertionError):
         MeshPatt.unrank(Perm([1]), -1)
-    with pytest.raises(TypeError):
-        MeshPatt.unrank(Perm.random(length), "haha")
-    with pytest.raises(TypeError):
-        MeshPatt.unrank(Perm([1]), "1")
-    with pytest.raises(ValueError):
+    with pytest.raises(AssertionError):
         MeshPatt.unrank(Perm.random(10), 2 ** ((10 + 1) ** 2) + 1)
 
 
@@ -709,23 +1407,22 @@ def test_to_tikz():
     assert (
         mesh_pattern.to_tikz()
         == "\\begin{tikzpicture}[scale=.3,baseline=(current bounding box.center)]\n"
-        "\t\\foreach \\x in {1,...,4} {\n"
-        "\t\t\\draw[ultra thin] (\\x,0)--(\\x,5); %vline\n"
-        "\t\t\\draw[ultra thin] (0,\\x)--(5,\\x); %hline\n"
-        "\t\n"
-        "\t}\n"
-        "\t\\fill[pattern color = black!75, pattern=north east lines] (0, 0) rectangle +(1,1);\n"  # noqa: E501
-        "\t\\fill[pattern color = black!75, pattern=north east lines] (0, 4) rectangle +(1,1);\n"  # noqa: E501
-        "\t\\fill[pattern color = black!75, pattern=north east lines] (2, 1) rectangle +(1,1);\n"  # noqa: E501
-        "\t\\fill[pattern color = black!75, pattern=north east lines] (2, 2) rectangle +(1,1);\n"  # noqa: E501
-        "\t\\fill[pattern color = black!75, pattern=north east lines] (3, 3) rectangle +(1,1);\n"  # noqa: E501
-        "\t\\fill[pattern color = black!75, pattern=north east lines] (4, 0) rectangle +(1,1);\n"  # noqa: E501
-        "\t\\fill[pattern color = black!75, pattern=north east lines] (4, 1) rectangle +(1,1);\n"  # noqa: E501
-        "\t\\fill[pattern color = black!75, pattern=north east lines] (4, 2) rectangle +(1,1);\n"  # noqa: E501
-        "\t\\draw[fill=black] (1,2) circle (5pt);\n"
-        "\t\\draw[fill=black] (2,4) circle (5pt);\n"
-        "\t\\draw[fill=black] (3,3) circle (5pt);\n"
-        "\t\\draw[fill=black] (4,1) circle (5pt);\n"
+        "    \\foreach \\x in {1,...,4} {\n"
+        "        \\draw[ultra thin] (\\x,0)--(\\x,5); %vline\n"
+        "        \\draw[ultra thin] (0,\\x)--(5,\\x); %hline\n"
+        "    }\n"
+        "    \\fill[pattern color = black!75, pattern=north east lines] (0, 0) rectangle +(1,1);\n"  # noqa: E501
+        "    \\fill[pattern color = black!75, pattern=north east lines] (0, 4) rectangle +(1,1);\n"  # noqa: E501
+        "    \\fill[pattern color = black!75, pattern=north east lines] (2, 1) rectangle +(1,1);\n"  # noqa: E501
+        "    \\fill[pattern color = black!75, pattern=north east lines] (2, 2) rectangle +(1,1);\n"  # noqa: E501
+        "    \\fill[pattern color = black!75, pattern=north east lines] (3, 3) rectangle +(1,1);\n"  # noqa: E501
+        "    \\fill[pattern color = black!75, pattern=north east lines] (4, 0) rectangle +(1,1);\n"  # noqa: E501
+        "    \\fill[pattern color = black!75, pattern=north east lines] (4, 1) rectangle +(1,1);\n"  # noqa: E501
+        "    \\fill[pattern color = black!75, pattern=north east lines] (4, 2) rectangle +(1,1);\n"  # noqa: E501
+        "    \\draw[fill=black] (1,2) circle (5pt);\n"
+        "    \\draw[fill=black] (2,4) circle (5pt);\n"
+        "    \\draw[fill=black] (3,3) circle (5pt);\n"
+        "    \\draw[fill=black] (4,1) circle (5pt);\n"
         "\\end{tikzpicture}"
     )
 
@@ -735,6 +1432,144 @@ def test_ascii_plot():
         mesh_pattern.ascii_plot()
         == "▒| | | |\n-+-●-+-+-\n | | |▒|\n-+-+-●-+-\n | |▒| |▒\n-●-+-+-+-\n"
         " | |▒| |▒\n-+-+-+-●-\n▒| | | |▒"
+    )
+    assert (
+        MeshPatt(
+            Perm((0, 2, 1)),
+            [(0, 0), (0, 3), (1, 1), (2, 0), (2, 1), (2, 2), (2, 3), (3, 1), (3, 3)],
+        ).ascii_plot()
+        == "▒| |▒|▒\n-+-●-+-\n | |▒|\n-+-+-●-\n |▒|▒|▒\n-●-+-+-\n▒| |▒|"
+    )
+    assert (
+        MeshPatt(
+            Perm((3, 2, 1, 0)),
+            [
+                (1, 0),
+                (1, 2),
+                (1, 3),
+                (2, 2),
+                (2, 3),
+                (2, 4),
+                (3, 0),
+                (3, 2),
+                (3, 4),
+                (4, 0),
+                (4, 1),
+                (4, 2),
+                (4, 4),
+            ],
+        ).ascii_plot()
+        == " | |▒|▒|▒\n-●-+-+-+-\n |▒|▒| |\n-+-●-+-+-\n |▒|▒|▒|▒\n-+-+-●-+-\n "
+        "| | | |▒\n-+-+-+-●-\n |▒| |▒|▒"
+    )
+    assert (
+        MeshPatt(
+            Perm((2, 5, 3, 4, 0, 1)),
+            [
+                (0, 1),
+                (0, 2),
+                (0, 3),
+                (0, 5),
+                (2, 0),
+                (2, 2),
+                (2, 4),
+                (2, 5),
+                (3, 0),
+                (3, 2),
+                (3, 3),
+                (3, 5),
+                (3, 6),
+                (4, 1),
+                (4, 4),
+                (4, 6),
+                (5, 1),
+                (5, 6),
+                (6, 0),
+                (6, 2),
+                (6, 4),
+            ],
+        ).ascii_plot()
+        == " | | |▒|▒|▒|\n-+-●-+-+-+-+-\n▒| |▒|▒| | |\n-+-+-+-●-+-+-\n | |▒|"
+        " |▒| |▒\n-+-+-●-+-+-+-\n▒| | |▒| | |\n-●-+-+-+-+-+-\n▒| |▒|▒| | "
+        "|▒\n-+-+-+-+-+-●-\n▒| | | |▒|▒|\n-+-+-+-+-●-+-\n | |▒|▒| | |▒"
+    )
+    assert (
+        MeshPatt(
+            Perm((1, 4, 5, 2, 0, 3)),
+            [
+                (0, 0),
+                (0, 2),
+                (0, 4),
+                (1, 2),
+                (1, 4),
+                (1, 6),
+                (2, 1),
+                (2, 2),
+                (2, 5),
+                (2, 6),
+                (3, 2),
+                (3, 3),
+                (3, 4),
+                (3, 6),
+                (4, 1),
+                (4, 4),
+                (5, 3),
+                (5, 4),
+                (5, 5),
+                (5, 6),
+                (6, 4),
+                (6, 6),
+            ],
+        ).ascii_plot()
+        == " |▒|▒|▒| |▒|▒\n-+-+-●-+-+-+-\n | |▒| | |▒|\n-+-●-+-+-+-+-\n▒|▒| "
+        "|▒|▒|▒|▒\n-+-+-+-+-+-●-\n | | |▒| |▒|\n-+-+-+-●-+-+-\n▒|▒|▒|▒| |"
+        " |\n-●-+-+-+-+-+-\n | |▒| |▒| |\n-+-+-+-+-●-+-\n▒| | | | | |"
+    )
+    assert (
+        MeshPatt(
+            Perm((3, 2, 0, 1)),
+            [
+                (0, 2),
+                (1, 0),
+                (1, 2),
+                (2, 1),
+                (2, 2),
+                (2, 3),
+                (3, 0),
+                (3, 3),
+                (3, 4),
+                (4, 1),
+                (4, 4),
+            ],
+        ).ascii_plot()
+        == " | | |▒|▒\n-●-+-+-+-\n | |▒|▒|\n-+-●-+-+-\n▒|▒|▒| |\n-+-+-+-●-\n |"
+        " |▒| |▒\n-+-+-●-+-\n |▒| |▒|"
+    )
+    assert (
+        MeshPatt(
+            Perm((1, 2, 0, 3)),
+            [
+                (0, 0),
+                (0, 2),
+                (0, 3),
+                (0, 4),
+                (1, 0),
+                (1, 1),
+                (1, 3),
+                (1, 4),
+                (2, 0),
+                (2, 1),
+                (2, 3),
+                (3, 0),
+                (3, 1),
+                (3, 2),
+                (3, 3),
+                (3, 4),
+                (4, 0),
+            ],
+        ).ascii_plot()
+        == "▒|▒| |▒|\n-+-+-+-●-\n▒|▒|▒|▒|\n-+-●-+-+-\n▒| | |▒|\n-●-+-+-+-\n |▒"
+        "|▒|▒|\n-+-+-●-+-\n▒|▒|▒|▒|▒"
     )
 
 
