@@ -12,7 +12,7 @@ class BivincularPatt(MeshPatt):
     @staticmethod
     def _to_shading(
         n: int, adjacent_indices: Iterable[int], adjacent_values: Iterable[int]
-    ):
+    ) -> Iterator[Tuple[int, int]]:
         """Convert adjacent requirements into shading."""
         for idx in adjacent_indices:
             assert 0 <= idx <= n
@@ -26,7 +26,7 @@ class BivincularPatt(MeshPatt):
         perm: Perm,
         adjacent_indices: Iterable[int],
         adjacent_values: Iterable[int],
-    ):
+    ) -> None:
         super().__init__(
             perm,
             BivincularPatt._to_shading(len(perm), adjacent_indices, adjacent_values),
@@ -82,7 +82,7 @@ class BivincularPatt(MeshPatt):
             pass
         return super().occurrences_in(patt, args, kwargs)
 
-    def __repr__(self):
+    def __repr__(self) -> str:
         adj_idx, adj_val = self.get_adjacent_requirements()
         return f"BivincularPatt({repr(self.pattern)}, {adj_idx}, {adj_val})"
 
@@ -106,7 +106,7 @@ class VincularPatt(BivincularPatt):
         """Return a random Vincular pattern of a given length."""
         return cls(Perm.random(length), sample(range(length + 1), randint(0, length)))
 
-    def __repr__(self):
+    def __repr__(self) -> str:
         adj_idx, _ = self.get_adjacent_requirements()
         return f"VincularPatt({repr(self.pattern)}, {adj_idx})"
 
@@ -122,6 +122,6 @@ class CovincularPatt(BivincularPatt):
         """Return a random Covincular pattern of a given length."""
         return cls(Perm.random(length), sample(range(length + 1), randint(0, length)))
 
-    def __repr__(self):
+    def __repr__(self) -> str:
         _, adj_val = self.get_adjacent_requirements()
         return f"CovincularPatt({repr(self.pattern)}, {adj_val})"
