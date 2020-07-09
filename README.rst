@@ -5,9 +5,6 @@ permuta
 .. image:: https://travis-ci.org/PermutaTriangle/Permuta.svg?branch=master
     :alt: Travis
     :target: https://travis-ci.org/PermutaTriangle/Permuta
-.. image:: https://coveralls.io/repos/github/PermutaTriangle/Permuta/badge.svg?branch=master
-    :alt: Coveralls
-    :target: https://coveralls.io/github/PermutaTriangle/Permuta?branch=master
 .. image:: https://img.shields.io/pypi/v/Permuta.svg
     :alt: PyPI
     :target: https://pypi.python.org/pypi/Permuta
