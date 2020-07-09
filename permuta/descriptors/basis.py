@@ -3,8 +3,8 @@
 import abc
 from collections.abc import Iterable
 
-from ..meshpatt import MeshPatt
-from ..perm import Perm
+from ..patterns.meshpatt import MeshPatt
+from ..patterns.perm import Perm
 from .descriptor import Descriptor
 
 

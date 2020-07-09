@@ -1,7 +1,7 @@
 from typing import Any
 
 from ......descriptors.basis import Basis
-from ......perm import Perm
+from ......patterns.perm import Perm
 from .....finite.permset_static import PermSetStatic
 from ..avoiding import Avoiding
 

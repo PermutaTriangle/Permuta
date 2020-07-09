@@ -1,4 +1,4 @@
-from permuta import PermSet
+from permuta.perm_sets import PermSet
 
 
 def test_random():

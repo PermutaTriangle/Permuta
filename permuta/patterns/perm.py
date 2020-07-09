@@ -24,7 +24,7 @@ from typing import (
     Union,
 )
 
-from .patterns.patt import Patt
+from .patt import Patt
 
 __all__ = ("Perm",)
 

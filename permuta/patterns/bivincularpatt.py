@@ -1,7 +1,6 @@
 from typing import Iterable
 
-
-"""from .meshpatt import MeshPatt
+from .meshpatt import MeshPatt
 from .perm import Perm
 
 
@@ -25,7 +24,6 @@ class BivincularPatt(MeshPatt):
             perm,
             BivincularPatt._to_shading(len(perm), adjacent_indices, adjacent_values),
         )
-"""
 
 
 class VincularPatt(BivincularPatt):

@@ -1,7 +1,7 @@
 from collections import deque
 from typing import Iterable
 
-from permuta.perm import Perm
+from ..patterns import Perm
 
 
 def dihedral_group(n: int) -> Iterable[Perm]:

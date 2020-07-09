@@ -15,8 +15,8 @@ from typing import (
     Union,
 )
 
-from .misc import DIR_EAST, DIR_NONE, DIR_NORTH, DIR_SOUTH, DIR_WEST
-from .patterns.patt import Patt
+from ..misc import DIR_EAST, DIR_NONE, DIR_NORTH, DIR_SOUTH, DIR_WEST
+from .patt import Patt
 from .perm import Perm
 
 

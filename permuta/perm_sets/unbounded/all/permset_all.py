@@ -4,7 +4,7 @@ import itertools
 import random
 from math import factorial
 
-from ....perm import Perm
+from ....patterns.perm import Perm
 from ...finite.permset_finite import PermSetFinite
 from ...finite.permset_finite_specificlength import PermSetFiniteSpecificLength
 from ...finite.permset_static import PermSetStatic

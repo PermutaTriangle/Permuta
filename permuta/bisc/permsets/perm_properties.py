@@ -1,5 +1,5 @@
-from permuta.meshpatt import MeshPatt
-from permuta.perm import Perm
+from permuta.patterns.meshpatt import MeshPatt
+from permuta.patterns.perm import Perm
 from permuta.permutils.groups import dihedral_group
 
 

@@ -1,9 +1,9 @@
 from itertools import chain
 from math import factorial
 
-from permuta.meshpatt import MeshPatt
-from permuta.perm import Perm
-from permuta.permset import PermSet
+from permuta.patterns.meshpatt import MeshPatt
+from permuta.patterns.perm import Perm
+from permuta.perm_sets.permset import PermSet
 
 
 def mine(goodperms, M, N=None, report=False):

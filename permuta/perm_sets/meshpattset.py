@@ -1,5 +1,5 @@
-from .meshpatt import MeshPatt
-from .perm import Perm
+from ..patterns.meshpatt import MeshPatt
+from ..patterns.perm import Perm
 from .permset import PermSet
 
 

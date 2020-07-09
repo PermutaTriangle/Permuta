@@ -1,9 +1,10 @@
 from math import factorial
 
 import pytest
-from permuta import MeshPatt, Perm, PermSet
-from permuta._perm_set.unbounded.described.avoiding import AvoidingGeneric
+from permuta import MeshPatt, Perm
 from permuta.descriptors import Basis, MeshBasis
+from permuta.perm_sets import PermSet
+from permuta.perm_sets.unbounded.described.avoiding import AvoidingGeneric
 
 
 # binom will be added to math in 3.8 so when pypy is compatible with 3.8, replace:

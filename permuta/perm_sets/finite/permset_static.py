@@ -1,6 +1,6 @@
 import random
 
-from ...perm import Perm
+from ...patterns.perm import Perm
 from .permset_finite import PermSetFinite
 
 

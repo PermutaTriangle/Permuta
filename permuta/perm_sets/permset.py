@@ -1,13 +1,13 @@
 import numbers
 
-from ._perm_set.finite.permset_static import PermSetStatic
-from ._perm_set.permset_base import PermSetBase
-from ._perm_set.unbounded.all.permset_all import PermSetAll
-from ._perm_set.unbounded.described.avoiding.avoiding import Avoiding
-from ._perm_set.unbounded.described.permset_described import PermSetDescribed
-from .descriptors.basis import detect_basis_cls
-from .descriptors.descriptor import Descriptor
-from .descriptors.predicate import Predicate
+from ..descriptors.basis import detect_basis_cls
+from ..descriptors.descriptor import Descriptor
+from ..descriptors.predicate import Predicate
+from .finite.permset_static import PermSetStatic
+from .permset_base import PermSetBase
+from .unbounded.all.permset_all import PermSetAll
+from .unbounded.described.avoiding.avoiding import Avoiding
+from .unbounded.described.permset_described import PermSetDescribed
 
 __all__ = [
     "PermSet",

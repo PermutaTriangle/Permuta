@@ -4,8 +4,8 @@ from math import factorial
 
 import pytest
 from permuta import MeshPatt, Perm
-from permuta.meshpattset import gen_meshpatts
 from permuta.misc import DIR_EAST, DIR_NORTH, DIR_SOUTH, DIR_WEST
+from permuta.perm_sets.meshpattset import gen_meshpatts
 
 mesh_pattern = MeshPatt(
     Perm([1, 3, 2, 0]),

@@ -13,8 +13,8 @@ from permuta.bisc.bisc_subfunctions import (
     show_me_basis,
     to_sg_format,
 )
-from permuta.perm import Perm
-from permuta.permset import PermSet
+from permuta.patterns.perm import Perm
+from permuta.perm_sets.permset import PermSet
 
 
 def bisc(A, m, n=None, report=False):
@@ -106,7 +106,7 @@ def auto_bisc(prop):
         print("Attempting to read perms from permsets")
         good_entry = None
         bad_entry = None
-        with os.scandir("permsets") as entries:
+        with os.scandir("../resources/bisc/permsets") as entries:
             for i, entry in enumerate(entries):
                 en = entry.name
                 spl = en.split("_")
@@ -126,8 +126,8 @@ def auto_bisc(prop):
                 if good_entry is not None and bad_entry is not None:
                     break
         if good_entry is not None and bad_entry is not None:
-            A = read_bisc_file("permsets/" + good_entry)
-            B = read_bisc_file("permsets/" + bad_entry)
+            A = read_bisc_file("../resources/bisc/permsets/" + good_entry)
+            B = read_bisc_file("../resources/bisc/permsets/" + bad_entry)
         else:
             print("The required files do not exist")
             return
@@ -236,7 +236,7 @@ def auto_bisc(prop):
                 print("Attempting to read perms from permsets")
                 good_entry = None
                 bad_entry = None
-                with os.scandir("permsets") as entries:
+                with os.scandir("../resources/bisc/permsets") as entries:
                     for i, entry in enumerate(entries):
                         en = entry.name
                         spl = en.split("_")
@@ -256,8 +256,8 @@ def auto_bisc(prop):
                         if good_entry is not None and bad_entry is not None:
                             break
                 if good_entry is not None and bad_entry is not None:
-                    A = read_bisc_file("permsets/" + good_entry)
-                    B = read_bisc_file("permsets/" + bad_entry)
+                    A = read_bisc_file("../resources/bisc/permsets/" + good_entry)
+                    B = read_bisc_file("../resources/bisc/permsets/" + bad_entry)
                 else:
                     print("The required files do not exist")
                     return

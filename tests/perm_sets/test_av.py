@@ -1,5 +1,5 @@
 from permuta import Av, MeshPatt, Perm
-from permuta.permset import PermSetAll
+from permuta.perm_sets.permset import PermSetAll
 
 
 def test_av_perm():
