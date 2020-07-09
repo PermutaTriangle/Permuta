@@ -8,15 +8,9 @@ def dihedral_group(n: int) -> Iterable[Perm]:
     """Generate dihedral group of length n.
 
     Examples:
-        >>> print("\n".join(repr(p) for p in sorted(dihedral_group(4))))
-        Perm((0, 1, 2, 3))
-        Perm((0, 3, 2, 1))
-        Perm((1, 0, 3, 2))
-        Perm((1, 2, 3, 0))
-        Perm((2, 1, 0, 3))
-        Perm((2, 3, 0, 1))
-        Perm((3, 0, 1, 2))
-        Perm((3, 2, 1, 0))
+        >>> sorted(dihedral_group(4))
+        [Perm((0, 1, 2, 3)), Perm((0, 3, 2, 1)), Perm((1, 0, 3, 2)), Perm((1, 2, 3, 0))\
+, Perm((2, 1, 0, 3)), Perm((2, 3, 0, 1)), Perm((3, 0, 1, 2)), Perm((3, 2, 1, 0))]
     """
     if n <= 2:
         return
