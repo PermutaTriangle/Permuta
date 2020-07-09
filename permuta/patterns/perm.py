@@ -68,12 +68,12 @@ class Perm(TupleType, Patt):
             Perm((4, 0, 1, 3, 2))
         """
         iterable = tuple(iterable)
-        if iterable not in Perm._TO_STANDARD_CACHE:
-            Perm._TO_STANDARD_CACHE[iterable] = cls(
+        if iterable not in cls._TO_STANDARD_CACHE:
+            cls._TO_STANDARD_CACHE[iterable] = cls(
                 idx
                 for (idx, _) in sorted(enumerate(iterable), key=operator.itemgetter(1))
             ).inverse()
-        return Perm._TO_STANDARD_CACHE[iterable]
+        return cls._TO_STANDARD_CACHE[iterable]
 
     standardize = to_standard
     from_iterable = to_standard
@@ -98,7 +98,7 @@ class Perm(TupleType, Patt):
         while integer != 0:
             digit_list.append(integer % 10)
             integer //= 10
-        return Perm.to_standard(reversed(digit_list))
+        return cls.to_standard(reversed(digit_list))
 
     @classmethod
     def from_string(cls, string: str) -> "Perm":
@@ -200,13 +200,13 @@ class Perm(TupleType, Patt):
             >>> list(Perm.first(5))
             [Perm(()), Perm((0,)), Perm((0, 1)), Perm((1, 0)), Perm((0, 1, 2))]
         """
-        yield from itertools.islice(Perm._all(), count)
+        yield from itertools.islice(cls._all(), count)
 
     @classmethod
     def _all(cls) -> Iterator["Perm"]:
         length = 0
         while True:
-            yield from Perm.of_length(length)
+            yield from cls.of_length(length)
             length += 1
 
     @classmethod
@@ -263,10 +263,10 @@ class Perm(TupleType, Patt):
             while number > factorial[-1]:
                 number -= factorial[-1]
                 factorial.append(factorial[-1] * len(factorial))
-            return cls(Perm._unrank(number - 1, len(factorial) - 1, factorial))
+            return cls(cls._unrank(number - 1, len(factorial) - 1, factorial))
         for i in range(len(factorial), length):
             factorial.append(i * factorial[-1])
-        return cls(Perm._unrank(number, length, factorial))
+        return cls(cls._unrank(number, length, factorial))
 
     @staticmethod
     def _unrank(number: int, length: int, factorial: List[int]) -> Iterator[int]:
