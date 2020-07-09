@@ -2,6 +2,7 @@ import abc
 from typing import TYPE_CHECKING, Iterator, Tuple
 
 if TYPE_CHECKING:
+    # pylint: disable=cyclic-import
     from .perm import Perm
 
 

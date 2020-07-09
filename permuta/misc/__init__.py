@@ -16,7 +16,3 @@ __all__ = [
     "DIR_SOUTH",
     "DIR_NONE",
 ]
-
-
-def signum(n):
-    return 1 if n > 0 else -1 if n < 0 else 0
