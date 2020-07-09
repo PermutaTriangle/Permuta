@@ -1938,7 +1938,7 @@ class Perm(TupleType, Patt):
         greater) to the left, if they exist. If not, -1 is used instead.
 
         Examples:
-            >>> Perm((2, 5, 0, 3, 6, 4, 7, 1)).left_floor_and_ceiling()
+            >>> list(Perm((2, 5, 0, 3, 6, 4, 7, 1)).left_floor_and_ceiling())
             [(-1, -1), (0, -1), (-1, 0), (0, 1), (1, -1), (3, 1), (4, -1), (2, 0)]
         """
         deq: Deque[Tuple[int, int]] = collections.deque()
