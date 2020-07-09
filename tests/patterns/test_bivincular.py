@@ -1,4 +1,3 @@
-import pytest
 from permuta import BivincularPatt, CovincularPatt, MeshPatt, Perm, VincularPatt
 
 

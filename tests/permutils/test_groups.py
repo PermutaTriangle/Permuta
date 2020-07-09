@@ -1,4 +1,3 @@
-import pytest
 from permuta import Perm
 from permuta.permutils.groups import dihedral_group
 

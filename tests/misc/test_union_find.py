@@ -1,7 +1,6 @@
 import random
 from itertools import combinations
 
-import pytest
 from permuta.misc.union_find import UnionFind
 
 
