@@ -1,7 +1,7 @@
 from random import randint
 
 from permuta import Perm
-from permuta.perm_utils.finite import is_finite
+from permuta.permutils.finite import is_finite
 
 
 def test_is_finite():

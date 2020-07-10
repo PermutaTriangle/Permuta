@@ -1,5 +1,5 @@
 from permuta import Perm
-from permuta.perm_utils.groups import dihedral_group
+from permuta.permutils.groups import dihedral_group
 
 
 def test_dihedral_group():

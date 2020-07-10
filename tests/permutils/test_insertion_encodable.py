@@ -1,5 +1,5 @@
 from permuta import Perm
-from permuta.perm_utils import InsertionEncodablePerms
+from permuta.permutils import InsertionEncodablePerms
 
 
 def test_is_insertion_encodable_rightmost():

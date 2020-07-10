@@ -1,6 +1,6 @@
 from permuta.patterns.meshpatt import MeshPatt
 from permuta.patterns.perm import Perm
-from permuta.perm_utils.groups import dihedral_group
+from permuta.permutils.groups import dihedral_group
 
 
 def is_sorted(w):

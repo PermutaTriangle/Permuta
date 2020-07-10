@@ -1,7 +1,7 @@
 import random
 
 from permuta import Perm, PermSet
-from permuta.perm_utils.symmetry import (
+from permuta.permutils.symmetry import (
     all_symmetry_sets,
     inverse_set,
     lex_min,

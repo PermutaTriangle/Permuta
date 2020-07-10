@@ -1,5 +1,5 @@
 from permuta import Perm
-from permuta.perm_utils.polynomial import PolyPerms
+from permuta.permutils.polynomial import PolyPerms
 
 expected = {
     frozenset(

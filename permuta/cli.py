@@ -3,7 +3,7 @@ import signal
 import sys
 
 from permuta import Av, Perm
-from permuta.perm_utils import InsertionEncodablePerms, lex_min
+from permuta.permutils import InsertionEncodablePerms, lex_min
 
 
 def signal_handler(sig, frame):
