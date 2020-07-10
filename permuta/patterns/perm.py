@@ -2036,7 +2036,7 @@ class Perm(TupleType, Patt):
 
     def to_svg(self, image_scale: float = 1.0) -> str:
         """Return the svg code to plot the permutation. The image size defaults to
-        100x100 pixels and the parameters scales that.
+        100x100 pixels and the parameter scales that.
         """
         n = len(self)
         p_scale = 100 / (n + 1)

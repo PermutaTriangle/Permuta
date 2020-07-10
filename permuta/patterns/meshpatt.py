@@ -723,6 +723,29 @@ class MeshPatt(Patt):
         )
         return "".join(roundrobin(vlines, lines))[:-1]
 
+    def to_svg(self, image_scale: float = 1.0) -> str:
+        """Return the svg code to plot the mesh pattern. The image size defaults to
+        100x100 pixels and the parameter scales that."""
+        patt_svg = self.pattern.to_svg(image_scale)
+        n = len(self)
+        p_scale = 100 / (n + 1)
+        line_split = patt_svg.find(">")
+        return "".join(
+            [
+                patt_svg[: line_split + 2],
+                "\n".join(
+                    (
+                        f"<rect x={x*p_scale:.3} y={100-(y+1)*p_scale:.3} width="
+                        f'"{p_scale:.3}" height="{p_scale:.3}" style="fill:'
+                        "rgb(128,128,128);stroke-width:0;stroke:rgb(255,255,255);"
+                        'fill-opacity:0.75" />'
+                    )
+                    for x, y in self.shading
+                ),
+                patt_svg[line_split + 1 :],
+            ]
+        )
+
     def to_tikz(self) -> str:
         """
         Return the tikz code to plot the mesh pattern. The tikz code requires
