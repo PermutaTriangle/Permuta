@@ -2034,6 +2034,40 @@ class Perm(TupleType, Patt):
 
     cycles = cycle_notation
 
+    def to_svg(self, image_scale: float = 1.0) -> str:
+        """Return the svg code to plot the permutation. The image size defaults to
+        100x100 pixels and the parameters scales that.
+        """
+        n = len(self)
+        p_scale = 100 / (n + 1)
+        i_scale = int(image_scale * 100)
+        return "".join(
+            [
+                '<svg xmlns="http://www.w3.org/2000/svg" version="1.1" '
+                f'width="{i_scale}" height="{i_scale}" viewBox="0 0 100 100">\n',
+                "\n".join(
+                    (
+                        f'<line x1="{i*p_scale:.3}" y1="0" x2="{i*p_scale:.3}" '
+                        f'y2="100" style="stroke:rgb(0,0,0);stroke-width:{10/(n+1):.3}"'
+                        f' />\n<line x1="0" y1="{i*p_scale}" x2="100" y2="'
+                        f'{i*p_scale:.3}" style="stroke:rgb(0,0,0);stroke-width:'
+                        f'{10/(n+1):.3}" />'
+                    )
+                    for i in range(1, n + 1)
+                ),
+                "\n",
+                "\n".join(
+                    (
+                        f'<circle cx="{(idx+1)*p_scale:.3}" cy="'
+                        f'{100-(val+1)*p_scale:.3}" r="{p_scale/4:.3}" stroke="black"'
+                        f' stroke-width="{10/(n+1):.3}" fill="rgb(0,0,0)" />'
+                    )
+                    for (idx, val) in enumerate(self)
+                ),
+                "\n</svg>",
+            ]
+        )
+
     def to_tikz(self) -> str:
         """
         Return the tikz code to plot the permutation.
