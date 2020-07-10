@@ -1,5 +1,5 @@
 from permuta import Perm
-from permuta.perm_utils.polynomial import PolyPerm
+from permuta.perm_utils.polynomial import PolyPerms
 
 expected = {
     frozenset(
@@ -1339,5 +1339,5 @@ expected = {
 
 def test_is_polynomial():
     for k, v in expected.items():
-        assert PolyPerm.is_polynomial(k) == v
-        assert PolyPerm.is_non_polynomial(k) != v
+        assert PolyPerms.is_polynomial(k) == v
+        assert PolyPerms.is_non_polynomial(k) != v

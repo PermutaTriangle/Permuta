@@ -3,12 +3,7 @@ import signal
 import sys
 
 from permuta import Av, Perm
-from permuta.perm_utils import (
-    is_insertion_encodable,
-    is_insertion_encodable_maximum,
-    is_insertion_encodable_rightmost,
-    lex_min,
-)
+from permuta.perm_utils import InsertionEncodablePerms, lex_min
 
 
 def signal_handler(sig, frame):
@@ -43,11 +38,11 @@ def enumerate_class(args):
 def has_regular_insertion_encoding(args):
     basis = parse_basis(args)
     perm_class = Av(basis)
-    if is_insertion_encodable_maximum(basis):
+    if InsertionEncodablePerms.is_insertion_encodable_maximum(basis):
         print(f"The class {perm_class} has a regular topmost insertion encoding")
-    if is_insertion_encodable_rightmost(basis):
+    if InsertionEncodablePerms.is_insertion_encodable_rightmost(basis):
         print(f"The class {perm_class} has a regular rightmost insertion encoding")
-    if not is_insertion_encodable(basis):
+    if not InsertionEncodablePerms.is_insertion_encodable(basis):
         print(f"{perm_class} does not have a regular insertion encoding")
 
 
