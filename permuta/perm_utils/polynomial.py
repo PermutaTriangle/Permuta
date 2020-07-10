@@ -1,5 +1,6 @@
+from collections import deque
 from itertools import islice
-from typing import ClassVar, Dict, FrozenSet, Iterable, Iterator, Tuple
+from typing import ClassVar, Deque, Dict, FrozenSet, Iterable, Iterator, Tuple
 
 from permuta.patterns.perm import Perm
 
@@ -28,13 +29,12 @@ class PolyPerm:
         return interset
 
     @staticmethod
-    def _type_0_3(slice1: Tuple[int, ...], slice2: Tuple[int, ...]) -> Iterator[int]:
+    def _type_0_3(slice1: Deque[int], slice2: Deque[int]) -> Iterator[int]:
         if PolyPerm._is_incr(slice1):
             if PolyPerm._is_incr(slice2):
                 yield PolyPerm.PERM_TYPE_0
             if PolyPerm._is_decr(slice2):
                 yield PolyPerm.PERM_TYPE_1
-
         if PolyPerm._is_decr(slice1):
             if PolyPerm._is_incr(slice2):
                 yield PolyPerm.PERM_TYPE_2
@@ -42,13 +42,12 @@ class PolyPerm:
                 yield PolyPerm.PERM_TYPE_3
 
     @staticmethod
-    def _type_4_7(slice1: Tuple[int, ...], slice2: Tuple[int, ...]) -> Iterator[int]:
+    def _type_4_7(slice1: Deque[int], slice2: Deque[int]) -> Iterator[int]:
         if PolyPerm._is_incr(slice1):
             if PolyPerm._is_incr(slice2):
                 yield PolyPerm.PERM_TYPE_4
             if PolyPerm._is_decr(slice2):
                 yield PolyPerm.PERM_TYPE_5
-
         if PolyPerm._is_decr(slice1):
             if PolyPerm._is_incr(slice2):
                 yield PolyPerm.PERM_TYPE_6
@@ -57,23 +56,30 @@ class PolyPerm:
 
     @staticmethod
     def _find_type(perm: Perm) -> Iterable[int]:
-        flipperm = perm.inverse()
-        for i in range(len(perm) + 1):
-            yield from PolyPerm._type_0_3(perm[0:i], perm[i:])
-            yield from PolyPerm._type_4_7(flipperm[0:i], flipperm[i:])
+        p_deq1: Deque[int] = deque([])
+        p_deq2: Deque[int] = deque(perm)
+        fp_deq1: Deque[int] = deque([])
+        fp_deq2: Deque[int] = deque(perm.inverse())
+        yield from PolyPerm._type_0_3(p_deq1, p_deq2)
+        yield from PolyPerm._type_4_7(fp_deq1, fp_deq2)
+        for _ in range(len(perm)):
+            p_deq1.append(p_deq2.popleft())
+            fp_deq1.append(fp_deq2.popleft())
+            yield from PolyPerm._type_0_3(p_deq1, p_deq2)
+            yield from PolyPerm._type_4_7(fp_deq1, fp_deq2)
         if PolyPerm._of_type_8(perm):
             yield PolyPerm.PERM_TYPE_8
         if PolyPerm._of_type_8(perm.reverse()):
             yield PolyPerm.PERM_TYPE_9
 
     @staticmethod
-    def _is_decr(perm_slice: Tuple[int, ...]) -> bool:
+    def _is_decr(perm_slice: Deque[int]) -> bool:
         return all(
             prev > curr for prev, curr in zip(perm_slice, islice(perm_slice, 1, None))
         )
 
     @staticmethod
-    def _is_incr(perm_slice: Tuple[int, ...]) -> bool:
+    def _is_incr(perm_slice: Deque[int]) -> bool:
         return all(
             prev < curr for prev, curr in zip(perm_slice, islice(perm_slice, 1, None))
         )

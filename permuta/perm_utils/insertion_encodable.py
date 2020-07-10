@@ -3,6 +3,10 @@
 from typing import Dict, Tuple
 
 
+class InsertionEncodablePerm:
+    pass
+
+
 def is_incr_next_incr(perm):
     for i in range(len(perm) - 1):
         if perm[i + 1] < perm[i]:
