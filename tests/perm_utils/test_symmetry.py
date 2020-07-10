@@ -1,13 +1,15 @@
 import random
 
 from permuta import Perm, PermSet
-from permuta.permutils.symmetry import (
+from permuta.perm_utils.symmetry import (
     all_symmetry_sets,
     inverse_set,
     lex_min,
     reverse_set,
-    rotate_set,
+    rotate_90_clockwise_set,
 )
+
+rotate_set = rotate_90_clockwise_set
 
 
 def get_inp():

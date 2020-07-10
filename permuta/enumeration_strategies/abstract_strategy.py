@@ -1,6 +1,6 @@
 from abc import ABC, abstractmethod
 
-from permuta.permutils.symmetry import all_symmetry_sets
+from permuta.perm_utils.symmetry import all_symmetry_sets
 
 
 class EnumerationStrategy(ABC):

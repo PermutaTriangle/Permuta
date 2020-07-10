@@ -5,7 +5,7 @@ Enumeration strategies related to the insertion encoding.
 from permuta.enumeration_strategies.abstract_strategy import (
     EnumerationStrategyWithSymmetry,
 )
-from permuta.permutils.insertion_encodable import is_insertion_encodable_maximum
+from permuta.perm_utils.insertion_encodable import is_insertion_encodable_maximum
 
 
 class InsertionEncodingStrategy(EnumerationStrategyWithSymmetry):

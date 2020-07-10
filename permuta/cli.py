@@ -3,7 +3,7 @@ import signal
 import sys
 
 from permuta import Av, Perm
-from permuta.permutils import (
+from permuta.perm_utils import (
     is_insertion_encodable,
     is_insertion_encodable_maximum,
     is_insertion_encodable_rightmost,

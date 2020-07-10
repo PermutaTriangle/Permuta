@@ -1,7 +1,7 @@
 from random import randint
 
 from permuta import Perm
-from permuta.permutils.finite import is_finite
+from permuta.perm_utils.finite import is_finite
 
 
 def test_is_finite():
@@ -33,5 +33,5 @@ def test_is_finite():
     assert not is_finite((Perm.identity(i) for i in range(2, 10)))
     assert not is_finite((p for p in (Perm((1, 2, 0)), Perm((4, 1, 2, 0, 3)))))
     assert not is_finite((p for p in (Perm((1, 2)),)))
-    # Old version failed for this
+    # Old version failed on this
     assert is_finite((p for p in (Perm((0, 1)), Perm((1, 0)))))
