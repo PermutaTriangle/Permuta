@@ -3,8 +3,8 @@
 import abc
 from collections.abc import Iterable
 
-from ..meshpatt import MeshPatt
-from ..perm import Perm
+from ..patterns.meshpatt import MeshPatt
+from ..patterns.perm import Perm
 from .descriptor import Descriptor
 
 
@@ -114,7 +114,7 @@ class MeshBasis(AbstractBasis):
         return super().__new__(
             cls,
             {
-                patt if isinstance(patt, MeshPatt) else MeshPatt(patt, [])
+                patt if isinstance(patt, MeshPatt) else MeshPatt(Perm(patt), [])
                 for patt in patts
             },
         )

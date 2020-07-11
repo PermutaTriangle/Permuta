@@ -1,5 +1,6 @@
-from permuta.meshpatt import MeshPatt
-from permuta.perm import Perm
+from permuta.patterns.meshpatt import MeshPatt
+from permuta.patterns.perm import Perm
+from permuta.permutils.groups import dihedral_group
 
 
 def is_sorted(w):
@@ -211,25 +212,19 @@ def dihedral(perm):
     """
     We use the convention that D1 and D2 are not subgrroups of S1 and S2,
     respectively."""
-
-    from sympy.combinatorics import Permutation
-    from sympy.combinatorics.named_groups import DihedralGroup
-
-    return Permutation(list(perm)) in DihedralGroup(len(perm))
+    return any(perm == d_perm for d_perm in dihedral_group(len(perm)))
 
 
 def in_alternating_group(perm):
     """
     We use the convention that D1 and D2 are not subgrroups of S1 and S2,
     respectively."""
-
-    from sympy.combinatorics import Permutation
-    from sympy.combinatorics.named_groups import AlternatingGroup
-
-    if perm == Perm(()):
+    n = len(perm)
+    if n == 0:
         return True
-
-    return Permutation(list(perm)) in AlternatingGroup(len(perm))
+    if n < 3:
+        return n % 2 == 1
+    return perm.count_inversions() % 2 == 0
 
 
 def perm_to_yt(perm):

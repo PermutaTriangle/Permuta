@@ -5,9 +5,6 @@ permuta
 .. image:: https://travis-ci.org/PermutaTriangle/Permuta.svg?branch=master
     :alt: Travis
     :target: https://travis-ci.org/PermutaTriangle/Permuta
-.. image:: https://coveralls.io/repos/github/PermutaTriangle/Permuta/badge.svg?branch=master
-    :alt: Coveralls
-    :target: https://coveralls.io/github/PermutaTriangle/Permuta?branch=master
 .. image:: https://img.shields.io/pypi/v/Permuta.svg
     :alt: PyPI
     :target: https://pypi.python.org/pypi/Permuta
@@ -25,7 +22,9 @@ permuta
 Permuta is a Python library for working with perms (short for permutations),
 patterns, and mesh patterns.
 
-If you need support, you can join us in our `Discord support server<https://discord.gg/ngPZVT5>`_.
+If you need support, you can join us in our `Discord support server`_.
+
+.. _Discord support server: https://discord.gg/ngPZVT5
 
 Installing
 ==========
@@ -80,18 +79,6 @@ Permutations are zero-based in Permuta and can be created using any iterable.
     Perm((0, 1, 2, 3))
     >>> Perm((2, 1, 3)) # Warning: it will initialise with any iterable
     Perm((2, 1, 3))
-    >>> Perm((2, 1, 3), check=True) # If you are unsure, you can check
-    Traceback (most recent call last):
-        ...
-    ValueError: Element out of range: 3
-    >>> Perm((4, 2, 3, 0, 0), check=True)
-    Traceback (most recent call last):
-        ...
-    ValueError: Duplicate element: 0
-    >>> Perm("123", check=True)
-    Traceback (most recent call last):
-        ...
-    TypeError: ''1'' object is not an integer
 
 Permutations can also be created using some specific class methods.
 

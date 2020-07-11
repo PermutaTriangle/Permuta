@@ -5,6 +5,26 @@ The format is based on [Keep a Changelog](http://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.html).
 
 ## Unreleased
+## Added
+- Two new tools added to permtools. A command to check if a class has a regular
+  insertion encoding, and a command to compute the lexicographically minimal
+  basis.
+
+## 1.5.0 - 2020-06-23
+## Added
+- A quick command line interface to compute the enumeration of a permutation class.
+- `Perm.skew_decomposition` and `Perm.sum_decomposition` methods.
+
+## 1.4.2 - 2020-06-17
+### Fixed
+- Make `permuta.bisc.permsets` a proper package.
+
+## 1.4.1 - 2020-06-12
+### Removed
+- The unused `permuta.misc.misc` module
+
+### Fixed
+- Installation on windows
 
 ## 1.4.0 - 2020-05-11
 ### Added
