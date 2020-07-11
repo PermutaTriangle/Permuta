@@ -29,6 +29,7 @@ class HTMLViewer:
         ) as html_file:
             html_file.write(html)
             webbrowser.open_new_tab(f"file://{html_file.name}")
+            HTMLViewer._remove_file(html_file.name)
 
     @staticmethod
     def open_svg(svg: str) -> None:
