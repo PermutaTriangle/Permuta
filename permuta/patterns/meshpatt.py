@@ -15,7 +15,7 @@ from typing import (
     Union,
 )
 
-from ..misc import DIR_EAST, DIR_NONE, DIR_NORTH, DIR_SOUTH, DIR_WEST
+from ..misc import DIR_EAST, DIR_NONE, DIR_NORTH, DIR_SOUTH, DIR_WEST, HTMLViewer
 from .patt import Patt
 from .perm import Perm
 
@@ -773,6 +773,11 @@ class MeshPatt(Patt):
             "\n\\end{tikzpicture}",
         ]
         return "".join(lis)
+
+    def show(self, scale: float = 1.0) -> None:
+        """Open a browser tab and display pattern graphically. Image can be
+        enlarged with scale parameter"""
+        HTMLViewer.open_svg(self.to_svg(image_scale=scale))
 
     def __eq__(self, other: object) -> bool:
         if isinstance(other, self.__class__):

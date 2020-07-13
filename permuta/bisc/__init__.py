@@ -6,6 +6,23 @@ from .bisc_subfunctions import (
     show_me,
     show_me_basis,
 )
+from .perm_properties import (
+    Baxter,
+    BKV_sortable,
+    SimSun,
+    West_2_stack_sortable,
+    West_3_stack_sortable,
+    av_231_and_mesh,
+    dihedral,
+    forest_like,
+    hard_mesh,
+    in_alternating_group,
+    quick_sortable,
+    smooth,
+    stack_sortable,
+    yt_perm_avoids_22,
+    yt_perm_avoids_32,
+)
 
 __all__ = [
     "auto_bisc",
@@ -18,4 +35,19 @@ __all__ = [
     "run_clean_up",
     "show_me",
     "show_me_basis",
+    "Baxter",
+    "BKV_sortable",
+    "SimSun",
+    "West_2_stack_sortable",
+    "West_3_stack_sortable",
+    "av_231_and_mesh",
+    "dihedral",
+    "forest_like",
+    "hard_mesh",
+    "in_alternating_group",
+    "quick_sortable",
+    "smooth",
+    "stack_sortable",
+    "yt_perm_avoids_22",
+    "yt_perm_avoids_32",
 ]

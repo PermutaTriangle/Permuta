@@ -14,7 +14,6 @@ from permuta.bisc.bisc_subfunctions import (
     to_sg_format,
 )
 from permuta.patterns.perm import Perm
-from permuta.perm_sets.permset import PermSet
 
 
 def bisc(A, m, n=None, report=False):
@@ -29,7 +28,7 @@ def bisc(A, m, n=None, report=False):
             n = 7
         D = defaultdict(list)
         for i in range(n + 1):
-            for perm in PermSet(i):
+            for perm in Perm.of_length(i):
                 if A(perm):
                     D[i].append(perm)
 
@@ -71,7 +70,7 @@ def auto_bisc(prop):
             print("You should have permutations up to length at least 8")
             return
         for i in range(L + 1):
-            for perm in PermSet(i):
+            for perm in Perm.of_length(i):
                 if perm not in A[i]:
                     B[i].append(perm)
 
@@ -83,7 +82,7 @@ def auto_bisc(prop):
         for i in range(L + 1):
             A[i] = []
             B[i] = []
-            for perm in PermSet(i):
+            for perm in Perm.of_length(i):
                 if prop(perm):
                     A[i].append(perm)
                 else:
@@ -221,7 +220,7 @@ def auto_bisc(prop):
                 # Adding perms to the dictionaries
                 for i in range(oldL + 1, L + 1):
                     print("Adding perms of length {}".format(i))
-                    for perm in PermSet(i):
+                    for perm in Perm.of_length(i):
                         if prop(perm):
                             A[i].append(perm)
                         else:
@@ -276,7 +275,7 @@ def create_bisc_input(N, prop):
 
         An, Bn = [], []
 
-        for perm in PermSet(n):
+        for perm in Perm.of_length(n):
             if prop(perm):
                 An.append(perm)
             else:
@@ -300,7 +299,7 @@ def write_bisc_files(N, prop, info):
 
         An, Bn = [], []
 
-        for perm in PermSet(n):
+        for perm in Perm.of_length(n):
             if prop(perm):
                 An.append(perm)
             else:
