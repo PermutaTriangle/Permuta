@@ -3,7 +3,7 @@ from permuta.bisc.bisc_subfunctions import patterns_suffice_for_bad, run_clean_u
 from permuta.patterns.perm import Perm
 
 # Path to permutation files
-ppf = "permuta/resources/bisc/permsets/"
+ppf = "permuta/resources/bisc/"
 
 
 def test_stack_sortable():

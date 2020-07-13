@@ -27,6 +27,7 @@ setup(
     packages=find_packages(),
     long_description=read("README.rst"),
     python_requires=">=3.6",
+    include_package_data=True,
     classifiers=[
         "Development Status :: 5 - Production/Stable",
         "Intended Audience :: Education",
