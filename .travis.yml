@@ -8,6 +8,8 @@ matrix:
       env: TOXENV=mypy
     - python: 3.8
       env: TOXENV=black
+    - python: 3.8
+      env: TOXENV=pylint
 
     - python: 3.6
       env: TOXENV=py36
