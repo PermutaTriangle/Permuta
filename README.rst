@@ -263,7 +263,7 @@ search for patterns of length 3.
 
 .. code-block:: python
 
-    >>> from permuta.bisc.permsets.perm_properties import stack_sortable
+    >>> from permuta.bisc.perm_properties import stack_sortable
     >>> bisc(stack_sortable, 3)
     I will use permutations up to length 7
     {3: {Perm((1, 2, 0)): [set()]}}
@@ -305,8 +305,8 @@ patterns, such as the West-2-stack-sortable permutations
 
 .. code-block:: python
 
-    >>> from permuta.bisc.permsets.perm_properties import West_2_stack_sortable
-    >>> SG = bisc(West_2_stack_sortable, 5, 7)
+    >>> from permuta.bisc.perm_properties import west_2_stack_sortable
+    >>> SG = bisc(west_2_stack_sortable, 5, 7)
     >>> show_me(SG)
     There are 2 underlying classical patterns of length 4
     There are 1 different shadings on 1230
@@ -358,7 +358,7 @@ which keeps them separated by length.
 
 .. code-block:: python
 
-    >>> A, B = create_bisc_input(7, West_2_stack_sortable)
+    >>> A, B = create_bisc_input(7, west_2_stack_sortable)
 
 This creates two dictionaries with keys 1, 2, ..., 7 such that ``A[i]`` points
 to the list of permutations of length ``i`` that are West-2-stack-sortable, and
@@ -430,8 +430,8 @@ There is one basis of mesh patterns found, with 2 patterns
     <BLANKLINE>
 
 This is the output we were expecting. There are several other properties of
-permutations that can be imported from ``permuta.bisc.permsets.perm_properties``, such
-as ``smooth``, ``forest-like``, ``Baxter``, ``Simsun``, ``quick_sortable``, etc.
+permutations that can be imported from ``permuta.bisc.perm_properties``, such
+as ``smooth``, ``forest-like``, ``baxter``, ``simsun``, ``quick_sortable``, etc.
 
 Both ``bisc`` and ``auto_bisc`` can accept input in the form of a property,
 or a list of permutations (satisfying some property).

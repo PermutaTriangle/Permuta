@@ -321,12 +321,6 @@ def from_json(s):
 
 
 def read_bisc_file(p):
-
-    A = dict()
-
-    f = open(p + ".json", "r")
-    for line in f:
-        A = from_json(line)
-    f.close()
-
-    return A
+    with open(f"{p}.json", "r") as f:
+        return from_json(f.readline())
+    return {}
