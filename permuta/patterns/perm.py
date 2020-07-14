@@ -24,6 +24,8 @@ from typing import (
     Union,
 )
 
+from permuta.misc import HTMLViewer
+
 from .patt import Patt
 
 __all__ = ("Perm",)
@@ -2086,6 +2088,11 @@ class Perm(TupleType, Patt):
                 "\n\\end{tikzpicture}",
             ]
         )
+
+    def show(self, scale: float = 1.0) -> None:
+        """Open a browser tab and display permutation graphically. Image can be
+        enlarged with scale parameter"""
+        HTMLViewer.open_svg(self.to_svg(image_scale=scale))
 
     def __call__(self, value: int) -> int:
         assert 0 <= value < len(self)

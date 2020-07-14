@@ -1,0 +1,36 @@
+# This is a temporary .pylintrc file during refactoring.
+
+[MASTER]
+ignore-patterns=test_.*?py,
+                # TODO: REMOVE
+                cli.py, 
+                bisc.py, 
+                bisc_subfunctions.py
+ignore= tests,
+        # TODO: REMOVE 
+        permuta\descriptors,
+        permuta\enumeration_strategies,
+        permuta\perm_sets,
+        permuta\perm_sets\finite,
+        permuta\perm_sets\unbounded,
+        permuta\perm_sets\unbounded\all,
+        permuta\perm_sets\unbounded\described,
+        permuta\perm_sets\unbounded\described\avoiding,
+        permuta\perm_sets\unbounded\described\avoiding\avoiding_length_0,
+        permuta/descriptors,
+        permuta/enumeration_strategies,
+        permuta/perm_sets,
+        permuta/perm_sets/finite,
+        permuta/perm_sets/unbounded,
+        permuta/perm_sets/unbounded/all,
+        permuta/perm_sets/unbounded/described,
+        permuta/perm_sets/unbounded/described/avoiding,
+        permuta/perm_sets/unbounded/described/avoiding/avoiding_length_0
+init-hook="from pylint.config import find_pylintrc; import os, sys; sys.path.append(os.path.dirname(find_pylintrc())+'/permuta')"
+disable=bad-continuation, 
+        missing-module-docstring,
+        fixme
+good-names=i,j,n,k,x,y,_
+
+[SIMILARITIES]
+ignore-imports=yes

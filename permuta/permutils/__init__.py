@@ -14,7 +14,20 @@ from .symmetry import (
     rotate_270_clockwise_set,
 )
 
+is_insertion_encodable = InsertionEncodablePerms.is_insertion_encodable
+is_insertion_encodable_maximum = InsertionEncodablePerms.is_insertion_encodable_maximum
+is_insertion_encodable_rightmost = (
+    InsertionEncodablePerms.is_insertion_encodable_rightmost
+)
+is_polynomial = PolyPerms.is_polynomial
+is_non_polynomial = PolyPerms.is_non_polynomial
+
 __all__ = [
+    "is_insertion_encodable",
+    "is_insertion_encodable_maximum",
+    "is_insertion_encodable_rightmost",
+    "is_polynomial",
+    "is_non_polynomial",
     "InsertionEncodablePerms",
     "PolyPerms",
     "is_finite",
