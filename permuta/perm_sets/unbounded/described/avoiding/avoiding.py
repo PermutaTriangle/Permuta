@@ -3,7 +3,8 @@ import multiprocessing
 import random
 from typing import Any, Dict
 
-from .....descriptors.basis import AbstractBasis, Basis
+from permuta.perm_sets.basis import AbstractBasis, Basis
+
 from .....patterns.perm import Perm
 from ....finite.permset_finite_specificlength import PermSetFiniteSpecificLength
 from ....finite.permset_static import PermSetStatic

@@ -2,8 +2,8 @@ from math import factorial
 
 import pytest
 from permuta import MeshPatt, Perm
-from permuta.descriptors import Basis, MeshBasis
 from permuta.perm_sets import PermSet
+from permuta.perm_sets.basis import Basis, MeshBasis
 from permuta.perm_sets.unbounded.described.avoiding import AvoidingGeneric
 
 

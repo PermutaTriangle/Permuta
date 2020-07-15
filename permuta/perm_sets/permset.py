@@ -1,8 +1,6 @@
 import numbers
 
-from ..descriptors.basis import detect_basis_cls
-from ..descriptors.descriptor import Descriptor
-from ..descriptors.predicate import Predicate
+from .basis import AbstractBasis, detect_basis_cls
 from .finite.permset_static import PermSetStatic
 from .permset_base import PermSetBase
 from .unbounded.all.permset_all import PermSetAll
@@ -31,7 +29,8 @@ class PermSet(object, metaclass=PermSetMetaclass):
         elif isinstance(descriptor, numbers.Integral):
             # Descriptor is actually just a number
             return PermSetAll().of_length(descriptor)
-        elif isinstance(descriptor, Descriptor):
+        elif isinstance(descriptor, AbstractBasis):
+
             return cls._dispatch_described(descriptor)
         else:
             # Descriptor might just be a set of perms
@@ -74,15 +73,6 @@ class PermSet(object, metaclass=PermSetMetaclass):
     def avoiding(cls, basis):
         BasisCls = detect_basis_cls(basis)
         return cls(BasisCls(basis))
-
-    @classmethod
-    def filtering(cls, predicate):
-        return cls(Predicate(predicate))
-
-
-#
-# Syntactic sugar
-#
 
 
 class AvoidanceClassMetaclass(type):

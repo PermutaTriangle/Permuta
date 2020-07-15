@@ -3,7 +3,6 @@ from math import factorial
 
 from permuta.patterns.meshpatt import MeshPatt
 from permuta.patterns.perm import Perm
-from permuta.perm_sets.permset import PermSet
 
 
 def mine(goodperms, M, N=None, report=False):
@@ -293,7 +292,7 @@ def forb(check_interval, goodpatts, M, report=False):
             print("Starting search for forbidden patterns of length {}".format(j))
 
         badpatts[j] = {}
-        for perm in PermSet(j):
+        for perm in Perm.of_length(j):
             badpatts[j][perm] = find_badpatts(perm)
 
         if report:

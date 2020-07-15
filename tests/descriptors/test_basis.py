@@ -1,6 +1,6 @@
 import pytest
 from permuta import MeshPatt, Perm
-from permuta.descriptors.basis import Basis, MeshBasis, detect_basis_cls
+from permuta.perm_sets.basis import Basis, MeshBasis, detect_basis_cls
 
 
 def test_detect_empty_basis_cls():
