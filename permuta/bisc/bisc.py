@@ -306,11 +306,11 @@ def write_bisc_files(N, prop, info):
                 Bn.append(perm)
 
         A[n], B[n] = An, Bn
-    f = open("{}_good_len{}".format(info, N), "a+")
+    f = open("{}_good_len{}.json".format(info, N), "a+")
     f.write(json.dumps(A))
     f.close()
 
-    f = open("{}_bad_len{}".format(info, N), "a+")
+    f = open("{}_bad_len{}.json".format(info, N), "a+")
     f.write(json.dumps(B))
     f.close()
 
