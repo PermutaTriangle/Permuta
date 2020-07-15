@@ -79,9 +79,6 @@ class AbstractBasis(tuple, abc.ABC):
         else:
             return self
 
-    def is_polynomial(self):
-        return True  # TODO
-
     def __eq__(self, other):
         return isinstance(other, self.__class__) and tuple.__eq__(self, other)
 

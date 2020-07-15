@@ -30,7 +30,6 @@ class PermSet(object, metaclass=PermSetMetaclass):
             # Descriptor is actually just a number
             return PermSetAll().of_length(descriptor)
         elif isinstance(descriptor, AbstractBasis):
-
             return cls._dispatch_described(descriptor)
         else:
             # Descriptor might just be a set of perms
