@@ -40,7 +40,6 @@ else:
 class Perm(TupleType, Patt):
     """A perm class."""
 
-    _TYPE_ERROR: ClassVar[str] = "'{}' object is not a perm"
     _TO_STANDARD_CACHE: ClassVar[Dict[Tuple, "Perm"]] = {}
 
     def __new__(cls, iterable: Iterable[int] = ()) -> "Perm":
