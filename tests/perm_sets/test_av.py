@@ -220,3 +220,31 @@ def test_generators():
     assert sorted(
         Av(Basis(Perm((0, 2, 1)), Perm((1, 2, 0)))).up_to_length(3)
     ) == sorted(set(Perm.up_to_length(3)) - {Perm((0, 2, 1)), Perm((1, 2, 0))})
+
+
+def test_instance_var_cache():
+    Av.clear_cache()
+    basis = Basis(Perm((0, 1)))
+    av = Av(basis)
+    assert basis in Av._CLASS_CACHE
+    list(av.of_length(5))
+    assert len(av.cache) == 6
+    assert len(Av(Basis(Perm((0, 1)))).cache) == 6
+    av2 = Av(Basis(Perm((0, 1))))
+    assert len(av2.cache) == 6
+    list(av2.of_length(10))
+    assert len(av.cache) == 11
+    assert len(av2.cache) == 11
+    assert len(Av(Basis(Perm((2, 0, 1)), Perm((1, 2, 0)))).cache) == 1
+    list(Av(Basis(Perm((2, 0, 1)), Perm((1, 2, 0)))).of_length(5))
+    assert len(Av(Basis(Perm((2, 0, 1)), Perm((1, 2, 0)))).cache) == 6
+    assert (
+        len(Av(Basis(Perm((2, 0, 1)), Perm((1, 2, 0)), Perm((1, 2, 0, 3)))).cache) == 6
+    )
+    assert len(Av(Basis(Perm((1, 2, 0)), Perm((2, 0, 1)))).cache) == 6
+    for p in Av(Basis(Perm((2, 0, 1)), Perm((1, 2, 0)), Perm((1, 2, 0, 3)))).of_length(
+        10
+    ):
+        pass
+    assert len(Av(Basis(Perm((2, 0, 1)), Perm((1, 2, 0)))).cache) == 11
+    Av.clear_cache()

@@ -1,13 +1,22 @@
 import multiprocessing
 from itertools import islice
-from typing import ClassVar, Dict, Iterable, List, Optional, Union
+from typing import ClassVar, Dict, Iterable, List, NamedTuple, Optional, Union
 
 from ..patterns import MeshPatt, Perm
 from ..permutils import is_finite, is_insertion_encodable, is_polynomial
 from .basis import Basis, MeshBasis
 
 
-class Av:
+class AvBase(NamedTuple):
+    """A base class for Av to define instance variables without having to use
+    __init__ int Av.
+    """
+
+    basis: Union[Basis, MeshBasis]
+    cache: List[Dict[Perm, List[int]]]
+
+
+class Av(AvBase):
     """A permutation class defined by its minimal basis."""
 
     _CLASS_CACHE: ClassVar[Dict[Union[Basis, MeshBasis], "Av"]] = {}
@@ -17,14 +26,15 @@ class Av:
         assert len(basis) > 0
         instance = Av._CLASS_CACHE.get(basis)
         if instance is None:
-            new_instance: "Av" = object.__new__(cls)
+            new_instance: "Av" = AvBase.__new__(cls, basis, [{Perm(): [0]}])
+            Av._CLASS_CACHE[basis] = new_instance
             return new_instance
         return instance
 
-    def __init__(self, basis: Union[Basis, MeshBasis]) -> None:
+    """def __init__(self, basis: Union[Basis, MeshBasis]) -> None:
         self.basis: Union[Basis, MeshBasis] = basis
         self._cache: List[Dict[Perm, List[int]]] = [{Perm(): [0]}]
-        Av._CLASS_CACHE[basis] = self
+        Av._CLASS_CACHE[basis] = self"""
 
     @classmethod
     def clear_cache(cls) -> None:
@@ -99,10 +109,10 @@ class Av:
         # We build new elements from existing ones
         lengths = {len(b) for b in self.basis}
         max_size = max(lengths)
-        for nplusone in range(len(self._cache), level_number + 1):
+        for nplusone in range(len(self.cache), level_number + 1):
             n = nplusone - 1
             new_level: Dict[Perm, List[int]] = dict()
-            last_level = self._cache[-1]
+            last_level = self.cache[-1]
             check_length = nplusone in lengths
             smaller_elems = {b for b in self.basis if len(b) == nplusone}
 
@@ -112,7 +122,7 @@ class Av:
                 for i in range(max(0, n - max_size), n):
                     val = perm[i]
                     subperm = perm.remove(i)
-                    spots = self._cache[n - 1][subperm]
+                    spots = self.cache[n - 1][subperm]
                     acceptable = [k for k in spots if k <= val]
                     acceptable.extend(k + 1 for k in spots if k >= val)
                     if res is None:
@@ -128,18 +138,18 @@ class Av:
                     if not check_length or new_perm not in smaller_elems:
                         new_level[new_perm] = []
                         last_level[perm].append(value)
-            self._cache.append(new_level)
+            self.cache.append(new_level)
 
     def _ensure_level_mesh_pattern_basis(self, level_number: int) -> None:
-        self._cache.extend(
+        self.cache.extend(
             {p: [] for p in Perm.of_length(i) if p.avoids(*self.basis)}
-            for i in range(len(self._cache), level_number + 1)
+            for i in range(len(self.cache), level_number + 1)
         )
 
     def _get_level(self, level_number: int) -> Iterable[Perm]:
         with Av._CACHE_LOCK:
             self._ensure_level(level_number)
-        return self._cache[level_number]
+        return self.cache[level_number]
 
     def _all(self) -> Iterable[Perm]:
         length = 0
