@@ -50,11 +50,13 @@ class BivincularPatt(MeshPatt):
         return cls(
             Perm.random(length),
             (
-                i for i, keep in enumerate(randint(0, 1) for _ in range(length + 1)) 
+                i
+                for i, keep in enumerate(randint(0, 1) for _ in range(length + 1))
                 if keep
             ),
             (
-                i for i, keep in enumerate(randint(0, 1) for _ in range(length + 1)) 
+                i
+                for i, keep in enumerate(randint(0, 1) for _ in range(length + 1))
                 if keep
             ),
         )
@@ -119,7 +121,8 @@ class VincularPatt(BivincularPatt):
         return cls(
             Perm.random(length),
             (
-                i for i, keep in enumerate(randint(0, 1) for _ in range(length + 1)) 
+                i
+                for i, keep in enumerate(randint(0, 1) for _ in range(length + 1))
                 if keep
             ),
         )
@@ -141,7 +144,8 @@ class CovincularPatt(BivincularPatt):
         return cls(
             Perm.random(length),
             (
-                i for i, keep in enumerate(randint(0, 1) for _ in range(length + 1)) 
+                i
+                for i, keep in enumerate(randint(0, 1) for _ in range(length + 1))
                 if keep
             ),
         )
