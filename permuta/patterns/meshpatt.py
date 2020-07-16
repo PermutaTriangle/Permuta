@@ -73,6 +73,34 @@ class MeshPatt(Patt):
             Perm.random(length), random.randint(0, 2 ** ((length + 1) ** 2) - 1)
         )
 
+    @classmethod
+    def of_length(
+        cls, length: int, patt: Optional[Perm] = None
+    ) -> Iterator["MeshPatt"]:
+        """Generates all mesh patterns of length n. If the classical pattern is
+        specified then only the mesh patterns with the classical pattern as the
+        underlying pattern are generated.
+
+        Examples:
+            >>> mps = list(MeshPatt.of_length(0))
+            >>> len(mps)
+            2
+            >>> mps[0]
+            MeshPatt(Perm(()), [])
+            >>> mps[1]
+            MeshPatt(Perm(()), [(0, 0)])
+            >>> len(list(MeshPatt.of_length(2, (1, 2))))
+            512
+        """
+        if patt is None:
+            for perm in Perm.of_length(length):
+                for i in range(2 ** ((length + 1) ** 2)):
+                    yield MeshPatt.unrank(perm, i)
+        else:
+            assert isinstance(patt, Perm)
+            for i in range(2 ** ((length + 1) ** 2)):
+                yield MeshPatt.unrank(patt, i)
+
     def get_perm(self) -> "Perm":
         """Returns the permutation part of the pattern.
 
