@@ -1,14 +1,14 @@
-from typing import Iterable
-
-from permuta import Perm
-from permuta.enumeration_strategies.abstract_strategy import (
-    EnumerationStrategyWithSymmetry,
-)
+from permuta.enumeration_strategies.abstract_strategy import EnumerationStrategy
 from permuta.permutils.insertion_encodable import InsertionEncodablePerms
+from permuta.permutils.symmetry import rotate_90_clockwise_set
 
 
-class InsertionEncodingStrategy(EnumerationStrategyWithSymmetry):
+class InsertionEncodingStrategy(EnumerationStrategy):
     """Enumeration strategies related to the insertion encoding."""
 
-    def _applies_to_symmetry(self, basis: Iterable[Perm]) -> bool:
-        return InsertionEncodablePerms.is_insertion_encodable_maximum(basis)
+    def applies(self) -> bool:
+        return InsertionEncodablePerms.is_insertion_encodable(
+            self.basis
+        ) or InsertionEncodablePerms.is_insertion_encodable(
+            rotate_90_clockwise_set(self.basis)
+        )

@@ -1,6 +1,6 @@
 import numbers
 
-from .basis import AbstractBasis, detect_basis_cls
+from .basis import Basis, MeshBasis, detect_basis_cls
 from .finite.permset_static import PermSetStatic
 from .permset_base import PermSetBase
 from .unbounded.all.permset_all import PermSetAll
@@ -29,7 +29,7 @@ class PermSet(object, metaclass=PermSetMetaclass):
         elif isinstance(descriptor, numbers.Integral):
             # Descriptor is actually just a number
             return PermSetAll().of_length(descriptor)
-        elif isinstance(descriptor, AbstractBasis):
+        elif isinstance(descriptor, (Basis, MeshBasis)):
             return cls._dispatch_described(descriptor)
         else:
             # Descriptor might just be a set of perms
