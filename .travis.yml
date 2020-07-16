@@ -2,10 +2,14 @@ language: python
 
 matrix:
   include:
-    - python: 3.7
+    - python: 3.8
       env: TOXENV=flake8
-    - python: 3.7
+    - python: 3.8
+      env: TOXENV=mypy
+    - python: 3.8
       env: TOXENV=black
+    - python: 3.8
+      env: TOXENV=pylint
 
     - python: 3.6
       env: TOXENV=py36
@@ -18,6 +22,18 @@ matrix:
     - python: pypy3
       env: TOXENV=pypy36
 
+    - name: "py38-win10"
+      os: windows
+      language: shell
+      before_install:
+        - choco install python --version 3.8.0
+        - python -m pip install --upgrade pip
+      env: PATH=/c/Python38:/c/Python38/Scripts:$PATH
+      install:
+        - pip install pytest
+      script:
+        - python -m pytest tests
+        - python setup.py install
 
 install:
   - pip install tox
@@ -33,3 +49,4 @@ deploy:
   skip_existing: true
   on:
     branch: master
+    condition: $TRAVIS_OS_NAME = linux

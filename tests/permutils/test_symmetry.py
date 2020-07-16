@@ -1,14 +1,15 @@
 import random
 
-import pytest
 from permuta import Perm, PermSet
 from permuta.permutils.symmetry import (
     all_symmetry_sets,
     inverse_set,
     lex_min,
     reverse_set,
-    rotate_set,
+    rotate_90_clockwise_set,
 )
+
+rotate_set = rotate_90_clockwise_set
 
 
 def get_inp():
@@ -789,19 +790,19 @@ def get_inp():
 def test_rotate_set():
     inp = get_inp()
     for x in inp:
-        assert rotate_set(x["input"]) == x["rotate"]
+        assert set(rotate_set(x["input"])) == set(x["rotate"])
 
 
 def test_inverse_set():
     inp = get_inp()
     for x in inp:
-        assert inverse_set(x["input"]) == x["inverse"]
+        assert set(inverse_set(x["input"])) == set(x["inverse"])
 
 
 def test_reverse_set():
     inp = get_inp()
     for x in inp:
-        assert reverse_set(x["input"]) == x["reverse"]
+        assert set(reverse_set(x["input"])) == set(x["reverse"])
 
 
 def test_roundtrip_rotate():
@@ -813,7 +814,7 @@ def test_roundtrip_rotate():
         for i in range(4):
             output_set = rotate_set(output_set)
 
-        assert input_set == output_set
+        assert set(input_set) == set(output_set)
 
 
 def test_roundtrip_inverse():
@@ -825,7 +826,7 @@ def test_roundtrip_inverse():
         for i in range(2):
             output_set = inverse_set(output_set)
 
-        assert input_set == output_set
+        assert set(input_set) == set(output_set)
 
 
 def test_roundtrip_reverse():
@@ -837,84 +838,20 @@ def test_roundtrip_reverse():
         for i in range(4):
             output_set = reverse_set(output_set)
 
-        assert input_set == output_set
-
-
-def test_rotate_type():
-    p = PermSet(10).random()
-    assert type(rotate_set([p])) == list
-    assert type(rotate_set((p,))) == tuple
-    assert type(rotate_set({p})) == set
+        assert set(input_set) == set(output_set)
 
 
 def test_rotate_set_length():
     perm_list = [PermSet(6).random() for i in range(10)]
-    perm_tup = tuple(perm_list)
     perm_set = set(perm_list)
-
-    assert len(rotate_set(perm_list)) == len(perm_list)
-    assert len(rotate_set(perm_tup)) == len(perm_tup)
-    assert len(rotate_set(perm_set)) == len(perm_set)
-
-
-def test_inverse_type():
-    p = PermSet(10).random()
-    assert type(inverse_set([p])) == list
-    assert type(inverse_set((p,))) == tuple
-    assert type(inverse_set({p})) == set
+    assert len(list(rotate_set(perm_set))) == len(perm_set)
 
 
 def test_inverse_set_length():
     perm_list = [PermSet(6).random() for i in range(10)]
-    perm_tup = tuple(perm_list)
     perm_set = set(perm_list)
 
-    assert len(inverse_set(perm_list)) == len(perm_list)
-    assert len(inverse_set(perm_tup)) == len(perm_tup)
-    assert len(inverse_set(perm_set)) == len(perm_set)
-
-
-def test_reverse_type():
-    p = PermSet(10).random()
-    assert type(reverse_set([p])) == list
-    assert type(reverse_set((p,))) == tuple
-    assert type(reverse_set({p})) == set
-
-
-def test_reverse_set_length():
-    perm_list = [PermSet(6).random() for i in range(10)]
-    perm_tup = tuple(perm_list)
-    perm_set = set(perm_list)
-
-    assert len(reverse_set(perm_list)) == len(perm_list)
-    assert len(reverse_set(perm_tup)) == len(perm_tup)
-    assert len(reverse_set(perm_set)) == len(perm_set)
-
-
-def test_raise_TypeError():
-    inp = (
-        2,
-        2.04,
-        1.0,
-        0,
-        True,
-        None,
-        "Hello World",
-        [""],
-        [Perm((1, 0, 3, 2)), 0],
-        [Perm((1, 0, 3, 2)), "Hello"],
-        [Perm((1, 0, 3, 2)), 0.4],
-        [Perm((1, 0, 3, 2)), False],
-        {Perm((1, 0, 3, 2)), 0},
-        (Perm((1, 0, 3, 2)), 0),
-    )
-    for i in inp:
-        with pytest.raises(TypeError):
-            rotate_set(i)
-        with pytest.raises(TypeError):
-            inverse_set(i)
-        with pytest.raises(TypeError):
-            reverse_set(i)
+    assert len(list(inverse_set(perm_set))) == len(perm_set)
 
 
 def test_input_all_symmetries():
@@ -972,28 +909,6 @@ def test_length_of_output_should_be_1_2_4_or_8():
         input_set = set([perm_set.random() for i in range(random.randint(1, 100))])
 
         assert len(all_symmetry_sets(input_set)) in [1, 2, 4, 8]
-
-
-def test_all_symmetries_raise_TypeError():
-    inp = (
-        2,
-        2.04,
-        1.0,
-        0,
-        True,
-        None,
-        "Hello World",
-        [""],
-        [Perm((1, 0, 3, 2)), 0],
-        [Perm((1, 0, 3, 2)), "Hello"],
-        [Perm((1, 0, 3, 2)), 0.4],
-        [Perm((1, 0, 3, 2)), False],
-        {Perm((1, 0, 3, 2)), 0},
-        (Perm((1, 0, 3, 2)), 0),
-    )
-    for i in inp:
-        with pytest.raises(TypeError):
-            all_symmetry_sets(i)
 
 
 def test_input_lex_min():
@@ -1065,25 +980,3 @@ def test_input_lex_min():
     for x in inp:
         for i in x["input"]:
             assert lex_min(i) == x["output"]
-
-
-def test_lex_min_raise_TypeError():
-    inp = (
-        2,
-        2.04,
-        1.0,
-        0,
-        True,
-        None,
-        "Hello World",
-        [""],
-        [Perm((1, 0, 3, 2)), 0],
-        [Perm((1, 0, 3, 2)), "Hello"],
-        [Perm((1, 0, 3, 2)), 0.4],
-        [Perm((1, 0, 3, 2)), False],
-        {Perm((1, 0, 3, 2)), 0},
-        (Perm((1, 0, 3, 2)), 0),
-    )
-    for i in inp:
-        with pytest.raises(TypeError):
-            lex_min(i)

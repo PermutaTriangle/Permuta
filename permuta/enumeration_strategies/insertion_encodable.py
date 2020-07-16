@@ -1,13 +1,14 @@
-"""
-Enumeration strategies related to the insertion encoding.
-"""
+from typing import Iterable
 
+from permuta import Perm
 from permuta.enumeration_strategies.abstract_strategy import (
     EnumerationStrategyWithSymmetry,
 )
-from permuta.permutils.insertion_encodable import is_insertion_encodable_maximum
+from permuta.permutils.insertion_encodable import InsertionEncodablePerms
 
 
 class InsertionEncodingStrategy(EnumerationStrategyWithSymmetry):
-    def _applies_to_symmetry(self, b):
-        return is_insertion_encodable_maximum(b)
+    """Enumeration strategies related to the insertion encoding."""
+
+    def _applies_to_symmetry(self, basis: Iterable[Perm]) -> bool:
+        return InsertionEncodablePerms.is_insertion_encodable_maximum(basis)
