@@ -1,5 +1,5 @@
 from abc import abstractmethod, abstractproperty
-from typing import Any, ClassVar, FrozenSet, List, Type
+from typing import ClassVar, FrozenSet, List, Type
 
 from permuta import Av, MeshPatt, Perm
 from permuta.enumeration_strategies.abstract_strategy import (
@@ -25,7 +25,7 @@ class CoreStrategy(EnumerationStrategyWithSymmetry):
     def _applies_to_symmetry(self, basis: FrozenSet[Perm]):
         """Check if the core strategy applies to the basis or any of its symmetry."""
         assert isinstance(basis, frozenset)
-        perm_class: Any = Av(basis)  # TODO: Replace Any when perm_sets gets typing
+        perm_class: Av = Av.from_iterable(basis)
         patterns_are_contained = all(p not in perm_class for p in self.patterns_needed)
         extensions_are_valid = all(
             self.is_valid_extension(patt)
@@ -187,7 +187,7 @@ class RdCuCoreStrategy(CoreStrategy):
 class Rd2134CoreStrategy(CoreStrategy):
     """TODO"""
 
-    _NON_INC: ClassVar[Any] = Av([Perm((0, 1))])  # TODO: replace Any
+    _NON_INC: ClassVar[Av] = Av.from_iterable([Perm((0, 1))])
     _M_PATT: ClassVar[MeshPatt] = MeshPatt(
         Perm((1, 0)), [(0, 1), (0, 2), (1, 0), (1, 1), (1, 2), (2, 1), (2, 2)]
     )
@@ -208,7 +208,7 @@ class Rd2134CoreStrategy(CoreStrategy):
 class Ru2143CoreStrategy(CoreStrategy):
     """TODO"""
 
-    _NON_DEC: ClassVar[Any] = Av([Perm((1, 0))])  # TODO: Replace Any
+    _NON_DEC: ClassVar[Av] = Av.from_iterable([Perm((1, 0))])
     _M_PATT: ClassVar[MeshPatt] = MeshPatt(
         Perm((0, 1)), [(0, 1), (0, 2), (1, 0), (1, 1), (1, 2), (2, 1), (2, 2)]
     )

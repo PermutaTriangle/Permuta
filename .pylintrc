@@ -6,22 +6,7 @@ ignore-patterns=test_.*?py,
                 cli.py, 
                 bisc.py, 
                 bisc_subfunctions.py
-ignore= tests,
-        # TODO: REMOVE 
-        permuta\perm_sets,
-        permuta\perm_sets\finite,
-        permuta\perm_sets\unbounded,
-        permuta\perm_sets\unbounded\all,
-        permuta\perm_sets\unbounded\described,
-        permuta\perm_sets\unbounded\described\avoiding,
-        permuta\perm_sets\unbounded\described\avoiding\avoiding_length_0,
-        permuta/perm_sets,
-        permuta/perm_sets/finite,
-        permuta/perm_sets/unbounded,
-        permuta/perm_sets/unbounded/all,
-        permuta/perm_sets/unbounded/described,
-        permuta/perm_sets/unbounded/described/avoiding,
-        permuta/perm_sets/unbounded/described/avoiding/avoiding_length_0
+ignore= tests
 init-hook="from pylint.config import find_pylintrc; import os, sys; sys.path.append(os.path.dirname(find_pylintrc())+'/permuta')"
 disable=bad-continuation, 
         missing-module-docstring,

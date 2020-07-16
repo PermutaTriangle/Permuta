@@ -1,6 +1,6 @@
 from typing import Iterable, List, Union
 
-from permuta.patterns import MeshPatt, Patt, Perm
+from ..patterns import MeshPatt, Patt, Perm
 
 
 class Basis(tuple):
