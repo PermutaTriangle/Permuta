@@ -160,3 +160,28 @@ def test_av_meshpatt():
         inst = av.of_length(n)
         gen = list(inst)
         assert len(gen) == cnt
+
+
+def test_enumeration():
+    assert Av(Basis(Perm((0, 2, 1)))).enumeration(8) == [
+        1,
+        1,
+        2,
+        5,
+        14,
+        42,
+        132,
+        429,
+        1430,
+    ]
+    assert Av(Basis(Perm((0, 1, 2)), Perm((1, 2, 0)))).enumeration(8) == [
+        1,
+        1,
+        2,
+        4,
+        7,
+        11,
+        16,
+        22,
+        29,
+    ]
