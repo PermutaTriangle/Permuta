@@ -89,7 +89,7 @@ class MeshPatt(Patt):
             MeshPatt(Perm(()), [])
             >>> mps[1]
             MeshPatt(Perm(()), [(0, 0)])
-            >>> len(list(MeshPatt.of_length(2, (1, 2))))
+            >>> len(list(MeshPatt.of_length(2, Perm((1, 2)))))
             512
         """
         if patt is None:
