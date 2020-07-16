@@ -58,6 +58,11 @@ class Perm(TupleType, Patt):
         self._cached_pattern_details: Optional[List[Tuple[int, int, int, int]]] = None
 
     @classmethod
+    def clear_cache(cls):
+        """Clears to_standardize cache."""
+        cls._TO_STANDARD_CACHE = {}
+
+    @classmethod
     def to_standard(cls, iterable: Iterable) -> "Perm":
         """Return the perm corresponding to iterable. Duplicate elements
         are allowed and become consecutive elements (see example).
