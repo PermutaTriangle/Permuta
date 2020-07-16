@@ -49,8 +49,14 @@ class BivincularPatt(MeshPatt):
         """Return a random Bivincular pattern of a given length."""
         return cls(
             Perm.random(length),
-            (i for i, keep in enumerate(randint(0, 1) for _ in range(length + 1)) if keep),
-            (i for i, keep in enumerate(randint(0, 1) for _ in range(length + 1)) if keep),
+            (
+                i for i, keep in enumerate(randint(0, 1) for _ in range(length + 1)) 
+                if keep
+            ),
+            (
+                i for i, keep in enumerate(randint(0, 1) for _ in range(length + 1)) 
+                if keep
+            ),
         )
 
     def get_adjacent_requirements(self) -> Tuple[List[int], List[int]]:
@@ -112,7 +118,10 @@ class VincularPatt(BivincularPatt):
         """Return a random Vincular pattern of a given length."""
         return cls(
             Perm.random(length),
-            (i for i, keep in enumerate(randint(0, 1) for _ in range(length + 1)) if keep),
+            (
+                i for i, keep in enumerate(randint(0, 1) for _ in range(length + 1)) 
+                if keep
+            ),
         )
 
     def __repr__(self) -> str:
@@ -131,7 +140,10 @@ class CovincularPatt(BivincularPatt):
         """Return a random Covincular pattern of a given length."""
         return cls(
             Perm.random(length),
-            (i for i, keep in enumerate(randint(0, 1) for _ in range(length + 1)) if keep),
+            (
+                i for i, keep in enumerate(randint(0, 1) for _ in range(length + 1)) 
+                if keep
+            ),
         )
 
     def __repr__(self) -> str:
