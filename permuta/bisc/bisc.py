@@ -286,41 +286,33 @@ def create_bisc_input(N, prop):
     return A, B
 
 
-def write_bisc_files(N, prop, info):
-    """
-    Create a dictionary, D, containing keys 1, 2, 3, ..., N. Each key points to
+def write_bisc_files(n: int, prop, info: str) -> None:
+    """Create a dictionary, D, containing keys 1, 2, 3, ..., n. Each key points to
     a list of permutations satisfying the property prop. The dictionary E has
     the same keys and they point to the complement.
     """
-
-    A, B = {}, {}
-
-    for n in range(N + 1):
-
-        An, Bn = [], []
-
-        for perm in Perm.of_length(n):
-            if prop(perm):
-                An.append(perm)
-            else:
-                Bn.append(perm)
-
-        A[n], B[n] = An, Bn
-    f = open("{}_good_len{}".format(info, N), "a+")
-    f.write(json.dumps(A))
-    f.close()
-
-    f = open("{}_bad_len{}".format(info, N), "a+")
-    f.write(json.dumps(B))
-    f.close()
+    good, bad = create_bisc_input(n, prop)
+    write_json_to_file(good, f"{info}_good_len{n}.json")
+    write_json_to_file(bad, f"{info}_bad_len{n}.json")
 
 
-def from_json(s):
-    d = json.loads(s)
-    return {int(key): list(map(Perm, values)) for key, values in d.items()}
+def write_json_to_file(json_obj, file_name):
+    try:
+        with open(file_name, "a+") as f:
+            f.write(json.dumps(json_obj))
+    except OSError:
+        print(f"Could not write to file: {file_name}")
 
 
-def read_bisc_file(p):
-    with open(f"{p}.json", "r") as f:
-        return from_json(f.readline())
-    return {}
+def from_json(json_string):
+    json_obj = json.loads(json_string)
+    return {int(key): list(map(Perm, values)) for key, values in json_obj.items()}
+
+
+def read_bisc_file(path):
+    try:
+        with open(f"{path}.json", "r") as f:
+            return from_json(f.readline())
+    except (ValueError, TypeError, OSError):
+        print(f"File is invalid: {path}")
+        return {}

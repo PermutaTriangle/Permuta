@@ -5,7 +5,6 @@ from math import factorial
 import pytest
 from permuta import MeshPatt, Perm
 from permuta.misc import DIR_EAST, DIR_NORTH, DIR_SOUTH, DIR_WEST
-from permuta.perm_sets.meshpattset import gen_meshpatts
 
 mesh_pattern = MeshPatt(
     Perm([1, 3, 2, 0]),
@@ -1575,16 +1574,16 @@ def test_ascii_plot():
 
 
 def test_gen_meshpatts():
-    assert list(gen_meshpatts(0)) == [MeshPatt(), MeshPatt((), [(0, 0)])]
-    assert len(list(gen_meshpatts(1))) == 2 ** 4
+    assert list(MeshPatt.of_length(0)) == [MeshPatt(), MeshPatt((), [(0, 0)])]
+    assert len(list(MeshPatt.of_length(1))) == 2 ** 4
     for i in range(2, 4):
         patt = Perm.random(i)
-        len_i = list(gen_meshpatts(i, patt))
+        len_i = list(MeshPatt.of_length(i, patt))
         assert (len(set(len_i))) == 2 ** ((i + 1) ** 2)
         for mpatt in len_i:
             assert mpatt.pattern == patt
-    len_i = list(gen_meshpatts(2))
+    len_i = list(MeshPatt.of_length(2))
     assert len(set(len_i)) == (2 ** ((2 + 1) ** 2) * factorial(2))
-    patt = tuple(Perm.random(3))
-    len_i = list(gen_meshpatts(3, patt))
+    patt = Perm.random(3)
+    len_i = list(MeshPatt.of_length(3, patt))
     assert (len(set(len_i))) == 2 ** ((3 + 1) ** 2)

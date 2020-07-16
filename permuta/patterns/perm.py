@@ -40,7 +40,6 @@ else:
 class Perm(TupleType, Patt):
     """A perm class."""
 
-    _TYPE_ERROR: ClassVar[str] = "'{}' object is not a perm"
     _TO_STANDARD_CACHE: ClassVar[Dict[Tuple, "Perm"]] = {}
 
     def __new__(cls, iterable: Iterable[int] = ()) -> "Perm":
@@ -193,6 +192,18 @@ class Perm(TupleType, Patt):
             [Perm((0, 1)), Perm((1, 0))]
         """
         yield from (cls(perm) for perm in itertools.permutations(range(length)))
+
+    @classmethod
+    def up_to_length(cls, length: int) -> Iterator["Perm"]:
+        """Generate all permutations up to a and including a given
+        length in lexicographical order.
+
+        Examples:
+            >>> list(Perm.up_to_length(2))
+            [Perm(()), Perm((0,)), Perm((0, 1)), Perm((1, 0))]
+        """
+        for n in range(length + 1):
+            yield from (cls(perm) for perm in itertools.permutations(range(n)))
 
     @classmethod
     def first(cls, count: int) -> Iterator["Perm"]:

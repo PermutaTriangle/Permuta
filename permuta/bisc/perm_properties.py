@@ -214,17 +214,17 @@ def _perm_to_yt(perm: Perm) -> List[List[int]]:
     return res
 
 
-def _tableau_contains_shape(tab, shape):
+def _tableau_contains_shape(tab: List[List[int]], shape: List[int]) -> bool:
     #  Return True if the tableaux tab contains the shape
     return len(tab) >= len(shape) and all(s <= t for s, t in zip(shape, map(len, tab)))
 
 
-def yt_perm_avoids_22(perm):
+def yt_perm_avoids_22(perm: Perm) -> bool:
     """Returns true if perm's standard young table avoids shape [2,2]."""
     return not _tableau_contains_shape(_perm_to_yt(perm), [2, 2])
 
 
-def yt_perm_avoids_32(perm):
+def yt_perm_avoids_32(perm: Perm) -> bool:
     """Returns true if perm's standard young table avoids shape [3,2]."""
     return not _tableau_contains_shape(_perm_to_yt(perm), [3, 2])
 
@@ -235,7 +235,7 @@ _AV_231_AND_MESH_PATT = (
 )
 
 
-def av_231_and_mesh(perm):
+def av_231_and_mesh(perm: Perm) -> bool:
     """Check if perm avoids MeshPatt(Perm((0, 1, 5, 2, 3, 4)), [(1, 6), (4, 5), (4, 6)])
     and the classial pattern 231.
     """
@@ -248,7 +248,7 @@ _HARD_MESH_PATT = (
 )
 
 
-def hard_mesh(perm):
+def hard_mesh(perm: Perm) -> bool:
     """Check if perm avoids MeshPatt(Perm((0, 1, 2)), [(0, 0), (1, 1), (2, 2), (3, 3)])
     and MeshPatt(Perm((0, 1, 2)), [(0, 3), (1, 2), (2, 1), (3, 0)])."""
     return perm.avoids(*_HARD_MESH_PATT)

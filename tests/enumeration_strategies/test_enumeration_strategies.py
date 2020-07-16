@@ -1,11 +1,11 @@
 from permuta import Perm
-from permuta.descriptors import Basis
 from permuta.enumeration_strategies import all_enumeration_strategies, find_strategies
 from permuta.enumeration_strategies.core_strategies import (
     RdCdCoreStrategy,
     RuCuCoreStrategy,
 )
 from permuta.enumeration_strategies.insertion_encodable import InsertionEncodingStrategy
+from permuta.perm_sets.basis import Basis
 
 ru = Perm((1, 2, 0, 3))
 cu = Perm((2, 0, 1, 3))

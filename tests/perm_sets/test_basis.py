@@ -1,6 +1,6 @@
 import pytest
 from permuta import MeshPatt, Perm
-from permuta.descriptors.basis import Basis, MeshBasis, detect_basis_cls
+from permuta.perm_sets.basis import Basis, MeshBasis, detect_basis_cls
 
 
 def test_detect_empty_basis_cls():
@@ -78,3 +78,7 @@ def test_meshbasis_with_empty_meshpatt():
 def test_meshbasis_with_empty_perm():
     meshbasis = MeshBasis([MeshPatt(), Perm()])
     assert meshbasis == MeshBasis(MeshPatt())
+
+
+def test_basis():
+    assert Basis([Perm((0, 2, 1)), Perm((0, 3, 2, 1))]) == Basis(Perm((0, 2, 1)))

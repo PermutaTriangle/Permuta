@@ -5,10 +5,9 @@ from collections.abc import Iterable
 
 from ..patterns.meshpatt import MeshPatt
 from ..patterns.perm import Perm
-from .descriptor import Descriptor
 
 
-class AbstractBasis(Descriptor, tuple, abc.ABC):
+class AbstractBasis(tuple, abc.ABC):
     @property
     @abc.abstractmethod
     def ALLOWED_BASIS_ELEMENT_TYPES(self):
@@ -79,9 +78,6 @@ class AbstractBasis(Descriptor, tuple, abc.ABC):
             return tuple.__new__(self.__class__, new_basis)
         else:
             return self
-
-    def is_polynomial(self):
-        return True  # TODO
 
     def __eq__(self, other):
         return isinstance(other, self.__class__) and tuple.__eq__(self, other)

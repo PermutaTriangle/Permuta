@@ -2,8 +2,8 @@ from math import factorial
 
 import pytest
 from permuta import MeshPatt, Perm
-from permuta.descriptors import Basis, MeshBasis
 from permuta.perm_sets import PermSet
+from permuta.perm_sets.basis import Basis, MeshBasis
 from permuta.perm_sets.unbounded.described.avoiding import AvoidingGeneric
 
 
@@ -157,3 +157,10 @@ def test_is_subclass():
     assert av123.is_subclass(av1324_1423_12345)
     assert not av1324_1234.is_subclass(av1324_1423_12345)
     assert av1234_132.is_subclass(av1324_1423_12345)
+
+
+def test_av_of_length():
+    assert [
+        sum(1 for _ in AvoidingGeneric(Basis(Perm((0, 2, 1)))).of_length(i))
+        for i in range(8)
+    ] == [1, 1, 2, 5, 14, 42, 132, 429]
