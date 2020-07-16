@@ -1,5 +1,5 @@
-from random import randint, sample
-from typing import Iterable, Iterator, List, Tuple
+from random import randint
+from typing import Iterable, Iterator, List, Optional, Tuple
 
 from .meshpatt import MeshPatt
 from .patt import Patt
@@ -38,13 +38,19 @@ class BivincularPatt(MeshPatt):
         raise NotImplementedError
 
     @classmethod
+    def of_length(
+        cls, length: int, patt: Optional[Perm] = None
+    ) -> Iterator["MeshPatt"]:
+        """Not implemented, inherited from MeshPatt."""
+        raise NotImplementedError
+
+    @classmethod
     def random(cls, length: int) -> "BivincularPatt":
         """Return a random Bivincular pattern of a given length."""
-        lis = list(range(length + 1))
         return cls(
             Perm.random(length),
-            sample(lis, randint(0, length)),
-            sample(lis, randint(0, length)),
+            (i for i, keep in enumerate(randint(0, 1) for _ in range(5 + 1)) if keep),
+            (i for i, keep in enumerate(randint(0, 1) for _ in range(5 + 1)) if keep),
         )
 
     def get_adjacent_requirements(self) -> Tuple[List[int], List[int]]:
@@ -104,7 +110,10 @@ class VincularPatt(BivincularPatt):
     @classmethod
     def random(cls, length: int) -> "VincularPatt":
         """Return a random Vincular pattern of a given length."""
-        return cls(Perm.random(length), sample(range(length + 1), randint(0, length)))
+        return cls(
+            Perm.random(length),
+            (i for i, keep in enumerate(randint(0, 1) for _ in range(5 + 1)) if keep),
+        )
 
     def __repr__(self) -> str:
         adj_idx, _ = self.get_adjacent_requirements()
@@ -120,7 +129,10 @@ class CovincularPatt(BivincularPatt):
     @classmethod
     def random(cls, length: int) -> "CovincularPatt":
         """Return a random Covincular pattern of a given length."""
-        return cls(Perm.random(length), sample(range(length + 1), randint(0, length)))
+        return cls(
+            Perm.random(length),
+            (i for i, keep in enumerate(randint(0, 1) for _ in range(5 + 1)) if keep),
+        )
 
     def __repr__(self) -> str:
         _, adj_val = self.get_adjacent_requirements()
