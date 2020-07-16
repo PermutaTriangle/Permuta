@@ -1,6 +1,6 @@
 import numbers
 
-from .basis import Basis, MeshBasis, detect_basis_cls
+from .basis import Basis, MeshBasis
 from .finite.permset_static import PermSetStatic
 from .permset_base import PermSetBase
 from .unbounded.all.permset_all import PermSetAll
@@ -70,8 +70,9 @@ class PermSet(object, metaclass=PermSetMetaclass):
 
     @classmethod
     def avoiding(cls, basis):
-        BasisCls = detect_basis_cls(basis)
-        return cls(BasisCls(basis))
+        if MeshBasis.is_mesh_basis(basis):
+            return cls(MeshBasis(*basis))
+        return cls(Basis(*basis))
 
 
 class AvoidanceClassMetaclass(type):

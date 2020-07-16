@@ -3,7 +3,7 @@ import multiprocessing
 import random
 from typing import Any, Dict
 
-from permuta.perm_sets.basis import AbstractBasis, Basis
+from permuta.perm_sets.basis import Basis, MeshBasis
 
 from .....patterns.perm import Perm
 from ....finite.permset_finite_specificlength import PermSetFiniteSpecificLength
@@ -16,7 +16,7 @@ class Avoiding(PermSetDescribed):
     """The base class for all avoidance classes."""
 
     # NOTE: Monkey patching of default subclass happens at end of file
-    DESCRIPTOR_CLASS: Any = AbstractBasis
+    DESCRIPTOR_CLASS: Any = (MeshBasis, Basis)
 
     @property
     def basis(self):

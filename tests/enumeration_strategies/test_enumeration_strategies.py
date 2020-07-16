@@ -15,7 +15,7 @@ cd = Perm((2, 0, 3, 1))
 
 def test_init_strategy():
     b1 = [Perm((0, 1, 2))]
-    b2 = Basis([Perm((0, 1, 2, 3)), Perm((2, 0, 1))])
+    b2 = Basis(*[Perm((0, 1, 2, 3)), Perm((2, 0, 1))])
     for Strat in all_enumeration_strategies:
         Strat(b1).applies()
         Strat(b2).applies()
@@ -44,7 +44,7 @@ def test_RdCd():
 
 def test_find_strategies():
     b1 = [Perm((0, 1, 2, 3, 4))]
-    b2 = Basis([Perm((0, 1, 2, 3)), Perm((2, 0, 1))])
+    b2 = Basis(*[Perm((0, 1, 2, 3)), Perm((2, 0, 1))])
     assert len(find_strategies(b1, long_runnning=True)) == 0
     assert len(find_strategies(b1, long_runnning=False)) == 0
     assert len(find_strategies(b2)) > 0

@@ -56,7 +56,7 @@ test_classes = [
 @pytest.mark.parametrize("patts,enum", test_classes)
 def test_avoiding_enumeration(patts, enum):
     patts = [Perm(patt) for patt in patts]
-    basis = Basis(patts)
+    basis = Basis(*patts)
     for (n, cnt) in enumerate(enum):
         # print(n, cnt)
         inst = AvoidingGeneric(basis).of_length(n)
@@ -81,7 +81,7 @@ def test_avoiding_generic_mesh_patterns():
     p = Perm((2, 0, 1))
     shading = ((2, 0), (2, 1), (2, 2), (2, 3))
     mps = [MeshPatt(p, shading)]
-    meshbasis = MeshBasis(mps)
+    meshbasis = MeshBasis(*mps)
     avoiding_generic_basis = AvoidingGeneric(meshbasis)
     enum = [1, 1, 2, 5, 15, 52, 203, 877]  # Bell numbers
 
@@ -118,7 +118,7 @@ def test_avoiding_generic_finite_class():
 
     for (patts, enum) in ts:
         patts = [Perm(patt) for patt in patts]
-        basis = Basis(patts)
+        basis = Basis(*patts)
         for (n, cnt) in enumerate(enum):
             inst = AvoidingGeneric(basis).of_length(n)
             gen = list(inst)

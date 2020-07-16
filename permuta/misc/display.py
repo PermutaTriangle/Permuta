@@ -9,7 +9,7 @@ from typing import ClassVar
 class HTMLViewer:
     """A class for opening html text in browser."""
 
-    _THREAD_WAIT_TIME: ClassVar[float] = 0.25  # seconds
+    _THREAD_WAIT_TIME: ClassVar[float] = 5  # seconds
 
     @staticmethod
     def _remove_file_thread(fname: str) -> None:
