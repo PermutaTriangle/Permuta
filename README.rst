@@ -157,32 +157,16 @@ There are numerous practical methods available:
 Creating a perm class
 #####################
 
-You might want the set of all perms:
+Perm classes are specified with a basis:
 
 .. code-block:: python
 
-    >>> all_perms = PermSet()
-    >>> print(all_perms)
-    <The set of all perms>
-
-Perm classes can be specified with a basis:
-
-.. code-block:: python
-
-    >>> basis = [Perm((1, 0, 2)), Perm((1, 2, 0))]
+    >>> basis = Basis(Perm((1, 0, 2)), Perm((1, 2, 0)))
     >>> basis
-    [Perm((1, 0, 2)), Perm((1, 2, 0))]
+    Basis((Perm((1, 0, 2)), Perm((1, 2, 0))))
     >>> perm_class = Av(basis)
     >>> perm_class
-    Av((Perm((1, 0, 2)), Perm((1, 2, 0))))
-
-When a basis consists of a single element you can pass it directly to `Av`:
-
-.. code-block:: python
-
-    >>> q = Perm((1,0))
-    >>> len(Av(q).of_length(100))
-    1
+    Av(Basis((Perm((1, 0, 2)), Perm((1, 2, 0)))))
 
 You can ask whether a perm belongs to the perm class:
 
@@ -193,49 +177,14 @@ You can ask whether a perm belongs to the perm class:
     >>> Perm((0, 2, 1, 3)) in perm_class
     False
 
-You can get the n-th perm of the class or iterate:
+You can get its enumeration up to a fixed length.
 
 .. code-block:: python
 
-    >>> sorted([perm_class[n] for n in range(8)])
-    [Perm(()), Perm((0,)), Perm((0, 1)), Perm((1, 0)), Perm((0, 1, 2)), Perm((0, 2, 1)), Perm((2, 0, 1)), Perm((2, 1, 0))]
-    >>> perm_class_iter = iter(perm_class)
-    >>> sorted([next(perm_class_iter) for _ in range(8)])
-    [Perm(()), Perm((0,)), Perm((0, 1)), Perm((1, 0)), Perm((0, 1, 2)), Perm((0, 2, 1)), Perm((2, 0, 1)), Perm((2, 1, 0))]
-
-(BEWARE: Lexicographic order is not guaranteed at the moment!)
-
-The subset of a perm class where the perms are a specific length
-################################################################
-
-You can define a subset of perms of a specific length in the perm class:
-
-.. code-block:: python
-
-    >>> perm_class_14 = perm_class.of_length(14)
-    >>> perm_class_14
-    Av((Perm((1, 0, 2)), Perm((1, 2, 0)))).of_length(14)
-
-You can ask for the size of the subset because it is guaranteed to be finite:
-
-.. code-block:: python
-
-    >>> len(perm_class_14)
-    8192
-
-The iterating and containment functionality is the same as with `perm_class`,
-but indexing has yet to be implemented:
-
-.. code-block:: python
-
-    >>> Perm((2, 1, 0)) in perm_class_14
-    False
-    >>> Perm((0, 13, 1, 12, 2, 3, 4, 11, 5, 10, 6, 7, 8, 9)) in perm_class_14
-    True
-    >>> Perm(range(10)) - Perm(range(4)) in perm_class_14
-    False
-    >>> next(iter(perm_class_14)) in perm_class_14
-    True
+    >>> perm_class.enumeration(10)
+    [1, 1, 2, 4, 8, 16, 32, 64, 128, 256, 512]
+    >>> perm_class.count(11)
+    1024
 
 The BiSC algorithm
 ==================

@@ -151,3 +151,9 @@ class Av:
             yield first
             yield from gen
             length += 1
+
+    def __str__(self) -> str:
+        return f"Av({','.join(str(p) for p in self.basis)})"
+
+    def __repr__(self) -> str:
+        return f"Av({repr(self.basis)})"

@@ -116,21 +116,21 @@ def test_avoiding_generic_finite_class():
 
 
 def test_is_subclass():
-    av1 = Av((Perm((0,)),))
-    av12_21 = Av((Perm((0, 1)), Perm((1, 0))))
-    av123 = Av((Perm((0, 1, 2)),))
-    av1234 = Av((Perm((0, 1, 2, 3)),))
+    av1 = Av.from_iterable((Perm((0,)),))
+    av12_21 = Av.from_iterable((Perm((0, 1)), Perm((1, 0))))
+    av123 = Av.from_iterable((Perm((0, 1, 2)),))
+    av1234 = Av.from_iterable((Perm((0, 1, 2, 3)),))
     assert av1.is_subclass(av123)
     assert not av123.is_subclass(av1)
     assert av123.is_subclass(av1234)
     assert not av1234.is_subclass(av12_21)
     assert av12_21.is_subclass(av1234)
     assert av123.is_subclass(av123)
-    av1324_1423_12345 = Av(
+    av1324_1423_12345 = Av.from_iterable(
         (Perm((0, 2, 1, 3)), Perm((0, 3, 1, 2)), Perm((0, 1, 2, 3, 4, 5)))
     )
-    av1324_1234 = Av((Perm((0, 2, 1, 3)), Perm((0, 1, 2, 3))))
-    av1234_132 = Av((Perm((0, 1, 2, 3)), Perm((0, 2, 1))))
+    av1324_1234 = Av.from_iterable((Perm((0, 2, 1, 3)), Perm((0, 1, 2, 3))))
+    av1234_132 = Av.from_iterable((Perm((0, 1, 2, 3)), Perm((0, 2, 1))))
     assert av123.is_subclass(av1324_1423_12345)
     assert not av1324_1234.is_subclass(av1324_1423_12345)
     assert av1234_132.is_subclass(av1324_1423_12345)
@@ -185,3 +185,38 @@ def test_enumeration():
         22,
         29,
     ]
+    assert Av.from_iterable(
+        (Perm((0, 1, 2)), MeshPatt(Perm((2, 0, 1)), [(0, 1), (1, 1), (2, 1), (3, 1)]))
+    ).enumeration(7) == [1, 1, 2, 4, 8, 16, 32, 64]
+    assert Av(
+        Basis(Perm((0, 1, 2, 3)), Perm((2, 0, 1, 3)), Perm((1, 0, 2, 3)))
+    ).enumeration(8) == [1, 1, 2, 6, 21, 79, 309, 1237, 5026]
+    assert Av(
+        Basis(
+            Perm((0, 1, 3, 2)),
+            Perm((0, 2, 3, 1)),
+            Perm((2, 1, 3, 0)),
+            Perm((2, 1, 3, 0)),
+        )
+    ).enumeration(8) == [1, 1, 2, 6, 21, 75, 262, 891, 2964]
+    assert Av(
+        Basis(
+            Perm((0, 2, 3, 1)),
+            Perm((2, 0, 1, 3)),
+            Perm((0, 3, 2, 1)),
+            Perm((3, 2, 0, 1)),
+        )
+    ).enumeration(8) == [1, 1, 2, 6, 20, 61, 169, 442, 1120]
+
+
+def test_generators():
+    assert list(Av(Basis(Perm((0, 1)), Perm((1, 0)))).first(500)) == [
+        Perm(),
+        Perm((0,)),
+    ]
+    assert sorted(Av(Basis(Perm((0, 2, 1)), Perm((1, 2, 0)))).of_length(3)) == sorted(
+        set(Perm.of_length(3)) - {Perm((0, 2, 1)), Perm((1, 2, 0))}
+    )
+    assert sorted(
+        Av(Basis(Perm((0, 2, 1)), Perm((1, 2, 0)))).up_to_length(3)
+    ) == sorted(set(Perm.up_to_length(3)) - {Perm((0, 2, 1)), Perm((1, 2, 0))})
