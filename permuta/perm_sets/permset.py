@@ -29,11 +29,7 @@ class Av(AvBase):
     def __new__(
         cls,
         basis: Union[
-            Basis,
-            MeshBasis,
-            Iterable[Perm],
-            Iterable[Perm],
-            Iterable[Union[Perm, MeshPatt]],
+            Basis, MeshBasis, Iterable[Perm], Iterable[Union[Perm, MeshPatt]],
         ],
     ) -> "Av":
         if not isinstance(basis, (Basis, MeshBasis)):
