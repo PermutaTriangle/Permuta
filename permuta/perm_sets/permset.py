@@ -23,7 +23,7 @@ class Av(AvBase):
     _CACHE_LOCK = multiprocessing.Lock()
 
     def __new__(cls, basis: Union[Basis, MeshBasis]) -> "Av":
-        assert len(basis) > 0
+        assert len(basis) > 0 and basis != Basis(Perm())
         instance = Av._CLASS_CACHE.get(basis)
         if instance is None:
             new_instance: "Av" = AvBase.__new__(cls, basis, [{Perm(): [0]}])
