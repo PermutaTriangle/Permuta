@@ -192,3 +192,17 @@ def test_basis():
             ),
         )
     )
+
+
+def test_alternative_construction_methods():
+    assert (
+        Basis.from_string("123_321")
+        == Basis.from_iterable([Perm((0, 1, 2)), Perm((2, 1, 0))])
+        == Basis(Perm((0, 1, 2)), Perm((2, 1, 0)))
+        == Basis.from_string("012:210")
+    )
+    assert MeshBasis.from_iterable(
+        [MeshPatt(Perm((1, 2, 0)), [(0, 0), (0, 2), (1, 1), (1, 3), (2, 0), (2, 1)])]
+    ) == MeshBasis(
+        MeshPatt(Perm((1, 2, 0)), [(0, 0), (0, 2), (1, 1), (1, 3), (2, 0), (2, 1)])
+    )

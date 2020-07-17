@@ -1,5 +1,4 @@
 import multiprocessing
-import re
 from itertools import islice
 from typing import ClassVar, Dict, Iterable, List, NamedTuple, Optional, Union
 
@@ -53,7 +52,7 @@ class Av(AvBase):
         """Create a permutation class from a string. Basis can be either zero or one
         based and seperated by anything. MeshBasis is not supported.
         """
-        return cls(Basis(*map(Perm.to_standard, re.findall(r"\d+", basis))))
+        return cls(Basis.from_string(basis))
 
     @classmethod
     def from_iterable(

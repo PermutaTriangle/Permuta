@@ -1,3 +1,4 @@
+import re
 from typing import Iterable, List, Union
 
 from ..patterns import MeshPatt, Patt, Perm
@@ -12,6 +13,17 @@ class Basis(tuple):
         if not patts:
             return tuple.__new__(cls, ())
         return cls._pruner(sorted(patts))
+
+    @classmethod
+    def from_string(cls, patts: str) -> "Basis":
+        """Construct a MeshBasis from a string. It can be either 0 or 1 based and
+        seperated by anything."""
+        return cls(*map(Perm.to_standard, re.findall(r"\d+", patts)))
+
+    @classmethod
+    def from_iterable(cls, patts: Iterable[Perm]) -> "Basis":
+        """Construct a MeshBasis from an iterable."""
+        return cls(*patts)
 
     @classmethod
     def _pruner(cls, patts: List[Perm]) -> "Basis":
@@ -57,6 +69,11 @@ class MeshBasis(tuple):
                 for patt in patts
             )
         )
+
+    @classmethod
+    def from_iterable(cls, patts: Iterable[Union[Perm, MeshPatt]]) -> "MeshBasis":
+        """Construct a MeshBasis from an iterable."""
+        return cls(*patts)
 
     @classmethod
     def _pruner(cls, patts: List[MeshPatt]) -> "MeshBasis":
