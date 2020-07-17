@@ -13,7 +13,7 @@ class AvBase(NamedTuple):
     """
 
     basis: Union[Basis, MeshBasis]
-    cache: List[Dict[Perm, List[int]]]
+    cache: List[Dict[Perm, Optional[List[int]]]]
 
 
 class Av(AvBase):
@@ -99,6 +99,8 @@ class Av(AvBase):
             self._ensure_level_classical_pattern_basis(level_number)
         else:
             self._ensure_level_mesh_pattern_basis(level_number)
+        for i in range(level_number - 1):
+            self.cache[i] = {perm: None for perm in self.cache[i]}
 
     def _ensure_level_classical_pattern_basis(self, level_number: int) -> None:
         # We build new elements from existing ones
@@ -106,7 +108,7 @@ class Av(AvBase):
         max_size = max(lengths)
         for nplusone in range(len(self.cache), level_number + 1):
             n = nplusone - 1
-            new_level: Dict[Perm, List[int]] = dict()
+            new_level: Dict[Perm, Optional[List[int]]] = dict()
             last_level = self.cache[-1]
             check_length = nplusone in lengths
             smaller_elems = {b for b in self.basis if len(b) == nplusone}
@@ -127,17 +129,18 @@ class Av(AvBase):
                         break
                 return res if res is not None else range(nplusone)
 
-            for perm in last_level:
+            for perm, lis in last_level.items():
                 for value in valid_insertions(perm):
                     new_perm = perm.insert(index=nplusone, new_element=value)
                     if not check_length or new_perm not in smaller_elems:
                         new_level[new_perm] = []
-                        last_level[perm].append(value)
+                        assert lis is not None
+                        lis.append(value)
             self.cache.append(new_level)
 
     def _ensure_level_mesh_pattern_basis(self, level_number: int) -> None:
         self.cache.extend(
-            {p: [] for p in Perm.of_length(i) if p.avoids(*self.basis)}
+            {p: None for p in Perm.of_length(i) if p.avoids(*self.basis)}
             for i in range(len(self.cache), level_number + 1)
         )
 
