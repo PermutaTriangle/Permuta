@@ -95,11 +95,12 @@ class Av(AvBase):
         return all(p1 not in self for p1 in other.basis)
 
     def _ensure_level(self, level_number: int) -> None:
+        start = max(0, len(self.cache) - 2)
         if isinstance(self.basis, Basis):
             self._ensure_level_classical_pattern_basis(level_number)
         else:
             self._ensure_level_mesh_pattern_basis(level_number)
-        for i in range(level_number - 1):
+        for i in range(start, level_number - 1):
             self.cache[i] = {perm: None for perm in self.cache[i]}
 
     def _ensure_level_classical_pattern_basis(self, level_number: int) -> None:
