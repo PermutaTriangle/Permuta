@@ -1,4 +1,5 @@
 import multiprocessing
+import re
 from itertools import islice
 from typing import ClassVar, Dict, Iterable, List, NamedTuple, Optional, Union
 
@@ -19,11 +20,26 @@ class AvBase(NamedTuple):
 class Av(AvBase):
     """A permutation class defined by its minimal basis."""
 
+    _FORBIDDEN_BASIS = Basis(Perm())
+    _VALUE_ERROR_MSG = "Basis should be non-empty without the empty perm!"
+    _BASIS_ONLY_MSG = "Only supported for Basis!"
     _CLASS_CACHE: ClassVar[Dict[Union[Basis, MeshBasis], "Av"]] = {}
     _CACHE_LOCK = multiprocessing.Lock()
 
-    def __new__(cls, basis: Union[Basis, MeshBasis]) -> "Av":
-        assert len(basis) > 0 and basis != Basis(Perm())
+    def __new__(
+        cls,
+        basis: Union[
+            Basis,
+            MeshBasis,
+            Iterable[Perm],
+            Iterable[Perm],
+            Iterable[Union[Perm, MeshPatt]],
+        ],
+    ) -> "Av":
+        if not isinstance(basis, (Basis, MeshBasis)):
+            return Av.from_iterable(basis)
+        if len(basis) == 0 or basis == Av._FORBIDDEN_BASIS:
+            raise ValueError(Av._VALUE_ERROR_MSG)
         instance = Av._CLASS_CACHE.get(basis)
         if instance is None:
             new_instance: "Av" = AvBase.__new__(cls, basis, [{Perm(): [0]}])
@@ -37,9 +53,16 @@ class Av(AvBase):
         cls._CLASS_CACHE = {}
 
     @classmethod
+    def from_string(cls, basis) -> "Av":
+        """Create a permutation class from a string. Basis can be either zero or one
+        based and seperated by anything. MeshBasis is not supported.
+        """
+        return cls(Basis(*map(Perm.to_standard, re.findall(r"\d+", basis))))
+
+    @classmethod
     def from_iterable(
         cls, basis: Union[Iterable[Perm], Iterable[Union[Perm, MeshPatt]]]
-    ):
+    ) -> "Av":
         """Create a permutation class from a basis defined by an iterable of patterns.
         """
         if MeshBasis.is_mesh_basis(basis):
@@ -48,14 +71,20 @@ class Av(AvBase):
 
     def is_finite(self) -> bool:
         """Check if the perm class is finite."""
+        if isinstance(self.basis, MeshBasis):
+            raise NotImplementedError(Av._BASIS_ONLY_MSG)
         return is_finite(self.basis)
 
     def is_polynomial(self) -> bool:
         """Check if the perm class has polynomial growth."""
+        if isinstance(self.basis, MeshBasis):
+            raise NotImplementedError(Av._BASIS_ONLY_MSG)
         return is_polynomial(self.basis)
 
     def is_insertion_encodable(self) -> bool:
         """Check if the perm class is insertion encodable."""
+        if isinstance(self.basis, MeshBasis):
+            raise NotImplementedError(Av._BASIS_ONLY_MSG)
         return is_insertion_encodable(self.basis)
 
     def first(self, count: int) -> Iterable[Perm]:

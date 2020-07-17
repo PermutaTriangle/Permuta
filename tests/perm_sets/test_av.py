@@ -144,7 +144,7 @@ def test_av_of_length():
 
 def test_av_perm():
     p = Perm((0, 1))
-    av = Av.from_iterable([p])
+    av = Av([p])
     for length in range(10):
         assert len(set(av.of_length(length))) == 1
 
@@ -153,7 +153,7 @@ def test_av_meshpatt():
     p = Perm((2, 0, 1))
     shading = ((2, 0), (2, 1), (2, 2), (2, 3))
     mp = MeshPatt(p, shading)
-    av = Av.from_iterable([mp])
+    av = Av([mp])
     enum = [1, 1, 2, 5, 15, 52, 203, 877]  # Bell numbers
 
     for (n, cnt) in enumerate(enum):
@@ -163,50 +163,50 @@ def test_av_meshpatt():
 
 
 def test_enumeration():
-    assert Av(Basis(Perm((0, 2, 1)))).enumeration(8) == [
-        1,
-        1,
-        2,
-        5,
-        14,
-        42,
-        132,
-        429,
-        1430,
-    ]
-    assert Av(Basis(Perm((0, 1, 2)), Perm((1, 2, 0)))).enumeration(8) == [
-        1,
-        1,
-        2,
-        4,
-        7,
-        11,
-        16,
-        22,
-        29,
-    ]
-    assert Av.from_iterable(
+    assert (
+        Av.from_string("132").enumeration(8)
+        == Av(Basis(Perm((0, 2, 1)))).enumeration(8)
+        == [1, 1, 2, 5, 14, 42, 132, 429, 1430]
+    )
+    assert (
+        Av.from_string("Av(123,231)").enumeration(8)
+        == Av(Basis(Perm((0, 1, 2)), Perm((1, 2, 0)))).enumeration(8)
+        == [1, 1, 2, 4, 7, 11, 16, 22, 29]
+    )
+    assert Av(
         (Perm((0, 1, 2)), MeshPatt(Perm((2, 0, 1)), [(0, 1), (1, 1), (2, 1), (3, 1)]))
     ).enumeration(7) == [1, 1, 2, 4, 8, 16, 32, 64]
-    assert Av(
-        Basis(Perm((0, 1, 2, 3)), Perm((2, 0, 1, 3)), Perm((1, 0, 2, 3)))
-    ).enumeration(8) == [1, 1, 2, 6, 21, 79, 309, 1237, 5026]
-    assert Av(
-        Basis(
-            Perm((0, 1, 3, 2)),
-            Perm((0, 2, 3, 1)),
-            Perm((2, 1, 3, 0)),
-            Perm((2, 1, 3, 0)),
-        )
-    ).enumeration(8) == [1, 1, 2, 6, 21, 75, 262, 891, 2964]
-    assert Av(
-        Basis(
-            Perm((0, 2, 3, 1)),
-            Perm((2, 0, 1, 3)),
-            Perm((0, 3, 2, 1)),
-            Perm((3, 2, 0, 1)),
-        )
-    ).enumeration(8) == [1, 1, 2, 6, 20, 61, 169, 442, 1120]
+    assert (
+        Av.from_string("0123_2013_1023").enumeration(8)
+        == Av(
+            Basis(Perm((0, 1, 2, 3)), Perm((2, 0, 1, 3)), Perm((1, 0, 2, 3)))
+        ).enumeration(8)
+        == [1, 1, 2, 6, 21, 79, 309, 1237, 5026]
+    )
+    assert (
+        Av.from_string("1243 1342 3241 3241").enumeration(8)
+        == Av(
+            Basis(
+                Perm((0, 1, 3, 2)),
+                Perm((0, 2, 3, 1)),
+                Perm((2, 1, 3, 0)),
+                Perm((2, 1, 3, 0)),
+            )
+        ).enumeration(8)
+        == [1, 1, 2, 6, 21, 75, 262, 891, 2964]
+    )
+    assert (
+        Av.from_string("Av(1342, 3124, 1432, 4312)").enumeration(8)
+        == Av(
+            Basis(
+                Perm((0, 2, 3, 1)),
+                Perm((2, 0, 1, 3)),
+                Perm((0, 3, 2, 1)),
+                Perm((3, 2, 0, 1)),
+            )
+        ).enumeration(8)
+        == [1, 1, 2, 6, 20, 61, 169, 442, 1120]
+    )
 
 
 def test_generators():
@@ -235,6 +235,7 @@ def test_instance_variable_cache():
     list(av2.of_length(10))
     assert len(av.cache) == 11
     assert len(av2.cache) == 11
+    assert len(Av.from_string("12").cache) == 11
     assert len(Av(Basis(Perm((2, 0, 1)), Perm((1, 2, 0)))).cache) == 1
     list(Av(Basis(Perm((2, 0, 1)), Perm((1, 2, 0)))).of_length(5))
     assert len(Av(Basis(Perm((2, 0, 1)), Perm((1, 2, 0)))).cache) == 6
@@ -264,10 +265,28 @@ def test_class_variable_cache():
     assert len(Av._CLASS_CACHE) == 2
     assert av is not av2
     assert av2 is Av(Basis(Perm((0, 2, 1))))
+    assert Av.from_string("132") is av2
     assert Basis(Perm((0, 2, 1))) in Av._CLASS_CACHE
     assert (
         Av._CLASS_CACHE[Basis(Perm((0, 2, 1)))]
         is Av._CLASS_CACHE[Basis(Perm((0, 1, 3, 2)), Perm((0, 2, 1)))]
     )
+    assert Av((Perm((2, 0, 1)),)) is Av(Basis(Perm((2, 0, 1))))
     Av.clear_cache()
     assert len(Av._CLASS_CACHE) == 0
+
+
+def test_valid_error_in_construction():
+    with pytest.raises(ValueError):
+        Av(Basis())
+    with pytest.raises(ValueError):
+        Av(Basis(Perm()))
+
+
+def test_invalid_ops_with_mesh_patt():
+    with pytest.raises(NotImplementedError):
+        Av(MeshBasis(Perm((0, 1)))).is_finite()
+    with pytest.raises(NotImplementedError):
+        Av(MeshBasis(Perm((0, 1)))).is_insertion_encodable()
+    with pytest.raises(NotImplementedError):
+        Av(MeshBasis(Perm((0, 1)))).is_polynomial()
