@@ -9,7 +9,7 @@ from .basis import Basis, MeshBasis
 
 class AvBase(NamedTuple):
     """A base class for Av to define instance variables without having to use
-    __init__ int Av.
+    __init__ in Av.
     """
 
     basis: Union[Basis, MeshBasis]
@@ -30,11 +30,6 @@ class Av(AvBase):
             Av._CLASS_CACHE[basis] = new_instance
             return new_instance
         return instance
-
-    """def __init__(self, basis: Union[Basis, MeshBasis]) -> None:
-        self.basis: Union[Basis, MeshBasis] = basis
-        self._cache: List[Dict[Perm, List[int]]] = [{Perm(): [0]}]
-        Av._CLASS_CACHE[basis] = self"""
 
     @classmethod
     def clear_cache(cls) -> None:

@@ -222,7 +222,7 @@ def test_generators():
     ) == sorted(set(Perm.up_to_length(3)) - {Perm((0, 2, 1)), Perm((1, 2, 0))})
 
 
-def test_instance_var_cache():
+def test_instance_variable_cache():
     Av.clear_cache()
     basis = Basis(Perm((0, 1)))
     av = Av(basis)
@@ -248,3 +248,26 @@ def test_instance_var_cache():
         pass
     assert len(Av(Basis(Perm((2, 0, 1)), Perm((1, 2, 0)))).cache) == 11
     Av.clear_cache()
+
+
+def test_class_variable_cache():
+    Av.clear_cache()
+    assert len(Av._CLASS_CACHE) == 0
+    assert Av(Basis(Perm((2, 0, 1)), Perm((1, 2, 0)))) is Av(
+        Basis(Perm((2, 0, 1)), Perm((1, 2, 0)))
+    )
+    av = Av(Basis(Perm((2, 0, 1)), Perm((1, 2, 0))))
+    assert av is Av(Basis(Perm((2, 0, 1)), Perm((1, 2, 0))))
+    assert av is Av(Basis(Perm((2, 0, 1)), Perm((1, 2, 0)), Perm((1, 2, 0, 3))))
+    assert len(Av._CLASS_CACHE) == 1
+    av2 = Av(Basis(Perm((0, 1, 3, 2)), Perm((0, 2, 1))))
+    assert len(Av._CLASS_CACHE) == 2
+    assert av is not av2
+    assert av2 is Av(Basis(Perm((0, 2, 1))))
+    assert Basis(Perm((0, 2, 1))) in Av._CLASS_CACHE
+    assert (
+        Av._CLASS_CACHE[Basis(Perm((0, 2, 1)))]
+        is Av._CLASS_CACHE[Basis(Perm((0, 1, 3, 2)), Perm((0, 2, 1)))]
+    )
+    Av.clear_cache()
+    assert len(Av._CLASS_CACHE) == 0
