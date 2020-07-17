@@ -3,7 +3,7 @@ import random
 from collections import deque
 
 import pytest
-from permuta import Perm, PermSet
+from permuta import Perm
 
 
 def test_from_iterable_validated():
@@ -189,7 +189,7 @@ def test_contained_in():
 
     for i in range(100):
         n = random.randint(0, 4)
-        patt = PermSet(n).random()
+        patt = Perm.random(n)
         perm = generate_contained(random.randint(n, 8), list(patt))
         assert patt.contained_in(perm)
         assert perm.contains(patt)
@@ -2018,7 +2018,7 @@ def test_avoids_2():
         for i in range(min(len(expected), bound)):
             length = i + 1
             cnt = 0
-            for p in PermSet(length):
+            for p in Perm.of_length(length):
                 ok = True
                 for patt in patts:
                     if not p.avoids(Perm(patt)):

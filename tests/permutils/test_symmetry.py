@@ -1,6 +1,6 @@
 import random
 
-from permuta import Perm, PermSet
+from permuta import Perm
 from permuta.permutils.symmetry import (
     all_symmetry_sets,
     inverse_set,
@@ -808,8 +808,7 @@ def test_reverse_set():
 def test_roundtrip_rotate():
     for i in range(100):
         n = random.randint(0, 100)
-        perm_set = PermSet(n)
-        input_set = set([perm_set.random() for i in range(random.randint(1, 100))])
+        input_set = set([Perm.random(n) for i in range(random.randint(1, 100))])
         output_set = input_set
         for i in range(4):
             output_set = rotate_set(output_set)
@@ -820,8 +819,7 @@ def test_roundtrip_rotate():
 def test_roundtrip_inverse():
     for i in range(100):
         n = random.randint(0, 100)
-        perm_set = PermSet(n)
-        input_set = set([perm_set.random() for i in range(random.randint(1, 100))])
+        input_set = set([Perm.random(n) for i in range(random.randint(1, 100))])
         output_set = input_set
         for i in range(2):
             output_set = inverse_set(output_set)
@@ -832,8 +830,7 @@ def test_roundtrip_inverse():
 def test_roundtrip_reverse():
     for i in range(100):
         n = random.randint(0, 100)
-        perm_set = PermSet(n)
-        input_set = set([perm_set.random() for i in range(random.randint(1, 100))])
+        input_set = set([Perm.random(n) for i in range(random.randint(1, 100))])
         output_set = input_set
         for i in range(4):
             output_set = reverse_set(output_set)
@@ -842,13 +839,13 @@ def test_roundtrip_reverse():
 
 
 def test_rotate_set_length():
-    perm_list = [PermSet(6).random() for i in range(10)]
+    perm_list = [Perm.random(6) for i in range(10)]
     perm_set = set(perm_list)
     assert len(list(rotate_set(perm_set))) == len(perm_set)
 
 
 def test_inverse_set_length():
-    perm_list = [PermSet(6).random() for i in range(10)]
+    perm_list = [Perm.random(6) for i in range(10)]
     perm_set = set(perm_list)
 
     assert len(list(inverse_set(perm_set))) == len(perm_set)
@@ -905,8 +902,7 @@ def test_input_all_symmetries():
 def test_length_of_output_should_be_1_2_4_or_8():
     for i in range(100):
         n = random.randint(0, 100)
-        perm_set = PermSet(n)
-        input_set = set([perm_set.random() for i in range(random.randint(1, 100))])
+        input_set = set([Perm.random(n) for i in range(random.randint(1, 100))])
 
         assert len(all_symmetry_sets(input_set)) in [1, 2, 4, 8]
 

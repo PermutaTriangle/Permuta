@@ -1,5 +1,5 @@
 from abc import ABC, abstractmethod
-from typing import FrozenSet, Iterable, Iterator, Optional
+from typing import FrozenSet, Iterable, Iterator
 
 from permuta import Perm
 from permuta.permutils.symmetry import all_symmetry_sets
@@ -31,18 +31,10 @@ class EnumerationStrategyWithSymmetry(EnumerationStrategy):
     Each symmetry of the inputed basis is tested against the strategy.
     """
 
-    def __init__(self, basis: Iterable[Perm]) -> None:
-        super().__init__(basis)
-        self._apply_basis: Optional[FrozenSet[Perm]] = None
-
     def applies(self) -> bool:
         """Check if the strategy applies to any symmetry."""
         syms: Iterator[FrozenSet[Perm]] = map(frozenset, all_symmetry_sets(self._basis))
-        basis = next((b for b in syms if self._applies_to_symmetry(b)), None)
-        if basis:
-            self._apply_basis = basis
-            return True
-        return False
+        return next((True for b in syms if self._applies_to_symmetry(b)), False)
 
     @abstractmethod
     def _applies_to_symmetry(self, basis: FrozenSet[Perm]) -> bool:
