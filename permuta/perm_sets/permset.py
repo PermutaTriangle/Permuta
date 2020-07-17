@@ -102,7 +102,7 @@ class Av(AvBase):
 
     def count(self, length: int) -> int:
         """Return the nubmber of permutations of a given length."""
-        return sum(1 for _ in self.of_length(length))
+        return len(self._get_level(length))
 
     def enumeration(self, length: int) -> List[int]:
         """Return the enumeration of this permutation class up and including a given
@@ -169,7 +169,7 @@ class Av(AvBase):
             for i in range(len(self.cache), level_number + 1)
         )
 
-    def _get_level(self, level_number: int) -> Iterable[Perm]:
+    def _get_level(self, level_number: int) -> Dict[Perm, Optional[List[int]]]:
         with Av._CACHE_LOCK:
             self._ensure_level(level_number)
         return self.cache[level_number]

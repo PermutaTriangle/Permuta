@@ -16,13 +16,13 @@ class Basis(tuple):
 
     @classmethod
     def from_string(cls, patts: str) -> "Basis":
-        """Construct a MeshBasis from a string. It can be either 0 or 1 based and
+        """Construct a Basis from a string. It can be either 0 or 1 based and
         seperated by anything."""
         return cls(*map(Perm.to_standard, re.findall(r"\d+", patts)))
 
     @classmethod
     def from_iterable(cls, patts: Iterable[Perm]) -> "Basis":
-        """Construct a MeshBasis from an iterable."""
+        """Construct a Basis from an iterable."""
         return cls(*patts)
 
     @classmethod
