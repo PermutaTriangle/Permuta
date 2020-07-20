@@ -21,6 +21,7 @@ from typing import (
     Optional,
     Set,
     Tuple,
+    TypeVar,
     Union,
 )
 
@@ -35,6 +36,7 @@ if TYPE_CHECKING:
     TupleType = Tuple[int]
 else:
     TupleType = tuple
+ApplyType = TypeVar("ApplyType")
 
 
 class Perm(TupleType, Patt):
@@ -1999,7 +2001,7 @@ class Perm(TupleType, Patt):
             ]
         return self._cached_pattern_details
 
-    def apply(self, iterable: Iterable[int]) -> Tuple[int, ...]:
+    def apply(self, iterable: Iterable[ApplyType]) -> Tuple[ApplyType, ...]:
         """Permute an iterable using the perm.
 
         Examples:
