@@ -25,6 +25,7 @@ setup(
         "Tracker": "https://github.com/PermutaTriangle/Permuta/issues",
     },
     packages=find_packages(),
+    package_data={"permuta": ["py.typed"]},
     long_description=read("README.rst"),
     python_requires=">=3.6",
     include_package_data=True,
