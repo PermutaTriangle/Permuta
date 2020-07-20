@@ -3,7 +3,6 @@
 [MASTER]
 ignore-patterns=test_.*?py,
                 # TODO: REMOVE
-                cli.py, 
                 bisc.py, 
                 bisc_subfunctions.py
 ignore= tests
