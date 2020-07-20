@@ -1,95 +1,115 @@
-# Will return the set of polynomial types it intersects with
-#   (W_++, W+-, W^-1 ++, L_2, L_2^R etc)
-# 1: W++
-# 2: W+-
-# 3: W-+
-# 4: W--
-# 5: Winv++
-# 6: Winv+-
-# 7: Winv-+
-# 8: Winv--
-# 9: L2
-# 10: L2inv
-mem = {}
+from collections import deque
+from enum import Enum
+from itertools import islice
+from typing import ClassVar, Deque, Dict, FrozenSet, Iterable, Iterator, Tuple
+
+from permuta.patterns.perm import Perm
 
 
-def types(perm):
-    interset = mem.get(perm)
-    if interset is None:
-        interset = set([])
-        for i in range(len(perm) + 1):
-            part1 = perm[0:i]
-            part2 = perm[i:]
+class PermType(Enum):
+    """Collection of structural types for perms."""
 
-            if is_incr(part1):
-                if is_incr(part2):
-                    interset.add(1)
-                if is_decr(part2):
-                    interset.add(2)
-
-            if is_decr(part1):
-                if is_incr(part2):
-                    interset.add(3)
-                if is_decr(part2):
-                    interset.add(4)
-
-        flipperm = perm.inverse()
-        for i in range(len(perm) + 1):
-            part1 = flipperm[0:i]
-            part2 = flipperm[i:]
-
-            if is_incr(part1):
-                if is_incr(part2):
-                    interset.add(5)
-                if is_decr(part2):
-                    interset.add(6)
-
-            if is_decr(part1):
-                if is_incr(part2):
-                    interset.add(7)
-                if is_decr(part2):
-                    interset.add(8)
-        if in_L2(perm):
-            interset.add(9)
-        if in_L2(perm.reverse()):
-            interset.add(10)
-    return interset
+    WPP = 0  # W++
+    WPM = 1  # W+-
+    WMP = 2  # W-+
+    WMM = 3  # W--
+    WIPP = 4  # Winv++
+    WIPM = 5  # Winv+-
+    WIMP = 6  # Winv-+
+    WIMM = 7  # Winv--
+    L2 = 8  # L2
+    L2I = 9  # L2inv
 
 
-def is_decr(L):
-    for i in range(len(L) - 1):
-        if L[i] < L[i + 1]:
-            return False
-    return True
+class PolyPerms:
+    """A static container of methods to check if a perm set has a polynomial growth."""
 
+    _CACHE: ClassVar[Dict[Perm, FrozenSet]] = {}
 
-def is_incr(L):
-    for i in range(len(L) - 1):
-        if L[i] > L[i + 1]:
-            return False
-    return True
+    @staticmethod
+    def _types(perm: Perm) -> FrozenSet[int]:
+        interset = PolyPerms._CACHE.get(perm)
+        if interset is None:
+            interset = frozenset(PolyPerms._find_type(perm))
+            PolyPerms._CACHE[perm] = interset
+        return interset
 
+    @staticmethod
+    def _type_0_3(slice1: Deque[int], slice2: Deque[int]) -> Iterator[PermType]:
+        if PolyPerms._is_incr(slice1):
+            if PolyPerms._is_incr(slice2):
+                yield PermType.WPP
+            if PolyPerms._is_decr(slice2):
+                yield PermType.WPM
+        if PolyPerms._is_decr(slice1):
+            if PolyPerms._is_incr(slice2):
+                yield PermType.WMP
+            if PolyPerms._is_decr(slice2):
+                yield PermType.WMM
 
-def in_L2(L):
-    n = len(L)
-    if n == 0 or n == 1:
-        return True
-    if L[-1] == n - 1:
-        return in_L2(L[0 : n - 1])
-    elif L[-1] == n - 2 and L[-2] == n - 1:
-        return in_L2(L[0 : n - 2])
-    else:
+    @staticmethod
+    def _type_4_7(slice1: Deque[int], slice2: Deque[int]) -> Iterator[PermType]:
+        if PolyPerms._is_incr(slice1):
+            if PolyPerms._is_incr(slice2):
+                yield PermType.WIPP
+            if PolyPerms._is_decr(slice2):
+                yield PermType.WIPM
+        if PolyPerms._is_decr(slice1):
+            if PolyPerms._is_incr(slice2):
+                yield PermType.WIMP
+            if PolyPerms._is_decr(slice2):
+                yield PermType.WIMM
+
+    @staticmethod
+    def _find_type(perm: Perm) -> Iterable[PermType]:
+        p_deq1: Deque[int] = deque([])
+        p_deq2: Deque[int] = deque(perm)
+        fp_deq1: Deque[int] = deque([])
+        fp_deq2: Deque[int] = deque(perm.inverse())
+        yield from PolyPerms._type_0_3(p_deq1, p_deq2)
+        yield from PolyPerms._type_4_7(fp_deq1, fp_deq2)
+        for _ in range(len(perm)):
+            p_deq1.append(p_deq2.popleft())
+            fp_deq1.append(fp_deq2.popleft())
+            yield from PolyPerms._type_0_3(p_deq1, p_deq2)
+            yield from PolyPerms._type_4_7(fp_deq1, fp_deq2)
+        if PolyPerms._of_type_8(perm):
+            yield PermType.L2
+        if PolyPerms._of_type_8(perm.reverse()):
+            yield PermType.L2I
+
+    @staticmethod
+    def _is_decr(perm_slice: Deque[int]) -> bool:
+        return all(
+            prev > curr for prev, curr in zip(perm_slice, islice(perm_slice, 1, None))
+        )
+
+    @staticmethod
+    def _is_incr(perm_slice: Deque[int]) -> bool:
+        return all(
+            prev < curr for prev, curr in zip(perm_slice, islice(perm_slice, 1, None))
+        )
+
+    @staticmethod
+    def _of_type_8(perm_slice: Tuple[int, ...]) -> bool:
+        n = len(perm_slice)
+        if n < 2:
+            return True
+        if perm_slice[-1] == n - 1:
+            return PolyPerms._of_type_8(perm_slice[0 : n - 1])
+        if perm_slice[-1] == n - 2 and perm_slice[-2] == n - 1:
+            return PolyPerms._of_type_8(perm_slice[0 : n - 2])
         return False
 
+    @staticmethod
+    def is_polynomial(basis: Iterable[Perm]) -> bool:
+        """True if the perm set generated by basis has polynomial growth."""
+        return (
+            len({pol_type for perm in basis for pol_type in PolyPerms._types(perm)})
+            == 10
+        )
 
-def is_polynomial(basis):
-    overallinterset = set([])
-    for perm in basis:
-        overallinterset = overallinterset.union(types(perm))
-        if len(overallinterset) == 10:
-            return True
-    return False
-
-
-def is_non_polynomial(basis):
-    return not is_polynomial(basis)
+    @staticmethod
+    def is_non_polynomial(basis: Iterable[Perm]) -> bool:
+        """False if the perm set generated by basis has polynomial growth."""
+        return not PolyPerms.is_polynomial(basis)

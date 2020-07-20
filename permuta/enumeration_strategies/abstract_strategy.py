@@ -1,65 +1,41 @@
 from abc import ABC, abstractmethod
+from typing import FrozenSet, Iterable, Iterator
 
+from permuta import Perm
 from permuta.permutils.symmetry import all_symmetry_sets
 
 
 class EnumerationStrategy(ABC):
-    """Abstract class for a strategy to enumerate a permutation classes"""
+    """Abstract class for a strategy to enumerate a permutation classes."""
 
-    def __init__(self, basis):
-        ABC.__init__(self)
+    def __init__(self, basis: Iterable[Perm]) -> None:
         self._basis = frozenset(basis)
 
     @property
-    def basis(self):
+    def basis(self) -> FrozenSet[Perm]:
+        """Getter for basis."""
         return self._basis
 
     @classmethod
-    def reference(cls):
+    def reference(cls) -> str:
         """A reference for the strategy."""
         raise NotImplementedError
 
     @abstractmethod
-    def applies(self):
-        """
-        Return True if the strategy can be used for the basis
-        """
-        pass
+    def applies(self) -> bool:
+        """Return True if the strategy can be used for the basis."""
 
 
 class EnumerationStrategyWithSymmetry(EnumerationStrategy):
-    """
-    Abstract class for a strategy to enumerate a permutation classes.
-
+    """Abstract class for a strategy to enumerate a permutation classes.
     Each symmetry of the inputed basis is tested against the strategy.
     """
 
-    def __init__(self, basis):
-        super().__init__(basis)
-        self._apply_basis = None
-
-    @property
-    def basis(self):
-        """
-        The symmetry of the inputed basis to which the strategy applies to.
-        """
-        if self._basis is None:
-            self.applies()
-        return self._basis
-
-    def applies(self):
-        """
-        Check if the strategy applies to any symmetry.
-        """
-        for b in map(frozenset, all_symmetry_sets(self._basis)):
-            if self._applies_to_symmetry(b):
-                self._apply_basis = b
-                return True
-        return False
+    def applies(self) -> bool:
+        """Check if the strategy applies to any symmetry."""
+        syms: Iterator[FrozenSet[Perm]] = map(frozenset, all_symmetry_sets(self._basis))
+        return next((True for b in syms if self._applies_to_symmetry(b)), False)
 
     @abstractmethod
-    def _applies_to_symmetry(self, b):
-        """
-        Check if the strategy applies to this particular symmetry.
-        """
-        pass
+    def _applies_to_symmetry(self, basis: FrozenSet[Perm]) -> bool:
+        """Check if the strategy applies to this particular symmetry."""
