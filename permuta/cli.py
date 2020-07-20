@@ -40,7 +40,7 @@ def has_regular_insertion_encoding(args: argparse.Namespace) -> None:
 def get_lex_min(args: argparse.Namespace) -> None:
     """Prints the 0-based lexicographically minimal representation of the basis."""
     basis = Basis.from_string(args.basis)
-    print(f'{{{",".join(str(perm) for perm in lex_min(basis))}}}')
+    print("_".join(str(perm) for perm in lex_min(basis)))
 
 
 def has_poly_growth(args: argparse.Namespace) -> None:
