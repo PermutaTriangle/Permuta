@@ -6,6 +6,10 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 
 ## Unreleased
 
+## 2.0.1 - 2020-07-23
+### Fixed
+  - Typing for `apply` in `Perm` fixed. It is now of the same base type as argument.
+
 ## 2.0.0 - 2020-07-20
 ### Added
   - Two new tools added to permtools. A command to check if a class has a regular

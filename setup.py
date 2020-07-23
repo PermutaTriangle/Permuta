@@ -11,7 +11,7 @@ def read(fname):
 
 setup(
     name="permuta",
-    version="2.0.0",
+    version="2.0.1",
     author="Permuta Triangle",
     author_email="permutatriangle@gmail.com",
     description="A comprehensive high performance permutation library.",
@@ -29,6 +29,7 @@ setup(
     long_description=read("README.rst"),
     python_requires=">=3.6",
     include_package_data=True,
+    zip_safe=False,
     classifiers=[
         "Development Status :: 5 - Production/Stable",
         "Intended Audience :: Education",
