@@ -13,8 +13,7 @@ from permuta.bisc.bisc_subfunctions import (
     show_me_basis,
     to_sg_format,
 )
-from permuta.perm import Perm
-from permuta.permset import PermSet
+from permuta.patterns.perm import Perm
 
 
 def bisc(A, m, n=None, report=False):
@@ -29,7 +28,7 @@ def bisc(A, m, n=None, report=False):
             n = 7
         D = defaultdict(list)
         for i in range(n + 1):
-            for perm in PermSet(i):
+            for perm in Perm.of_length(i):
                 if A(perm):
                     D[i].append(perm)
 
@@ -71,7 +70,7 @@ def auto_bisc(prop):
             print("You should have permutations up to length at least 8")
             return
         for i in range(L + 1):
-            for perm in PermSet(i):
+            for perm in Perm.of_length(i):
                 if perm not in A[i]:
                     B[i].append(perm)
 
@@ -83,7 +82,7 @@ def auto_bisc(prop):
         for i in range(L + 1):
             A[i] = []
             B[i] = []
-            for perm in PermSet(i):
+            for perm in Perm.of_length(i):
                 if prop(perm):
                     A[i].append(perm)
                 else:
@@ -106,9 +105,9 @@ def auto_bisc(prop):
         print("Attempting to read perms from permsets")
         good_entry = None
         bad_entry = None
-        with os.scandir("permsets") as entries:
+        with os.scandir("../resources/bisc") as entries:
             for i, entry in enumerate(entries):
-                en = entry.name
+                en = entry.name[:-5]
                 spl = en.split("_")
                 if spl[0] == prop:
                     if (
@@ -126,8 +125,8 @@ def auto_bisc(prop):
                 if good_entry is not None and bad_entry is not None:
                     break
         if good_entry is not None and bad_entry is not None:
-            A = read_bisc_file("permsets/" + good_entry)
-            B = read_bisc_file("permsets/" + bad_entry)
+            A = read_bisc_file("../resources/bisc/" + good_entry)
+            B = read_bisc_file("../resources/bisc/" + bad_entry)
         else:
             print("The required files do not exist")
             return
@@ -221,7 +220,7 @@ def auto_bisc(prop):
                 # Adding perms to the dictionaries
                 for i in range(oldL + 1, L + 1):
                     print("Adding perms of length {}".format(i))
-                    for perm in PermSet(i):
+                    for perm in Perm.of_length(i):
                         if prop(perm):
                             A[i].append(perm)
                         else:
@@ -236,9 +235,9 @@ def auto_bisc(prop):
                 print("Attempting to read perms from permsets")
                 good_entry = None
                 bad_entry = None
-                with os.scandir("permsets") as entries:
+                with os.scandir("../resources/bisc") as entries:
                     for i, entry in enumerate(entries):
-                        en = entry.name
+                        en = entry.name[:-5]
                         spl = en.split("_")
                         if spl[0] == prop:
                             if (
@@ -256,8 +255,8 @@ def auto_bisc(prop):
                         if good_entry is not None and bad_entry is not None:
                             break
                 if good_entry is not None and bad_entry is not None:
-                    A = read_bisc_file("permsets/" + good_entry)
-                    B = read_bisc_file("permsets/" + bad_entry)
+                    A = read_bisc_file("../resources/bisc/" + good_entry)
+                    B = read_bisc_file("../resources/bisc/" + bad_entry)
                 else:
                     print("The required files do not exist")
                     return
@@ -276,7 +275,7 @@ def create_bisc_input(N, prop):
 
         An, Bn = [], []
 
-        for perm in PermSet(n):
+        for perm in Perm.of_length(n):
             if prop(perm):
                 An.append(perm)
             else:
@@ -287,47 +286,33 @@ def create_bisc_input(N, prop):
     return A, B
 
 
-def write_bisc_files(N, prop, info):
-    """
-    Create a dictionary, D, containing keys 1, 2, 3, ..., N. Each key points to
+def write_bisc_files(n: int, prop, info: str) -> None:
+    """Create a dictionary, D, containing keys 1, 2, 3, ..., n. Each key points to
     a list of permutations satisfying the property prop. The dictionary E has
     the same keys and they point to the complement.
     """
-
-    A, B = {}, {}
-
-    for n in range(N + 1):
-
-        An, Bn = [], []
-
-        for perm in PermSet(n):
-            if prop(perm):
-                An.append(perm)
-            else:
-                Bn.append(perm)
-
-        A[n], B[n] = An, Bn
-    f = open("{}_good_len{}".format(info, N), "a+")
-    f.write(json.dumps(A))
-    f.close()
-
-    f = open("{}_bad_len{}".format(info, N), "a+")
-    f.write(json.dumps(B))
-    f.close()
+    good, bad = create_bisc_input(n, prop)
+    write_json_to_file(good, f"{info}_good_len{n}.json")
+    write_json_to_file(bad, f"{info}_bad_len{n}.json")
 
 
-def from_json(s):
-    d = json.loads(s)
-    return {int(key): list(map(Perm, values)) for key, values in d.items()}
+def write_json_to_file(json_obj, file_name):
+    try:
+        with open(file_name, "a+") as f:
+            f.write(json.dumps(json_obj))
+    except OSError:
+        print(f"Could not write to file: {file_name}")
 
 
-def read_bisc_file(p):
+def from_json(json_string):
+    json_obj = json.loads(json_string)
+    return {int(key): list(map(Perm, values)) for key, values in json_obj.items()}
 
-    A = dict()
 
-    f = open(p, "r")
-    for line in f:
-        A = from_json(line)
-    f.close()
-
-    return A
+def read_bisc_file(path):
+    try:
+        with open(f"{path}.json", "r") as f:
+            return from_json(f.readline())
+    except (ValueError, TypeError, OSError):
+        print(f"File is invalid: {path}")
+        return {}
