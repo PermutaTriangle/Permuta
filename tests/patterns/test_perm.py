@@ -3,6 +3,7 @@ import random
 from collections import deque
 
 import pytest
+
 from permuta import Perm
 
 
