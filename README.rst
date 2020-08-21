@@ -5,9 +5,6 @@ permuta
 .. image:: https://travis-ci.org/PermutaTriangle/Permuta.svg?branch=master
     :alt: Travis
     :target: https://travis-ci.org/PermutaTriangle/Permuta
-.. image:: https://coveralls.io/repos/github/PermutaTriangle/Permuta/badge.svg?branch=master
-    :alt: Coveralls
-    :target: https://coveralls.io/github/PermutaTriangle/Permuta?branch=master
 .. image:: https://img.shields.io/pypi/v/Permuta.svg
     :alt: PyPI
     :target: https://pypi.python.org/pypi/Permuta
@@ -25,7 +22,9 @@ permuta
 Permuta is a Python library for working with perms (short for permutations),
 patterns, and mesh patterns.
 
-If you need support, you can join us in our `Discord support server<https://discord.gg/ngPZVT5>`_.
+If you need support, you can join us in our `Discord support server`_.
+
+.. _Discord support server: https://discord.gg/ngPZVT5
 
 Installing
 ==========
@@ -80,18 +79,6 @@ Permutations are zero-based in Permuta and can be created using any iterable.
     Perm((0, 1, 2, 3))
     >>> Perm((2, 1, 3)) # Warning: it will initialise with any iterable
     Perm((2, 1, 3))
-    >>> Perm((2, 1, 3), check=True) # If you are unsure, you can check
-    Traceback (most recent call last):
-        ...
-    ValueError: Element out of range: 3
-    >>> Perm((4, 2, 3, 0, 0), check=True)
-    Traceback (most recent call last):
-        ...
-    ValueError: Duplicate element: 0
-    >>> Perm("123", check=True)
-    Traceback (most recent call last):
-        ...
-    TypeError: ''1'' object is not an integer
 
 Permutations can also be created using some specific class methods.
 
@@ -170,32 +157,16 @@ There are numerous practical methods available:
 Creating a perm class
 #####################
 
-You might want the set of all perms:
+Perm classes are specified with a basis:
 
 .. code-block:: python
 
-    >>> all_perms = PermSet()
-    >>> print(all_perms)
-    <The set of all perms>
-
-Perm classes can be specified with a basis:
-
-.. code-block:: python
-
-    >>> basis = [Perm((1, 0, 2)), Perm((1, 2, 0))]
+    >>> basis = Basis(Perm((1, 0, 2)), Perm((1, 2, 0)))
     >>> basis
-    [Perm((1, 0, 2)), Perm((1, 2, 0))]
+    Basis((Perm((1, 0, 2)), Perm((1, 2, 0))))
     >>> perm_class = Av(basis)
     >>> perm_class
-    Av((Perm((1, 0, 2)), Perm((1, 2, 0))))
-
-When a basis consists of a single element you can pass it directly to `Av`:
-
-.. code-block:: python
-
-    >>> q = Perm((1,0))
-    >>> len(Av(q).of_length(100))
-    1
+    Av(Basis((Perm((1, 0, 2)), Perm((1, 2, 0)))))
 
 You can ask whether a perm belongs to the perm class:
 
@@ -206,49 +177,14 @@ You can ask whether a perm belongs to the perm class:
     >>> Perm((0, 2, 1, 3)) in perm_class
     False
 
-You can get the n-th perm of the class or iterate:
+You can get its enumeration up to a fixed length.
 
 .. code-block:: python
 
-    >>> sorted([perm_class[n] for n in range(8)])
-    [Perm(()), Perm((0,)), Perm((0, 1)), Perm((1, 0)), Perm((0, 1, 2)), Perm((0, 2, 1)), Perm((2, 0, 1)), Perm((2, 1, 0))]
-    >>> perm_class_iter = iter(perm_class)
-    >>> sorted([next(perm_class_iter) for _ in range(8)])
-    [Perm(()), Perm((0,)), Perm((0, 1)), Perm((1, 0)), Perm((0, 1, 2)), Perm((0, 2, 1)), Perm((2, 0, 1)), Perm((2, 1, 0))]
-
-(BEWARE: Lexicographic order is not guaranteed at the moment!)
-
-The subset of a perm class where the perms are a specific length
-################################################################
-
-You can define a subset of perms of a specific length in the perm class:
-
-.. code-block:: python
-
-    >>> perm_class_14 = perm_class.of_length(14)
-    >>> perm_class_14
-    Av((Perm((1, 0, 2)), Perm((1, 2, 0)))).of_length(14)
-
-You can ask for the size of the subset because it is guaranteed to be finite:
-
-.. code-block:: python
-
-    >>> len(perm_class_14)
-    8192
-
-The iterating and containment functionality is the same as with `perm_class`,
-but indexing has yet to be implemented:
-
-.. code-block:: python
-
-    >>> Perm((2, 1, 0)) in perm_class_14
-    False
-    >>> Perm((0, 13, 1, 12, 2, 3, 4, 11, 5, 10, 6, 7, 8, 9)) in perm_class_14
-    True
-    >>> Perm(range(10)) - Perm(range(4)) in perm_class_14
-    False
-    >>> next(iter(perm_class_14)) in perm_class_14
-    True
+    >>> perm_class.enumeration(10)
+    [1, 1, 2, 4, 8, 16, 32, 64, 128, 256, 512]
+    >>> perm_class.count(11)
+    1024
 
 The BiSC algorithm
 ==================
@@ -276,7 +212,7 @@ search for patterns of length 3.
 
 .. code-block:: python
 
-    >>> from permuta.bisc.permsets.perm_properties import stack_sortable
+    >>> from permuta.bisc.perm_properties import stack_sortable
     >>> bisc(stack_sortable, 3)
     I will use permutations up to length 7
     {3: {Perm((1, 2, 0)): [set()]}}
@@ -318,8 +254,8 @@ patterns, such as the West-2-stack-sortable permutations
 
 .. code-block:: python
 
-    >>> from permuta.bisc.permsets.perm_properties import West_2_stack_sortable
-    >>> SG = bisc(West_2_stack_sortable, 5, 7)
+    >>> from permuta.bisc.perm_properties import west_2_stack_sortable
+    >>> SG = bisc(west_2_stack_sortable, 5, 7)
     >>> show_me(SG)
     There are 2 underlying classical patterns of length 4
     There are 1 different shadings on 1230
@@ -371,7 +307,7 @@ which keeps them separated by length.
 
 .. code-block:: python
 
-    >>> A, B = create_bisc_input(7, West_2_stack_sortable)
+    >>> A, B = create_bisc_input(7, west_2_stack_sortable)
 
 This creates two dictionaries with keys 1, 2, ..., 7 such that ``A[i]`` points
 to the list of permutations of length ``i`` that are West-2-stack-sortable, and
@@ -443,8 +379,8 @@ There is one basis of mesh patterns found, with 2 patterns
     <BLANKLINE>
 
 This is the output we were expecting. There are several other properties of
-permutations that can be imported from ``permuta.bisc.permsets.perm_properties``, such
-as ``smooth``, ``forest-like``, ``Baxter``, ``Simsun``, ``quick_sortable``, etc.
+permutations that can be imported from ``permuta.bisc.perm_properties``, such
+as ``smooth``, ``forest-like``, ``baxter``, ``simsun``, ``quick_sortable``, etc.
 
 Both ``bisc`` and ``auto_bisc`` can accept input in the form of a property,
 or a list of permutations (satisfying some property).

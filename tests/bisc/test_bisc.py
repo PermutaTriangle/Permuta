@@ -1,9 +1,9 @@
 from permuta.bisc.bisc import bisc, read_bisc_file
 from permuta.bisc.bisc_subfunctions import patterns_suffice_for_bad, run_clean_up
-from permuta.perm import Perm
+from permuta.patterns.perm import Perm
 
 # Path to permutation files
-ppf = "permuta/bisc/permsets/"
+ppf = "permuta/resources/bisc/"
 
 
 def test_stack_sortable():
