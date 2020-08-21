@@ -3,6 +3,7 @@ import random
 from math import factorial
 
 import pytest
+
 from permuta import MeshPatt, Perm
 from permuta.misc import DIR_EAST, DIR_NORTH, DIR_SOUTH, DIR_WEST
 
