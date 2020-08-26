@@ -68,9 +68,7 @@ def get_parser() -> argparse.ArgumentParser:
         description="A tool to quickly get the enumeration of permutation classes",
     )
     count_parser.set_defaults(func=enumerate_class)
-    count_parser.add_argument(
-        "basis", help=basis_str,
-    )
+    count_parser.add_argument("basis", help=basis_str)
 
     # The insenc command
     insenc_parser: argparse.ArgumentParser = subparsers.add_parser(
@@ -79,9 +77,7 @@ def get_parser() -> argparse.ArgumentParser:
         " encoding.",
     )
     insenc_parser.set_defaults(func=has_regular_insertion_encoding)
-    insenc_parser.add_argument(
-        "basis", help=basis_str,
-    )
+    insenc_parser.add_argument("basis", help=basis_str)
 
     # The lexmin command
     lexmin_parser: argparse.ArgumentParser = subparsers.add_parser(
@@ -90,9 +86,7 @@ def get_parser() -> argparse.ArgumentParser:
         "representation of the basis.",
     )
     lexmin_parser.set_defaults(func=get_lex_min)
-    lexmin_parser.add_argument(
-        "basis", help=basis_str,
-    )
+    lexmin_parser.add_argument("basis", help=basis_str)
 
     # The poly command
     poly_parser: argparse.ArgumentParser = subparsers.add_parser(

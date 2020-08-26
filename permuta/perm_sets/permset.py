@@ -28,7 +28,10 @@ class Av(AvBase):
     def __new__(
         cls,
         basis: Union[
-            Basis, MeshBasis, Iterable[Perm], Iterable[Union[Perm, MeshPatt]],
+            Basis,
+            MeshBasis,
+            Iterable[Perm],
+            Iterable[Union[Perm, MeshPatt]],
         ],
     ) -> "Av":
         if not isinstance(basis, (Basis, MeshBasis)):
@@ -58,7 +61,8 @@ class Av(AvBase):
     def from_iterable(
         cls, basis: Union[Iterable[Perm], Iterable[Union[Perm, MeshPatt]]]
     ) -> "Av":
-        """Create a permutation class from a basis defined by an iterable of patterns.
+        """
+        Create a permutation class from a basis defined by an iterable of patterns.
         """
         if MeshBasis.is_mesh_basis(basis):
             return cls(MeshBasis(*basis))
@@ -89,7 +93,8 @@ class Av(AvBase):
         yield from islice(self._all(), count)
 
     def of_length(self, length: int) -> Iterable[Perm]:
-        """Generate all perms of a given length that belong to this permutation class.
+        """
+        Generate all perms of a given length that belong to this permutation class.
         """
         return iter(self._get_level(length))
 
