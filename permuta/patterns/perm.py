@@ -2045,7 +2045,7 @@ class Perm(TupleType, Patt):
         Examples:
             >>> Perm((5, 3, 0, 1, 2, 4)).cycle_notation()
             '( 3 1 ) ( 5 4 2 0 )'
-            """
+        """
         if len(self) == 0:
             return "( )"
         return " ".join(
