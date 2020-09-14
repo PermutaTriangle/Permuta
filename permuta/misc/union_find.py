@@ -1,41 +1,31 @@
-class UnionFind(object):
+class UnionFind:
     """A collection of distjoint sets."""
 
-    def __init__(self, n=0):
-        """Creates a collection of n disjoint unit sets."""
-        self.p = [-1] * n
-        self.leaders = set(i for i in range(n))
+    def __init__(self, size: int) -> None:
+        """Creates a collection of size disjoint unit sets."""
+        self._parent = [-1] * size
 
-    def find(self, x):
+    def find(self, idx: int) -> int:
         """Return the identifier of a representative element for the set
-        containing the element with identifier x."""
-        if self.p[x] < 0:
-            return x
-        self.p[x] = self.find(self.p[x])
-        return self.p[x]
+        containing the element with identifier idx."""
+        if self._parent[idx] < 0:
+            return idx
+        self._parent[idx] = self.find(self._parent[idx])
+        return self._parent[idx]
 
-    def size(self, x):
+    def size(self, idx: int) -> int:
         """Return the number of elements in the set containing the element with
-        identifier x."""
-        return -self.p[self.find(x)]
+        identifier idx."""
+        return -self._parent[self.find(idx)]
 
-    def unite(self, x, y):
-        """Unite the two sets containing the elements with identifiers x and y,
+    def unite(self, idx1: int, idx2: int) -> bool:
+        """Unite the two sets containing the elements with identifiers idx1 and idx2,
         respectively."""
-        x = self.find(x)
-        y = self.find(y)
-        if x == y:
+        idx1, idx2 = self.find(idx1), self.find(idx2)
+        if idx1 == idx2:
             return False
-        if self.size(x) > self.size(y):
-            x, y = y, x
-        self.p[y] += self.p[x]
-        self.p[x] = y
-        self.leaders.remove(x)
+        if self.size(idx1) > self.size(idx2):
+            idx1, idx2 = idx2, idx1
+        self._parent[idx2] += self._parent[idx1]
+        self._parent[idx1] = idx2
         return True
-
-    def add(self):
-        """Add a unit set containing a new element to the collection, and
-        return the identifier of the new element."""
-        nid = len(self.p)
-        self.p.append(nid)
-        return nid

@@ -5,6 +5,67 @@ The format is based on [Keep a Changelog](http://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.html).
 
 ## Unreleased
+### Added
+ - using Github Actions for testing and deployment
+
+## 2.0.2 - 2020-08-06
+### Fixed
+  - Include the type hints in the pypi release.
+
+## 2.0.1 - 2020-07-23
+### Fixed
+  - Typing for `apply` in `Perm` fixed. It is now of the same base type as argument.
+
+## 2.0.0 - 2020-07-20
+### Added
+  - Two new tools added to permtools. A command to check if a class has a regular
+    insertion encoding, and a command to compute the lexicographically minimal
+    basis.
+  - Typing
+  - pylint
+  - `clear_cache` method in `Perm` and `Av`
+  - `up_to_length`, `of_length`, `first` iterators in Perm and Av
+  - `to_svg` for all patterns
+  - `show` method for all patterns (opens browser tab)
+  - Functions returning list (or other data structures) made into generators when possible
+  - `BivincularPatt`, `VincularPatt`, `CovincularPatt` patterns,
+  - `dihedral_group` generator added to `permutils`
+  - `from_string` method to `Basis` and `Av`. It accepts both 0 and 1 based perms
+    seperated by anything
+  - Check if polynomial added to `cli`, which can be used with the `poly` command
+
+### Fixed
+  - Bisc's resource files now included with pypi package
+
+### Changed
+  - Type and condition checking and Exception throwing changed to assertions
+  - `Basis` moved to `permset` module
+  - `gen_meshpatt` moved to meshpatt as `of_length` generator
+  - Client now uses `Basis.from_string` to parse basis
+
+### Removed
+  - Permsets and their interfaces
+  - Unused algorithms and utils
+  - Symmetric interfaces
+  - All rotate function other than `rotate`
+  - `descriptors` module
+  - sympy dependency
+
+## 1.5.0 - 2020-06-23
+## Added
+- A quick command line interface to compute the enumeration of a permutation class.
+- `Perm.skew_decomposition` and `Perm.sum_decomposition` methods.
+
+## 1.4.2 - 2020-06-17
+### Fixed
+- Make `permuta.bisc.permsets` a proper package.
+
+## 1.4.1 - 2020-06-12
+### Removed
+- The unused `permuta.misc.misc` module
+
+### Fixed
+- Installation on windows
 
 ## 1.4.0 - 2020-05-11
 ### Added
