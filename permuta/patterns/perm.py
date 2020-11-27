@@ -2133,7 +2133,7 @@ class Perm(TupleType, Patt):
         return self.compose(other)
 
     def __repr__(self) -> "str":
-        # pylint: disable = super-with-arguments
+        # pylint: disable = super-with-arguments, bad-option-value
         return f"Perm({super(Perm, self).__repr__()})"
 
     def __str__(self) -> "str":
