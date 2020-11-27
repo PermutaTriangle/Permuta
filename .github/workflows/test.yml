@@ -9,16 +9,16 @@ jobs:
       fail-fast: false
       matrix:
         include:
-          - python: 3.8
+          - python: 3.9
             toxenv: flake8
             os: ubuntu-latest
-          - python: 3.8
+          - python: 3.9
             toxenv: mypy
             os: ubuntu-latest
-          - python: 3.8
+          - python: 3.9
             toxenv: pylint
             os: ubuntu-latest
-          - python: 3.8
+          - python: 3.9
             toxenv: black
             os: ubuntu-latest
 
@@ -31,18 +31,21 @@ jobs:
           - python: 3.8
             toxenv: py38
             os: ubuntu-latest
-          - python: 3.9-dev
+          - python: 3.9
             toxenv: py39
+            os: ubuntu-latest
+          - python: 3.10-dev
+            toxenv: py310
             os: ubuntu-latest
           - python: pypy3
             toxenv: pypy36
             os: ubuntu-latest
 
-          - python: 3.8
-            toxenv: py38
+          - python: 3.9
+            toxenv: py39
             os: macos-latest
-          - python: 3.8
-            toxenv: py38
+          - python: 3.9
+            toxenv: py39
             os: windows-latest
 
     runs-on: ${{ matrix.os }}
