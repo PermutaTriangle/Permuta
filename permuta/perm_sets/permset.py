@@ -12,6 +12,8 @@ class AvBase(NamedTuple):
     __init__ in Av.
     """
 
+    # pylint: disable=inherit-non-class,too-few-public-methods
+
     basis: Union[Basis, MeshBasis]
     cache: List[Dict[Perm, Optional[List[int]]]]
 

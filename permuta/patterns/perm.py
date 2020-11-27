@@ -1,6 +1,4 @@
-# pylint: disable=super-init-not-called
 # pylint: disable=too-many-lines
-# pylint: disable=too-many-public-methods
 
 import bisect
 import collections
@@ -42,6 +40,8 @@ ApplyType = TypeVar("ApplyType")
 class Perm(TupleType, Patt):
     """A perm class."""
 
+    # pylint: disable=too-many-public-methods
+
     _TO_STANDARD_CACHE: ClassVar[Dict[Tuple, "Perm"]] = {}
 
     def __new__(cls, iterable: Iterable[int] = ()) -> "Perm":
@@ -56,6 +56,7 @@ class Perm(TupleType, Patt):
         return tuple.__new__(cls, iterable)
 
     def __init__(self, _iterable: Iterable[int] = ()) -> None:
+        # pylint: disable=super-init-not-called
         # Cache for data used when finding occurrences of self in a perm
         self._cached_pattern_details: Optional[List[Tuple[int, int, int, int]]] = None
 
@@ -2132,6 +2133,7 @@ class Perm(TupleType, Patt):
         return self.compose(other)
 
     def __repr__(self) -> "str":
+        # pylint: disable = super-with-arguments
         return f"Perm({super(Perm, self).__repr__()})"
 
     def __str__(self) -> "str":
