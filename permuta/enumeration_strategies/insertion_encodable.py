@@ -13,5 +13,6 @@ class InsertionEncodingStrategy(EnumerationStrategy):
             rotate_90_clockwise_set(self.basis)
         )
 
-    def reference(self) -> str:
+    @classmethod
+    def reference(cls) -> str:
         return "The insertion encoding of permutations: Corollary 10"
