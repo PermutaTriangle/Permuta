@@ -12,3 +12,7 @@ class InsertionEncodingStrategy(EnumerationStrategy):
         ) or InsertionEncodablePerms.is_insertion_encodable(
             rotate_90_clockwise_set(self.basis)
         )
+
+    @classmethod
+    def reference(cls) -> str:
+        return "The insertion encoding of permutations: Corollary 10"
