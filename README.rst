@@ -186,6 +186,21 @@ You can get its enumeration up to a fixed length.
     >>> perm_class.count(11)
     1024
 
+You can also look to see if some well know enumeration strategies apply a given
+class.
+
+.. code-block:: python
+    >>> from permuta.enumeration_strategies import find_strategies
+    >>> basis = [Perm((3, 2, 0, 1)), Perm((1, 0, 2, 3))]
+    >>> for strat in find_strategies(basis):
+    ...     print(strat.reference())
+    The insertion encoding of permutations: Corollary 10
+    >>> basis = [Perm((1, 2, 0, 3)), Perm((2, 0, 1, 3)), Perm((0, 1, 2, 3))]
+    >>> for strat in find_strategies(basis):
+    ...     print(strat.reference())
+    Enumeration of Permutation Classes and Weighted Labelled Independent Sets: Corollary 4.3
+
+
 The BiSC algorithm
 ==================
 
