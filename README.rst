@@ -186,8 +186,8 @@ You can get its enumeration up to a fixed length.
     >>> perm_class.count(11)
     1024
 
-You can also look to see if some well know enumeration strategies apply a given
-class.
+You can also look to see if some well know enumeration strategies apply to a
+given class.
 
 .. code-block:: python
     >>> from permuta.enumeration_strategies import find_strategies
