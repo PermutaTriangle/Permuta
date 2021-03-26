@@ -2107,6 +2107,19 @@ class Perm(TupleType, Patt):
             ]
         )
 
+    def containment_to_tikz(self, pattern: "Perm") -> Iterator[str]:
+        """Return the tikz picture of the pattern within self."""
+        return (self._pattern_to_tikz(occ) for occ in self.occurrences_of(pattern))
+
+    def _pattern_to_tikz(self, occurrence: Tuple[int, ...]) -> str:
+        init = self.to_tikz()
+        init = init[0 : init.rfind("\\end{tikzpicture}")]
+        reds = "\n".join(
+            f"    \\draw[red] ({idx + 1},{self[idx] + 1}) circle (10pt);"
+            for idx in occurrence
+        )
+        return f"{init}{reds}\n\\end{{tikzpicture}}"
+
     def show(self, scale: float = 1.0) -> None:
         """Open a browser tab and display permutation graphically. Image can be
         enlarged with scale parameter"""
