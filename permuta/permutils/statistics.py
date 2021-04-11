@@ -84,7 +84,7 @@ class PermutationStatistic:
         length of the permutation and k is the statistic. If a class is not provided,
         we use the set of all permutations.
         """
-        return [self.distribution_for_length(i, perm_class) for i in range(n)]
+        return [self.distribution_for_length(i, perm_class) for i in range(n + 1)]
 
     def __str__(self) -> str:
         return self.name
