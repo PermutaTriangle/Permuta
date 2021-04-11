@@ -1,0 +1,132 @@
+from collections import defaultdict
+from itertools import product
+from typing import Callable, Counter, Dict, Iterator, List, Optional
+
+from permuta import Av, Perm
+
+PermutationStatisticType = Callable[[Perm], int]
+BijectionType = Dict[Perm, Perm]
+
+
+class PermutationStatistic:
+    """
+    A class for checking preservation of statistics
+    in bijections and their distribution.
+    """
+
+    # More statistics can be added here.
+    _STATISTICS = (
+        ("Number of inversions", Perm.count_inversions),
+        ("Number of non-inversions", Perm.count_non_inversions),
+        ("Major index", Perm.major_index),
+        ("Number of descents", Perm.count_descents),
+        ("Number of ascents", Perm.count_ascents),
+        ("Number of peaks", Perm.count_peaks),
+        ("Number of valleys", Perm.count_valleys),
+        ("Number of cycles", Perm.count_cycles),
+        ("Number of left-to-right minimas", Perm.count_ltrmin),
+        ("Number of left-to-right maximas", Perm.count_ltrmax),
+        ("Number of right-to-left minimas", Perm.count_rtlmin),
+        ("Number of right-to-left maximas", Perm.count_rtlmax),
+        ("Number of fixed points", Perm.count_fixed_points),
+        ("Order", Perm.order),
+        ("Longest increasing subsequence", Perm.length_of_longestrun_ascending),
+        ("Longest decreasing subsequence", Perm.length_of_longestrun_descending),
+        ("Depth", Perm.depth),
+    )
+
+    @staticmethod
+    def show_predefined_statistics(idx: int = -1) -> None:
+        """Show all or a specific predefined statistic."""
+        if idx < 0:
+            print(PermutationStatistic._predefined_statistics())
+        else:
+            print(PermutationStatistic._STATISTICS[idx][0])
+
+    @staticmethod
+    def _predefined_statistics() -> str:
+        """Name and index of each statistics defined."""
+        return "\n".join(
+            f"[{i}] {name}"
+            for i, (name, _) in enumerate(PermutationStatistic._STATISTICS)
+        )
+
+    @classmethod
+    def get_by_index(cls, idx: int) -> "PermutationStatistic":
+        """Get a statistic by index."""
+        return cls(*PermutationStatistic._STATISTICS[idx])
+
+    def __init__(self, name: str, func: PermutationStatisticType) -> None:
+        self.name: str = name
+        self.func: PermutationStatisticType = func
+
+    def preserved_in(self, bijection: BijectionType) -> bool:
+        """Check if statistic (self) is preserved in a bijection."""
+        return all(self.func(k) == self.func(v) for k, v in bijection.items())
+
+    def distribution_for_length(
+        self, n: int, perm_class: Optional[Av] = None
+    ) -> List[int]:
+        """Return a distribution of statistic for a fixed length of permutations. If a
+        class is not provided, we use the set of all permutations.
+        """
+        iterator = perm_class.of_length(n) if perm_class else Perm.of_length(n)
+        cnt = Counter(self.func(p) for p in iterator)
+        lis = [0] * (max(cnt.keys(), default=0) + 1)
+        for key, val in cnt.items():
+            lis[key] = val
+        return lis
+
+    def distribution_up_to(
+        self, n: int, perm_class: Optional[Av] = None
+    ) -> List[List[int]]:
+        """Return a table (i,k) for the distribution of a statistic. Here i=0..n is the
+        length of the permutation and k is the statistic. If a class is not provided,
+        we use the set of all permutations.
+        """
+        return [self.distribution_for_length(i, perm_class) for i in range(n)]
+
+    def __str__(self) -> str:
+        return self.name
+
+    @classmethod
+    def _get_all(cls) -> Iterator["PermutationStatistic"]:
+        """Get all predefined statistics as an instance of PermutationStatistic."""
+        yield from (cls(name, func) for name, func in PermutationStatistic._STATISTICS)
+
+    @classmethod
+    def check_all_preservations(cls, bijection: BijectionType) -> Iterator[str]:
+        """Given a bijection, check which statistics are preserved."""
+        return (stats.name for stats in cls._get_all() if stats.preserved_in(bijection))
+
+    @classmethod
+    def check_all_transformed(cls, bijection: BijectionType) -> Dict[str, List[str]]:
+        """Given a bijection, check what statistics transform into others."""
+        transf = defaultdict(list)
+        all_stats = cls._get_all()
+        for stat1, stat2 in product(all_stats, all_stats):
+            if all(stat1.func(k) == stat2.func(v) for k, v in bijection.items()):
+                transf[stat1.name].append(stat2.name)
+        return dict(transf)
+
+    # Some common ones for easy access
+
+    @classmethod
+    def inv(cls) -> "PermutationStatistic":
+        """Number of inversions."""
+        return cls("Number of inversions", Perm.count_inversions)
+
+    @classmethod
+    def maj(cls) -> "PermutationStatistic":
+        """Major index."""
+        return cls("Major index", Perm.major_index)
+
+    @classmethod
+    def des(cls) -> "PermutationStatistic":
+        """Number of descents."""
+        return cls("Number of descents", Perm.count_descents)
+
+    @classmethod
+    def asc(cls) -> "PermutationStatistic":
+        """Number of ascents."""
+        return cls("Number of ascents", Perm.count_ascents)

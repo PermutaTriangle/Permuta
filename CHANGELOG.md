@@ -9,6 +9,8 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
  - using Github Actions for testing and deployment
  - `containment_to_tikz` method in `Perm` that returns an iterator of tikz pictures
    displaying occurrences of classical patterns in self.
+ - `permuta.permutils.PermutationStatistic` to check statistic distribution in
+   classes and preservation and transformation in bijections.
 
 ## 2.0.2 - 2020-08-06
 ### Fixed
