@@ -22,20 +22,17 @@ jobs:
             toxenv: black
             os: ubuntu-latest
 
-          - python: 3.6
-            toxenv: py36
-            os: ubuntu-latest
           - python: 3.7
             toxenv: py37
             os: ubuntu-latest
           - python: 3.8
             toxenv: py38
             os: ubuntu-latest
-          - python: 3.9-dev
+          - python: 3.9
             toxenv: py39
             os: ubuntu-latest
-          - python: pypy3
-            toxenv: pypy36
+          - python: pypy-3.7
+            toxenv: pypy37
             os: ubuntu-latest
 
           - python: 3.8
