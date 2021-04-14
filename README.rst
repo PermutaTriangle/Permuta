@@ -190,6 +190,7 @@ You can also look to see if some well know enumeration strategies apply to a
 given class.
 
 .. code-block:: python
+
     >>> from permuta.enumeration_strategies import find_strategies
     >>> basis = [Perm((3, 2, 0, 1)), Perm((1, 0, 2, 3))]
     >>> for strat in find_strategies(basis):
@@ -208,12 +209,14 @@ classes and look for statistics preservations (or transformation) either for two
 or given a bijection. First we need to import it.
 
 .. code-block:: python
+
     >>> from permuta.permutils.statistics import PermutationStatistic
 
 To see a distribution for a given statistics we grab its instance and provide a length
 and a class (no class will use the set of all permutations).
 
 .. code-block:: python
+
     >>> # PermutationStatistic.show_predefined_statistics() # Show all statistics with id
     >>> depth = PermutationStatistic.get_by_index(16)
     >>> depth.distribution_for_length(5)
@@ -225,6 +228,7 @@ Given a bijection as a dictionary, we can check which statistics are preserved w
 `check_all_preservations` and which are transformed with `check_all_transformed`
 
 .. code-block:: python
+
     >>> bijection = {p: p.reverse() for p in Perm.up_to_length(5)}
     >>> for stat in PermutationStatistic.check_all_preservations(bijection):
     ...     print(stat)
@@ -237,6 +241,7 @@ of more than one statistics with `jointly_equally_distributed` and transformatio
 of jointly distributed stats with `jointly_transformed_equally_distributed`.
 
 .. code-block:: python
+
     >>> cls1 = Av.from_string("2143,415263")
     >>> cls2 = Av.from_string("3142")
     >>> for stat in PermutationStatistic.equally_distributed(cls1, cls2, 6):
