@@ -1,6 +1,6 @@
 from collections import defaultdict
-from itertools import product
-from typing import Callable, Counter, Dict, Iterator, List, Optional
+from itertools import combinations, permutations, product
+from typing import Callable, Counter, Dict, Iterator, List, Optional, Tuple
 
 from permuta import Av, Perm
 
@@ -85,6 +85,65 @@ class PermutationStatistic:
         we use the set of all permutations.
         """
         return [self.distribution_for_length(i, perm_class) for i in range(n + 1)]
+
+    @classmethod
+    def equally_distributed(cls, class1: Av, class2: Av, n: int = 6) -> Iterator[str]:
+        """Returm all stats that are equally distributed for two classes up to a max
+        length.
+        """
+        return (
+            stat.name
+            for stat in cls._get_all()
+            if all(
+                stat.distribution_for_length(i, class1)
+                == stat.distribution_for_length(i, class2)
+                for i in range(n + 1)
+            )
+        )
+
+    @staticmethod
+    def jointly_equally_distributed(
+        class1: Av, class2: Av, n: int = 6, dim: int = 2
+    ) -> Iterator[Tuple[str, ...]]:
+        """Check if a combination of statistics is equally distributed between
+        two classes up to a max length.
+        """
+        return (
+            tuple(stat[0] for stat in stats)
+            for stats in combinations(PermutationStatistic._STATISTICS, dim)
+            if all(
+                Counter(
+                    tuple(stat[1](p) for stat in stats) for p in class1.of_length(i)
+                )
+                == Counter(
+                    tuple(stat[1](p) for stat in stats) for p in class2.of_length(i)
+                )
+                for i in range(n + 1)
+            )
+        )
+
+    @staticmethod
+    def jointly_transformed_equally_distributed(
+        class1: Av, class2: Av, n: int = 6, dim: int = 2
+    ) -> Iterator[Tuple[Tuple[str, ...], Tuple[str, ...]]]:
+        """Check if a combination of statistics in one class is equally distributed
+        to any combination of statistics in the other class, up to a max length.
+        """
+        return (
+            (tuple(stat[0] for stat in stats1), tuple(stat[0] for stat in stats2))
+            for stats1, stats2 in combinations(
+                permutations(PermutationStatistic._STATISTICS, dim), 2
+            )
+            if all(
+                Counter(
+                    tuple(stat[1](p) for stat in stats1) for p in class1.of_length(i)
+                )
+                == Counter(
+                    tuple(stat[1](p) for stat in stats2) for p in class2.of_length(i)
+                )
+                for i in range(n + 1)
+            )
+        )
 
     def __str__(self) -> str:
         return self.name
