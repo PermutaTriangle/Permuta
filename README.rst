@@ -204,7 +204,7 @@ given class.
 Permutation statistics
 ######################
 
-With the `PermutationStatistics` class we can look for distributions of statistics for
+With the ``PermutationStatistics`` class we can look for distributions of statistics for
 classes and look for statistics preservations (or transformation) either for two classes
 or given a bijection. First we need to import it.
 
@@ -225,7 +225,7 @@ and a class (no class will use the set of all permutations).
     [[1], [1], [1, 1], [0, 2, 3], [0, 0, 3, 7, 4]]
 
 Given a bijection as a dictionary, we can check which statistics are preserved with 
-`check_all_preservations` and which are transformed with `check_all_transformed`
+``check_all_preservations`` and which are transformed with ``check_all_transformed``
 
 .. code-block:: python
 
@@ -236,9 +236,9 @@ Given a bijection as a dictionary, we can check which statistics are preserved w
     Number of valleys
 
 We can find all (predefined) statistics equally distributed over two permutation
-classes with `equally_distributed`. We also support checks for joint distribution
-of more than one statistics with `jointly_equally_distributed` and transformation
-of jointly distributed stats with `jointly_transformed_equally_distributed`.
+classes with ``equally_distributed``. We also support checks for joint distribution
+of more than one statistics with ``jointly_equally_distributed`` and transformation
+of jointly distributed stats with ``jointly_transformed_equally_distributed``.
 
 .. code-block:: python
 
