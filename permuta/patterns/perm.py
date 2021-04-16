@@ -1280,6 +1280,17 @@ class Perm(TupleType, Patt):
         """
         return sum(1 + desc for desc in self.descents())
 
+    def depth(self) -> int:
+        """Return the depth of the permutation. See https://arxiv.org/pdf/1202.4765.pdf.
+
+        Examples:
+            >>> Perm((3, 1, 2, 4, 0)).depth()
+            4
+            >>> Perm((0, 2, 1)).depth()
+            1
+        """
+        return sum(val - idx for idx, val in enumerate(self) if val > idx)
+
     def maximal_decreasing_run(self) -> int:
         """Returns the longest decreasing run of consecutive elements starting
         from the leargest.
