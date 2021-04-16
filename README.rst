@@ -204,7 +204,7 @@ given class.
 Permutation statistics
 ######################
 
-With the ``PermutationStatistics`` class we can look for distributions of statistics for
+With the ``PermutationStatistic`` class we can look for distributions of statistics for
 classes and look for statistics preservations (or transformation) either for two classes
 or given a bijection. First we need to import it.
 
@@ -212,12 +212,29 @@ or given a bijection. First we need to import it.
 
     >>> from permuta.permutils.statistics import PermutationStatistic
 
-To see a distribution for a given statistics we grab its instance and provide a length
+To see a distribution for a given statistic we grab its instance and provide a length
 and a class (no class will use the set of all permutations).
 
 .. code-block:: python
 
-    >>> # PermutationStatistic.show_predefined_statistics() # Show all statistics with id
+    >>> PermutationStatistic.show_predefined_statistics() # Show all statistics with id
+    [0] Number of inversions
+    [1] Number of non-inversions
+    [2] Major index
+    [3] Number of descents
+    [4] Number of ascents
+    [5] Number of peaks
+    [6] Number of valleys
+    [7] Number of cycles
+    [8] Number of left-to-right minimas
+    [9] Number of left-to-right maximas
+    [10] Number of right-to-left minimas
+    [11] Number of right-to-left maximas
+    [12] Number of fixed points
+    [13] Order
+    [14] Longest increasing subsequence
+    [15] Longest decreasing subsequence
+    [16] Depth
     >>> depth = PermutationStatistic.get_by_index(16)
     >>> depth.distribution_for_length(5)
     [1, 4, 12, 24, 35, 24, 20]

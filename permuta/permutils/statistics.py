@@ -88,7 +88,7 @@ class PermutationStatistic:
 
     @classmethod
     def equally_distributed(cls, class1: Av, class2: Av, n: int = 6) -> Iterator[str]:
-        """Returm all stats that are equally distributed for two classes up to a max
+        """Return all stats that are equally distributed for two classes up to a max
         length.
         """
         return (
