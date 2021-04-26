@@ -1,0 +1,17 @@
+# This is a temporary .pylintrc file during refactoring.
+
+[MASTER]
+ignore-patterns=test_.*?py,
+                # TODO: REMOVE
+                bisc.py, 
+                bisc_subfunctions.py
+ignore= tests
+init-hook="from pylint.config import find_pylintrc; import os, sys; sys.path.append(os.path.dirname(find_pylintrc())+'/permuta')"
+disable=bad-continuation, 
+        missing-module-docstring,
+        fixme,
+        unsubscriptable-object
+good-names=i,j,n,k,x,y,_
+
+[SIMILARITIES]
+ignore-imports=yes
