@@ -1,0 +1,2 @@
+include permuta/py.typed
+include permuta/resources/bisc/*.json
