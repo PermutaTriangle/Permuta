@@ -168,6 +168,20 @@ class PermutationStatistic:
                 transf[stat1.name].append(stat2.name)
         return dict(transf)
 
+    @staticmethod
+    def symmetry_duplication(
+        bijection: BijectionType,
+    ) -> Iterator[BijectionType]:
+        """Yield all symmetric versions of a bijection."""
+        return (
+            bij
+            for rotated in (
+                {k.rotate(angle): v.rotate(angle) for k, v in bijection.items()}
+                for angle in range(4)
+            )
+            for bij in (rotated, {k.inverse(): v.inverse() for k, v in rotated.items()})
+        )
+
     # Some common ones for easy access
 
     @classmethod
