@@ -5,6 +5,8 @@ The format is based on [Keep a Changelog](http://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.html).
 
 ## Unreleased
+
+## 2.0.3 - 2021-04-28
 ### Added
  - using Github Actions for testing and deployment
  - `containment_to_tikz` method in `Perm` that returns an iterator of tikz pictures
