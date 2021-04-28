@@ -16,8 +16,10 @@ permuta
     :alt: Travis
     :target: https://travis-ci.org/PermutaTriangle/Permuta
 .. image:: https://requires.io/github/PermutaTriangle/Permuta/requirements.svg?branch=master
-     :target: https://requires.io/github/PermutaTriangle/Permuta/requirements/?branch=master
-     :alt: Requirements Status
+    :target: https://requires.io/github/PermutaTriangle/Permuta/requirements/?branch=master
+    :alt: Requirements Status
+.. image:: https://zenodo.org/badge/DOI/10.5281/zenodo.4725759.svg
+   :target: https://doi.org/10.5281/zenodo.4725759
 
 Permuta is a Python library for working with perms (short for permutations),
 patterns, and mesh patterns.
@@ -476,3 +478,13 @@ License
 #######
 
 BSD-3: see the `LICENSE <https://github.com/PermutaTriangle/Permuta/blob/master/LICENSE>`_ file.
+
+Citing
+######
+
+If you found this library helpful with your research and would like to cite us, 
+you can use the following `BibTeX`_ or go to `Zenodo`_ for alternative formats. 
+
+.. _BibTex: https://zenodo.org/record/4725759/export/hx#.YImTibX7SUk
+
+.. _Zenodo: https://doi.org/10.5281/zenodo.4725759
