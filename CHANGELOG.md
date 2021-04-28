@@ -6,6 +6,17 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 
 ## Unreleased
 
+## 2.0.3 - 2021-04-28
+### Added
+ - using Github Actions for testing and deployment
+ - `containment_to_tikz` method in `Perm` that returns an iterator of tikz pictures
+   displaying occurrences of classical patterns in self.
+ - `permuta.permutils.PermutationStatistic` to check statistic distribution in
+   classes and preservation and transformation in bijections.
+
+### Deprecated
+ - Python 3.6 is no longer supported
+
 ## 2.0.2 - 2020-08-06
 ### Fixed
   - Include the type hints in the pypi release.

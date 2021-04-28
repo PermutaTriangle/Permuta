@@ -3,6 +3,7 @@ import random
 from collections import deque
 
 import pytest
+
 from permuta import Perm
 
 
@@ -1460,6 +1461,163 @@ def test_major_index():
     assert Perm((3, 1, 2, 4, 0)).major_index() == 5
     assert Perm((3, 0, 7, 4, 1, 2, 5, 6)).major_index() == 8
     assert Perm((7, 0, 4, 3, 1, 5, 2, 6)).major_index() == 14
+
+
+def test_depth():
+    # From http://www.findstat.org/StatisticsDatabase/St000029/#
+    Perm((0,)).depth() == 0
+    Perm((0, 1)).depth() == 0
+    Perm((1, 0)).depth() == 1
+    Perm((0, 1, 2)).depth() == 0
+    Perm((0, 2, 1)).depth() == 1
+    Perm((1, 0, 2)).depth() == 1
+    Perm((1, 2, 0)).depth() == 2
+    Perm((2, 0, 1)).depth() == 2
+    Perm((2, 1, 0)).depth() == 2
+    Perm((0, 1, 2, 3)).depth() == 0
+    Perm((0, 1, 3, 2)).depth() == 1
+    Perm((0, 2, 1, 3)).depth() == 1
+    Perm((0, 2, 3, 1)).depth() == 2
+    Perm((0, 3, 1, 2)).depth() == 2
+    Perm((0, 3, 2, 1)).depth() == 2
+    Perm((1, 0, 2, 3)).depth() == 1
+    Perm((1, 0, 3, 2)).depth() == 2
+    Perm((1, 2, 0, 3)).depth() == 2
+    Perm((1, 2, 3, 0)).depth() == 3
+    Perm((1, 3, 0, 2)).depth() == 3
+    Perm((1, 3, 2, 0)).depth() == 3
+    Perm((2, 0, 1, 3)).depth() == 2
+    Perm((2, 0, 3, 1)).depth() == 3
+    Perm((2, 1, 0, 3)).depth() == 2
+    Perm((2, 1, 3, 0)).depth() == 3
+    Perm((2, 3, 0, 1)).depth() == 4
+    Perm((2, 3, 1, 0)).depth() == 4
+    Perm((3, 0, 1, 2)).depth() == 3
+    Perm((3, 0, 2, 1)).depth() == 3
+    Perm((3, 1, 0, 2)).depth() == 3
+    Perm((3, 1, 2, 0)).depth() == 3
+    Perm((3, 2, 0, 1)).depth() == 4
+    Perm((3, 2, 1, 0)).depth() == 4
+    Perm((0, 1, 2, 3, 4)).depth() == 0
+    Perm((0, 1, 2, 4, 3)).depth() == 1
+    Perm((0, 1, 3, 2, 4)).depth() == 1
+    Perm((0, 1, 3, 4, 2)).depth() == 2
+    Perm((0, 1, 4, 2, 3)).depth() == 2
+    Perm((0, 1, 4, 3, 2)).depth() == 2
+    Perm((0, 2, 1, 3, 4)).depth() == 1
+    Perm((0, 2, 1, 4, 3)).depth() == 2
+    Perm((0, 2, 3, 1, 4)).depth() == 2
+    Perm((0, 2, 3, 4, 1)).depth() == 3
+    Perm((0, 2, 4, 1, 3)).depth() == 3
+    Perm((0, 2, 4, 3, 1)).depth() == 3
+    Perm((0, 3, 1, 2, 4)).depth() == 2
+    Perm((0, 3, 1, 4, 2)).depth() == 3
+    Perm((0, 3, 2, 1, 4)).depth() == 2
+    Perm((0, 3, 2, 4, 1)).depth() == 3
+    Perm((0, 3, 4, 1, 2)).depth() == 4
+    Perm((0, 3, 4, 2, 1)).depth() == 4
+    Perm((0, 4, 1, 2, 3)).depth() == 3
+    Perm((0, 4, 1, 3, 2)).depth() == 3
+    Perm((0, 4, 2, 1, 3)).depth() == 3
+    Perm((0, 4, 2, 3, 1)).depth() == 3
+    Perm((0, 4, 3, 1, 2)).depth() == 4
+    Perm((0, 4, 3, 2, 1)).depth() == 4
+    Perm((1, 0, 2, 3, 4)).depth() == 1
+    Perm((1, 0, 2, 4, 3)).depth() == 2
+    Perm((1, 0, 3, 2, 4)).depth() == 2
+    Perm((1, 0, 3, 4, 2)).depth() == 3
+    Perm((1, 0, 4, 2, 3)).depth() == 3
+    Perm((1, 0, 4, 3, 2)).depth() == 3
+    Perm((1, 2, 0, 3, 4)).depth() == 2
+    Perm((1, 2, 0, 4, 3)).depth() == 3
+    Perm((1, 2, 3, 0, 4)).depth() == 3
+    Perm((1, 2, 3, 4, 0)).depth() == 4
+    Perm((1, 2, 4, 0, 3)).depth() == 4
+    Perm((1, 2, 4, 3, 0)).depth() == 4
+    Perm((1, 3, 0, 2, 4)).depth() == 3
+    Perm((1, 3, 0, 4, 2)).depth() == 4
+    Perm((1, 3, 2, 0, 4)).depth() == 3
+    Perm((1, 3, 2, 4, 0)).depth() == 4
+    Perm((1, 3, 4, 0, 2)).depth() == 5
+    Perm((1, 3, 4, 2, 0)).depth() == 5
+    Perm((1, 4, 0, 2, 3)).depth() == 4
+    Perm((1, 4, 0, 3, 2)).depth() == 4
+    Perm((1, 4, 2, 0, 3)).depth() == 4
+    Perm((1, 4, 2, 3, 0)).depth() == 4
+    Perm((1, 4, 3, 0, 2)).depth() == 5
+    Perm((1, 4, 3, 2, 0)).depth() == 5
+    Perm((2, 0, 1, 3, 4)).depth() == 2
+    Perm((2, 0, 1, 4, 3)).depth() == 3
+    Perm((2, 0, 3, 1, 4)).depth() == 3
+    Perm((2, 0, 3, 4, 1)).depth() == 4
+    Perm((2, 0, 4, 1, 3)).depth() == 4
+    Perm((2, 0, 4, 3, 1)).depth() == 4
+    Perm((2, 1, 0, 3, 4)).depth() == 2
+    Perm((2, 1, 0, 4, 3)).depth() == 3
+    Perm((2, 1, 3, 0, 4)).depth() == 3
+    Perm((2, 1, 3, 4, 0)).depth() == 4
+    Perm((2, 1, 4, 0, 3)).depth() == 4
+    Perm((2, 1, 4, 3, 0)).depth() == 4
+    Perm((2, 3, 0, 1, 4)).depth() == 4
+    Perm((2, 3, 0, 4, 1)).depth() == 5
+    Perm((2, 3, 1, 0, 4)).depth() == 4
+    Perm((2, 3, 1, 4, 0)).depth() == 5
+    Perm((2, 3, 4, 0, 1)).depth() == 6
+    Perm((2, 3, 4, 1, 0)).depth() == 6
+    Perm((2, 4, 0, 1, 3)).depth() == 5
+    Perm((2, 4, 0, 3, 1)).depth() == 5
+    Perm((2, 4, 1, 0, 3)).depth() == 5
+    Perm((2, 4, 1, 3, 0)).depth() == 5
+    Perm((2, 4, 3, 0, 1)).depth() == 6
+    Perm((2, 4, 3, 1, 0)).depth() == 6
+    Perm((3, 0, 1, 2, 4)).depth() == 3
+    Perm((3, 0, 1, 4, 2)).depth() == 4
+    Perm((3, 0, 2, 1, 4)).depth() == 3
+    Perm((3, 0, 2, 4, 1)).depth() == 4
+    Perm((3, 0, 4, 1, 2)).depth() == 5
+    Perm((3, 0, 4, 2, 1)).depth() == 5
+    Perm((3, 1, 0, 2, 4)).depth() == 3
+    Perm((3, 1, 0, 4, 2)).depth() == 4
+    Perm((3, 1, 2, 0, 4)).depth() == 3
+    Perm((3, 1, 2, 4, 0)).depth() == 4
+    Perm((3, 1, 4, 0, 2)).depth() == 5
+    Perm((3, 1, 4, 2, 0)).depth() == 5
+    Perm((3, 2, 0, 1, 4)).depth() == 4
+    Perm((3, 2, 0, 4, 1)).depth() == 5
+    Perm((3, 2, 1, 0, 4)).depth() == 4
+    Perm((3, 2, 1, 4, 0)).depth() == 5
+    Perm((3, 2, 4, 0, 1)).depth() == 6
+    Perm((3, 2, 4, 1, 0)).depth() == 6
+    Perm((3, 4, 0, 1, 2)).depth() == 6
+    Perm((3, 4, 0, 2, 1)).depth() == 6
+    Perm((3, 4, 1, 0, 2)).depth() == 6
+    Perm((3, 4, 1, 2, 0)).depth() == 6
+    Perm((3, 4, 2, 0, 1)).depth() == 6
+    Perm((3, 4, 2, 1, 0)).depth() == 6
+    Perm((4, 0, 1, 2, 3)).depth() == 4
+    Perm((4, 0, 1, 3, 2)).depth() == 4
+    Perm((4, 0, 2, 1, 3)).depth() == 4
+    Perm((4, 0, 2, 3, 1)).depth() == 4
+    Perm((4, 0, 3, 1, 2)).depth() == 5
+    Perm((4, 0, 3, 2, 1)).depth() == 5
+    Perm((4, 1, 0, 2, 3)).depth() == 4
+    Perm((4, 1, 0, 3, 2)).depth() == 4
+    Perm((4, 1, 2, 0, 3)).depth() == 4
+    Perm((4, 1, 2, 3, 0)).depth() == 4
+    Perm((4, 1, 3, 0, 2)).depth() == 5
+    Perm((4, 1, 3, 2, 0)).depth() == 5
+    Perm((4, 2, 0, 1, 3)).depth() == 5
+    Perm((4, 2, 0, 3, 1)).depth() == 5
+    Perm((4, 2, 1, 0, 3)).depth() == 5
+    Perm((4, 2, 1, 3, 0)).depth() == 5
+    Perm((4, 2, 3, 0, 1)).depth() == 6
+    Perm((4, 2, 3, 1, 0)).depth() == 6
+    Perm((4, 3, 0, 1, 2)).depth() == 6
+    Perm((4, 3, 0, 2, 1)).depth() == 6
+    Perm((4, 3, 1, 0, 2)).depth() == 6
+    Perm((4, 3, 1, 2, 0)).depth() == 6
+    Perm((4, 3, 2, 0, 1)).depth() == 6
+    Perm((4, 3, 2, 1, 0)).depth() == 6
 
 
 def test_minimum_gapsize():

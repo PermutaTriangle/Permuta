@@ -1280,6 +1280,17 @@ class Perm(TupleType, Patt):
         """
         return sum(1 + desc for desc in self.descents())
 
+    def depth(self) -> int:
+        """Return the depth of the permutation. See https://arxiv.org/pdf/1202.4765.pdf.
+
+        Examples:
+            >>> Perm((3, 1, 2, 4, 0)).depth()
+            4
+            >>> Perm((0, 2, 1)).depth()
+            1
+        """
+        return sum(val - idx for idx, val in enumerate(self) if val > idx)
+
     def maximal_decreasing_run(self) -> int:
         """Returns the longest decreasing run of consecutive elements starting
         from the leargest.
@@ -2045,7 +2056,7 @@ class Perm(TupleType, Patt):
         Examples:
             >>> Perm((5, 3, 0, 1, 2, 4)).cycle_notation()
             '( 3 1 ) ( 5 4 2 0 )'
-            """
+        """
         if len(self) == 0:
             return "( )"
         return " ".join(
@@ -2106,6 +2117,19 @@ class Perm(TupleType, Patt):
                 "\n\\end{tikzpicture}",
             ]
         )
+
+    def containment_to_tikz(self, pattern: "Perm") -> Iterator[str]:
+        """Return the tikz picture of the pattern within self."""
+        return (self._pattern_to_tikz(occ) for occ in self.occurrences_of(pattern))
+
+    def _pattern_to_tikz(self, occurrence: Tuple[int, ...]) -> str:
+        init = self.to_tikz()
+        init = init[0 : init.rfind("\\end{tikzpicture}")]
+        reds = "\n".join(
+            f"    \\draw[red] ({idx + 1},{self[idx] + 1}) circle (10pt);"
+            for idx in occurrence
+        )
+        return f"{init}{reds}\n\\end{{tikzpicture}}"
 
     def show(self, scale: float = 1.0) -> None:
         """Open a browser tab and display permutation graphically. Image can be

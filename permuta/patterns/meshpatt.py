@@ -24,7 +24,7 @@ class MeshPatt(Patt):
     """A mesh pattern class."""
 
     def __init__(
-        self, pattern: Perm = Perm(), shading: Iterable[Tuple[int, int]] = frozenset(),
+        self, pattern: Perm = Perm(), shading: Iterable[Tuple[int, int]] = frozenset()
     ):
         self.pattern = pattern
         self.shading = shading if isinstance(shading, frozenset) else frozenset(shading)
@@ -228,7 +228,7 @@ class MeshPatt(Patt):
             return MeshPatt(perm, ((y, n - x) for x, y in self.shading))
         if times == 2:
             return MeshPatt(perm, ((n - x, n - y) for x, y in self.shading))
-        return MeshPatt(perm, ((n - y, x) for x, y in self.shading),)
+        return MeshPatt(perm, ((n - y, x) for x, y in self.shading))
 
     def all_syms(self) -> Tuple["MeshPatt", ...]:
         """Return the set of all symmetries of the mesh pattern.
@@ -653,7 +653,7 @@ class MeshPatt(Patt):
         return shadable
 
     def non_pointless_boxes(self) -> Set[Tuple[int, int]]:
-        """ Returns the coordinates of the boxes that have a point on their
+        """Returns the coordinates of the boxes that have a point on their
         boundaries in one of their four corners.
 
         Examples:

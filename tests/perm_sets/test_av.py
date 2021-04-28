@@ -1,6 +1,7 @@
 from math import factorial
 
 import pytest
+
 from permuta import MeshPatt, Perm
 from permuta.perm_sets import Av
 from permuta.perm_sets.basis import Basis, MeshBasis
