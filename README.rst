@@ -19,7 +19,7 @@ permuta
     :target: https://requires.io/github/PermutaTriangle/Permuta/requirements/?branch=master
     :alt: Requirements Status
 .. image:: https://zenodo.org/badge/DOI/10.5281/zenodo.4725759.svg
-    :target: https://doi.org/10.5281/zenodo.4725759
+   :target: https://doi.org/10.5281/zenodo.4725759
 
 Permuta is a Python library for working with perms (short for permutations),
 patterns, and mesh patterns.
@@ -27,6 +27,13 @@ patterns, and mesh patterns.
 If you need support, you can join us in our `Discord support server`_.
 
 .. _Discord support server: https://discord.gg/ngPZVT5
+
+If you found this library helpful with your research and would like to cite us, 
+you can use the following `BibTeX` or go to `Zenodo` for alternative formats. 
+
+.. _BitTex: https://zenodo.org/record/4725759/export/hx#.YImTibX7SUk
+
+.. _Zenodo: https://doi.org/10.5281/zenodo.4725759
 
 Installing
 ==========
