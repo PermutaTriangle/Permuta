@@ -28,13 +28,6 @@ If you need support, you can join us in our `Discord support server`_.
 
 .. _Discord support server: https://discord.gg/ngPZVT5
 
-If you found this library helpful with your research and would like to cite us, 
-you can use the following `BibTeX` or go to `Zenodo` for alternative formats. 
-
-.. _BitTex: https://zenodo.org/record/4725759/export/hx#.YImTibX7SUk
-
-.. _Zenodo: https://doi.org/10.5281/zenodo.4725759
-
 Installing
 ==========
 
@@ -485,3 +478,13 @@ License
 #######
 
 BSD-3: see the `LICENSE <https://github.com/PermutaTriangle/Permuta/blob/master/LICENSE>`_ file.
+
+Citing
+######
+
+If you found this library helpful with your research and would like to cite us, 
+you can use the following `BibTeX`_ or go to `Zenodo`_ for alternative formats. 
+
+.. _BitTex: https://zenodo.org/record/4725759/export/hx#.YImTibX7SUk
+
+.. _Zenodo: https://doi.org/10.5281/zenodo.4725759
