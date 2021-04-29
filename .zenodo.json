@@ -1,0 +1,46 @@
+{
+    "upload_type": "software",
+    "creators": [
+        {
+            "name": "Ragnar Pall Ardal"
+        },
+        {
+            "name": "Tomas Ken Magnusson"
+        },
+        {
+            "affiliation": "Reykjavik University",
+            "name": "Émile Nadeau"
+        },
+        {
+            "name": "Bjarni Jens Kristinsson"
+        },
+        {
+            "name": "Bjarki Agust Gudmundsson"
+        },
+        {
+            "affiliation": "Reykjavik University",
+            "name": "Christian Bean"
+        },
+        {
+            "affiliation": "Reykjavik University",
+            "name": "Henning Ulfarsson"
+        },
+        {
+            "affiliation": "Reykjavik University",
+            "name": "Jon Steinn Eliasson"
+        },
+        {
+            "name": "Murray Tannock"
+        },
+        {
+            "name": "Alfur Birkir Bjarnason"
+        },
+        {
+            "affiliation": "Marquette University",
+            "name": "Jay Pantone"
+        },
+        {
+            "name": "Arnar Bjarni Arnarson"
+        }
+    ]
+}
