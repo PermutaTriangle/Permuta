@@ -1121,7 +1121,8 @@ class Perm(TupleType, Patt):
         return bit[0]
 
     def count_bounces(self):
-        """The Number of "bounces" in a permutation. See https://www.findstat.org/StatisticsDatabase/St000133/#
+        """The Number of "bounces" in a permutation.
+        See https://www.findstat.org/StatisticsDatabase/St000133/#
 
         Examples:
             >>> Perm((0,)).count_bounces()
