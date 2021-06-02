@@ -1120,17 +1120,19 @@ class Perm(TupleType, Patt):
                 bit_index += bit_index & -bit_index
         return bit[0]
 
-    def bounces(self):
+    def count_bounces(self):
         """The "bounce" of a permutation.
 
         Examples:
-            >>> Perm((0,)).bounces()
+            >>> Perm((0,)).count_bounces()
             0
-            >>> Perm((0, 1)).bounces()
+            >>> Perm((0, 1)).count_bounces()
             1
-            >>> Perm((1, 0)).bounces()
+            >>> Perm((1, 0)).count_bounces()
             0"""
         n = len(self)
+        if n == 0:
+            return 0
         v = self.inverse()
         bounce_arr = [v[0] + 1]
         while bounce_arr[-1] < n - 1:
