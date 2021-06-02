@@ -1121,7 +1121,8 @@ class Perm(TupleType, Patt):
         return bit[0]
 
     def count_bounces(self):
-        """The "bounce" of a permutation.
+        """The Number of "bounces" in a permutation.
+        See https://www.findstat.org/StatisticsDatabase/St000133/#
 
         Examples:
             >>> Perm((0,)).count_bounces()
@@ -1133,10 +1134,10 @@ class Perm(TupleType, Patt):
         n = len(self)
         if n == 0:
             return 0
-        v = self.inverse()
-        bounce_arr = [v[0] + 1]
-        while bounce_arr[-1] < n - 1:
-            bounce_arr.append(max(v[: bounce_arr[-1] + 1]) + 1)
+        inv = self.inverse()
+        bounce_arr = [inv[0] + 1]
+        while bounce_arr[-1] < n:
+            bounce_arr.append(max(inv[: bounce_arr[-1] + 1]) + 1)
         return sum(n - i for i in bounce_arr)
 
     def max_drop_size(self):
