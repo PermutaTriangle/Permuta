@@ -2310,3 +2310,102 @@ def test_cycle_notation():
     assert Perm((0,)).cycle_notation() == "( 0 )"
     assert Perm((0, 1)).cycle_notation() == "( 0 ) ( 1 )"
     assert Perm((7, 0, 1, 2, 5, 4, 3, 6)).cycle_notation() == "( 5 4 ) ( 7 6 3 2 1 0 )"
+
+
+def test_count_bounces():
+    assert Perm((0,)).count_bounces() == 0
+    assert Perm((0, 1)).count_bounces() == 1
+    assert Perm((1, 0)).count_bounces() == 0
+    assert Perm((0, 1, 2)).count_bounces() == 3
+    assert Perm((0, 2, 1)).count_bounces() == 2
+    assert Perm((1, 0, 2)).count_bounces() == 1
+    assert Perm((1, 2, 0)).count_bounces() == 0
+    assert Perm((2, 0, 1)).count_bounces() == 1
+    assert Perm((2, 1, 0)).count_bounces() == 0
+    assert Perm((0, 3, 2, 1)).count_bounces() == 3
+    assert Perm((2, 0, 1, 3)).count_bounces() == 3
+    assert Perm((3, 0, 2, 1)).count_bounces() == 2
+    assert Perm((0, 1, 3, 2, 4)).count_bounces() == 8
+    assert Perm((0, 2, 3, 4, 1)).count_bounces() == 4
+    assert Perm((0, 3, 4, 1, 2)).count_bounces() == 5
+    assert Perm((0, 4, 3, 2, 1)).count_bounces() == 4
+    assert Perm((1, 2, 0, 3, 4)).count_bounces() == 3
+    assert Perm((1, 3, 0, 4, 2)).count_bounces() == 2
+    assert Perm((1, 4, 2, 0, 3)).count_bounces() == 1
+    assert Perm((2, 0, 3, 4, 1)).count_bounces() == 3
+    assert Perm((2, 1, 4, 0, 3)).count_bounces() == 1
+    assert Perm((4, 1, 3, 2, 0)).count_bounces() == 0
+    assert Perm((4, 3, 0, 1, 2)).count_bounces() == 2
+    assert Perm((0, 1, 2, 3, 5, 4)).count_bounces() == 14
+    assert Perm((0, 1, 3, 4, 2, 5)).count_bounces() == 10
+    assert Perm((0, 1, 4, 3, 5, 2)).count_bounces() == 9
+    assert Perm((0, 1, 5, 4, 2, 3)).count_bounces() == 10
+    assert Perm((0, 2, 1, 5, 4, 3)).count_bounces() == 8
+    assert Perm((0, 2, 4, 1, 3, 5)).count_bounces() == 8
+    assert Perm((0, 2, 5, 1, 4, 3)).count_bounces() == 7
+    assert Perm((0, 3, 1, 4, 2, 5)).count_bounces() == 9
+    assert Perm((0, 3, 2, 4, 5, 1)).count_bounces() == 5
+    assert Perm((0, 3, 4, 5, 1, 2)).count_bounces() == 6
+    assert Perm((0, 3, 5, 4, 2, 1)).count_bounces() == 5
+    assert Perm((0, 4, 2, 1, 3, 5)).count_bounces() == 8
+    assert Perm((0, 4, 3, 1, 5, 2)).count_bounces() == 7
+    assert Perm((0, 4, 5, 2, 1, 3)).count_bounces() == 6
+    assert Perm((0, 5, 1, 3, 4, 2)).count_bounces() == 8
+    assert Perm((0, 5, 2, 4, 1, 3)).count_bounces() == 6
+    assert Perm((0, 5, 3, 4, 2, 1)).count_bounces() == 5
+    assert Perm((1, 0, 2, 3, 4, 5)).count_bounces() == 10
+    assert Perm((1, 0, 3, 2, 5, 4)).count_bounces() == 6
+    assert Perm((1, 0, 4, 3, 2, 5)).count_bounces() == 5
+    assert Perm((1, 0, 5, 3, 4, 2)).count_bounces() == 4
+    assert Perm((1, 2, 0, 5, 3, 4)).count_bounces() == 4
+    assert Perm((1, 2, 3, 5, 4, 0)).count_bounces() == 0
+    assert Perm((1, 2, 5, 0, 3, 4)).count_bounces() == 2
+    assert Perm((1, 3, 0, 2, 5, 4)).count_bounces() == 5
+    assert Perm((1, 3, 2, 4, 0, 5)).count_bounces() == 1
+    assert Perm((1, 3, 4, 2, 5, 0)).count_bounces() == 0
+    assert Perm((1, 3, 5, 4, 0, 2)).count_bounces() == 1
+    assert Perm((1, 4, 0, 5, 3, 2)).count_bounces() == 3
+    assert Perm((1, 4, 3, 0, 2, 5)).count_bounces() == 3
+    assert Perm((1, 4, 5, 0, 3, 2)).count_bounces() == 2
+    assert Perm((1, 5, 0, 3, 2, 4)).count_bounces() == 4
+    assert Perm((1, 5, 2, 3, 4, 0)).count_bounces() == 0
+    assert Perm((1, 5, 3, 4, 0, 2)).count_bounces() == 1
+    assert Perm((1, 5, 4, 3, 2, 0)).count_bounces() == 0
+    assert Perm((2, 0, 3, 1, 4, 5)).count_bounces() == 7
+    assert Perm((2, 0, 4, 1, 5, 3)).count_bounces() == 6
+    assert Perm((2, 0, 5, 3, 1, 4)).count_bounces() == 5
+    assert Perm((2, 1, 0, 4, 5, 3)).count_bounces() == 3
+    assert Perm((2, 1, 3, 5, 0, 4)).count_bounces() == 1
+    assert Perm((2, 1, 4, 5, 3, 0)).count_bounces() == 0
+    assert Perm((2, 3, 0, 1, 4, 5)).count_bounces() == 6
+    assert Perm((2, 3, 1, 0, 5, 4)).count_bounces() == 2
+    assert Perm((2, 3, 4, 1, 0, 5)).count_bounces() == 1
+    assert Perm((2, 3, 5, 1, 4, 0)).count_bounces() == 0
+    assert Perm((2, 4, 0, 5, 1, 3)).count_bounces() == 3
+    assert Perm((2, 4, 1, 5, 3, 0)).count_bounces() == 0
+    assert Perm((2, 4, 5, 0, 1, 3)).count_bounces() == 2
+    assert Perm((2, 5, 0, 1, 4, 3)).count_bounces() == 3
+    assert Perm((2, 5, 1, 3, 0, 4)).count_bounces() == 1
+    assert Perm((2, 5, 3, 1, 4, 0)).count_bounces() == 0
+    assert Perm((2, 5, 4, 3, 0, 1)).count_bounces() == 1
+    assert Perm((3, 2, 5, 1, 0, 4)).count_bounces() == 1
+    assert Perm((3, 4, 0, 2, 5, 1)).count_bounces() == 3
+    assert Perm((3, 4, 1, 5, 0, 2)).count_bounces() == 1
+    assert Perm((3, 4, 2, 5, 1, 0)).count_bounces() == 0
+    assert Perm((3, 5, 0, 1, 2, 4)).count_bounces() == 4
+    assert Perm((3, 5, 1, 0, 4, 2)).count_bounces() == 2
+    assert Perm((3, 5, 2, 1, 0, 4)).count_bounces() == 1
+    assert Perm((3, 5, 4, 1, 2, 0)).count_bounces() == 0
+    assert Perm((4, 0, 1, 5, 2, 3)).count_bounces() == 5
+    assert Perm((4, 0, 2, 5, 3, 1)).count_bounces() == 4
+    assert Perm((4, 0, 5, 1, 2, 3)).count_bounces() == 5
+    assert Perm((4, 1, 0, 2, 5, 3)).count_bounces() == 3
+    assert Perm((4, 1, 2, 3, 0, 5)).count_bounces() == 1
+    assert Perm((4, 1, 3, 2, 5, 0)).count_bounces() == 0
+    assert Perm((4, 1, 5, 3, 0, 2)).count_bounces() == 1
+    assert Perm((4, 3, 2, 5, 0, 1)).count_bounces() == 1
+    assert Perm((4, 3, 5, 2, 1, 0)).count_bounces() == 0
+    assert Perm((4, 5, 1, 0, 2, 3)).count_bounces() == 2
+    assert Perm((4, 5, 2, 0, 3, 1)).count_bounces() == 2
+    assert Perm((4, 5, 3, 1, 0, 2)).count_bounces() == 1
+    assert Perm((5, 0, 1, 3, 4, 2)).count_bounces() == 4

@@ -1120,6 +1120,26 @@ class Perm(TupleType, Patt):
                 bit_index += bit_index & -bit_index
         return bit[0]
 
+    def count_bounces(self):
+        """The Number of "bounces" in a permutation.
+        See https://www.findstat.org/StatisticsDatabase/St000133/#
+
+        Examples:
+            >>> Perm((0,)).count_bounces()
+            0
+            >>> Perm((0, 1)).count_bounces()
+            1
+            >>> Perm((1, 0)).count_bounces()
+            0"""
+        n = len(self)
+        if n == 0:
+            return 0
+        inv = self.inverse()
+        bounce_arr = [inv[0] + 1]
+        while bounce_arr[-1] < n:
+            bounce_arr.append(max(inv[: bounce_arr[-1] + 1]) + 1)
+        return sum(n - i for i in bounce_arr)
+
     def inversions(self) -> Iterator[Tuple[int, int]]:
         """Yield the inversions of the permutation, i.e., the pairs i,j
         such that i < j and self(i) > self(j).
