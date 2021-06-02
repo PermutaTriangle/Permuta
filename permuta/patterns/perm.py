@@ -1120,6 +1120,15 @@ class Perm(TupleType, Patt):
                 bit_index += bit_index & -bit_index
         return bit[0]
 
+    def bounces(self):
+        """The "bounce" of a permutation."""
+        n = len(self)
+        v = self.inverse()
+        bounce_arr = [v[0] + 1]
+        while bounce_arr[-1] < n - 1:
+            bounce_arr.append(max(v[: bounce_arr[-1] + 1]) + 1)
+        return sum([n - i for i in bounce_arr])
+
     def inversions(self) -> Iterator[Tuple[int, int]]:
         """Yield the inversions of the permutation, i.e., the pairs i,j
         such that i < j and self(i) > self(j).
