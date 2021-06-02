@@ -1136,7 +1136,7 @@ class Perm(TupleType, Patt):
             return 0
         inv = self.inverse()
         bounce_arr = [inv[0] + 1]
-        while bounce_arr[-1] < n - 1:
+        while bounce_arr[-1] < n:
             bounce_arr.append(max(inv[: bounce_arr[-1] + 1]) + 1)
         return sum(n - i for i in bounce_arr)
 
