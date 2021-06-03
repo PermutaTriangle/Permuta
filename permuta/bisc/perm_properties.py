@@ -5,7 +5,6 @@ from permuta.patterns.meshpatt import MeshPatt
 from permuta.patterns.perm import Perm
 from permuta.permutils.groups import dihedral_group
 
-
 _SMOOTH_PATT = (Perm((0, 2, 1, 3)), Perm((1, 0, 3, 2)))
 
 
