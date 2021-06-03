@@ -4,7 +4,8 @@ from collections import deque
 
 import pytest
 
-from permuta import Perm
+from math import factorial
+from permuta import MeshPatt, Perm
 
 
 def test_from_iterable_validated():

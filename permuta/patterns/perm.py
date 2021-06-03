@@ -2182,7 +2182,7 @@ class Perm(TupleType, Patt):
 
             if right_stack:
                 left_stack.appendleft(right_stack[0])
-                if Perm._is_sorted(left_stack):
+                if Perm.to_standard(left_stack).is_increasing():
                     right_stack.popleft()
                     continue
                 left_stack.popleft()
