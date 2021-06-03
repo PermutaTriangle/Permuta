@@ -1163,11 +1163,30 @@ def test_sum_decomposition():
 
 def test_descent_set():
     assert Perm().descent_set() == []
+    assert Perm().descent_set(step_size=2) == []
+
     assert Perm((0, 1, 2, 3)).descent_set() == []
+    assert Perm((0, 1, 2, 3)).descent_set(step_size=2) == []
+
     assert Perm((3, 2, 1, 0)).descent_set() == [0, 1, 2]
+    assert Perm((3, 2, 1, 0)).descent_set(step_size=1) == [0, 1, 2]
+    assert Perm((3, 2, 1, 0)).descent_set(step_size=2) == []
+
     assert Perm((2, 1, 0, 4, 3, 5)).descent_set() == [0, 1, 3]
+    assert Perm((2, 1, 0, 4, 3, 5)).descent_set(step_size=1) == [0, 1, 3]
+    assert Perm((2, 1, 0, 4, 3, 5)).descent_set(step_size=2) == []
+
     assert Perm((1, 2, 3, 0, 6, 5, 4)).descent_set() == [2, 4, 5]
+    assert Perm((1, 2, 3, 0, 6, 5, 4)).descent_set(step_size=1) == [4, 5]
+    assert Perm((1, 2, 3, 0, 6, 5, 4)).descent_set(step_size=2) == []
+    assert Perm((1, 2, 3, 0, 6, 5, 4)).descent_set(step_size=3) == [2]
+
     assert Perm((3, 1, 4, 5, 0, 7, 6, 2)).descent_set() == [0, 3, 5, 6]
+    assert Perm((3, 1, 4, 5, 0, 7, 6, 2)).descent_set(step_size=1) == [5]
+    assert Perm((3, 1, 4, 5, 0, 7, 6, 2)).descent_set(step_size=2) == [0]
+    assert Perm((3, 1, 4, 5, 0, 7, 6, 2)).descent_set(step_size=3) == []
+    assert Perm((3, 1, 4, 5, 0, 7, 6, 2)).descent_set(step_size=4) == [6]
+    assert Perm((3, 1, 4, 5, 0, 7, 6, 2)).descent_set(step_size=5) == [3]
 
 
 def test_count_descents():
@@ -1181,20 +1200,67 @@ def test_count_descents():
 
 def test_ascent_set():
     assert Perm().ascent_set() == []
+    assert Perm().ascent_set(step_size=2) == []
+
     assert Perm((0, 1, 2, 3)).ascent_set() == [0, 1, 2]
+    assert Perm((0, 1, 2, 3)).ascent_set(step_size=1) == [0, 1, 2]
+    assert Perm((0, 1, 2, 3)).ascent_set(step_size=2) == []
+
     assert Perm((3, 2, 1, 0)).ascent_set() == []
+    assert Perm((3, 2, 1, 0)).ascent_set(step_size=2) == []
+
     assert Perm((2, 1, 0, 4, 3, 5)).ascent_set() == [2, 4]
+    assert Perm((2, 1, 0, 4, 3, 5)).ascent_set(step_size=1) == []
+    assert Perm((2, 1, 0, 4, 3, 5)).ascent_set(step_size=2) == [4]
+    assert Perm((2, 1, 0, 4, 3, 5)).ascent_set(step_size=3) == []
+    assert Perm((2, 1, 0, 4, 3, 5)).ascent_set(step_size=4) == [2]
+
     assert Perm((1, 2, 3, 0, 6, 5, 4)).ascent_set() == [0, 1, 3]
+    assert Perm((1, 2, 3, 0, 6, 5, 4)).ascent_set(step_size=1) == [0, 1]
+    assert Perm((1, 2, 3, 0, 6, 5, 4)).ascent_set(step_size=2) == []
+    assert Perm((1, 2, 3, 0, 6, 5, 4)).ascent_set(step_size=3) == []
+    assert Perm((1, 2, 3, 0, 6, 5, 4)).ascent_set(step_size=4) == []
+    assert Perm((1, 2, 3, 0, 6, 5, 4)).ascent_set(step_size=5) == []
+    assert Perm((1, 2, 3, 0, 6, 5, 4)).ascent_set(step_size=6) == [3]
+
     assert Perm((3, 1, 4, 5, 0, 7, 6, 2)).ascent_set() == [1, 2, 4]
+    assert Perm((3, 1, 4, 5, 0, 7, 6, 2)).ascent_set(step_size=1) == [2]
+    assert Perm((3, 1, 4, 5, 0, 7, 6, 2)).ascent_set(step_size=2) == []
+    assert Perm((3, 1, 4, 5, 0, 7, 6, 2)).ascent_set(step_size=3) == [1]
+    assert Perm((3, 1, 4, 5, 0, 7, 6, 2)).ascent_set(step_size=4) == []
+    assert Perm((3, 1, 4, 5, 0, 7, 6, 2)).ascent_set(step_size=5) == []
+    assert Perm((3, 1, 4, 5, 0, 7, 6, 2)).ascent_set(step_size=6) == []
+    assert Perm((3, 1, 4, 5, 0, 7, 6, 2)).ascent_set(step_size=7) == [4]
 
 
 def test_count_ascents():
     assert Perm().count_ascents() == 0
     assert Perm((0, 1, 2, 3)).count_ascents() == 3
+    assert Perm((0, 1, 2, 3)).count_ascents(step_size=1) == 3
+    assert Perm((0, 1, 2, 3)).count_ascents(step_size=2) == 0
     assert Perm((3, 2, 1, 0)).count_ascents() == 0
+    assert Perm((3, 2, 1, 0)).count_ascents(step_size=1) == 0
+    assert Perm((3, 2, 1, 0)).count_ascents(step_size=2) == 0
     assert Perm((2, 1, 0, 4, 3, 5)).count_ascents() == 2
+    assert Perm((2, 1, 0, 4, 3, 5)).count_ascents(step_size=1) == 0
+    assert Perm((2, 1, 0, 4, 3, 5)).count_ascents(step_size=2) == 1
+    assert Perm((2, 1, 0, 4, 3, 5)).count_ascents(step_size=3) == 0
+    assert Perm((2, 1, 0, 4, 3, 5)).count_ascents(step_size=4) == 1
     assert Perm((1, 2, 3, 0, 6, 5, 4)).count_ascents() == 3
+    assert Perm((1, 2, 3, 0, 6, 5, 4)).count_ascents(step_size=1) == 2
+    assert Perm((1, 2, 3, 0, 6, 5, 4)).count_ascents(step_size=2) == 0
+    assert Perm((1, 2, 3, 0, 6, 5, 4)).count_ascents(step_size=3) == 0
+    assert Perm((1, 2, 3, 0, 6, 5, 4)).count_ascents(step_size=4) == 0
+    assert Perm((1, 2, 3, 0, 6, 5, 4)).count_ascents(step_size=5) == 0
+    assert Perm((1, 2, 3, 0, 6, 5, 4)).count_ascents(step_size=6) == 1
     assert Perm((3, 1, 4, 5, 0, 7, 6, 2)).count_ascents() == 3
+    assert Perm((3, 1, 4, 5, 0, 7, 6, 2)).count_ascents(step_size=1) == 1
+    assert Perm((3, 1, 4, 5, 0, 7, 6, 2)).count_ascents(step_size=2) == 0
+    assert Perm((3, 1, 4, 5, 0, 7, 6, 2)).count_ascents(step_size=3) == 1
+    assert Perm((3, 1, 4, 5, 0, 7, 6, 2)).count_ascents(step_size=4) == 0
+    assert Perm((3, 1, 4, 5, 0, 7, 6, 2)).count_ascents(step_size=5) == 0
+    assert Perm((3, 1, 4, 5, 0, 7, 6, 2)).count_ascents(step_size=6) == 0
+    assert Perm((3, 1, 4, 5, 0, 7, 6, 2)).count_ascents(step_size=7) == 1
 
 
 def test_peaks():
