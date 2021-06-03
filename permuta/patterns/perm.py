@@ -1155,7 +1155,7 @@ class Perm(TupleType, Patt):
             1
             >>> Perm((2, 0, 1)).max_drop_size()
             2"""
-        return max((self[i] - i for i in range(len(self))), default=0)
+        return max((val - idx for idx, val in enumerate(self)), default=0)
 
     def inversions(self) -> Iterator[Tuple[int, int]]:
         """Yield the inversions of the permutation, i.e., the pairs i,j
