@@ -1,7 +1,4 @@
-from math import factorial
-from random import randint
-
-from permuta import MeshPatt, Perm
+from permuta import Perm
 from permuta.bisc.perm_properties import (
     _perm_to_yt,
     av_231_and_mesh,
