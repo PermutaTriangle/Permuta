@@ -26,6 +26,7 @@ from typing import (
 )
 
 from permuta.misc import HTMLViewer
+from permuta.misc.math import is_prime
 
 from .patt import Patt
 
@@ -889,6 +890,15 @@ class Perm(TupleType, Patt):
         return sum(1 for _ in self.peaks())
 
     num_peaks = count_peaks
+
+    def count_column_sum_primes(self):
+        """Returns the number of primes in the column sums of the two line notation
+        of a permutation.
+        """
+        return sum(1 for idx, val in enumerate(self) if is_prime(val + idx + 2))
+        # + 2 because both values are 0 indexed
+
+    num_column_sum_primes = count_column_sum_primes
 
     def valleys(self) -> Iterator[int]:
         """Yield the indices of the valleys of self. The i-th element of a perm is a

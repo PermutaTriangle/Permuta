@@ -238,6 +238,7 @@ and a class (no class will use the set of all permutations).
     [15] Longest decreasing subsequence
     [16] Depth
     [17] Number of bounces
+    [18] Number of primes in the column sums
     >>> depth = PermutationStatistic.get_by_index(16)
     >>> depth.distribution_for_length(5)
     [1, 4, 12, 24, 35, 24, 20]
