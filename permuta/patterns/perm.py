@@ -2087,6 +2087,7 @@ class Perm(TupleType, Patt):
         return n_lis
 
     def stack_sort(self) -> "Perm":
+        """Stack sorting the permutation"""
         return Perm(Perm._stack_sort(list(self)))
 
     def stack_sortable(self) -> bool:
@@ -2112,6 +2113,7 @@ class Perm(TupleType, Patt):
         return n_lis
 
     def bubble_sort(self) -> "Perm":
+        """Bubble sorting the permutation"""
         return Perm(Perm._bubble_sort(list(self)))
 
     def bubble_sortable(self) -> bool:
@@ -2147,6 +2149,7 @@ class Perm(TupleType, Patt):
         return lis
 
     def quick_sort(self) -> "Perm":
+        """Quick sorting the permutation"""
         return Perm(Perm._quick_sort(list(self)))
 
     def quick_sortable(self) -> bool:

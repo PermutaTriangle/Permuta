@@ -1,8 +1,7 @@
 from itertools import islice
-from typing import List, Tuple
+from typing import List
 
 from permuta.patterns.meshpatt import MeshPatt
-from permuta.patterns.patt import Patt
 from permuta.patterns.perm import Perm
 from permuta.permutils.groups import dihedral_group
 

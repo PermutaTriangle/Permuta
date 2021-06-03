@@ -1,10 +1,10 @@
 import itertools
 import random
 from collections import deque
+from math import factorial
 
 import pytest
 
-from math import factorial
 from permuta import MeshPatt, Perm
 
 
