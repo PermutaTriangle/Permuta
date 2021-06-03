@@ -745,22 +745,26 @@ class Perm(TupleType, Patt):
 
     sum_decomposable = is_sum_decomposable
 
-    def descents(self, step_size: Union[int, None] = None) -> Iterator[int]:
+    def descents(self) -> Iterator[int]:
+        """Yield the 0-based descents of self."""
+        return self._descents(step_size=None)
+
+    def _descents(self, step_size: Optional[int] = None) -> Iterator[int]:
         """Yield the 0-based descents of self. If step size is specified it only yields
         descents of that size, otherwise it yields all descents.
 
         Examples:
-            >>> tuple(Perm((0, 1, 3, 2, 4)).descents())
+            >>> tuple(Perm((0, 1, 3, 2, 4))._descents())
             (2,)
-            >>> tuple(Perm((0, 1, 3, 2, 4)).descents(step_size=2))
+            >>> tuple(Perm((0, 1, 3, 2, 4))._descents(step_size=2))
             ()
-            >>> tuple(Perm((3, 2, 1, 0)).descents())
+            >>> tuple(Perm((3, 2, 1, 0))._descents())
             (0, 1, 2)
-            >>> tuple(Perm((3, 2, 1, 0)).descents(step_size=2))
+            >>> tuple(Perm((3, 2, 1, 0))._descents(step_size=2))
             ()
-            >>> tuple(Perm((0, 1, 2)).descents())
+            >>> tuple(Perm((0, 1, 2))._descents())
             ()
-            >>> tuple(Perm((0, 1, 2)).descents(step_size=2))
+            >>> tuple(Perm((0, 1, 2))._descents(step_size=2))
             ()
         """
         if not (isinstance(step_size, int) or step_size is None):
@@ -788,7 +792,7 @@ class Perm(TupleType, Patt):
             if prev == curr + step_size
         )
 
-    def descent_set(self, step_size: Union[int, None] = None) -> List[int]:
+    def descent_set(self, step_size: Optional[int] = None) -> List[int]:
         """Return the list of descents of self. If step size is specified it only
         returns a list of descents of that size,
         otherwise it returns list of all descents.
@@ -803,9 +807,9 @@ class Perm(TupleType, Patt):
             >>> Perm((0, 1, 2)).descent_set()
             []
         """
-        return list(self.descents(step_size))
+        return list(self._descents(step_size))
 
-    def count_descents(self, step_size: Union[int, None] = None) -> int:
+    def count_descents(self, step_size: Optional[int] = None) -> int:
         """Count the number of descents of self. If step size is specified
         if only counts descents of that size, otherwise it counts all descents.
 
@@ -819,24 +823,28 @@ class Perm(TupleType, Patt):
             >>> Perm((0, 1, 2)).count_descents()
             0
         """
-        return sum(1 for _ in self.descents(step_size))
+        return sum(1 for _ in self._descents(step_size))
 
     num_descents = count_descents
 
-    def ascents(self, step_size: Union[int, None] = None) -> Iterator[int]:
+    def ascents(self) -> Iterator[int]:
+        """Yield the 0-based ascent of self."""
+        return self._ascents(step_size=None)
+
+    def _ascents(self, step_size: Optional[int] = None) -> Iterator[int]:
         """Yield the 0-based ascent of self. If step size is specified it only yields
         ascents of that size, otherwise it yields all ascents.
 
         Examples:
-            >>> tuple(Perm((0, 1, 3, 2, 4)).ascents())
+            >>> tuple(Perm((0, 1, 3, 2, 4))._ascents())
             (0, 1, 3)
-            >>> tuple(Perm((0, 1, 3, 2, 4)).ascents(step_size=2))
+            >>> tuple(Perm((0, 1, 3, 2, 4))._ascents(step_size=2))
             (1, 3)
-            >>> tuple(Perm((0, 4, 3, 2, 1)).ascents())
+            >>> tuple(Perm((0, 4, 3, 2, 1))._ascents())
             (0,)
-            >>> tuple(Perm((0, 4, 3, 2, 1)).ascents(step_size=1))
+            >>> tuple(Perm((0, 4, 3, 2, 1))._ascents(step_size=1))
             ()
-            >>> tuple(Perm((3, 2, 1, 0)).ascents())
+            >>> tuple(Perm((3, 2, 1, 0))._ascents())
             ()
         """
         if not (isinstance(step_size, int) or step_size is None):
@@ -864,7 +872,7 @@ class Perm(TupleType, Patt):
             if prev + step_size == curr
         )
 
-    def ascent_set(self, step_size: Union[int, None] = None) -> List[int]:
+    def ascent_set(self, step_size: Optional[int] = None) -> List[int]:
         """Return the list of ascents of self. If step size is specified it only
         returns a list of ascents of that size,
         otherwise it returns list of all ascents.
@@ -879,9 +887,9 @@ class Perm(TupleType, Patt):
             >>> Perm((3, 2, 1, 0)).ascent_set()
             []
         """
-        return list(self.ascents(step_size))
+        return list(self._ascents(step_size))
 
-    def count_ascents(self, step_size: Union[int, None] = None) -> int:
+    def count_ascents(self, step_size: Optional[int] = None) -> int:
         """Count the number of ascents in self. If step size is specified
         if only counts ascents of that size, otherwise it counts all ascents.
 
@@ -895,7 +903,7 @@ class Perm(TupleType, Patt):
             >>> Perm((3, 2, 1, 0)).count_ascents()
             0
         """
-        return sum(1 for _ in self.ascents(step_size))
+        return sum(1 for _ in self._ascents(step_size))
 
     num_ascents = count_ascents
 
