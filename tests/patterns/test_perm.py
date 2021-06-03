@@ -2411,6 +2411,71 @@ def test_count_bounces():
     assert Perm((5, 0, 1, 3, 4, 2)).count_bounces() == 4
 
 
+def test_max_drop_size():
+    assert Perm((0,)).max_drop_size() == 0
+    assert Perm((0, 1)).max_drop_size() == 0
+    assert Perm((1, 0)).max_drop_size() == 1
+    assert Perm((0, 1, 2)).max_drop_size() == 0
+    assert Perm((0, 2, 1)).max_drop_size() == 1
+    assert Perm((1, 0, 2)).max_drop_size() == 1
+    assert Perm((1, 2, 0)).max_drop_size() == 1
+    assert Perm((2, 0, 1)).max_drop_size() == 2
+    assert Perm((2, 1, 0)).max_drop_size() == 2
+    assert Perm((0, 3, 4, 2, 1)).max_drop_size() == 2
+    assert Perm((2, 4, 0, 3, 1)).max_drop_size() == 3
+    assert Perm((4, 3, 1, 2, 0)).max_drop_size() == 4
+    assert Perm((0, 2, 5, 4, 3, 1)).max_drop_size() == 3
+    assert Perm((0, 5, 1, 2, 4, 3)).max_drop_size() == 4
+    assert Perm((1, 2, 0, 4, 5, 3)).max_drop_size() == 1
+    assert Perm((1, 4, 0, 5, 3, 2)).max_drop_size() == 3
+    assert Perm((2, 0, 3, 1, 5, 4)).max_drop_size() == 2
+    assert Perm((2, 3, 1, 4, 5, 0)).max_drop_size() == 2
+    assert Perm((2, 5, 1, 4, 3, 0)).max_drop_size() == 4
+    assert Perm((3, 1, 4, 0, 5, 2)).max_drop_size() == 3
+    assert Perm((3, 4, 2, 1, 5, 0)).max_drop_size() == 3
+    assert Perm((4, 0, 3, 5, 2, 1)).max_drop_size() == 4
+    assert Perm((4, 2, 5, 0, 3, 1)).max_drop_size() == 4
+    assert Perm((4, 5, 3, 1, 2, 0)).max_drop_size() == 4
+    assert Perm((5, 1, 4, 3, 2, 0)).max_drop_size() == 5
+    assert Perm((5, 4, 0, 1, 3, 2)).max_drop_size() == 5
+    assert Perm((0, 5, 6, 1, 2, 3, 4)).max_drop_size() == 4
+    assert Perm((2, 5, 0, 1, 3, 4, 6)).max_drop_size() == 4
+    assert Perm((5, 2, 3, 4, 1, 0, 6)).max_drop_size() == 5
+    assert Perm((6, 7, 2, 1, 3, 4, 5, 0)).max_drop_size() == 6
+    assert Perm((7, 5, 4, 3, 2, 1, 0, 6)).max_drop_size() == 7
+    assert Perm((2, 1, 5, 4, 6, 3, 7, 0)).max_drop_size() == 3
+    assert Perm((2, 1, 6, 5, 4, 3, 0, 7)).max_drop_size() == 4
+    assert Perm((1, 0, 4, 2, 6, 3, 7, 5)).max_drop_size() == 2
+    assert Perm((3, 4, 5, 0, 1, 2, 7, 6)).max_drop_size() == 3
+    assert Perm((0, 5, 1, 6, 2, 3, 4, 7)).max_drop_size() == 4
+    assert Perm((3, 7, 5, 0, 6, 2, 4, 1)).max_drop_size() == 6
+    assert Perm((5, 3, 6, 1, 4, 0, 2, 7)).max_drop_size() == 5
+    assert Perm((4, 3, 2, 7, 6, 5, 0, 1)).max_drop_size() == 4
+    assert Perm((5, 3, 2, 7, 1, 0, 4, 6)).max_drop_size() == 5
+    assert Perm((6, 0, 1, 7, 2, 4, 3, 5)).max_drop_size() == 6
+    assert Perm((1, 6, 5, 4, 2, 3, 7, 0)).max_drop_size() == 5
+    assert Perm((6, 4, 0, 2, 7, 1, 5, 3)).max_drop_size() == 6
+    assert Perm((5, 0, 1, 7, 3, 2, 4, 6)).max_drop_size() == 5
+    assert Perm((1, 5, 0, 2, 4, 3, 7, 6)).max_drop_size() == 4
+    assert Perm((5, 4, 7, 6, 0, 1, 2, 3)).max_drop_size() == 5
+    assert Perm((1, 2, 7, 0, 3, 5, 6, 4)).max_drop_size() == 5
+    assert Perm((7, 5, 0, 3, 4, 2, 1, 6)).max_drop_size() == 7
+    assert Perm((4, 3, 2, 7, 5, 6, 1, 0)).max_drop_size() == 4
+    assert Perm((3, 0, 5, 2, 6, 1, 7, 4)).max_drop_size() == 3
+    assert Perm((7, 3, 5, 0, 6, 2, 1, 4)).max_drop_size() == 7
+    assert Perm((6, 7, 0, 1, 2, 3, 4, 5, 8)).max_drop_size() == 6
+    assert Perm((5, 4, 3, 2, 1, 0, 6, 7, 8)).max_drop_size() == 5
+    assert Perm((9, 8, 3, 2, 7, 6, 5, 4, 1, 0)).max_drop_size() == 9
+    assert Perm((9, 6, 7, 2, 3, 8, 0, 1, 4, 5)).max_drop_size() == 9
+    assert Perm((8, 6, 9, 2, 3, 7, 0, 1, 4, 5)).max_drop_size() == 8
+    assert Perm((3, 1, 4, 0, 2, 5, 6, 7, 8, 9)).max_drop_size() == 3
+    assert Perm((3, 5, 7, 8, 9, 11, 0, 1, 2, 4, 6, 10)).max_drop_size() == 6
+    assert Perm((9, 2, 1, 8, 5, 4, 7, 6, 3, 0, 11, 10)).max_drop_size() == 9
+    assert Perm((1, 5, 6, 7, 10, 11, 0, 2, 3, 4, 8, 9)).max_drop_size() == 6
+    assert Perm((3, 6, 7, 9, 10, 11, 0, 1, 2, 4, 5, 8)).max_drop_size() == 6
+    assert Perm((11, 10, 5, 4, 3, 2, 7, 6, 9, 8, 1, 0)).max_drop_size() == 11
+
+
 def test_count_column_sum_primes():
     assert Perm((0,)).count_column_sum_primes() == 1
     assert Perm((0, 1)).count_column_sum_primes() == 1

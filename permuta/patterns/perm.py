@@ -1150,6 +1150,23 @@ class Perm(TupleType, Patt):
             bounce_arr.append(max(inv[: bounce_arr[-1] + 1]) + 1)
         return sum(n - i for i in bounce_arr)
 
+    def max_drop_size(self):
+        """The maximum drop size of a permutation.
+        See: https://www.findstat.org/StatisticsDatabase/St000141/
+        https://arxiv.org/abs/1306.5428
+        https://mathscinet.ams.org/mathscinet/search/publdoc.html?pg1=MR&s1=MR2673024
+
+        Examples:
+            >>> Perm((0,)).max_drop_size()
+            0
+            >>> Perm((0, 1)).max_drop_size()
+            0
+            >>> Perm((1, 0)).max_drop_size()
+            1
+            >>> Perm((2, 0, 1)).max_drop_size()
+            2"""
+        return max((self[i] - i for i in range(len(self))), default=0)
+
     def inversions(self) -> Iterator[Tuple[int, int]]:
         """Yield the inversions of the permutation, i.e., the pairs i,j
         such that i < j and self(i) > self(j).
