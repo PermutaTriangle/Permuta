@@ -1157,6 +1157,27 @@ class Perm(TupleType, Patt):
             2"""
         return max((self[i] - i for i in range(len(self))), default=0)
 
+    def holeyness(self) -> int:
+        """The holeyness of a permutation."""
+
+        def delta(d_set):
+            return sum(1 for x in d_set if x + 1 not in d_set)
+
+        def set_generator(num):
+            yield ()
+            for y in range(1, num + 1):
+                for x in itertools.combinations(range(num), y):
+                    yield x
+
+        n = len(self)
+        holyness = 0
+        for tmp_set in set_generator(n):
+            h_pi = delta([self[s] for s in tmp_set])
+            h_s = delta(tmp_set)
+            holyness = max(holyness, h_pi - h_s)
+
+        return holyness
+
     def inversions(self) -> Iterator[Tuple[int, int]]:
         """Yield the inversions of the permutation, i.e., the pairs i,j
         such that i < j and self(i) > self(j).
