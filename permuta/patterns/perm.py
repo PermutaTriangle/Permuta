@@ -891,11 +891,19 @@ class Perm(TupleType, Patt):
 
     num_peaks = count_peaks
 
-    def count_column_sum_primes(self):
+    def count_column_sum_primes(self) -> int:
         """Returns the number of primes in the column sums of the two line notation
         of a permutation.
         See: https://www.findstat.org/StatisticsDatabase/St001285/
         https://arxiv.org/abs/1809.01012
+
+        Examples:
+            >>> Perm((0,)).count_column_sum_primes()
+            1
+            >>> Perm((0, 1)).count_column_sum_primes()
+            1
+            >>> Perm((1, 0)).count_column_sum_primes()
+            2
         """
         return sum(1 for idx, val in enumerate(self) if is_prime(val + idx + 2))
         # + 2 because both values are 0 indexed
