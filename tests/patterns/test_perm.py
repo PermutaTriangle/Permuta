@@ -1254,17 +1254,21 @@ def test_ascent_set():
 
 def test_count_ascents():
     assert Perm().count_ascents() == 0
+
     assert Perm((0, 1, 2, 3)).count_ascents() == 3
     assert Perm((0, 1, 2, 3)).count_ascents(step_size=1) == 3
     assert Perm((0, 1, 2, 3)).count_ascents(step_size=2) == 0
+
     assert Perm((3, 2, 1, 0)).count_ascents() == 0
     assert Perm((3, 2, 1, 0)).count_ascents(step_size=1) == 0
     assert Perm((3, 2, 1, 0)).count_ascents(step_size=2) == 0
+
     assert Perm((2, 1, 0, 4, 3, 5)).count_ascents() == 2
     assert Perm((2, 1, 0, 4, 3, 5)).count_ascents(step_size=1) == 0
     assert Perm((2, 1, 0, 4, 3, 5)).count_ascents(step_size=2) == 1
     assert Perm((2, 1, 0, 4, 3, 5)).count_ascents(step_size=3) == 0
     assert Perm((2, 1, 0, 4, 3, 5)).count_ascents(step_size=4) == 1
+
     assert Perm((1, 2, 3, 0, 6, 5, 4)).count_ascents() == 3
     assert Perm((1, 2, 3, 0, 6, 5, 4)).count_ascents(step_size=1) == 2
     assert Perm((1, 2, 3, 0, 6, 5, 4)).count_ascents(step_size=2) == 0
@@ -1272,6 +1276,7 @@ def test_count_ascents():
     assert Perm((1, 2, 3, 0, 6, 5, 4)).count_ascents(step_size=4) == 0
     assert Perm((1, 2, 3, 0, 6, 5, 4)).count_ascents(step_size=5) == 0
     assert Perm((1, 2, 3, 0, 6, 5, 4)).count_ascents(step_size=6) == 1
+
     assert Perm((3, 1, 4, 5, 0, 7, 6, 2)).count_ascents() == 3
     assert Perm((3, 1, 4, 5, 0, 7, 6, 2)).count_ascents(step_size=1) == 1
     assert Perm((3, 1, 4, 5, 0, 7, 6, 2)).count_ascents(step_size=2) == 0

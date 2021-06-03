@@ -8,6 +8,14 @@ PermutationStatisticType = Callable[[Perm], int]
 BijectionType = Dict[Perm, Perm]
 
 
+def _count_descents(perm: Perm) -> int:
+    return perm.count_descents()
+
+
+def _count_ascents(perm: Perm) -> int:
+    return perm.count_ascents()
+
+
 class PermutationStatistic:
     """
     A class for checking preservation of statistics
@@ -19,8 +27,8 @@ class PermutationStatistic:
         ("Number of inversions", Perm.count_inversions),
         ("Number of non-inversions", Perm.count_non_inversions),
         ("Major index", Perm.major_index),
-        ("Number of descents", Perm.count_descents),
-        ("Number of ascents", Perm.count_ascents),
+        ("Number of descents", _count_descents),
+        ("Number of ascents", _count_ascents),
         ("Number of peaks", Perm.count_peaks),
         ("Number of valleys", Perm.count_valleys),
         ("Number of cycles", Perm.count_cycles),
