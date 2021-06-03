@@ -35,6 +35,7 @@ class PermutationStatistic:
         ("Depth", Perm.depth),
         ("Number of bounces", Perm.count_bounces),
         ("Maximum drop size", Perm.max_drop_size),
+        ("Number of primes in the column sums", Perm.count_column_sum_primes),
     )
 
     @staticmethod

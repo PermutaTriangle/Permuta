@@ -2474,3 +2474,34 @@ def test_max_drop_size():
     assert Perm((1, 5, 6, 7, 10, 11, 0, 2, 3, 4, 8, 9)).max_drop_size() == 6
     assert Perm((3, 6, 7, 9, 10, 11, 0, 1, 2, 4, 5, 8)).max_drop_size() == 6
     assert Perm((11, 10, 5, 4, 3, 2, 7, 6, 9, 8, 1, 0)).max_drop_size() == 11
+
+
+def test_count_column_sum_primes():
+    assert Perm((0,)).count_column_sum_primes() == 1
+    assert Perm((0, 1)).count_column_sum_primes() == 1
+    assert Perm((1, 0)).count_column_sum_primes() == 2
+    assert Perm((0, 1, 2)).count_column_sum_primes() == 1
+    assert Perm((0, 2, 1)).count_column_sum_primes() == 3
+    assert Perm((1, 0, 2)).count_column_sum_primes() == 2
+    assert Perm((1, 2, 0)).count_column_sum_primes() == 2
+    assert Perm((2, 0, 1)).count_column_sum_primes() == 2
+    assert Perm((2, 1, 0)).count_column_sum_primes() == 0
+    assert Perm((1, 0, 3, 4, 2)).count_column_sum_primes() == 3
+    assert Perm((3, 2, 1, 4, 0)).count_column_sum_primes() == 3
+    assert Perm((0, 2, 1, 4, 5, 3)).count_column_sum_primes() == 4
+    assert Perm((0, 4, 3, 2, 5, 1)).count_column_sum_primes() == 5
+    assert Perm((1, 2, 0, 4, 5, 3)).count_column_sum_primes() == 3
+    assert Perm((1, 4, 3, 2, 5, 0)).count_column_sum_primes() == 6
+    assert Perm((2, 1, 0, 4, 5, 3)).count_column_sum_primes() == 1
+    assert Perm((2, 4, 3, 1, 5, 0)).count_column_sum_primes() == 4
+    assert Perm((3, 1, 0, 4, 5, 2)).count_column_sum_primes() == 2
+    assert Perm((3, 4, 2, 1, 5, 0)).count_column_sum_primes() == 4
+    assert Perm((4, 1, 0, 3, 5, 2)).count_column_sum_primes() == 1
+    assert Perm((4, 3, 2, 1, 5, 0)).count_column_sum_primes() == 2
+    assert Perm((5, 1, 0, 3, 4, 2)).count_column_sum_primes() == 1
+    assert Perm((5, 3, 2, 1, 4, 0)).count_column_sum_primes() == 2
+    assert Perm((0, 1, 3, 2, 5, 6, 4)).count_column_sum_primes() == 5
+    assert Perm((0, 1, 5, 4, 3, 6, 2)).count_column_sum_primes() == 2
+    assert Perm((0, 2, 3, 1, 5, 6, 4)).count_column_sum_primes() == 5
+    assert Perm((0, 2, 5, 4, 3, 6, 1)).count_column_sum_primes() == 3
+    assert Perm((0, 3, 2, 1, 5, 6, 4)).count_column_sum_primes() == 3
