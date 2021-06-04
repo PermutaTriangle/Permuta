@@ -2821,3 +2821,49 @@ def test_holeyness():
     assert Perm((0, 2, 3, 1, 5, 6, 4)).holeyness() == 2
     assert Perm((0, 2, 5, 4, 3, 6, 1)).holeyness() == 2
     assert Perm((0, 3, 2, 1, 5, 6, 4)).holeyness() == 1
+
+
+def test_count_stack_sorts():
+    assert Perm(()).count_stack_sorts() == 0
+    assert Perm((0,)).count_stack_sorts() == 0
+    assert Perm((0, 1)).count_stack_sorts() == 0
+    assert Perm((1, 0)).count_stack_sorts() == 1
+    assert Perm((0, 1, 2)).count_stack_sorts() == 0
+    assert Perm((0, 2, 1)).count_stack_sorts() == 1
+    assert Perm((1, 0, 2)).count_stack_sorts() == 1
+    assert Perm((1, 2, 0)).count_stack_sorts() == 2
+    assert Perm((2, 0, 1)).count_stack_sorts() == 1
+    assert Perm((2, 1, 0)).count_stack_sorts() == 1
+    assert Perm((1, 4, 3, 0, 2)).count_stack_sorts() == 2
+    assert Perm((0, 1, 3, 2, 4, 5)).count_stack_sorts() == 1
+    assert Perm((0, 4, 3, 2, 1, 5)).count_stack_sorts() == 1
+    assert Perm((1, 2, 5, 4, 0, 3)).count_stack_sorts() == 3
+    assert Perm((2, 0, 3, 1, 4, 5)).count_stack_sorts() == 2
+    assert Perm((2, 4, 3, 1, 0, 5)).count_stack_sorts() == 2
+    assert Perm((3, 1, 5, 4, 0, 2)).count_stack_sorts() == 3
+    assert Perm((4, 0, 2, 1, 3, 5)).count_stack_sorts() == 1
+    assert Perm((4, 3, 2, 1, 0, 5)).count_stack_sorts() == 1
+    assert Perm((5, 1, 4, 3, 0, 2)).count_stack_sorts() == 2
+    assert Perm((0, 2, 6, 1, 3, 4, 5)).count_stack_sorts() == 2
+    assert Perm((3, 2, 4, 1, 5, 6, 0)).count_stack_sorts() == 6
+    assert Perm((7, 6, 5, 4, 3, 2, 1, 0)).count_stack_sorts() == 1
+    assert Perm((7, 1, 0, 2, 3, 4, 5, 6)).count_stack_sorts() == 1
+    assert Perm((1, 0, 4, 3, 5, 2, 7, 6)).count_stack_sorts() == 3
+    assert Perm((2, 0, 3, 1, 5, 7, 4, 6)).count_stack_sorts() == 2
+    assert Perm((0, 5, 6, 1, 2, 3, 4, 7)).count_stack_sorts() == 2
+    assert Perm((5, 4, 7, 6, 1, 0, 3, 2)).count_stack_sorts() == 3
+    assert Perm((0, 5, 1, 4, 2, 6, 3, 7)).count_stack_sorts() == 3
+    assert Perm((1, 0, 7, 3, 6, 4, 5, 2)).count_stack_sorts() == 3
+    assert Perm((1, 0, 4, 2, 7, 6, 5, 3)).count_stack_sorts() == 2
+    assert Perm((2, 1, 4, 0, 6, 3, 7, 5)).count_stack_sorts() == 3
+    assert Perm((5, 4, 1, 0, 6, 2, 7, 3)).count_stack_sorts() == 4
+    assert Perm((6, 5, 7, 0, 2, 1, 3, 4)).count_stack_sorts() == 3
+    assert Perm((4, 3, 6, 0, 7, 2, 1, 5)).count_stack_sorts() == 4
+    assert Perm((6, 0, 4, 3, 7, 1, 5, 2)).count_stack_sorts() == 4
+    assert Perm((0, 7, 8, 1, 2, 3, 4, 5, 6)).count_stack_sorts() == 2
+    assert Perm((9, 6, 5, 4, 3, 2, 1, 8, 7, 0)).count_stack_sorts() == 7
+    assert Perm((8, 4, 9, 1, 5, 6, 0, 2, 3, 7)).count_stack_sorts() == 3
+    assert Perm((9, 8, 7, 5, 6, 3, 4, 0, 1, 2)).count_stack_sorts() == 2
+    assert Perm((2, 3, 7, 8, 10, 11, 0, 1, 4, 5, 6, 9)).count_stack_sorts() == 6
+    assert Perm((2, 3, 5, 9, 10, 11, 0, 1, 4, 6, 7, 8)).count_stack_sorts() == 6
+    assert Perm((1, 0, 3, 2, 5, 4, 11, 10, 9, 8, 7, 6)).count_stack_sorts() == 1

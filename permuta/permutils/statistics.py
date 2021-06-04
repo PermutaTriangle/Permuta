@@ -45,6 +45,7 @@ class PermutationStatistic:
         ("Maximum drop size", Perm.max_drop_size),
         ("Number of primes in the column sums", Perm.count_column_sum_primes),
         ("Holeyness of a permutation", Perm.holeyness),
+        ("Number of stack-sorts needed", Perm.count_stack_sorts),
     )
 
     @staticmethod

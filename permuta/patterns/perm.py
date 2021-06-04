@@ -1259,6 +1259,36 @@ class Perm(TupleType, Patt):
             for tmp_set in _set_generator(len(self))
         )
 
+    def count_stack_sorts(self):
+        """The number of stack-sorts needed to sort a permutation.
+        See: https://www.findstat.org/StatisticsDatabase/St000028/
+        https://mathscinet.ams.org/mathscinet/search/publdoc.html?pg1=MR&s1=MR2028290
+        https://arxiv.org/abs/1110.1219
+        https://mathscinet.ams.org/mathscinet/search/publdoc.html?pg1=MR&s1=MR0445948
+        https://mathscinet.ams.org/mathscinet/search/publdoc.html?pg1=MR&s1=MR1168135
+
+        Examples:
+        >>> Perm(()).count_stack_sorts()
+        0
+        >>> Perm((0,)).count_stack_sorts()
+        0
+        >>> Perm((0, 1)).count_stack_sorts()
+        0
+        >>> Perm((1, 0)).count_stack_sorts()
+        1
+        >>> Perm((1, 2, 0)).count_stack_sorts()
+        2
+        >>> Perm((2, 1, 0)).count_stack_sorts()
+        1
+        """
+        num_sorts = 0
+        identity = list(self.identity(len(self)))
+        perm_list = list(self)
+        while perm_list != identity:
+            perm_list = self._stack_sort(perm_list)
+            num_sorts += 1
+        return num_sorts
+
     def inversions(self) -> Iterator[Tuple[int, int]]:
         """Yield the inversions of the permutation, i.e., the pairs i,j
         such that i < j and self(i) > self(j).
