@@ -2115,6 +2115,149 @@ class Perm(TupleType, Patt):
 
     permute = apply
 
+    @staticmethod
+    def _is_sorted(lis: List[int]) -> bool:
+        return all(val == idx for idx, val in enumerate(lis))
+
+    @staticmethod
+    def _stack_sort(perm_slice: List[int]) -> List[int]:
+        """Helper function for the stack sorting function on perms"""
+        n = len(perm_slice)
+        if n in (0, 1):
+            return perm_slice
+        max_i, max_v = max(enumerate(perm_slice), key=lambda pos_elem: pos_elem[1])
+        # Recursively solve without largest
+        if max_i == 0:
+            n_lis = Perm._stack_sort(perm_slice[1:n])
+        elif max_i == n - 1:
+            n_lis = Perm._stack_sort(perm_slice[0 : n - 1])
+        else:
+            n_lis = Perm._stack_sort(perm_slice[0:max_i])
+            n_lis.extend(Perm._stack_sort(perm_slice[max_i + 1 : n]))
+        n_lis.append(max_v)
+        return n_lis
+
+    def stack_sort(self) -> "Perm":
+        """Stack sorting the permutation"""
+        return Perm(Perm._stack_sort(list(self)))
+
+    def stack_sortable(self) -> bool:
+        """Returns true if perm is stack sortable."""
+        return self.stack_sort().is_increasing()
+
+    @staticmethod
+    def _bubble_sort(perm_slice: List[int]) -> List[int]:
+        """Helper function for the bubble sorting function on perms"""
+        n = len(perm_slice)
+        if n in (0, 1):
+            return perm_slice
+        max_i, max_v = max(enumerate(perm_slice), key=lambda pos_elem: pos_elem[1])
+        # Recursively solve without largest
+        if max_i == 0:
+            n_lis = perm_slice[1:n]
+        elif max_i == n - 1:
+            n_lis = Perm._bubble_sort(perm_slice[0 : n - 1])
+        else:
+            n_lis = Perm._bubble_sort(perm_slice[0:max_i])
+            n_lis.extend(perm_slice[max_i + 1 : n])
+        n_lis.append(max_v)
+        return n_lis
+
+    def bubble_sort(self) -> "Perm":
+        """Bubble sorting the permutation"""
+        return Perm(Perm._bubble_sort(list(self)))
+
+    def bubble_sortable(self) -> bool:
+        """Returns true if perm is stack sortable."""
+        return self.bubble_sort().is_increasing()
+
+    @staticmethod
+    def _quick_sort(perm_slice: List[int]) -> List[int]:
+        """Helper function for the quick sorting function on perms"""
+        assert not perm_slice or set(perm_slice) == set(
+            range(min(perm_slice), max(perm_slice) + 1)
+        )
+        n = len(perm_slice)
+        if n == 0:
+            return perm_slice
+        maxind = -1
+        # Note that perm does not need standardizing as sfp uses left to right maxima.
+        for maxind in Perm(perm_slice).strong_fixed_points():
+            pass
+        if maxind != -1:
+            lis: List[int] = (
+                Perm._quick_sort(perm_slice[:maxind])
+                + [perm_slice[maxind]]
+                + Perm._quick_sort(perm_slice[maxind + 1 :])
+            )
+        else:
+            firstval = perm_slice[0]
+            lis = (
+                list(filter(lambda x: x < firstval, perm_slice))
+                + [perm_slice[0]]
+                + list(filter(lambda x: x > firstval, perm_slice))
+            )
+        return lis
+
+    def quick_sort(self) -> "Perm":
+        """Quick sorting the permutation"""
+        return Perm(Perm._quick_sort(list(self)))
+
+    def quick_sortable(self) -> bool:
+        """Returns true if perm is quicksort sortable."""
+        return self.quick_sort().is_increasing()
+
+    def bkv_sortable(self, patterns: Tuple[Patt, ...] = ()) -> bool:
+        """Check if a permutation is BKV sortable.
+        See:
+            https://arxiv.org/pdf/1907.08142.pdf
+            https://arxiv.org/pdf/2004.01812.pdf
+        """
+        # See
+        n = len(self)
+        inp = collections.deque(self)
+        # the right stack read from top to bottom
+        # the left stack read from top to bottom
+        right_stack: Deque[int] = collections.deque([])
+        left_stack: Deque[int] = collections.deque([])
+        expected = 0
+        print(self)
+        while expected < n:
+            print("inp", inp)
+            print("left_stack", left_stack)
+            print("right_stack", right_stack)
+            print("------------------------------")
+            if inp:
+                right_stack.appendleft(inp[0])
+                if Perm.to_standard(right_stack).avoids(*patterns):
+                    inp.popleft()
+                    continue
+                right_stack.popleft()
+
+            if right_stack:
+                left_stack.appendleft(right_stack[0])
+                if Perm.to_standard(left_stack).is_increasing():
+                    right_stack.popleft()
+                    continue
+                left_stack.popleft()
+
+            assert left_stack
+            # Normally, we would gather elements from left stack but since we only care
+            # about wether it sorts the permutation, we just compare it against
+            # expected.
+            if expected != left_stack.popleft():
+                return False
+            expected += 1
+        return True
+
+    def west_2_stack_sortable(self) -> bool:
+        """Returns true if perm can be sorted by two passes through a stack"""
+        return self.stack_sort().stack_sort().is_increasing()
+
+    def west_3_stack_sortable(self) -> bool:
+        """Returns true if perm can be sorted by three passes through a stack"""
+        return self.stack_sort().stack_sort().stack_sort().is_increasing()
+
     def ascii_plot(self, cell_size: int = 1) -> str:
         """Return an ascii plot of the given Permutation.
 

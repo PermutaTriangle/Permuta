@@ -1,10 +1,11 @@
 import itertools
 import random
 from collections import deque
+from math import factorial
 
 import pytest
 
-from permuta import Perm
+from permuta import MeshPatt, Perm
 
 
 def test_from_iterable_validated():
@@ -2474,6 +2475,199 @@ def test_max_drop_size():
     assert Perm((1, 5, 6, 7, 10, 11, 0, 2, 3, 4, 8, 9)).max_drop_size() == 6
     assert Perm((3, 6, 7, 9, 10, 11, 0, 1, 2, 4, 5, 8)).max_drop_size() == 6
     assert Perm((11, 10, 5, 4, 3, 2, 7, 6, 9, 8, 1, 0)).max_drop_size() == 11
+
+
+def test_stack_sortable():
+    assert Perm(()).stack_sortable()
+    assert Perm((0,)).stack_sortable()
+    assert Perm((0, 1)).stack_sortable()
+    assert Perm((1, 0)).stack_sortable()
+    assert Perm((0, 1, 2)).stack_sortable()
+    assert Perm((0, 2, 1)).stack_sortable()
+    assert Perm((1, 0, 2)).stack_sortable()
+    assert not Perm((1, 2, 0)).stack_sortable()
+    assert Perm((2, 0, 1)).stack_sortable()
+    assert Perm((2, 1, 0)).stack_sortable()
+    assert Perm((2, 1, 0, 4, 3)).stack_sortable()
+    assert not Perm((1, 4, 3, 0, 8, 5, 2, 9, 7, 6)).stack_sortable()
+    assert not Perm((1, 3, 0, 2)).stack_sortable()
+    assert Perm((3, 0, 1, 2)).stack_sortable()
+    assert not Perm((6, 2, 4, 3, 7, 1, 5, 0)).stack_sortable()
+    assert not Perm((4, 8, 5, 0, 6, 1, 7, 3, 2)).stack_sortable()
+    assert Perm((0, 1, 3, 2)).stack_sortable()
+    assert Perm((3, 0, 2, 1)).stack_sortable()
+    assert not Perm((1, 0, 7, 2, 5, 4, 3, 8, 9, 6)).stack_sortable()
+    assert not Perm((4, 1, 5, 2, 6, 0, 3, 8, 7, 9)).stack_sortable()
+    assert Perm((0, 12, 11, 10, 9, 1, 5, 4, 2, 3, 6, 7, 8, 14, 13)).stack_sortable()
+
+
+def test_bubble_sortable():
+    enumeration = [1]
+    enumeration.extend([2 ** i for i in range(10)])
+    assert Perm(()).bubble_sortable()
+    assert Perm((0,)).bubble_sortable()
+    assert Perm((0, 1)).bubble_sortable()
+    assert Perm((1, 0)).bubble_sortable()
+    assert Perm((0, 1, 2)).bubble_sortable()
+    assert Perm((0, 2, 1)).bubble_sortable()
+    assert Perm((1, 0, 2)).bubble_sortable()
+    assert not Perm((1, 2, 0)).bubble_sortable()
+    assert Perm((2, 0, 1)).bubble_sortable()
+    assert not Perm((2, 1, 0)).bubble_sortable()
+    assert Perm((2, 0, 1, 3)).bubble_sortable()
+    assert not Perm((1, 4, 3, 2, 0)).bubble_sortable()
+    assert not Perm((0, 1, 5, 4, 2, 3)).bubble_sortable()
+    assert not Perm((1, 3, 4, 0, 6, 2, 5, 7)).bubble_sortable()
+    assert not Perm((1, 5, 6, 7, 0, 3, 2, 4)).bubble_sortable()
+    assert not Perm((2, 3, 1, 6, 4, 7, 5, 0)).bubble_sortable()
+    assert not Perm((2, 5, 1, 4, 7, 0, 6, 3)).bubble_sortable()
+    assert not Perm((3, 0, 4, 5, 7, 6, 1, 2)).bubble_sortable()
+    assert not Perm((4, 0, 7, 5, 3, 6, 2, 1)).bubble_sortable()
+    assert not Perm((6, 5, 2, 0, 3, 7, 1, 8, 4)).bubble_sortable()
+    for i in range(4, 7):
+        assert (
+            sum(1 for p in Perm.of_length(i) if p.bubble_sortable()) == enumeration[i]
+        )
+    patts = (Perm((1, 2, 0)), Perm((2, 1, 0)))
+    for i in range(20):
+        p = Perm.random(random.randint(5, 10))
+        if p.avoids(*patts):
+            assert p.bubble_sortable()
+        else:
+            assert not p.bubble_sortable()
+
+
+def test_quick_sortable():
+    enumeration = [1, 1, 2, 5, 12, 28, 65, 151, 351, 816]
+    for i in range(4, 7):
+        assert sum(1 for p in Perm.of_length(i) if p.quick_sortable()) == enumeration[i]
+    assert Perm(()).quick_sortable()
+    assert Perm((0,)).quick_sortable()
+    assert Perm((0, 1)).quick_sortable()
+    assert Perm((1, 0)).quick_sortable()
+    assert Perm((0, 1, 2)).quick_sortable()
+    assert Perm((0, 2, 1)).quick_sortable()
+    assert Perm((1, 0, 2)).quick_sortable()
+    assert Perm((1, 2, 0)).quick_sortable()
+    assert Perm((2, 0, 1)).quick_sortable()
+    assert not Perm((2, 1, 0)).quick_sortable()
+    assert not Perm((2, 1, 0, 3)).quick_sortable()
+    assert not Perm((2, 3, 1, 0)).quick_sortable()
+    assert not Perm((3, 4, 2, 1, 0)).quick_sortable()
+    assert not Perm((4, 3, 2, 0, 1)).quick_sortable()
+    assert Perm((0, 2, 1, 3, 4, 5)).quick_sortable()
+    assert Perm((0, 2, 3, 4, 5, 1)).quick_sortable()
+    assert not Perm((5, 0, 1, 4, 3, 2, 6)).quick_sortable()
+    assert not Perm((3, 6, 5, 4, 7, 2, 0, 1)).quick_sortable()
+    assert not Perm((6, 9, 7, 2, 3, 0, 5, 4, 1, 8)).quick_sortable()
+    assert not Perm((7, 5, 0, 4, 3, 1, 9, 2, 6, 8)).quick_sortable()
+
+
+def test_bkv_sortable():
+    patts_to_enumeration = {
+        (Perm((0, 1, 2)), Perm((0, 2, 1))): [1, 1, 2, 5, 14, 42, 132, 429],
+        (Perm((1, 2, 0)), Perm((0, 2, 1))): [1, 1, 2, 6, 22, 90, 394, 1806],
+        (): [1, 1, 2, 5, 14, 42, 132, 429],
+        (Perm((2, 1, 0)),): [1, 1, 2, 4, 8, 16, 32, 64],
+        (Perm((2, 1, 0, 3)),): [1, 1, 2, 5, 13, 34, 89, 233],
+        (Perm((3, 1, 0, 2)),): [1, 1, 2, 5, 13, 34, 89, 233],
+        (Perm((3, 2, 0, 1)),): [1, 1, 2, 5, 13, 34, 89, 233],
+        (Perm((3, 2, 1, 0)),): [1, 1, 2, 5, 13, 34, 89, 233],
+        (Perm((2, 1, 0, 3, 4)),): [1, 1, 2, 5, 14, 41, 121, 355],
+        (Perm((4, 1, 0, 2, 3)),): [1, 1, 2, 5, 14, 41, 121, 355],
+        (Perm((4, 3, 0, 1, 2)),): [1, 1, 2, 5, 14, 41, 121, 356],
+        (Perm((2, 1, 0, 4, 3)),): [1, 1, 2, 5, 14, 41, 122, 365],
+        (Perm((3, 1, 0, 2, 4)),): [1, 1, 2, 5, 14, 41, 122, 365],
+        (Perm((3, 2, 0, 1, 4)),): [1, 1, 2, 5, 14, 41, 122, 365],
+        (Perm((3, 2, 1, 0, 4)),): [1, 1, 2, 5, 14, 41, 122, 365],
+        (Perm((4, 1, 0, 3, 2)),): [1, 1, 2, 5, 14, 41, 122, 365],
+        (Perm((4, 2, 0, 1, 3)),): [1, 1, 2, 5, 14, 41, 122, 365],
+        (Perm((4, 2, 1, 0, 3)),): [1, 1, 2, 5, 14, 41, 122, 365],
+        (Perm((4, 3, 0, 2, 1)),): [1, 1, 2, 5, 14, 41, 122, 365],
+        (Perm((4, 3, 1, 0, 2)),): [1, 1, 2, 5, 14, 41, 122, 365],
+        (Perm((4, 3, 2, 0, 1)),): [1, 1, 2, 5, 14, 41, 122, 365],
+        (Perm((4, 3, 2, 1, 0)),): [1, 1, 2, 5, 14, 41, 122, 365],
+    }
+
+    all_patts = patts_to_enumeration.keys()
+    compares = 7  # can be increased to 8 at most but slow
+    res = {k: [0] * compares for k in all_patts}
+    for i in range(compares):
+        for perm in Perm.of_length(i):
+            for k in all_patts:
+                if perm.bkv_sortable(k):
+                    res[k][i] += 1
+    slicer = compares - 8
+    if slicer == 0:
+        slicer = 8
+    assert all(res[pat] == patts_to_enumeration[pat][:slicer] for pat in all_patts)
+    assert Perm((0, 1)).bkv_sortable(())
+    assert not Perm((7, 6, 9, 2, 0, 3, 8, 1, 5, 4)).bkv_sortable((Perm((0, 2, 1)),))
+    assert not Perm((4, 5, 2, 6, 7, 8, 1, 0, 3)).bkv_sortable((Perm((0, 1)),))
+    assert Perm((2, 0, 1, 3, 4, 5, 6)).bkv_sortable((Perm((2, 0, 1, 3)),))
+    assert not Perm((5, 2, 1, 0, 3, 4)).bkv_sortable((Perm((2, 1, 0)), Perm((0, 2, 1))))
+    assert Perm((3, 2, 1, 0, 4)).bkv_sortable(())
+    assert not Perm((4, 1, 2, 3, 0, 5)).bkv_sortable((Perm((0, 2, 1)),))
+    assert Perm((2, 0, 1)).bkv_sortable((Perm((0, 1)),))
+    assert Perm((2, 1, 0)).bkv_sortable((Perm((2, 0, 1, 3)),))
+    assert Perm((5, 3, 1, 0, 4, 2)).bkv_sortable((Perm((2, 1, 0)), Perm((0, 2, 1))))
+    assert Perm((0,)).bkv_sortable(())
+    assert Perm((2, 1, 3, 0)).bkv_sortable((Perm((0, 2, 1)),))
+    assert Perm((0,)).bkv_sortable((Perm((0, 1)),))
+    assert not Perm((6, 4, 0, 5, 8, 3, 2, 7, 1)).bkv_sortable((Perm((2, 0, 1, 3)),))
+    assert Perm(()).bkv_sortable((Perm((2, 1, 0)), Perm((0, 2, 1))))
+    assert not Perm((4, 1, 3, 2, 0)).bkv_sortable(())
+    assert not Perm((1, 2, 0, 3)).bkv_sortable((Perm((0, 2, 1)),))
+    assert Perm(()).bkv_sortable((Perm((0, 1)),))
+    assert not Perm((1, 5, 4, 2, 0, 3)).bkv_sortable((Perm((2, 0, 1, 3)),))
+    assert Perm(()).bkv_sortable((Perm((2, 1, 0)), Perm((0, 2, 1))))
+
+
+def test_west_2_stack_sortable():
+    eq_patt_avoidance = (Perm((1, 2, 3, 0)), MeshPatt(Perm((2, 1, 3, 0)), {(1, 4)}))
+    for _ in range(100):
+        if random.randint(0, 10) < 1:
+            p = Perm.random(random.randint(0, 3))
+        else:
+            p = Perm.random(random.randint(4, 10))
+        if p.avoids(*eq_patt_avoidance):
+            assert p.west_2_stack_sortable()
+        else:
+            assert not p.west_2_stack_sortable()
+    for n in (5, 6, 7):
+        assert sum(
+            1 for p in Perm.of_length(n) if p.west_2_stack_sortable()
+        ) == 2 * factorial(3 * n) / (factorial(n + 1) * factorial(2 * n + 1))
+
+
+def test_west_3_stack_sortable():
+    assert Perm(()).west_3_stack_sortable()
+    assert Perm((0,)).west_3_stack_sortable()
+    assert Perm((0, 1)).west_3_stack_sortable()
+    assert Perm((1, 0)).west_3_stack_sortable()
+    assert Perm((0, 1, 2)).west_3_stack_sortable()
+    assert Perm((0, 2, 1)).west_3_stack_sortable()
+    assert Perm((1, 0, 2)).west_3_stack_sortable()
+    assert Perm((1, 2, 0)).west_3_stack_sortable()
+    assert Perm((2, 0, 1)).west_3_stack_sortable()
+    assert Perm((2, 1, 0)).west_3_stack_sortable()
+    assert Perm((0, 1, 2, 3)).west_3_stack_sortable()
+    assert Perm((0, 1, 3, 2)).west_3_stack_sortable()
+    assert Perm((2, 0, 5, 4, 1, 3)).west_3_stack_sortable()
+    assert not Perm((3, 2, 0, 4, 5, 1)).west_3_stack_sortable()
+    assert Perm((4, 6, 3, 2, 1, 0, 5)).west_3_stack_sortable()
+    assert Perm((6, 2, 3, 0, 5, 1, 4)).west_3_stack_sortable()
+    assert Perm((0, 3, 6, 2, 5, 1, 7, 4)).west_3_stack_sortable()
+    assert Perm((0, 3, 7, 8, 1, 6, 4, 2, 5)).west_3_stack_sortable()
+    assert not Perm((0, 2, 3, 4, 6, 5, 1)).west_3_stack_sortable()
+    assert not Perm((2, 3, 0, 4, 6, 1, 5)).west_3_stack_sortable()
+    assert not Perm((5, 4, 8, 0, 3, 6, 7, 2, 1)).west_3_stack_sortable()
+    assert not Perm((0, 3, 7, 5, 1, 4, 8, 6, 2, 9)).west_3_stack_sortable()
+    assert not Perm((5, 1, 11, 10, 9, 8, 6, 0, 4, 3, 7, 2)).west_3_stack_sortable()
+    assert not Perm(
+        (4, 6, 9, 10, 13, 2, 0, 5, 8, 12, 3, 1, 11, 7)
+    ).west_3_stack_sortable()
+    assert 3494 == sum(1 for p in Perm.of_length(7) if p.west_3_stack_sortable())
 
 
 def test_count_column_sum_primes():
