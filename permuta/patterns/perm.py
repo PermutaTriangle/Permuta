@@ -754,19 +754,13 @@ class Perm(TupleType, Patt):
             (2,)
             >>> tuple(Perm((0, 1, 3, 2, 4)).descents(step_size=2))
             ()
-            >>> tuple(Perm((3, 2, 1, 0)).descents())
-            (0, 1, 2)
-            >>> tuple(Perm((3, 2, 1, 0)).descents(step_size=2))
-            ()
+            >>> tuple(Perm((3, 1, 0, 2)).descents())
+            (0, 1)
+            >>> tuple(Perm((3, 1, 0, 2)).descents(step_size=2))
+            (0,)
             >>> tuple(Perm((0, 1, 2)).descents())
             ()
-            >>> tuple(Perm((0, 1, 2)).descents(step_size=2))
-            ()
         """
-        if not (isinstance(step_size, int) or step_size is None):
-            raise Exception(
-                f"Step size has to be of type int, not {type(step_size).__name__}"
-            )
 
         if step_size is None:
             return (
@@ -778,7 +772,7 @@ class Perm(TupleType, Patt):
             )
 
         if step_size < 1:
-            raise Exception("Step size: can't be negative.")
+            raise ValueError("Step size has to be 1 or more")
 
         return (
             idx
@@ -794,10 +788,10 @@ class Perm(TupleType, Patt):
         otherwise it returns list of all descents.
 
         Examples:
-            >>> Perm((0, 1, 3, 2, 4)).descent_set()
+            >>> Perm((0, 4, 3, 1, 2)).descent_set()
+            [1, 2]
+            >>> Perm((0, 4, 3, 1, 2)).descent_set(step_size=2)
             [2]
-            >>> Perm((0, 1, 3, 2, 4)).descent_set(step_size=2)
-            []
             >>> Perm((3, 2, 1, 0)).descent_set()
             [0, 1, 2]
             >>> Perm((0, 1, 2)).descent_set()
@@ -810,10 +804,10 @@ class Perm(TupleType, Patt):
         if only counts descents of that size, otherwise it counts all descents.
 
         Examples:
-            >>> Perm((0, 1, 3, 2, 4)).count_descents()
+            >>> Perm((0, 4, 3, 1, 2)).count_descents()
+            2
+            >>> Perm((0, 4, 3, 1, 2)).count_descents(step_size=2)
             1
-            >>> Perm((0, 1, 3, 2, 4)).count_descents(step_size=2)
-            0
             >>> Perm((3, 2, 1, 0)).count_descents()
             3
             >>> Perm((0, 1, 2)).count_descents()
@@ -839,10 +833,6 @@ class Perm(TupleType, Patt):
             >>> tuple(Perm((3, 2, 1, 0)).ascents())
             ()
         """
-        if not (isinstance(step_size, int) or step_size is None):
-            raise Exception(
-                f"Step size has to be of type int, not {type(step_size).__name__}"
-            )
 
         if step_size is None:
             return (
@@ -854,7 +844,7 @@ class Perm(TupleType, Patt):
             )
 
         if step_size < 1:
-            raise Exception("Step size: can't be negative.")
+            raise ValueError("Step size has to be 1 or more")
 
         return (
             idx
