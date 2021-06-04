@@ -26,6 +26,7 @@ from typing import (
 )
 
 from permuta.misc import HTMLViewer
+from permuta.misc.math import is_prime
 
 from .patt import Patt
 
@@ -890,6 +891,25 @@ class Perm(TupleType, Patt):
 
     num_peaks = count_peaks
 
+    def count_column_sum_primes(self) -> int:
+        """Returns the number of primes in the column sums of the two line notation
+        of a permutation.
+        See: https://www.findstat.org/StatisticsDatabase/St001285/
+        https://arxiv.org/abs/1809.01012
+
+        Examples:
+            >>> Perm((0,)).count_column_sum_primes()
+            1
+            >>> Perm((0, 1)).count_column_sum_primes()
+            1
+            >>> Perm((1, 0)).count_column_sum_primes()
+            2
+        """
+        return sum(1 for idx, val in enumerate(self) if is_prime(val + idx + 2))
+        # + 2 because both values are 0 indexed
+
+    num_column_sum_primes = count_column_sum_primes
+
     def valleys(self) -> Iterator[int]:
         """Yield the indices of the valleys of self. The i-th element of a perm is a
         valley if self[i-1] > self[i] < self[i+1].
@@ -1130,7 +1150,8 @@ class Perm(TupleType, Patt):
             >>> Perm((0, 1)).count_bounces()
             1
             >>> Perm((1, 0)).count_bounces()
-            0"""
+            0
+        """
         n = len(self)
         if n == 0:
             return 0
@@ -1154,8 +1175,38 @@ class Perm(TupleType, Patt):
             >>> Perm((1, 0)).max_drop_size()
             1
             >>> Perm((2, 0, 1)).max_drop_size()
-            2"""
-        return max((self[i] - i for i in range(len(self))), default=0)
+            2
+        """
+        return max((val - idx for idx, val in enumerate(self)), default=0)
+
+    def holeyness(self) -> int:
+        """The holeyness of a permutation.
+        See: https://www.findstat.org/StatisticsDatabase/St001469/
+        https://mathoverflow.net/questions/340179/how-rare-are-unholey-permutations
+
+        Examples:
+            >>> Perm((1, 0)).holeyness()
+            0
+            >>> Perm((0, 1, 2)).holeyness()
+            0
+            >>> Perm((0, 2, 1)).holeyness()
+            1
+            >>> Perm((1, 0, 2)).holeyness()
+            1
+        """
+
+        def _delta(d_set: Set[int]) -> int:
+            return sum(1 for x in d_set if x + 1 not in d_set)
+
+        def _set_generator(num: int) -> Iterator[Set[int]]:
+            for y in range(0, num + 1):
+                for x in itertools.combinations(range(num), y):
+                    yield set(x)
+
+        return max(
+            _delta({self[s] for s in tmp_set}) - _delta(tmp_set)
+            for tmp_set in _set_generator(len(self))
+        )
 
     def inversions(self) -> Iterator[Tuple[int, int]]:
         """Yield the inversions of the permutation, i.e., the pairs i,j

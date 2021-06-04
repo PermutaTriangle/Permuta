@@ -2668,3 +2668,66 @@ def test_west_3_stack_sortable():
         (4, 6, 9, 10, 13, 2, 0, 5, 8, 12, 3, 1, 11, 7)
     ).west_3_stack_sortable()
     assert 3494 == sum(1 for p in Perm.of_length(7) if p.west_3_stack_sortable())
+
+
+def test_count_column_sum_primes():
+    assert Perm((0,)).count_column_sum_primes() == 1
+    assert Perm((0, 1)).count_column_sum_primes() == 1
+    assert Perm((1, 0)).count_column_sum_primes() == 2
+    assert Perm((0, 1, 2)).count_column_sum_primes() == 1
+    assert Perm((0, 2, 1)).count_column_sum_primes() == 3
+    assert Perm((1, 0, 2)).count_column_sum_primes() == 2
+    assert Perm((1, 2, 0)).count_column_sum_primes() == 2
+    assert Perm((2, 0, 1)).count_column_sum_primes() == 2
+    assert Perm((2, 1, 0)).count_column_sum_primes() == 0
+    assert Perm((1, 0, 3, 4, 2)).count_column_sum_primes() == 3
+    assert Perm((3, 2, 1, 4, 0)).count_column_sum_primes() == 3
+    assert Perm((0, 2, 1, 4, 5, 3)).count_column_sum_primes() == 4
+    assert Perm((0, 4, 3, 2, 5, 1)).count_column_sum_primes() == 5
+    assert Perm((1, 2, 0, 4, 5, 3)).count_column_sum_primes() == 3
+    assert Perm((1, 4, 3, 2, 5, 0)).count_column_sum_primes() == 6
+    assert Perm((2, 1, 0, 4, 5, 3)).count_column_sum_primes() == 1
+    assert Perm((2, 4, 3, 1, 5, 0)).count_column_sum_primes() == 4
+    assert Perm((3, 1, 0, 4, 5, 2)).count_column_sum_primes() == 2
+    assert Perm((3, 4, 2, 1, 5, 0)).count_column_sum_primes() == 4
+    assert Perm((4, 1, 0, 3, 5, 2)).count_column_sum_primes() == 1
+    assert Perm((4, 3, 2, 1, 5, 0)).count_column_sum_primes() == 2
+    assert Perm((5, 1, 0, 3, 4, 2)).count_column_sum_primes() == 1
+    assert Perm((5, 3, 2, 1, 4, 0)).count_column_sum_primes() == 2
+    assert Perm((0, 1, 3, 2, 5, 6, 4)).count_column_sum_primes() == 5
+    assert Perm((0, 1, 5, 4, 3, 6, 2)).count_column_sum_primes() == 2
+    assert Perm((0, 2, 3, 1, 5, 6, 4)).count_column_sum_primes() == 5
+    assert Perm((0, 2, 5, 4, 3, 6, 1)).count_column_sum_primes() == 3
+    assert Perm((0, 3, 2, 1, 5, 6, 4)).count_column_sum_primes() == 3
+
+
+def test_holeyness():
+    assert Perm(()).holeyness() == 0
+    assert Perm((0,)).holeyness() == 0
+    assert Perm((0, 1)).holeyness() == 0
+    assert Perm((1, 0)).holeyness() == 0
+    assert Perm((0, 1, 2)).holeyness() == 0
+    assert Perm((0, 2, 1)).holeyness() == 1
+    assert Perm((1, 0, 2)).holeyness() == 1
+    assert Perm((1, 2, 0)).holeyness() == 1
+    assert Perm((2, 0, 1)).holeyness() == 1
+    assert Perm((2, 1, 0)).holeyness() == 0
+    assert Perm((1, 0, 3, 4, 2)).holeyness() == 1
+    assert Perm((3, 2, 1, 4, 0)).holeyness() == 1
+    assert Perm((0, 2, 1, 4, 5, 3)).holeyness() == 1
+    assert Perm((0, 4, 3, 2, 5, 1)).holeyness() == 1
+    assert Perm((1, 2, 0, 4, 5, 3)).holeyness() == 2
+    assert Perm((1, 4, 3, 2, 5, 0)).holeyness() == 2
+    assert Perm((2, 1, 0, 4, 5, 3)).holeyness() == 1
+    assert Perm((2, 4, 3, 1, 5, 0)).holeyness() == 2
+    assert Perm((3, 1, 0, 4, 5, 2)).holeyness() == 2
+    assert Perm((3, 4, 2, 1, 5, 0)).holeyness() == 1
+    assert Perm((4, 1, 0, 3, 5, 2)).holeyness() == 2
+    assert Perm((4, 3, 2, 1, 5, 0)).holeyness() == 1
+    assert Perm((5, 1, 0, 3, 4, 2)).holeyness() == 2
+    assert Perm((5, 3, 2, 1, 4, 0)).holeyness() == 1
+    assert Perm((0, 1, 3, 2, 5, 6, 4)).holeyness() == 1
+    assert Perm((0, 1, 5, 4, 3, 6, 2)).holeyness() == 1
+    assert Perm((0, 2, 3, 1, 5, 6, 4)).holeyness() == 2
+    assert Perm((0, 2, 5, 4, 3, 6, 1)).holeyness() == 2
+    assert Perm((0, 3, 2, 1, 5, 6, 4)).holeyness() == 1
