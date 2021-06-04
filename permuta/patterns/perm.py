@@ -1195,23 +1195,18 @@ class Perm(TupleType, Patt):
             1
         """
 
-        def delta(d_set):
+        def _delta(d_set: Set[int]) -> int:
             return sum(1 for x in d_set if x + 1 not in d_set)
 
-        def set_generator(num):
-            yield ()
-            for y in range(1, num + 1):
+        def _set_generator(num: int) -> Iterator[Set[int]]:
+            for y in range(0, num + 1):
                 for x in itertools.combinations(range(num), y):
-                    yield x
+                    yield set(x)
 
-        n = len(self)
-        holyness = 0
-        for tmp_set in set_generator(n):
-            h_pi = delta([self[s] for s in tmp_set])
-            h_s = delta(tmp_set)
-            holyness = max(holyness, h_pi - h_s)
-
-        return holyness
+        return max(
+            _delta({self[s] for s in tmp_set}) - _delta(tmp_set)
+            for tmp_set in _set_generator(len(self))
+        )
 
     def inversions(self) -> Iterator[Tuple[int, int]]:
         """Yield the inversions of the permutation, i.e., the pairs i,j
