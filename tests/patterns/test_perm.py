@@ -2508,6 +2508,7 @@ def test_count_column_sum_primes():
 
 
 def test_holeyness():
+    assert Perm(()).holeyness() == 0
     assert Perm((0,)).holeyness() == 0
     assert Perm((0, 1)).holeyness() == 0
     assert Perm((1, 0)).holeyness() == 0
