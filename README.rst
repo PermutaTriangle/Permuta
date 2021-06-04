@@ -240,6 +240,7 @@ and a class (no class will use the set of all permutations).
     [17] Number of bounces
     [18] Maximum drop size
     [19] Number of primes in the column sums
+    [20] Holeyness of a permutation
     >>> depth = PermutationStatistic.get_by_index(16)
     >>> depth.distribution_for_length(5)
     [1, 4, 12, 24, 35, 24, 20]
@@ -256,6 +257,7 @@ Given a bijection as a dictionary, we can check which statistics are preserved w
     ...     print(stat)
     Number of peaks
     Number of valleys
+    Holeyness of a permutation
 
 We can find all (predefined) statistics equally distributed over two permutation
 classes with ``equally_distributed``. We also support checks for joint distribution

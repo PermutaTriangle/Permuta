@@ -1150,7 +1150,8 @@ class Perm(TupleType, Patt):
             >>> Perm((0, 1)).count_bounces()
             1
             >>> Perm((1, 0)).count_bounces()
-            0"""
+            0
+        """
         n = len(self)
         if n == 0:
             return 0
@@ -1174,11 +1175,25 @@ class Perm(TupleType, Patt):
             >>> Perm((1, 0)).max_drop_size()
             1
             >>> Perm((2, 0, 1)).max_drop_size()
-            2"""
+            2
+        """
         return max((val - idx for idx, val in enumerate(self)), default=0)
 
     def holeyness(self) -> int:
-        """The holeyness of a permutation."""
+        """The holeyness of a permutation.
+        See: https://www.findstat.org/StatisticsDatabase/St001469/
+        https://mathoverflow.net/questions/340179/how-rare-are-unholey-permutations
+
+        Examples:
+            >>> Perm((1, 0)).holeyness()
+            0
+            >>> Perm((0, 1, 2)).holeyness()
+            0
+            >>> Perm((0, 2, 1)).holeyness()
+            1
+            >>> Perm((1, 0, 2)).holeyness()
+            1
+        """
 
         def delta(d_set):
             return sum(1 for x in d_set if x + 1 not in d_set)
