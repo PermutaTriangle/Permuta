@@ -242,6 +242,7 @@ and a class (no class will use the set of all permutations).
     [19] Number of primes in the column sums
     [20] Holeyness of a permutation
     [21] Number of stack-sorts needed
+    [22] Number of pop-stack-sorts needed
     >>> depth = PermutationStatistic.get_by_index(16)
     >>> depth.distribution_for_length(5)
     [1, 4, 12, 24, 35, 24, 20]

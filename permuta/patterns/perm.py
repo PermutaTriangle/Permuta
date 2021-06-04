@@ -1289,6 +1289,36 @@ class Perm(TupleType, Patt):
             num_sorts += 1
         return num_sorts
 
+    def count_pop_stack_sorts(self):
+        """The number of pop-stack-sorts needed to sort a permutation.
+        See: https://www.findstat.org/StatisticsDatabase/St001090/
+        http://www.arxiv.org/abs/1710.04978
+        http://www.arxiv.org/abs/1801.05005
+        http://www.arxiv.org/abs/1911.03104
+
+        Examples:
+        >>> Perm(()).count_pop_stack_sorts()
+        0
+        >>> Perm((0,)).count_pop_stack_sorts()
+        0
+        >>> Perm((0, 1)).count_pop_stack_sorts()
+        0
+        >>> Perm((1, 0)).count_pop_stack_sorts()
+        1
+        >>> Perm((4, 0, 2, 1, 3, 5)).count_pop_stack_sorts()
+        4
+        >>> Perm((4, 3, 2, 1, 0, 5)).count_pop_stack_sorts()
+        1
+        >>> Perm((5, 1, 4, 3, 0, 2)).count_pop_stack_sorts()
+        4
+        """
+        num_sorts = 0
+        perm = self
+        while not perm.is_increasing():
+            perm = perm.pop_stack_sort()
+            num_sorts += 1
+        return num_sorts
+
     def inversions(self) -> Iterator[Tuple[int, int]]:
         """Yield the inversions of the permutation, i.e., the pairs i,j
         such that i < j and self(i) > self(j).
@@ -2225,6 +2255,23 @@ class Perm(TupleType, Patt):
     def stack_sortable(self) -> bool:
         """Returns true if perm is stack sortable."""
         return self.stack_sort().is_increasing()
+
+    def pop_stack_sort(self) -> "Perm":
+        """Pop-stack sorting the permutation"""
+        stack: Deque[int] = collections.deque()
+        result: List[int] = []
+        for num in self:
+            if stack and num > stack[0]:
+                result.extend(stack)
+                stack.clear()
+            stack.appendleft(num)
+
+        result.extend(stack)
+        return Perm(result)
+
+    def pop_stack_sortable(self) -> bool:
+        """Returns true if perm is pop-stack sortable."""
+        return self.pop_stack_sort().is_increasing()
 
     @staticmethod
     def _bubble_sort(perm_slice: List[int]) -> List[int]:
