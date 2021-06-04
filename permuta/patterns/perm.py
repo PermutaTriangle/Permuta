@@ -1230,13 +1230,13 @@ class Perm(TupleType, Patt):
         >>> Perm((2, 1, 0)).count_stack_sorts()
         1
         """
-        i = 0
+        num_sorts = 0
         identity = list(self.identity(len(self)))
         perm_list = list(self)
         while perm_list != identity:
             perm_list = self._stack_sort(perm_list)
-            i += 1
-        return i
+            num_sorts += 1
+        return num_sorts
 
     def inversions(self) -> Iterator[Tuple[int, int]]:
         """Yield the inversions of the permutation, i.e., the pairs i,j
