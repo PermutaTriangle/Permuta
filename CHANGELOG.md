@@ -5,6 +5,19 @@ The format is based on [Keep a Changelog](http://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.html).
 
 ## Unreleased
+### Added
+ - Statistic: bounce of a permutation.
+ - Statistic: maximum drop size.
+ - Statistic: number of primes in the column sums.
+ - Statistic: holeyness of a permutation.
+ - Algorith: `pop stack sort`.
+ - Statistic: count stack sorts.
+ - Statistic: count pop stack sorts.
+ - Statistic: Pinnacle set and number of pinnacles.
+
+### Changed
+  - Functions for ascents and descents now take an optional argument to specify what step size to calculate.
+  - Moved sortings functions from `permuta/bisc/perm_properties.py` to `permuta/patterns/perm.py`.
 
 ## 2.0.3 - 2021-04-28
 ### Added
