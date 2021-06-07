@@ -1311,6 +1311,29 @@ def test_count_peaks():
     assert Perm((1, 2, 3, 0, 6, 5, 4)).count_peaks() == 2
 
 
+def test_pinnacles():
+    assert list(Perm().pinnacles()) == []
+    assert list(Perm((0, 1, 2, 3)).pinnacles()) == []
+    assert list(Perm((0, 1, 2, 4, 3)).pinnacles()) == [4]
+    assert list(Perm((2, 1, 0, 4, 3, 5)).pinnacles()) == [4]
+    assert list(Perm((1, 2, 3, 0, 6, 5, 4)).pinnacles()) == [3, 6]
+
+
+def test_pinnacle_set():
+    assert Perm().pinnacle_set() == []
+    assert Perm((0, 1, 2, 3)).pinnacle_set() == []
+    assert Perm((0, 1, 2, 4, 3)).pinnacle_set() == [4]
+    assert Perm((2, 1, 0, 4, 3, 5)).pinnacle_set() == [4]
+    assert Perm((1, 2, 3, 0, 6, 5, 4)).pinnacle_set() == [3, 6]
+
+
+def test_count_pinnacles():
+    assert Perm().count_pinnacles() == 0
+    assert Perm((0, 1, 2, 3)).count_pinnacles() == 0
+    assert Perm((2, 1, 0, 4, 3, 5)).count_pinnacles() == 1
+    assert Perm((1, 2, 3, 0, 6, 5, 4)).count_pinnacles() == 2
+
+
 def test_valleys():
     assert list(Perm().valleys()) == []
     assert list(Perm((0, 1, 2, 3)).valleys()) == []
