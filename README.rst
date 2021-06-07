@@ -243,6 +243,7 @@ and a class (no class will use the set of all permutations).
     [20] Holeyness of a permutation
     [21] Number of stack-sorts needed
     [22] Number of pop-stack-sorts needed
+    [23] Number of pinnacles
     >>> depth = PermutationStatistic.get_by_index(16)
     >>> depth.distribution_for_length(5)
     [1, 4, 12, 24, 35, 24, 20]
@@ -260,6 +261,7 @@ Given a bijection as a dictionary, we can check which statistics are preserved w
     Number of peaks
     Number of valleys
     Holeyness of a permutation
+    Number of pinnacles
 
 We can find all (predefined) statistics equally distributed over two permutation
 classes with ``equally_distributed``. We also support checks for joint distribution
@@ -281,6 +283,7 @@ of jointly distributed stats with ``jointly_transformed_equally_distributed``.
     Number of right-to-left maximas
     Longest increasing subsequence
     Longest decreasing subsequence
+    Number of pinnacles
 
 The BiSC algorithm
 ==================

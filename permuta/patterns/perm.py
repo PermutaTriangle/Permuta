@@ -941,6 +941,49 @@ class Perm(TupleType, Patt):
         return sum(1 for _ in self.peaks())
 
     num_peaks = count_peaks
+    count_pinnacles = count_peaks
+    num_pinnacles = count_peaks
+
+    def pinnacles(self) -> Iterator[int]:
+        """Yield the pinnacles of self. The value of the i-th element of a perm is
+        a pinnacle if self[i-1] < self[i] > self[i+1].
+        See: https://arxiv.org/abs/2105.10388
+        https://arxiv.org/abs/1704.05494
+        https://arxiv.org/abs/2001.07325
+
+        Examples:
+            >>> tuple(Perm((5, 3, 4, 0, 2, 1)).pinnacles())
+            (4, 2)
+            >>> tuple(Perm((1, 2, 0)).pinnacles())
+            (2,)
+            >>> tuple(Perm((2, 1, 0)).pinnacles())
+            ()
+        """
+        return (
+            curr
+            for (prev, curr, nxt) in zip(
+                itertools.islice(self, 0, None),
+                itertools.islice(self, 1, None),
+                itertools.islice(self, 2, None),
+            )
+            if prev < curr > nxt
+        )
+
+    def pinnacle_set(self) -> List[int]:
+        """Return the pinnacle set of self.
+        See: https://arxiv.org/abs/2105.10388
+        https://arxiv.org/abs/1704.05494
+        https://arxiv.org/abs/2001.07325
+
+        Examples:
+            >>> Perm((5, 3, 4, 0, 2, 1)).pinnacle_set()
+            [4, 2]
+            >>> Perm((1, 2, 0)).pinnacle_set()
+            [2]
+            >>> Perm((2, 1, 0)).pinnacle_set()
+            []
+        """
+        return list(self.pinnacles())
 
     def count_column_sum_primes(self) -> int:
         """Returns the number of primes in the column sums of the two line notation
