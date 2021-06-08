@@ -3534,3 +3534,151 @@ def test_count_afterminima():
     assert Perm((3, 1, 2, 0)).count_afterminima() == 0
     assert Perm((3, 2, 0, 1)).count_afterminima() == 0
     assert Perm((3, 2, 1, 0)).count_afterminima() == 0
+
+
+def test_aftermaxima():
+    assert Perm(()).aftermaxima() == []
+    assert Perm((0,)).aftermaxima() == []
+    assert Perm((0, 1)).aftermaxima() == []
+    assert Perm((1, 0)).aftermaxima() == []
+    assert Perm((0, 1, 2)).aftermaxima() == []
+    assert Perm((0, 2, 1)).aftermaxima() == []
+    assert Perm((1, 0, 2)).aftermaxima() == []
+    assert Perm((1, 2, 0)).aftermaxima() == [1]
+    assert Perm((2, 0, 1)).aftermaxima() == [0]
+    assert Perm((2, 1, 0)).aftermaxima() == []
+    assert Perm((0, 1, 2, 3)).aftermaxima() == []
+    assert Perm((0, 1, 3, 2)).aftermaxima() == []
+    assert Perm((0, 2, 1, 3)).aftermaxima() == []
+    assert Perm((0, 2, 3, 1)).aftermaxima() == [2]
+    assert Perm((0, 3, 1, 2)).aftermaxima() == [1]
+    assert Perm((0, 3, 2, 1)).aftermaxima() == []
+    assert Perm((1, 0, 2, 3)).aftermaxima() == []
+    assert Perm((1, 0, 3, 2)).aftermaxima() == []
+    assert Perm((1, 2, 0, 3)).aftermaxima() == []
+    assert Perm((1, 2, 3, 0)).aftermaxima() == []
+    assert Perm((1, 3, 0, 2)).aftermaxima() == []
+    assert Perm((1, 3, 2, 0)).aftermaxima() == [2]
+    assert Perm((2, 0, 1, 3)).aftermaxima() == []
+    assert Perm((2, 0, 3, 1)).aftermaxima() == [2]
+    assert Perm((2, 1, 0, 3)).aftermaxima() == []
+    assert Perm((2, 1, 3, 0)).aftermaxima() == []
+    assert Perm((2, 3, 0, 1)).aftermaxima() == []
+    assert Perm((2, 3, 1, 0)).aftermaxima() == [1]
+    assert Perm((3, 0, 1, 2)).aftermaxima() == []
+    assert Perm((3, 0, 2, 1)).aftermaxima() == []
+    assert Perm((3, 1, 0, 2)).aftermaxima() == [0]
+    assert Perm((3, 1, 2, 0)).aftermaxima() == [0, 2]
+    assert Perm((3, 2, 0, 1)).aftermaxima() == [1]
+    assert Perm((3, 2, 1, 0)).aftermaxima() == []
+
+
+def test_count_aftermaxima():
+    assert Perm(()).count_aftermaxima() == 0
+    assert Perm((0,)).count_aftermaxima() == 0
+    assert Perm((0, 1)).count_aftermaxima() == 0
+    assert Perm((1, 0)).count_aftermaxima() == 0
+    assert Perm((0, 1, 2)).count_aftermaxima() == 0
+    assert Perm((0, 2, 1)).count_aftermaxima() == 0
+    assert Perm((1, 0, 2)).count_aftermaxima() == 0
+    assert Perm((1, 2, 0)).count_aftermaxima() == 1
+    assert Perm((2, 0, 1)).count_aftermaxima() == 1
+    assert Perm((2, 1, 0)).count_aftermaxima() == 0
+    assert Perm((0, 1, 2, 3)).count_aftermaxima() == 0
+    assert Perm((0, 1, 3, 2)).count_aftermaxima() == 0
+    assert Perm((0, 2, 1, 3)).count_aftermaxima() == 0
+    assert Perm((0, 2, 3, 1)).count_aftermaxima() == 1
+    assert Perm((0, 3, 1, 2)).count_aftermaxima() == 1
+    assert Perm((0, 3, 2, 1)).count_aftermaxima() == 0
+    assert Perm((1, 0, 2, 3)).count_aftermaxima() == 0
+    assert Perm((1, 0, 3, 2)).count_aftermaxima() == 0
+    assert Perm((1, 2, 0, 3)).count_aftermaxima() == 0
+    assert Perm((1, 2, 3, 0)).count_aftermaxima() == 0
+    assert Perm((1, 3, 0, 2)).count_aftermaxima() == 0
+    assert Perm((1, 3, 2, 0)).count_aftermaxima() == 1
+    assert Perm((2, 0, 1, 3)).count_aftermaxima() == 0
+    assert Perm((2, 0, 3, 1)).count_aftermaxima() == 1
+    assert Perm((2, 1, 0, 3)).count_aftermaxima() == 0
+    assert Perm((2, 1, 3, 0)).count_aftermaxima() == 0
+    assert Perm((2, 3, 0, 1)).count_aftermaxima() == 0
+    assert Perm((2, 3, 1, 0)).count_aftermaxima() == 1
+    assert Perm((3, 0, 1, 2)).count_aftermaxima() == 0
+    assert Perm((3, 0, 2, 1)).count_aftermaxima() == 0
+    assert Perm((3, 1, 0, 2)).count_aftermaxima() == 1
+    assert Perm((3, 1, 2, 0)).count_aftermaxima() == 2
+    assert Perm((3, 2, 0, 1)).count_aftermaxima() == 1
+    assert Perm((3, 2, 1, 0)).count_aftermaxima() == 0
+
+
+def test_foreminima():
+    assert Perm(()).foreminima() == []
+    assert Perm((0,)).foreminima() == []
+    assert Perm((0, 1)).foreminima() == []
+    assert Perm((1, 0)).foreminima() == []
+    assert Perm((0, 1, 2)).foreminima() == []
+    assert Perm((0, 2, 1)).foreminima() == []
+    assert Perm((1, 0, 2)).foreminima() == []
+    assert Perm((1, 2, 0)).foreminima() == []
+    assert Perm((2, 0, 1)).foreminima() == [0]
+    assert Perm((2, 1, 0)).foreminima() == []
+    assert Perm((0, 1, 2, 3)).foreminima() == []
+    assert Perm((0, 1, 3, 2)).foreminima() == []
+    assert Perm((0, 2, 1, 3)).foreminima() == []
+    assert Perm((0, 2, 3, 1)).foreminima() == []
+    assert Perm((0, 3, 1, 2)).foreminima() == []
+    assert Perm((0, 3, 2, 1)).foreminima() == []
+    assert Perm((1, 0, 2, 3)).foreminima() == []
+    assert Perm((1, 0, 3, 2)).foreminima() == []
+    assert Perm((1, 2, 0, 3)).foreminima() == []
+    assert Perm((1, 2, 3, 0)).foreminima() == []
+    assert Perm((1, 3, 0, 2)).foreminima() == []
+    assert Perm((1, 3, 2, 0)).foreminima() == []
+    assert Perm((2, 0, 1, 3)).foreminima() == [0]
+    assert Perm((2, 0, 3, 1)).foreminima() == [0]
+    assert Perm((2, 1, 0, 3)).foreminima() == []
+    assert Perm((2, 1, 3, 0)).foreminima() == []
+    assert Perm((2, 3, 0, 1)).foreminima() == []
+    assert Perm((2, 3, 1, 0)).foreminima() == []
+    assert Perm((3, 0, 1, 2)).foreminima() == []
+    assert Perm((3, 0, 2, 1)).foreminima() == []
+    assert Perm((3, 1, 0, 2)).foreminima() == [0]
+    assert Perm((3, 1, 2, 0)).foreminima() == [0]
+    assert Perm((3, 2, 0, 1)).foreminima() == [1]
+    assert Perm((3, 2, 1, 0)).foreminima() == []
+
+
+def test_count_foreminima():
+    assert Perm(()).count_foreminima() == 0
+    assert Perm((0,)).count_foreminima() == 0
+    assert Perm((0, 1)).count_foreminima() == 0
+    assert Perm((1, 0)).count_foreminima() == 0
+    assert Perm((0, 1, 2)).count_foreminima() == 0
+    assert Perm((0, 2, 1)).count_foreminima() == 0
+    assert Perm((1, 0, 2)).count_foreminima() == 0
+    assert Perm((1, 2, 0)).count_foreminima() == 0
+    assert Perm((2, 0, 1)).count_foreminima() == 1
+    assert Perm((2, 1, 0)).count_foreminima() == 0
+    assert Perm((0, 1, 2, 3)).count_foreminima() == 0
+    assert Perm((0, 1, 3, 2)).count_foreminima() == 0
+    assert Perm((0, 2, 1, 3)).count_foreminima() == 0
+    assert Perm((0, 2, 3, 1)).count_foreminima() == 0
+    assert Perm((0, 3, 1, 2)).count_foreminima() == 0
+    assert Perm((0, 3, 2, 1)).count_foreminima() == 0
+    assert Perm((1, 0, 2, 3)).count_foreminima() == 0
+    assert Perm((1, 0, 3, 2)).count_foreminima() == 0
+    assert Perm((1, 2, 0, 3)).count_foreminima() == 0
+    assert Perm((1, 2, 3, 0)).count_foreminima() == 0
+    assert Perm((1, 3, 0, 2)).count_foreminima() == 0
+    assert Perm((1, 3, 2, 0)).count_foreminima() == 0
+    assert Perm((2, 0, 1, 3)).count_foreminima() == 1
+    assert Perm((2, 0, 3, 1)).count_foreminima() == 1
+    assert Perm((2, 1, 0, 3)).count_foreminima() == 0
+    assert Perm((2, 1, 3, 0)).count_foreminima() == 0
+    assert Perm((2, 3, 0, 1)).count_foreminima() == 0
+    assert Perm((2, 3, 1, 0)).count_foreminima() == 0
+    assert Perm((3, 0, 1, 2)).count_foreminima() == 0
+    assert Perm((3, 0, 2, 1)).count_foreminima() == 0
+    assert Perm((3, 1, 0, 2)).count_foreminima() == 1
+    assert Perm((3, 1, 2, 0)).count_foreminima() == 1
+    assert Perm((3, 2, 0, 1)).count_foreminima() == 1
+    assert Perm((3, 2, 1, 0)).count_foreminima() == 0
