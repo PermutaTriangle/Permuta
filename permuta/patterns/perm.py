@@ -1383,9 +1383,9 @@ class Perm(TupleType, Patt):
             >>> list(Perm((0, 2, 1, 3)).cyclic_peaks())
             [1]
         """
-        for i, x in enumerate(self):
-            if i < x > self[x]:
-                yield i
+        for idx, val in enumerate(self):
+            if idx < val > self[val]:
+                yield idx
 
     def cyclic_peaks_list(self) -> List[int]:
         """Returns a list of indexes of the cyclic peaks in the permutation.
@@ -1452,9 +1452,9 @@ class Perm(TupleType, Patt):
             >>> list(Perm((0, 1, 2)).cyclic_valleys())
             []
         """
-        for i, x in enumerate(self):
-            if i > x < self[x]:
-                yield i
+        for idx, val in enumerate(self):
+            if idx > val < self[val]:
+                yield idx
 
     def cyclic_valleys_list(self) -> List[int]:
         """Returns a list of index of the cyclic valleys in the permutation.
@@ -1517,9 +1517,9 @@ class Perm(TupleType, Patt):
             >>> list(Perm((2, 0, 3, 1)).double_excedance())
             [0]
         """
-        for i, x in enumerate(self):
-            if i < x < self[x]:
-                yield i
+        for idx, val in enumerate(self):
+            if idx < val < self[val]:
+                yield idx
 
     def double_excedance_list(self) -> List[int]:
         """Returns a list of indees of the double excedances in the permutation.
@@ -1582,9 +1582,9 @@ class Perm(TupleType, Patt):
             >>> list(Perm((2, 0, 1, 3)).double_drops())
             [2]
         """
-        for i, x in enumerate(self):
-            if i > x > self[x]:
-                yield i
+        for idx, val in enumerate(self):
+            if idx > val > self[val]:
+                yield idx
 
     def double_drops_list(self) -> List[int]:
         """Returns a list of indexes of the double drops in the permutation.
