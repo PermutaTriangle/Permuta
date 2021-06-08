@@ -48,6 +48,12 @@ class PermutationStatistic:
         ("Number of stack-sorts needed", Perm.count_stack_sorts),
         ("Number of pop-stack-sorts needed", Perm.count_pop_stack_sorts),
         ("Number of pinnacles", Perm.count_pinnacles),
+        ("Number of cyclic peaks", Perm.count_cyclic_peaks),
+        ("Number of cyclic valleys", Perm.count_cyclic_valleys),
+        ("Number of double excedance", Perm.count_double_excedance),
+        ("Number of double drops", Perm.count_double_drops),
+        ("Number of foremaxima", Perm.count_foremaxima),
+        ("Number of afterminima", Perm.count_afterminima),
     )
 
     @staticmethod

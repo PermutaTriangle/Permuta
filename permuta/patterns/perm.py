@@ -1362,6 +1362,364 @@ class Perm(TupleType, Patt):
             num_sorts += 1
         return num_sorts
 
+    def cyclic_peaks(self) -> Iterator[int]:
+        """Yields the indexes of cyclic peaks in the permutation.
+        Satisfies: i < x > P(x), where x = P(i)
+        See: https://arxiv.org/abs/1908.01084
+
+        Examples:
+            >>> list(Perm((3, 2, 0, 1)).cyclic_peaks())
+            [0, 1]
+            >>> list(Perm((1, 0, 2)).cyclic_peaks())
+            [0]
+            >>> list(Perm((0, 1, 2)).cyclic_peaks())
+            []
+            >>> list(Perm((2, 0, 1)).cyclic_peaks())
+            [0]
+            >>> list(Perm((1, 3, 0, 2)).cyclic_peaks())
+            [1]
+            >>> list(Perm((0, 1, 2, 3)).cyclic_peaks())
+            []
+            >>> list(Perm((0, 2, 1, 3)).cyclic_peaks())
+            [1]
+        """
+        for idx, val in enumerate(self):
+            if idx < val > self[val]:
+                yield idx
+
+    def cyclic_peaks_list(self) -> List[int]:
+        """Returns a list of indexes of the cyclic peaks in the permutation.
+        Satisfies: i < x > P(x), where x = P(i)
+        See: https://arxiv.org/abs/1908.01084
+
+        Examples:
+            >>> Perm((3, 2, 0, 1)).cyclic_peaks_list()
+            [0, 1]
+            >>> Perm((1, 0, 2)).cyclic_peaks_list()
+            [0]
+            >>> Perm((0, 1, 2)).cyclic_peaks_list()
+            []
+            >>> Perm((2, 0, 1)).cyclic_peaks_list()
+            [0]
+            >>> Perm((1, 3, 0, 2)).cyclic_peaks_list()
+            [1]
+            >>> Perm((0, 1, 2, 3)).cyclic_peaks_list()
+            []
+            >>> Perm((0, 2, 1, 3)).cyclic_peaks_list()
+            [1]
+        """
+        return list(self.cyclic_peaks())
+
+    def count_cyclic_peaks(self) -> int:
+        """Returns the number of cyclic peaks in the permutation.
+        Satisfies: i < x > P(x), where x = P(i)
+        See: https://arxiv.org/abs/1908.01084
+
+        Examples:
+            >>> Perm((3, 2, 0, 1)).count_cyclic_peaks()
+            2
+            >>> Perm((1, 0, 2)).count_cyclic_peaks()
+            1
+            >>> Perm((0, 1, 2)).count_cyclic_peaks()
+            0
+            >>> Perm((2, 0, 1)).count_cyclic_peaks()
+            1
+            >>> Perm((1, 3, 0, 2)).count_cyclic_peaks()
+            1
+            >>> Perm((0, 1, 2, 3)).count_cyclic_peaks()
+            0
+            >>> Perm((0, 2, 1, 3)).count_cyclic_peaks()
+            1
+        """
+        return sum(1 for _ in self.cyclic_peaks())
+
+    def cyclic_valleys(self) -> Iterator[int]:
+        """Yields the indexes of cyclic valleys in the permutation.
+        Satisfies: i > x < P(x), where x = P(i)
+        See: https://arxiv.org/abs/1908.01084
+
+        Examples:
+            >>> list(Perm((1, 3, 0, 2)).cyclic_valleys())
+            [2]
+            >>> list(Perm((2, 1, 0)).cyclic_valleys())
+            [2]
+            >>> list(Perm((1, 2, 3, 0)).cyclic_valleys())
+            [3]
+            >>> list(Perm((1, 2, 0)).cyclic_valleys())
+            [2]
+            >>> list(Perm((2, 0, 1)).cyclic_valleys())
+            [1]
+            >>> list(Perm((0, 1, 2)).cyclic_valleys())
+            []
+        """
+        for idx, val in enumerate(self):
+            if idx > val < self[val]:
+                yield idx
+
+    def cyclic_valleys_list(self) -> List[int]:
+        """Returns a list of index of the cyclic valleys in the permutation.
+        Satisfies: i > x < P(x), where x = P(i)
+        See: https://arxiv.org/abs/1908.01084
+
+        Examples:
+            >>> Perm((1, 3, 0, 2)).cyclic_valleys_list()
+            [2]
+            >>> Perm((2, 1, 0)).cyclic_valleys_list()
+            [2]
+            >>> Perm((1, 2, 3, 0)).cyclic_valleys_list()
+            [3]
+            >>> Perm((1, 2, 0)).cyclic_valleys_list()
+            [2]
+            >>> Perm((2, 0, 1)).cyclic_valleys_list()
+            [1]
+            >>> Perm((0, 1, 2)).cyclic_valleys_list()
+            []
+        """
+        return list(self.cyclic_valleys())
+
+    def count_cyclic_valleys(self) -> int:
+        """Returns the number of cyclic valleys in the permutation.
+        Satisfies: i > x < P(x), where x = P(i)
+        See: https://arxiv.org/abs/1908.01084
+
+        Examples:
+            >>> Perm((1, 3, 0, 2)).count_cyclic_valleys()
+            1
+            >>> Perm((2, 1, 0)).count_cyclic_valleys()
+            1
+            >>> Perm((1, 2, 3, 0)).count_cyclic_valleys()
+            1
+            >>> Perm((1, 2, 0)).count_cyclic_valleys()
+            1
+            >>> Perm((2, 0, 1)).count_cyclic_valleys()
+            1
+            >>> Perm((0, 1, 2)).count_cyclic_valleys()
+            0
+        """
+        return sum(1 for _ in self.cyclic_valleys())
+
+    def double_excedance(self) -> Iterator[int]:
+        """Yields the indexes of double excedances in the permutation.
+        Satisfies: i < x < P(x), where x = P(i)
+        See: https://arxiv.org/abs/1908.01084
+
+        Examples:
+            >>> list(Perm((1, 0, 3, 2)).double_excedance())
+            []
+            >>> list(Perm((1, 3, 0, 2)).double_excedance())
+            [0]
+            >>> list(Perm((2, 1, 0)).double_excedance())
+            []
+            >>> list(Perm((3, 1, 0, 2)).double_excedance())
+            []
+            >>> list(Perm((1, 2, 3, 0)).double_excedance())
+            [0, 1]
+            >>> list(Perm((2, 0, 3, 1)).double_excedance())
+            [0]
+        """
+        for idx, val in enumerate(self):
+            if idx < val < self[val]:
+                yield idx
+
+    def double_excedance_list(self) -> List[int]:
+        """Returns a list of indees of the double excedances in the permutation.
+        Satisfies: i < x < P(x), where x = P(i)
+        See: https://arxiv.org/abs/1908.01084
+
+        Examples:
+            >>> Perm((1, 0, 3, 2)).double_excedance_list()
+            []
+            >>> Perm((1, 3, 0, 2)).double_excedance_list()
+            [0]
+            >>> Perm((2, 1, 0)).double_excedance_list()
+            []
+            >>> Perm((3, 1, 0, 2)).double_excedance_list()
+            []
+            >>> Perm((1, 2, 3, 0)).double_excedance_list()
+            [0, 1]
+            >>> Perm((2, 0, 3, 1)).double_excedance_list()
+            [0]
+        """
+        return list(self.double_excedance())
+
+    def count_double_excedance(self) -> int:
+        """Returns the number of double excedances in the permutation.
+        Satisfies: i < x < P(x), where x = P(i)
+        See: https://arxiv.org/abs/1908.01084
+
+        Examples:
+            >>> Perm((1, 0, 3, 2)).count_double_excedance()
+            0
+            >>> Perm((1, 3, 0, 2)).count_double_excedance()
+            1
+            >>> Perm((2, 1, 0)).count_double_excedance()
+            0
+            >>> Perm((3, 1, 0, 2)).count_double_excedance()
+            0
+            >>> Perm((1, 2, 3, 0)).count_double_excedance()
+            2
+            >>> Perm((2, 0, 3, 1)).count_double_excedance()
+            1
+        """
+        return sum(1 for _ in self.double_excedance())
+
+    def double_drops(self) -> Iterator[int]:
+        """Yields the indexes of double drops in the permutation.
+        Satisfies: i > x > P(x), where x = P(i)
+        See: https://arxiv.org/abs/1908.01084
+
+        Examples:
+            >>> list(Perm((2, 0, 1)).double_drops())
+            [2]
+            >>> list(Perm((1, 0, 2)).double_drops())
+            []
+            >>> list(Perm((2, 1, 3, 0)).double_drops())
+            []
+            >>> list(Perm((2, 0, 3, 1)).double_drops())
+            [3]
+            >>> list(Perm((3, 0, 1, 2)).double_drops())
+            [2, 3]
+            >>> list(Perm((2, 0, 1, 3)).double_drops())
+            [2]
+        """
+        for idx, val in enumerate(self):
+            if idx > val > self[val]:
+                yield idx
+
+    def double_drops_list(self) -> List[int]:
+        """Returns a list of indexes of the double drops in the permutation.
+        Satisfies: i > x > P(x), where x = P(i)
+        See: https://arxiv.org/abs/1908.01084
+
+        Examples:
+            >>> Perm((2, 0, 1)).double_drops_list()
+            [2]
+            >>> Perm((1, 0, 2)).double_drops_list()
+            []
+            >>> Perm((2, 1, 3, 0)).double_drops_list()
+            []
+            >>> Perm((2, 0, 3, 1)).double_drops_list()
+            [3]
+            >>> Perm((3, 0, 1, 2)).double_drops_list()
+            [2, 3]
+            >>> Perm((2, 0, 1, 3)).double_drops_list()
+            [2]
+        """
+        return list(self.double_drops())
+
+    def count_double_drops(self) -> int:
+        """Counts the number of double drops in the permutation.
+        Satisfies: i > x > P(x), where x = P(i)
+        See: https://arxiv.org/abs/1908.01084
+
+        Examples:
+            >>> Perm((2, 0, 1)).count_double_drops()
+            1
+            >>> Perm((1, 0, 2)).count_double_drops()
+            0
+            >>> Perm((2, 1, 3, 0)).count_double_drops()
+            0
+            >>> Perm((2, 0, 3, 1)).count_double_drops()
+            1
+            >>> Perm((3, 0, 1, 2)).count_double_drops()
+            2
+            >>> Perm((2, 0, 1, 3)).count_double_drops()
+            1
+        """
+        return sum(1 for _ in self.double_drops())
+
+    def foremaxima(self) -> List[int]:
+        """Returns a list of indexes of the foremaxima of the permutation.
+        If P(i) is both a double ascent and ltrmax it is a foremaximum.
+        See: https://arxiv.org/abs/1908.01084
+
+        Examples:
+            >>> Perm((3, 2, 5, 0, 1, 4)).foremaxima()
+            []
+            >>> Perm((3, 4, 1, 0, 5, 2)).foremaxima()
+            []
+            >>> Perm((1, 3, 5, 2, 4, 0)).foremaxima()
+            [0, 1]
+            >>> Perm((2, 3, 5, 4, 1, 6, 0)).foremaxima()
+            [1]
+            >>> Perm((1, 3, 2, 5, 4, 0, 6)).foremaxima()
+            [0]
+            >>> Perm((2, 5, 4, 1, 3, 0)).foremaxima()
+            []
+        """
+        double_ascents = set(self.ascent_set(step_size=2))
+        ltrmax = set(self.ltrmax())
+        return list(double_ascents & ltrmax)
+
+    def count_foremaxima(self):
+        """Returns the number of foremaxima in the permutation.
+        If P(i) is both a double ascent and ltrmax it is a foremaximum.
+        See: https://arxiv.org/abs/1908.01084
+
+        Examples:
+            >>> Perm((3, 2, 5, 0, 1, 4)).count_foremaxima()
+            0
+            >>> Perm((3, 4, 1, 0, 5, 2)).count_foremaxima()
+            0
+            >>> Perm((1, 3, 5, 2, 4, 0)).count_foremaxima()
+            2
+            >>> Perm((2, 3, 5, 4, 1, 6, 0)).count_foremaxima()
+            1
+            >>> Perm((1, 3, 2, 5, 4, 0, 6)).count_foremaxima()
+            1
+            >>> Perm((2, 5, 4, 1, 3, 0)).count_foremaxima()
+            0
+        """
+        return len(self.foremaxima())
+
+    def afterminima(self) -> List[int]:
+        """Returns a list of indexes of the afterminima of the permutation.
+        If P(i) is both a double ascent and rtlmin it is a afterminimum.
+        See: https://arxiv.org/abs/1908.01084
+
+        Examples:
+            >>> Perm((3, 1, 4, 6, 5, 0, 2)).afterminima()
+            [5]
+            >>> Perm((2, 1, 0)).afterminima()
+            []
+            >>> Perm((1, 5, 0, 3, 2, 4, 6)).afterminima()
+            [4, 5]
+            >>> Perm((2, 0, 1, 3)).afterminima()
+            [2]
+            >>> Perm((0, 2, 1, 3, 4)).afterminima()
+            [0, 2]
+            >>> Perm((3, 1, 0, 2, 4, 6, 5)).afterminima()
+            [2, 3, 4]
+            >>> Perm((3, 4, 0, 2, 1)).afterminima()
+            [2]
+        """
+        double_ascents = set(self.ascent_set(step_size=2))
+        rtlmin = set(self.rtlmin())
+        return list(double_ascents & rtlmin)
+
+    def count_afterminima(self):
+        """Returns the number of afterminima in the permutation.
+        If P(i) is both a double ascent and rtlmin it is a afterminimum.
+        See: https://arxiv.org/abs/1908.01084
+
+        Examples:
+            >>> Perm((3, 1, 4, 6, 5, 0, 2)).count_afterminima()
+            1
+            >>> Perm((2, 1, 0)).count_afterminima()
+            0
+            >>> Perm((1, 5, 0, 3, 2, 4, 6)).count_afterminima()
+            2
+            >>> Perm((2, 0, 1, 3)).count_afterminima()
+            1
+            >>> Perm((0, 2, 1, 3, 4)).count_afterminima()
+            2
+            >>> Perm((3, 1, 0, 2, 4, 6, 5)).count_afterminima()
+            3
+            >>> Perm((3, 4, 0, 2, 1)).count_afterminima()
+            1
+        """
+        return len(self.afterminima())
+
     def inversions(self) -> Iterator[Tuple[int, int]]:
         """Yield the inversions of the permutation, i.e., the pairs i,j
         such that i < j and self(i) > self(j).
