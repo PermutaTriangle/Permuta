@@ -244,6 +244,13 @@ and a class (no class will use the set of all permutations).
     [21] Number of stack-sorts needed
     [22] Number of pop-stack-sorts needed
     [23] Number of pinnacles
+    [24] Number of cyclic peaks
+    [25] Number of cyclic valleys
+    [26] Number of double excedance
+    [27] Number of double drops
+    [28] Number of foremaxima
+    [29] Number of afterminima
+
     >>> depth = PermutationStatistic.get_by_index(16)
     >>> depth.distribution_for_length(5)
     [1, 4, 12, 24, 35, 24, 20]
