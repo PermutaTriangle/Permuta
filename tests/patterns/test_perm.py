@@ -2943,6 +2943,7 @@ def test_count_pop_stack_sorts():
 
 
 def test_cyclic_peaks():
+    assert list(Perm(()).cyclic_peaks()) == []
     assert list(Perm((0,)).cyclic_peaks()) == []
     assert list(Perm((0, 1)).cyclic_peaks()) == []
     assert list(Perm((1, 0)).cyclic_peaks()) == [0]
@@ -2979,6 +2980,7 @@ def test_cyclic_peaks():
 
 
 def test_cyclic_peaks_list():
+    assert Perm(()).cyclic_peaks_list() == []
     assert Perm((0,)).cyclic_peaks_list() == []
     assert Perm((0, 1)).cyclic_peaks_list() == []
     assert Perm((1, 0)).cyclic_peaks_list() == [0]
@@ -3015,6 +3017,7 @@ def test_cyclic_peaks_list():
 
 
 def test_count_cyclic_peaks():
+    assert Perm(()).count_cyclic_peaks() == 0
     assert Perm((0,)).count_cyclic_peaks() == 0
     assert Perm((0, 1)).count_cyclic_peaks() == 0
     assert Perm((1, 0)).count_cyclic_peaks() == 1
@@ -3051,6 +3054,7 @@ def test_count_cyclic_peaks():
 
 
 def test_cyclic_valleys():
+    assert list(Perm(()).cyclic_valleys()) == []
     assert list(Perm((0,)).cyclic_valleys()) == []
     assert list(Perm((0, 1)).cyclic_valleys()) == []
     assert list(Perm((1, 0)).cyclic_valleys()) == [1]
@@ -3087,6 +3091,7 @@ def test_cyclic_valleys():
 
 
 def test_cyclic_valleys_list():
+    assert Perm(()).cyclic_valleys_list() == []
     assert Perm((0,)).cyclic_valleys_list() == []
     assert Perm((0, 1)).cyclic_valleys_list() == []
     assert Perm((1, 0)).cyclic_valleys_list() == [1]
@@ -3123,6 +3128,7 @@ def test_cyclic_valleys_list():
 
 
 def test_count_cyclic_valleys():
+    assert Perm(()).count_cyclic_valleys() == 0
     assert Perm((0,)).count_cyclic_valleys() == 0
     assert Perm((0, 1)).count_cyclic_valleys() == 0
     assert Perm((1, 0)).count_cyclic_valleys() == 1
@@ -3159,6 +3165,7 @@ def test_count_cyclic_valleys():
 
 
 def test_double_excedance():
+    assert list(Perm(()).double_excedance()) == []
     assert list(Perm((0,)).double_excedance()) == []
     assert list(Perm((0, 1)).double_excedance()) == []
     assert list(Perm((1, 0)).double_excedance()) == []
@@ -3195,6 +3202,7 @@ def test_double_excedance():
 
 
 def tets_double_excedance_list():
+    assert Perm(()).double_excedance_list() == []
     assert Perm((0,)).double_excedance_list() == []
     assert Perm((0, 1)).double_excedance_list() == []
     assert Perm((1, 0)).double_excedance_list() == []
@@ -3231,6 +3239,7 @@ def tets_double_excedance_list():
 
 
 def test_count_double_excedance():
+    assert Perm(()).count_double_excedance() == 0
     assert Perm((0,)).count_double_excedance() == 0
     assert Perm((0, 1)).count_double_excedance() == 0
     assert Perm((1, 0)).count_double_excedance() == 0
@@ -3267,6 +3276,7 @@ def test_count_double_excedance():
 
 
 def test_double_drops():
+    assert list(Perm(()).double_drops()) == []
     assert list(Perm((0,)).double_drops()) == []
     assert list(Perm((0, 1)).double_drops()) == []
     assert list(Perm((1, 0)).double_drops()) == []
@@ -3303,6 +3313,7 @@ def test_double_drops():
 
 
 def test_double_drops_list():
+    assert Perm(()).double_drops_list() == []
     assert Perm((0,)).double_drops_list() == []
     assert Perm((0, 1)).double_drops_list() == []
     assert Perm((1, 0)).double_drops_list() == []
@@ -3339,6 +3350,7 @@ def test_double_drops_list():
 
 
 def test_count_double_drops():
+    assert Perm(()).count_double_drops() == 0
     assert Perm((0,)).count_double_drops() == 0
     assert Perm((0, 1)).count_double_drops() == 0
     assert Perm((1, 0)).count_double_drops() == 0
@@ -3375,6 +3387,7 @@ def test_count_double_drops():
 
 
 def test_foremaxima():
+    assert Perm(()).foremaxima() == []
     assert Perm((0,)).foremaxima() == []
     assert Perm((0, 1)).foremaxima() == []
     assert Perm((1, 0)).foremaxima() == []
@@ -3412,6 +3425,7 @@ def test_foremaxima():
 
 
 def test_count_foremaxima():
+    assert Perm(()).count_foremaxima() == 0
     assert Perm((0,)).count_foremaxima() == 0
     assert Perm((0, 1)).count_foremaxima() == 0
     assert Perm((1, 0)).count_foremaxima() == 0
@@ -3449,6 +3463,7 @@ def test_count_foremaxima():
 
 
 def test_afterminima():
+    assert Perm(()).afterminima() == []
     assert Perm((0,)).afterminima() == []
     assert Perm((0, 1)).afterminima() == []
     assert Perm((1, 0)).afterminima() == []
@@ -3485,6 +3500,7 @@ def test_afterminima():
 
 
 def test_count_afterminima():
+    assert Perm(()).count_afterminima() == 0
     assert Perm((0,)).count_afterminima() == 0
     assert Perm((0, 1)).count_afterminima() == 0
     assert Perm((1, 0)).count_afterminima() == 0
