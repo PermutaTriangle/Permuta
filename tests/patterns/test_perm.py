@@ -5,7 +5,7 @@ from math import factorial
 
 import pytest
 
-from permuta import MeshPatt, Perm
+from permuta import LoTriMatrix, Matrix, MeshPatt, Perm
 
 
 def test_from_iterable_validated():
@@ -3534,3 +3534,54 @@ def test_count_afterminima():
     assert Perm((3, 1, 2, 0)).count_afterminima() == 0
     assert Perm((3, 2, 0, 1)).count_afterminima() == 0
     assert Perm((3, 2, 1, 0)).count_afterminima() == 0
+
+
+def test_matrix_class():
+    assert Matrix(0) == Matrix(0)
+    matrix = Matrix(size=3, function={(0, 0): 1, (0, 1): 1, (0, 2): 1})
+    matrix2 = Matrix(size=3)
+    matrix2[0, 0] = 1
+    matrix2[0, 1] = 1
+    matrix2[0, 2] = 1
+    assert matrix == matrix2
+    assert matrix + matrix2 == Matrix(size=3)
+    assert LoTriMatrix(3) == Matrix(
+        size=3,
+        function={
+            (0, 0): 1,
+            (1, 0): 1,
+            (1, 1): 1,
+            (2, 0): 1,
+            (2, 1): 1,
+            (2, 2): 1,
+        },
+    )
+    pmat = Matrix(
+        4,
+        function={
+            (3, 3): 1,
+            (2, 1): 1,
+            (1, 0): 1,
+            (0, 2): 1,
+        },
+    )
+    perm = Perm.from_matrix(pmat)
+    assert perm == Perm((2, 0, 1, 3))
+    assert pmat == Perm((2, 0, 1, 3)).matrix_repr()
+
+
+def test_to_triangular_perm_matrix():
+    tpm = Matrix(
+        4,
+        function={
+            (0, 0): 1,
+            (0, 2): 1,
+            (1, 1): 1,
+            (2, 0): 1,
+            (2, 2): 1,
+            (3, 0): 1,
+            (3, 1): 1,
+            (3, 2): 1,
+        },
+    )
+    assert Perm((2, 0, 1, 3)).to_triangular_perm_matrix() == tpm

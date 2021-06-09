@@ -26,7 +26,7 @@ from typing import (
 )
 
 from permuta.misc import HTMLViewer
-from permuta.misc.math import is_prime
+from permuta.misc.math import LoTriMatrix, Matrix, is_prime
 
 from .patt import Patt
 
@@ -86,6 +86,19 @@ class Perm(TupleType, Patt):
 
     standardize = to_standard
     from_iterable = to_standard
+
+    @classmethod
+    def from_matrix(cls, matrix: "Matrix") -> "Perm":
+        """Returns the perm corresponding to the matrix given."""
+        if matrix.test_sum() != matrix.size:
+            raise Exception("Invalid matrix used")
+        perm_list: List[Optional[int]] = [None for _ in range(len(matrix))]
+        for (row, col), val in matrix.function.items():
+            if val:
+                perm_list[row] = col
+        if None in perm_list:
+            raise Exception("Invalid matrix used")
+        return cls.to_standard(perm_list)
 
     @classmethod
     def from_integer(cls, integer: int) -> "Perm":
@@ -2895,6 +2908,20 @@ class Perm(TupleType, Patt):
         """Open a browser tab and display permutation graphically. Image can be
         enlarged with scale parameter"""
         HTMLViewer.open_svg(self.to_svg(image_scale=scale))
+
+    def matrix_repr(self):
+        """Returns the matrix representation of the perm"""
+        return Matrix(
+            len(self), function={(idx, val): 1 for idx, val in enumerate(self)}
+        )
+
+    def to_triangular_perm_matrix(self):
+        """Returns the triangular permutation matrix (tpm) representation
+        of the permutation. Tpm is the symmetric difference of the perm matrix and
+        lower triangular matrix."""
+        ltm = LoTriMatrix(size=len(self))
+        as_matrix = self.matrix_repr()
+        return as_matrix + ltm
 
     def __call__(self, value: int) -> int:
         assert 0 <= value < len(self)
