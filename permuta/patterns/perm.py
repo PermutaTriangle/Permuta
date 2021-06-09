@@ -1720,6 +1720,102 @@ class Perm(TupleType, Patt):
         """
         return len(self.afterminima())
 
+    def aftermaxima(self):
+        """Returns a list of indexes of the aftermaxima of the permutation.
+        If P(i) is both a double descent and rtlmax it is an aftermaximum.
+        See: https://arxiv.org/abs/1908.01084
+
+        Examples:
+            >>> Perm((4, 1, 2, 5, 3, 0, 6)).aftermaxima()
+            []
+            >>> Perm((5, 4, 3, 1, 2, 0)).aftermaxima()
+            [2, 4]
+            >>> Perm((1, 2, 0)).aftermaxima()
+            [1]
+            >>> Perm((2, 4, 0, 3, 1)).aftermaxima()
+            [3]
+            >>> Perm((1, 3, 2, 0)).aftermaxima()
+            [2]
+            >>> Perm((2, 0, 1)).aftermaxima()
+            [0]
+            >>> Perm((1, 4, 2, 0, 3)).aftermaxima()
+            [1]
+        """
+        double_descents = set(self.descents(step_size=2))
+        rtlmax = set(self.rtlmax())
+        return list(double_descents & rtlmax)
+
+    def count_aftermaxima(self):
+        """Returns the number of aftermaxima in the permutation.
+        If P(i) is both a double descent and rtlmax it is an afermaximum.
+        See: https://arxiv.org/abs/1908.01084
+
+        Examples:
+            >>> Perm((4, 1, 2, 5, 3, 0, 6)).count_aftermaxima()
+            0
+            >>> Perm((5, 4, 3, 1, 2, 0)).count_aftermaxima()
+            2
+            >>> Perm((1, 2, 0)).count_aftermaxima()
+            1
+            >>> Perm((2, 4, 0, 3, 1)).count_aftermaxima()
+            1
+            >>> Perm((1, 3, 2, 0)).count_aftermaxima()
+            1
+            >>> Perm((2, 0, 1)).count_aftermaxima()
+            1
+            >>> Perm((1, 4, 2, 0, 3)).count_aftermaxima()
+            1
+        """
+        return len(self.aftermaxima())
+
+    def foreminima(self):
+        """Returns a list of indexes of the foreminima of the permutation.
+        If P(i) is both a double descent and ltrmin it is a foreminimum.
+        See: https://arxiv.org/abs/1908.01084
+
+        Examples:
+            >>> Perm((5, 6, 0, 1, 3, 4, 2)).foreminima()
+            []
+            >>> Perm((3, 1, 4, 0, 2)).foreminima()
+            [0]
+            >>> Perm((3, 1, 2, 5, 4, 0)).foreminima()
+            [0]
+            >>> Perm((3, 1, 4, 2, 0)).foreminima()
+            [0]
+            >>> Perm((3, 1, 0, 5, 4, 2)).foreminima()
+            [0]
+            >>> Perm((2, 0, 1)).foreminima()
+            [0]
+            >>> Perm((6, 4, 2, 3, 5, 1, 0)).foreminima()
+            [0, 1]
+        """
+        double_descents = set(self.descents(step_size=2))
+        ltrmin = set(self.ltrmin())
+        return list(double_descents & ltrmin)
+
+    def count_foreminima(self):
+        """Returns the number of foreminima in the permutation.
+        If P(i) is both a double descent and ltrmin it is a foreminimum.
+        See: https://arxiv.org/abs/1908.01084
+
+        Examples:
+            >>> Perm((5, 6, 0, 1, 3, 4, 2)).count_foreminima()
+            0
+            >>> Perm((3, 1, 4, 0, 2)).count_foreminima()
+            1
+            >>> Perm((3, 1, 2, 5, 4, 0)).count_foreminima()
+            1
+            >>> Perm((3, 1, 4, 2, 0)).count_foreminima()
+            1
+            >>> Perm((3, 1, 0, 5, 4, 2)).count_foreminima()
+            1
+            >>> Perm((2, 0, 1)).count_foreminima()
+            1
+            >>> Perm((6, 4, 2, 3, 5, 1, 0)).count_foreminima()
+            2
+        """
+        return len(self.foreminima())
+
     def inversions(self) -> Iterator[Tuple[int, int]]:
         """Yield the inversions of the permutation, i.e., the pairs i,j
         such that i < j and self(i) > self(j).
