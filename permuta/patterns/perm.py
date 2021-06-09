@@ -90,10 +90,10 @@ class Perm(TupleType, Patt):
     @classmethod
     def from_matrix(cls, matrix: "Matrix") -> "Perm":
         """Returns the perm corresponding to the matrix given."""
-        if matrix.test_sum() != matrix.size:
+        if matrix.test_sum() != len(matrix):
             raise Exception("Invalid matrix used")
         perm_list: List[Optional[int]] = [None for _ in range(len(matrix))]
-        for (row, col), val in matrix.function.items():
+        for (row, col), val in matrix.elements.items():
             if val:
                 perm_list[row] = col
         if None in perm_list:
@@ -2912,16 +2912,87 @@ class Perm(TupleType, Patt):
     def matrix_repr(self):
         """Returns the matrix representation of the perm"""
         return Matrix(
-            len(self), function={(idx, val): 1 for idx, val in enumerate(self)}
+            len(self), elements={(idx, val): 1 for idx, val in enumerate(self)}
         )
 
     def to_triangular_perm_matrix(self):
         """Returns the triangular permutation matrix (tpm) representation
         of the permutation. Tpm is the symmetric difference of the perm matrix and
-        lower triangular matrix."""
-        ltm = LoTriMatrix(size=len(self))
-        as_matrix = self.matrix_repr()
-        return as_matrix + ltm
+        lower triangular matrix. This matrix is unique in most cases."""
+        return self.matrix_repr() + LoTriMatrix(len(self))
+
+    def _perm_gen_rec(
+        self,
+        pre_list: List[List[int]],
+        idx: int,
+        cum_list: List[int],
+        p_c_class,
+        mat_size: int,
+    ) -> None:
+        """Recursive helper function that generates all possible permutations of
+        the valid positions for the triangular permutation matrix."""
+        if idx == mat_size:
+            p_c_class.add(Perm(cum_list))
+            return
+        for i in pre_list[idx]:
+            if i not in cum_list:
+                self._perm_gen_rec(
+                    pre_list, idx + 1, cum_list + [i], p_c_class, mat_size
+                )
+
+    def _allowed_perm_of_tpm(
+        self, pre_list: List[List[int]], mat_size: int
+    ) -> List["Perm"]:
+        """Generates all permutations of the valid positions for
+        the triangular permutation matrix."""
+
+        class PC:
+            """Small class for the recursive function"""
+
+            def __init__(self) -> None:
+                self.lis: List["Perm"] = []
+
+            def add(self, perm):
+                """Appends to list"""
+                self.lis.append(perm)
+
+            def get(self) -> List["Perm"]:
+                """Just here to get rid of to few methods warning"""
+                return self.lis
+
+        p_c = PC()
+        self._perm_gen_rec(pre_list, 0, [], p_c, mat_size)
+        return p_c.get()
+
+    def revert_triangular_perm_matrix(self, matrix: "Matrix") -> "Matrix":
+        """Returns the perm form a triangular permutation matrix
+        even if it has been shuffled.
+        `If tpm is not unique it can give unexpected outcome`"""
+        ltm: LoTriMatrix = LoTriMatrix(len(matrix))
+        pre_pos_list: List[List[int]] = [[] for _ in range(len(matrix))]
+        for idx, val in enumerate(matrix.hamming_sums(row=True)):
+            if 0 <= val - 2 < len(matrix):
+                pre_pos_list[val - 2].append(idx)
+            if 0 <= val < len(matrix):
+                pre_pos_list[val].append(idx)
+        perm_list = self._allowed_perm_of_tpm(
+            pre_list=pre_pos_list, mat_size=len(matrix)
+        )
+        tried = set()
+        for perm1 in perm_list:
+            for perm2 in Perm.of_length(len(matrix)):
+                tmp_mat = matrix.apply_perm(perm1, row=True)
+                tmp_mat = tmp_mat.apply_perm(perm2, row=False)
+                if tmp_mat not in tried:
+                    tried.add(tmp_mat)
+                    tmp_mat = tmp_mat + ltm
+                    if tmp_mat.hamming_sums(row=True) == [
+                        1 for _ in range(len(matrix))
+                    ]:
+                        if tmp_mat.hamming_sums(row=False) == [
+                            1 for _ in range(len(matrix))
+                        ]:
+                            return tmp_mat
 
     def __call__(self, value: int) -> int:
         assert 0 <= value < len(self)

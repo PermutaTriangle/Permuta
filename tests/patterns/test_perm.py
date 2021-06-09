@@ -3538,7 +3538,7 @@ def test_count_afterminima():
 
 def test_matrix_class():
     assert Matrix(0) == Matrix(0)
-    matrix = Matrix(size=3, function={(0, 0): 1, (0, 1): 1, (0, 2): 1})
+    matrix = Matrix(size=3, elements={(0, 0): 1, (0, 1): 1, (0, 2): 1})
     matrix2 = Matrix(size=3)
     matrix2[0, 0] = 1
     matrix2[0, 1] = 1
@@ -3547,7 +3547,7 @@ def test_matrix_class():
     assert matrix + matrix2 == Matrix(size=3)
     assert LoTriMatrix(3) == Matrix(
         size=3,
-        function={
+        elements={
             (0, 0): 1,
             (1, 0): 1,
             (1, 1): 1,
@@ -3558,7 +3558,7 @@ def test_matrix_class():
     )
     pmat = Matrix(
         4,
-        function={
+        elements={
             (3, 3): 1,
             (2, 1): 1,
             (1, 0): 1,
@@ -3568,12 +3568,36 @@ def test_matrix_class():
     perm = Perm.from_matrix(pmat)
     assert perm == Perm((2, 0, 1, 3))
     assert pmat == Perm((2, 0, 1, 3)).matrix_repr()
+    perm = Perm((5, 3, 4, 1, 2, 0))
+    pmat = perm.matrix_repr()
+    assert pmat == Matrix(
+        6, {(0, 5): 1, (1, 3): 1, (2, 4): 1, (3, 1): 1, (4, 2): 1, (5, 0): 1}
+    )
+    pmat = Perm((3, 1, 0, 2)).matrix_repr()
+    pmat = pmat.apply_perm(Perm((2, 1, 3, 0)))
+    assert pmat == Matrix(4, {(0, 0): 1, (1, 1): 1, (2, 2): 1, (3, 3): 1})
 
 
 def test_to_triangular_perm_matrix():
+    assert (
+        Matrix(
+            4,
+            elements={
+                (0, 2): 1,
+                (0, 0): 1,
+                (1, 0): 1,
+                (2, 1): 1,
+                (2, 2): 1,
+                (3, 0): 1,
+                (3, 1): 1,
+                (3, 2): 1,
+            },
+        )
+        == Perm((2, 1, 0, 3)).to_triangular_perm_matrix()
+    )
     tpm = Matrix(
         4,
-        function={
+        elements={
             (0, 0): 1,
             (0, 2): 1,
             (1, 1): 1,
@@ -3585,3 +3609,70 @@ def test_to_triangular_perm_matrix():
         },
     )
     assert Perm((2, 0, 1, 3)).to_triangular_perm_matrix() == tpm
+    orig = Matrix(4, {(0, 0): 1, (1, 3): 1, (2, 2): 1, (3, 1): 1})
+    ltm = LoTriMatrix(4)
+    pmat = orig + ltm
+    assert pmat == Matrix(
+        4,
+        {
+            (0, 0): 0,
+            (1, 3): 1,
+            (2, 2): 0,
+            (3, 1): 0,
+            (1, 0): 1,
+            (1, 1): 1,
+            (2, 0): 1,
+            (2, 1): 1,
+            (3, 0): 1,
+            (3, 2): 1,
+            (3, 3): 1,
+        },
+    )
+    pmat = pmat.apply_perm([2, 1, 0, 3], row=False)
+    assert pmat == Matrix(
+        4,
+        {
+            (2, 0): 0,
+            (3, 0): 1,
+            (1, 1): 1,
+            (2, 1): 1,
+            (3, 1): 0,
+            (0, 2): 0,
+            (1, 2): 1,
+            (2, 2): 1,
+            (3, 2): 1,
+            (1, 3): 1,
+            (3, 3): 1,
+        },
+    )
+    pmat = pmat.apply_perm([0, 3, 1, 2])
+    assert pmat == Matrix(
+        4,
+        {
+            (0, 2): 0,
+            (1, 0): 1,
+            (1, 1): 0,
+            (1, 2): 1,
+            (1, 3): 1,
+            (2, 1): 1,
+            (2, 2): 1,
+            (2, 3): 1,
+            (3, 0): 0,
+            (3, 1): 1,
+            (3, 2): 1,
+        },
+    )
+    pmat = Perm().revert_triangular_perm_matrix(pmat)
+    assert pmat == orig
+    perm = Perm((0, 3, 4, 5, 2, 6, 1))
+    assert perm.matrix_repr() == perm.revert_triangular_perm_matrix(
+        perm.to_triangular_perm_matrix()
+        .apply_perm([4, 3, 5, 1, 2, 0, 6], row=False)
+        .apply_perm([5, 6, 4, 3, 2, 1, 0])
+    )
+    perm = Perm.random(4)
+    assert perm.matrix_repr() == perm.revert_triangular_perm_matrix(
+        perm.to_triangular_perm_matrix()
+        .apply_perm(Perm.random(4), row=False)
+        .apply_perm(Perm.random(4))
+    )
