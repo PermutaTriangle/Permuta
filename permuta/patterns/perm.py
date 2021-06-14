@@ -2430,7 +2430,7 @@ class Perm(TupleType, Patt):
             >>> Perm((4, 1, 6, 3, 0, 7, 2, 5)).is_strongly_simple()
             True
         """
-        return self.is_simple() and all([patt.is_simple() for patt in self.children()])
+        return self.is_simple() and all(patt.is_simple() for patt in self.children())
 
     def children(self) -> List["Perm"]:
         """Returns all patterns of length one less than the permutation. One
@@ -3012,7 +3012,7 @@ class Perm(TupleType, Patt):
         return self.compose(other)
 
     def __repr__(self) -> "str":
-        return f"Perm({super(Perm, self).__repr__()})"
+        return f"Perm({super().__repr__()})"
 
     def __str__(self) -> "str":
         if not self:
