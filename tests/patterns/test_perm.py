@@ -1,10 +1,11 @@
 import itertools
 import random
 from collections import deque
+from math import factorial
 
 import pytest
 
-from permuta import Perm
+from permuta import MeshPatt, Perm
 
 
 def test_from_iterable_validated():
@@ -1163,38 +1164,128 @@ def test_sum_decomposition():
 
 def test_descent_set():
     assert Perm().descent_set() == []
+    assert Perm().descent_set(step_size=2) == []
+
     assert Perm((0, 1, 2, 3)).descent_set() == []
+    assert Perm((0, 1, 2, 3)).descent_set(step_size=2) == []
+
     assert Perm((3, 2, 1, 0)).descent_set() == [0, 1, 2]
+    assert Perm((3, 2, 1, 0)).descent_set(step_size=1) == [0, 1, 2]
+    assert Perm((3, 2, 1, 0)).descent_set(step_size=2) == []
+
     assert Perm((2, 1, 0, 4, 3, 5)).descent_set() == [0, 1, 3]
+    assert Perm((2, 1, 0, 4, 3, 5)).descent_set(step_size=1) == [0, 1, 3]
+    assert Perm((2, 1, 0, 4, 3, 5)).descent_set(step_size=2) == []
+
     assert Perm((1, 2, 3, 0, 6, 5, 4)).descent_set() == [2, 4, 5]
+    assert Perm((1, 2, 3, 0, 6, 5, 4)).descent_set(step_size=1) == [4, 5]
+    assert Perm((1, 2, 3, 0, 6, 5, 4)).descent_set(step_size=2) == []
+    assert Perm((1, 2, 3, 0, 6, 5, 4)).descent_set(step_size=3) == [2]
+
     assert Perm((3, 1, 4, 5, 0, 7, 6, 2)).descent_set() == [0, 3, 5, 6]
+    assert Perm((3, 1, 4, 5, 0, 7, 6, 2)).descent_set(step_size=1) == [5]
+    assert Perm((3, 1, 4, 5, 0, 7, 6, 2)).descent_set(step_size=2) == [0]
+    assert Perm((3, 1, 4, 5, 0, 7, 6, 2)).descent_set(step_size=3) == []
+    assert Perm((3, 1, 4, 5, 0, 7, 6, 2)).descent_set(step_size=4) == [6]
+    assert Perm((3, 1, 4, 5, 0, 7, 6, 2)).descent_set(step_size=5) == [3]
 
 
 def test_count_descents():
     assert Perm().count_descents() == 0
+    assert Perm().count_descents(step_size=2) == 0
+
     assert Perm((0, 1, 2, 3)).count_descents() == 0
+    assert Perm((0, 1, 2, 3)).count_descents(step_size=2) == 0
+
     assert Perm((3, 2, 1, 0)).count_descents() == 3
+    assert Perm((3, 2, 1, 0)).count_descents(step_size=1) == 3
+    assert Perm((3, 2, 1, 0)).count_descents(step_size=2) == 0
+
     assert Perm((2, 1, 0, 4, 3, 5)).count_descents() == 3
+    assert Perm((2, 1, 0, 4, 3, 5)).count_descents(step_size=1) == 3
+    assert Perm((2, 1, 0, 4, 3, 5)).count_descents(step_size=2) == 0
+
     assert Perm((1, 2, 3, 0, 6, 5, 4)).count_descents() == 3
+    assert Perm((1, 2, 3, 0, 6, 5, 4)).count_descents(step_size=1) == 2
+    assert Perm((1, 2, 3, 0, 6, 5, 4)).count_descents(step_size=2) == 0
+    assert Perm((1, 2, 3, 0, 6, 5, 4)).count_descents(step_size=3) == 1
+
     assert Perm((3, 1, 4, 5, 0, 7, 6, 2)).count_descents() == 4
+    assert Perm((3, 1, 4, 5, 0, 7, 6, 2)).count_descents(step_size=1) == 1
+    assert Perm((3, 1, 4, 5, 0, 7, 6, 2)).count_descents(step_size=2) == 1
+    assert Perm((3, 1, 4, 5, 0, 7, 6, 2)).count_descents(step_size=3) == 0
+    assert Perm((3, 1, 4, 5, 0, 7, 6, 2)).count_descents(step_size=4) == 1
+    assert Perm((3, 1, 4, 5, 0, 7, 6, 2)).count_descents(step_size=5) == 1
 
 
 def test_ascent_set():
     assert Perm().ascent_set() == []
+    assert Perm().ascent_set(step_size=2) == []
+
     assert Perm((0, 1, 2, 3)).ascent_set() == [0, 1, 2]
+    assert Perm((0, 1, 2, 3)).ascent_set(step_size=1) == [0, 1, 2]
+    assert Perm((0, 1, 2, 3)).ascent_set(step_size=2) == []
+
     assert Perm((3, 2, 1, 0)).ascent_set() == []
+    assert Perm((3, 2, 1, 0)).ascent_set(step_size=2) == []
+
     assert Perm((2, 1, 0, 4, 3, 5)).ascent_set() == [2, 4]
+    assert Perm((2, 1, 0, 4, 3, 5)).ascent_set(step_size=1) == []
+    assert Perm((2, 1, 0, 4, 3, 5)).ascent_set(step_size=2) == [4]
+    assert Perm((2, 1, 0, 4, 3, 5)).ascent_set(step_size=3) == []
+    assert Perm((2, 1, 0, 4, 3, 5)).ascent_set(step_size=4) == [2]
+
     assert Perm((1, 2, 3, 0, 6, 5, 4)).ascent_set() == [0, 1, 3]
+    assert Perm((1, 2, 3, 0, 6, 5, 4)).ascent_set(step_size=1) == [0, 1]
+    assert Perm((1, 2, 3, 0, 6, 5, 4)).ascent_set(step_size=2) == []
+    assert Perm((1, 2, 3, 0, 6, 5, 4)).ascent_set(step_size=3) == []
+    assert Perm((1, 2, 3, 0, 6, 5, 4)).ascent_set(step_size=4) == []
+    assert Perm((1, 2, 3, 0, 6, 5, 4)).ascent_set(step_size=5) == []
+    assert Perm((1, 2, 3, 0, 6, 5, 4)).ascent_set(step_size=6) == [3]
+
     assert Perm((3, 1, 4, 5, 0, 7, 6, 2)).ascent_set() == [1, 2, 4]
+    assert Perm((3, 1, 4, 5, 0, 7, 6, 2)).ascent_set(step_size=1) == [2]
+    assert Perm((3, 1, 4, 5, 0, 7, 6, 2)).ascent_set(step_size=2) == []
+    assert Perm((3, 1, 4, 5, 0, 7, 6, 2)).ascent_set(step_size=3) == [1]
+    assert Perm((3, 1, 4, 5, 0, 7, 6, 2)).ascent_set(step_size=4) == []
+    assert Perm((3, 1, 4, 5, 0, 7, 6, 2)).ascent_set(step_size=5) == []
+    assert Perm((3, 1, 4, 5, 0, 7, 6, 2)).ascent_set(step_size=6) == []
+    assert Perm((3, 1, 4, 5, 0, 7, 6, 2)).ascent_set(step_size=7) == [4]
 
 
 def test_count_ascents():
     assert Perm().count_ascents() == 0
+
     assert Perm((0, 1, 2, 3)).count_ascents() == 3
+    assert Perm((0, 1, 2, 3)).count_ascents(step_size=1) == 3
+    assert Perm((0, 1, 2, 3)).count_ascents(step_size=2) == 0
+
     assert Perm((3, 2, 1, 0)).count_ascents() == 0
+    assert Perm((3, 2, 1, 0)).count_ascents(step_size=1) == 0
+    assert Perm((3, 2, 1, 0)).count_ascents(step_size=2) == 0
+
     assert Perm((2, 1, 0, 4, 3, 5)).count_ascents() == 2
+    assert Perm((2, 1, 0, 4, 3, 5)).count_ascents(step_size=1) == 0
+    assert Perm((2, 1, 0, 4, 3, 5)).count_ascents(step_size=2) == 1
+    assert Perm((2, 1, 0, 4, 3, 5)).count_ascents(step_size=3) == 0
+    assert Perm((2, 1, 0, 4, 3, 5)).count_ascents(step_size=4) == 1
+
     assert Perm((1, 2, 3, 0, 6, 5, 4)).count_ascents() == 3
+    assert Perm((1, 2, 3, 0, 6, 5, 4)).count_ascents(step_size=1) == 2
+    assert Perm((1, 2, 3, 0, 6, 5, 4)).count_ascents(step_size=2) == 0
+    assert Perm((1, 2, 3, 0, 6, 5, 4)).count_ascents(step_size=3) == 0
+    assert Perm((1, 2, 3, 0, 6, 5, 4)).count_ascents(step_size=4) == 0
+    assert Perm((1, 2, 3, 0, 6, 5, 4)).count_ascents(step_size=5) == 0
+    assert Perm((1, 2, 3, 0, 6, 5, 4)).count_ascents(step_size=6) == 1
+
     assert Perm((3, 1, 4, 5, 0, 7, 6, 2)).count_ascents() == 3
+    assert Perm((3, 1, 4, 5, 0, 7, 6, 2)).count_ascents(step_size=1) == 1
+    assert Perm((3, 1, 4, 5, 0, 7, 6, 2)).count_ascents(step_size=2) == 0
+    assert Perm((3, 1, 4, 5, 0, 7, 6, 2)).count_ascents(step_size=3) == 1
+    assert Perm((3, 1, 4, 5, 0, 7, 6, 2)).count_ascents(step_size=4) == 0
+    assert Perm((3, 1, 4, 5, 0, 7, 6, 2)).count_ascents(step_size=5) == 0
+    assert Perm((3, 1, 4, 5, 0, 7, 6, 2)).count_ascents(step_size=6) == 0
+    assert Perm((3, 1, 4, 5, 0, 7, 6, 2)).count_ascents(step_size=7) == 1
 
 
 def test_peaks():
@@ -1218,6 +1309,29 @@ def test_count_peaks():
     assert Perm((0, 1, 2, 3)).count_peaks() == 0
     assert Perm((2, 1, 0, 4, 3, 5)).count_peaks() == 1
     assert Perm((1, 2, 3, 0, 6, 5, 4)).count_peaks() == 2
+
+
+def test_pinnacles():
+    assert list(Perm().pinnacles()) == []
+    assert list(Perm((0, 1, 2, 3)).pinnacles()) == []
+    assert list(Perm((0, 1, 2, 4, 3)).pinnacles()) == [4]
+    assert list(Perm((2, 1, 0, 4, 3, 5)).pinnacles()) == [4]
+    assert list(Perm((1, 2, 3, 0, 6, 5, 4)).pinnacles()) == [3, 6]
+
+
+def test_pinnacle_set():
+    assert Perm().pinnacle_set() == []
+    assert Perm((0, 1, 2, 3)).pinnacle_set() == []
+    assert Perm((0, 1, 2, 4, 3)).pinnacle_set() == [4]
+    assert Perm((2, 1, 0, 4, 3, 5)).pinnacle_set() == [4]
+    assert Perm((1, 2, 3, 0, 6, 5, 4)).pinnacle_set() == [3, 6]
+
+
+def test_count_pinnacles():
+    assert Perm().count_pinnacles() == 0
+    assert Perm((0, 1, 2, 3)).count_pinnacles() == 0
+    assert Perm((2, 1, 0, 4, 3, 5)).count_pinnacles() == 1
+    assert Perm((1, 2, 3, 0, 6, 5, 4)).count_pinnacles() == 2
 
 
 def test_valleys():
@@ -2310,3 +2424,1261 @@ def test_cycle_notation():
     assert Perm((0,)).cycle_notation() == "( 0 )"
     assert Perm((0, 1)).cycle_notation() == "( 0 ) ( 1 )"
     assert Perm((7, 0, 1, 2, 5, 4, 3, 6)).cycle_notation() == "( 5 4 ) ( 7 6 3 2 1 0 )"
+
+
+def test_count_bounces():
+    assert Perm((0,)).count_bounces() == 0
+    assert Perm((0, 1)).count_bounces() == 1
+    assert Perm((1, 0)).count_bounces() == 0
+    assert Perm((0, 1, 2)).count_bounces() == 3
+    assert Perm((0, 2, 1)).count_bounces() == 2
+    assert Perm((1, 0, 2)).count_bounces() == 1
+    assert Perm((1, 2, 0)).count_bounces() == 0
+    assert Perm((2, 0, 1)).count_bounces() == 1
+    assert Perm((2, 1, 0)).count_bounces() == 0
+    assert Perm((0, 3, 2, 1)).count_bounces() == 3
+    assert Perm((2, 0, 1, 3)).count_bounces() == 3
+    assert Perm((3, 0, 2, 1)).count_bounces() == 2
+    assert Perm((0, 1, 3, 2, 4)).count_bounces() == 8
+    assert Perm((0, 2, 3, 4, 1)).count_bounces() == 4
+    assert Perm((0, 3, 4, 1, 2)).count_bounces() == 5
+    assert Perm((0, 4, 3, 2, 1)).count_bounces() == 4
+    assert Perm((1, 2, 0, 3, 4)).count_bounces() == 3
+    assert Perm((1, 3, 0, 4, 2)).count_bounces() == 2
+    assert Perm((1, 4, 2, 0, 3)).count_bounces() == 1
+    assert Perm((2, 0, 3, 4, 1)).count_bounces() == 3
+    assert Perm((2, 1, 4, 0, 3)).count_bounces() == 1
+    assert Perm((4, 1, 3, 2, 0)).count_bounces() == 0
+    assert Perm((4, 3, 0, 1, 2)).count_bounces() == 2
+    assert Perm((0, 1, 2, 3, 5, 4)).count_bounces() == 14
+    assert Perm((0, 1, 3, 4, 2, 5)).count_bounces() == 10
+    assert Perm((0, 1, 4, 3, 5, 2)).count_bounces() == 9
+    assert Perm((0, 1, 5, 4, 2, 3)).count_bounces() == 10
+    assert Perm((0, 2, 1, 5, 4, 3)).count_bounces() == 8
+    assert Perm((0, 2, 4, 1, 3, 5)).count_bounces() == 8
+    assert Perm((0, 2, 5, 1, 4, 3)).count_bounces() == 7
+    assert Perm((0, 3, 1, 4, 2, 5)).count_bounces() == 9
+    assert Perm((0, 3, 2, 4, 5, 1)).count_bounces() == 5
+    assert Perm((0, 3, 4, 5, 1, 2)).count_bounces() == 6
+    assert Perm((0, 3, 5, 4, 2, 1)).count_bounces() == 5
+    assert Perm((0, 4, 2, 1, 3, 5)).count_bounces() == 8
+    assert Perm((0, 4, 3, 1, 5, 2)).count_bounces() == 7
+    assert Perm((0, 4, 5, 2, 1, 3)).count_bounces() == 6
+    assert Perm((0, 5, 1, 3, 4, 2)).count_bounces() == 8
+    assert Perm((0, 5, 2, 4, 1, 3)).count_bounces() == 6
+    assert Perm((0, 5, 3, 4, 2, 1)).count_bounces() == 5
+    assert Perm((1, 0, 2, 3, 4, 5)).count_bounces() == 10
+    assert Perm((1, 0, 3, 2, 5, 4)).count_bounces() == 6
+    assert Perm((1, 0, 4, 3, 2, 5)).count_bounces() == 5
+    assert Perm((1, 0, 5, 3, 4, 2)).count_bounces() == 4
+    assert Perm((1, 2, 0, 5, 3, 4)).count_bounces() == 4
+    assert Perm((1, 2, 3, 5, 4, 0)).count_bounces() == 0
+    assert Perm((1, 2, 5, 0, 3, 4)).count_bounces() == 2
+    assert Perm((1, 3, 0, 2, 5, 4)).count_bounces() == 5
+    assert Perm((1, 3, 2, 4, 0, 5)).count_bounces() == 1
+    assert Perm((1, 3, 4, 2, 5, 0)).count_bounces() == 0
+    assert Perm((1, 3, 5, 4, 0, 2)).count_bounces() == 1
+    assert Perm((1, 4, 0, 5, 3, 2)).count_bounces() == 3
+    assert Perm((1, 4, 3, 0, 2, 5)).count_bounces() == 3
+    assert Perm((1, 4, 5, 0, 3, 2)).count_bounces() == 2
+    assert Perm((1, 5, 0, 3, 2, 4)).count_bounces() == 4
+    assert Perm((1, 5, 2, 3, 4, 0)).count_bounces() == 0
+    assert Perm((1, 5, 3, 4, 0, 2)).count_bounces() == 1
+    assert Perm((1, 5, 4, 3, 2, 0)).count_bounces() == 0
+    assert Perm((2, 0, 3, 1, 4, 5)).count_bounces() == 7
+    assert Perm((2, 0, 4, 1, 5, 3)).count_bounces() == 6
+    assert Perm((2, 0, 5, 3, 1, 4)).count_bounces() == 5
+    assert Perm((2, 1, 0, 4, 5, 3)).count_bounces() == 3
+    assert Perm((2, 1, 3, 5, 0, 4)).count_bounces() == 1
+    assert Perm((2, 1, 4, 5, 3, 0)).count_bounces() == 0
+    assert Perm((2, 3, 0, 1, 4, 5)).count_bounces() == 6
+    assert Perm((2, 3, 1, 0, 5, 4)).count_bounces() == 2
+    assert Perm((2, 3, 4, 1, 0, 5)).count_bounces() == 1
+    assert Perm((2, 3, 5, 1, 4, 0)).count_bounces() == 0
+    assert Perm((2, 4, 0, 5, 1, 3)).count_bounces() == 3
+    assert Perm((2, 4, 1, 5, 3, 0)).count_bounces() == 0
+    assert Perm((2, 4, 5, 0, 1, 3)).count_bounces() == 2
+    assert Perm((2, 5, 0, 1, 4, 3)).count_bounces() == 3
+    assert Perm((2, 5, 1, 3, 0, 4)).count_bounces() == 1
+    assert Perm((2, 5, 3, 1, 4, 0)).count_bounces() == 0
+    assert Perm((2, 5, 4, 3, 0, 1)).count_bounces() == 1
+    assert Perm((3, 2, 5, 1, 0, 4)).count_bounces() == 1
+    assert Perm((3, 4, 0, 2, 5, 1)).count_bounces() == 3
+    assert Perm((3, 4, 1, 5, 0, 2)).count_bounces() == 1
+    assert Perm((3, 4, 2, 5, 1, 0)).count_bounces() == 0
+    assert Perm((3, 5, 0, 1, 2, 4)).count_bounces() == 4
+    assert Perm((3, 5, 1, 0, 4, 2)).count_bounces() == 2
+    assert Perm((3, 5, 2, 1, 0, 4)).count_bounces() == 1
+    assert Perm((3, 5, 4, 1, 2, 0)).count_bounces() == 0
+    assert Perm((4, 0, 1, 5, 2, 3)).count_bounces() == 5
+    assert Perm((4, 0, 2, 5, 3, 1)).count_bounces() == 4
+    assert Perm((4, 0, 5, 1, 2, 3)).count_bounces() == 5
+    assert Perm((4, 1, 0, 2, 5, 3)).count_bounces() == 3
+    assert Perm((4, 1, 2, 3, 0, 5)).count_bounces() == 1
+    assert Perm((4, 1, 3, 2, 5, 0)).count_bounces() == 0
+    assert Perm((4, 1, 5, 3, 0, 2)).count_bounces() == 1
+    assert Perm((4, 3, 2, 5, 0, 1)).count_bounces() == 1
+    assert Perm((4, 3, 5, 2, 1, 0)).count_bounces() == 0
+    assert Perm((4, 5, 1, 0, 2, 3)).count_bounces() == 2
+    assert Perm((4, 5, 2, 0, 3, 1)).count_bounces() == 2
+    assert Perm((4, 5, 3, 1, 0, 2)).count_bounces() == 1
+    assert Perm((5, 0, 1, 3, 4, 2)).count_bounces() == 4
+
+
+def test_max_drop_size():
+    assert Perm((0,)).max_drop_size() == 0
+    assert Perm((0, 1)).max_drop_size() == 0
+    assert Perm((1, 0)).max_drop_size() == 1
+    assert Perm((0, 1, 2)).max_drop_size() == 0
+    assert Perm((0, 2, 1)).max_drop_size() == 1
+    assert Perm((1, 0, 2)).max_drop_size() == 1
+    assert Perm((1, 2, 0)).max_drop_size() == 1
+    assert Perm((2, 0, 1)).max_drop_size() == 2
+    assert Perm((2, 1, 0)).max_drop_size() == 2
+    assert Perm((0, 3, 4, 2, 1)).max_drop_size() == 2
+    assert Perm((2, 4, 0, 3, 1)).max_drop_size() == 3
+    assert Perm((4, 3, 1, 2, 0)).max_drop_size() == 4
+    assert Perm((0, 2, 5, 4, 3, 1)).max_drop_size() == 3
+    assert Perm((0, 5, 1, 2, 4, 3)).max_drop_size() == 4
+    assert Perm((1, 2, 0, 4, 5, 3)).max_drop_size() == 1
+    assert Perm((1, 4, 0, 5, 3, 2)).max_drop_size() == 3
+    assert Perm((2, 0, 3, 1, 5, 4)).max_drop_size() == 2
+    assert Perm((2, 3, 1, 4, 5, 0)).max_drop_size() == 2
+    assert Perm((2, 5, 1, 4, 3, 0)).max_drop_size() == 4
+    assert Perm((3, 1, 4, 0, 5, 2)).max_drop_size() == 3
+    assert Perm((3, 4, 2, 1, 5, 0)).max_drop_size() == 3
+    assert Perm((4, 0, 3, 5, 2, 1)).max_drop_size() == 4
+    assert Perm((4, 2, 5, 0, 3, 1)).max_drop_size() == 4
+    assert Perm((4, 5, 3, 1, 2, 0)).max_drop_size() == 4
+    assert Perm((5, 1, 4, 3, 2, 0)).max_drop_size() == 5
+    assert Perm((5, 4, 0, 1, 3, 2)).max_drop_size() == 5
+    assert Perm((0, 5, 6, 1, 2, 3, 4)).max_drop_size() == 4
+    assert Perm((2, 5, 0, 1, 3, 4, 6)).max_drop_size() == 4
+    assert Perm((5, 2, 3, 4, 1, 0, 6)).max_drop_size() == 5
+    assert Perm((6, 7, 2, 1, 3, 4, 5, 0)).max_drop_size() == 6
+    assert Perm((7, 5, 4, 3, 2, 1, 0, 6)).max_drop_size() == 7
+    assert Perm((2, 1, 5, 4, 6, 3, 7, 0)).max_drop_size() == 3
+    assert Perm((2, 1, 6, 5, 4, 3, 0, 7)).max_drop_size() == 4
+    assert Perm((1, 0, 4, 2, 6, 3, 7, 5)).max_drop_size() == 2
+    assert Perm((3, 4, 5, 0, 1, 2, 7, 6)).max_drop_size() == 3
+    assert Perm((0, 5, 1, 6, 2, 3, 4, 7)).max_drop_size() == 4
+    assert Perm((3, 7, 5, 0, 6, 2, 4, 1)).max_drop_size() == 6
+    assert Perm((5, 3, 6, 1, 4, 0, 2, 7)).max_drop_size() == 5
+    assert Perm((4, 3, 2, 7, 6, 5, 0, 1)).max_drop_size() == 4
+    assert Perm((5, 3, 2, 7, 1, 0, 4, 6)).max_drop_size() == 5
+    assert Perm((6, 0, 1, 7, 2, 4, 3, 5)).max_drop_size() == 6
+    assert Perm((1, 6, 5, 4, 2, 3, 7, 0)).max_drop_size() == 5
+    assert Perm((6, 4, 0, 2, 7, 1, 5, 3)).max_drop_size() == 6
+    assert Perm((5, 0, 1, 7, 3, 2, 4, 6)).max_drop_size() == 5
+    assert Perm((1, 5, 0, 2, 4, 3, 7, 6)).max_drop_size() == 4
+    assert Perm((5, 4, 7, 6, 0, 1, 2, 3)).max_drop_size() == 5
+    assert Perm((1, 2, 7, 0, 3, 5, 6, 4)).max_drop_size() == 5
+    assert Perm((7, 5, 0, 3, 4, 2, 1, 6)).max_drop_size() == 7
+    assert Perm((4, 3, 2, 7, 5, 6, 1, 0)).max_drop_size() == 4
+    assert Perm((3, 0, 5, 2, 6, 1, 7, 4)).max_drop_size() == 3
+    assert Perm((7, 3, 5, 0, 6, 2, 1, 4)).max_drop_size() == 7
+    assert Perm((6, 7, 0, 1, 2, 3, 4, 5, 8)).max_drop_size() == 6
+    assert Perm((5, 4, 3, 2, 1, 0, 6, 7, 8)).max_drop_size() == 5
+    assert Perm((9, 8, 3, 2, 7, 6, 5, 4, 1, 0)).max_drop_size() == 9
+    assert Perm((9, 6, 7, 2, 3, 8, 0, 1, 4, 5)).max_drop_size() == 9
+    assert Perm((8, 6, 9, 2, 3, 7, 0, 1, 4, 5)).max_drop_size() == 8
+    assert Perm((3, 1, 4, 0, 2, 5, 6, 7, 8, 9)).max_drop_size() == 3
+    assert Perm((3, 5, 7, 8, 9, 11, 0, 1, 2, 4, 6, 10)).max_drop_size() == 6
+    assert Perm((9, 2, 1, 8, 5, 4, 7, 6, 3, 0, 11, 10)).max_drop_size() == 9
+    assert Perm((1, 5, 6, 7, 10, 11, 0, 2, 3, 4, 8, 9)).max_drop_size() == 6
+    assert Perm((3, 6, 7, 9, 10, 11, 0, 1, 2, 4, 5, 8)).max_drop_size() == 6
+    assert Perm((11, 10, 5, 4, 3, 2, 7, 6, 9, 8, 1, 0)).max_drop_size() == 11
+
+
+def test_stack_sortable():
+    assert Perm(()).stack_sortable()
+    assert Perm((0,)).stack_sortable()
+    assert Perm((0, 1)).stack_sortable()
+    assert Perm((1, 0)).stack_sortable()
+    assert Perm((0, 1, 2)).stack_sortable()
+    assert Perm((0, 2, 1)).stack_sortable()
+    assert Perm((1, 0, 2)).stack_sortable()
+    assert not Perm((1, 2, 0)).stack_sortable()
+    assert Perm((2, 0, 1)).stack_sortable()
+    assert Perm((2, 1, 0)).stack_sortable()
+    assert Perm((2, 1, 0, 4, 3)).stack_sortable()
+    assert not Perm((1, 4, 3, 0, 8, 5, 2, 9, 7, 6)).stack_sortable()
+    assert not Perm((1, 3, 0, 2)).stack_sortable()
+    assert Perm((3, 0, 1, 2)).stack_sortable()
+    assert not Perm((6, 2, 4, 3, 7, 1, 5, 0)).stack_sortable()
+    assert not Perm((4, 8, 5, 0, 6, 1, 7, 3, 2)).stack_sortable()
+    assert Perm((0, 1, 3, 2)).stack_sortable()
+    assert Perm((3, 0, 2, 1)).stack_sortable()
+    assert not Perm((1, 0, 7, 2, 5, 4, 3, 8, 9, 6)).stack_sortable()
+    assert not Perm((4, 1, 5, 2, 6, 0, 3, 8, 7, 9)).stack_sortable()
+    assert Perm((0, 12, 11, 10, 9, 1, 5, 4, 2, 3, 6, 7, 8, 14, 13)).stack_sortable()
+
+
+def test_bubble_sortable():
+    enumeration = [1]
+    enumeration.extend([2 ** i for i in range(10)])
+    assert Perm(()).bubble_sortable()
+    assert Perm((0,)).bubble_sortable()
+    assert Perm((0, 1)).bubble_sortable()
+    assert Perm((1, 0)).bubble_sortable()
+    assert Perm((0, 1, 2)).bubble_sortable()
+    assert Perm((0, 2, 1)).bubble_sortable()
+    assert Perm((1, 0, 2)).bubble_sortable()
+    assert not Perm((1, 2, 0)).bubble_sortable()
+    assert Perm((2, 0, 1)).bubble_sortable()
+    assert not Perm((2, 1, 0)).bubble_sortable()
+    assert Perm((2, 0, 1, 3)).bubble_sortable()
+    assert not Perm((1, 4, 3, 2, 0)).bubble_sortable()
+    assert not Perm((0, 1, 5, 4, 2, 3)).bubble_sortable()
+    assert not Perm((1, 3, 4, 0, 6, 2, 5, 7)).bubble_sortable()
+    assert not Perm((1, 5, 6, 7, 0, 3, 2, 4)).bubble_sortable()
+    assert not Perm((2, 3, 1, 6, 4, 7, 5, 0)).bubble_sortable()
+    assert not Perm((2, 5, 1, 4, 7, 0, 6, 3)).bubble_sortable()
+    assert not Perm((3, 0, 4, 5, 7, 6, 1, 2)).bubble_sortable()
+    assert not Perm((4, 0, 7, 5, 3, 6, 2, 1)).bubble_sortable()
+    assert not Perm((6, 5, 2, 0, 3, 7, 1, 8, 4)).bubble_sortable()
+    for i in range(4, 7):
+        assert (
+            sum(1 for p in Perm.of_length(i) if p.bubble_sortable()) == enumeration[i]
+        )
+    patts = (Perm((1, 2, 0)), Perm((2, 1, 0)))
+    for i in range(20):
+        p = Perm.random(random.randint(5, 10))
+        if p.avoids(*patts):
+            assert p.bubble_sortable()
+        else:
+            assert not p.bubble_sortable()
+
+
+def test_quick_sortable():
+    enumeration = [1, 1, 2, 5, 12, 28, 65, 151, 351, 816]
+    for i in range(4, 7):
+        assert sum(1 for p in Perm.of_length(i) if p.quick_sortable()) == enumeration[i]
+    assert Perm(()).quick_sortable()
+    assert Perm((0,)).quick_sortable()
+    assert Perm((0, 1)).quick_sortable()
+    assert Perm((1, 0)).quick_sortable()
+    assert Perm((0, 1, 2)).quick_sortable()
+    assert Perm((0, 2, 1)).quick_sortable()
+    assert Perm((1, 0, 2)).quick_sortable()
+    assert Perm((1, 2, 0)).quick_sortable()
+    assert Perm((2, 0, 1)).quick_sortable()
+    assert not Perm((2, 1, 0)).quick_sortable()
+    assert not Perm((2, 1, 0, 3)).quick_sortable()
+    assert not Perm((2, 3, 1, 0)).quick_sortable()
+    assert not Perm((3, 4, 2, 1, 0)).quick_sortable()
+    assert not Perm((4, 3, 2, 0, 1)).quick_sortable()
+    assert Perm((0, 2, 1, 3, 4, 5)).quick_sortable()
+    assert Perm((0, 2, 3, 4, 5, 1)).quick_sortable()
+    assert not Perm((5, 0, 1, 4, 3, 2, 6)).quick_sortable()
+    assert not Perm((3, 6, 5, 4, 7, 2, 0, 1)).quick_sortable()
+    assert not Perm((6, 9, 7, 2, 3, 0, 5, 4, 1, 8)).quick_sortable()
+    assert not Perm((7, 5, 0, 4, 3, 1, 9, 2, 6, 8)).quick_sortable()
+
+
+def test_bkv_sortable():
+    patts_to_enumeration = {
+        (Perm((0, 1, 2)), Perm((0, 2, 1))): [1, 1, 2, 5, 14, 42, 132, 429],
+        (Perm((1, 2, 0)), Perm((0, 2, 1))): [1, 1, 2, 6, 22, 90, 394, 1806],
+        (): [1, 1, 2, 5, 14, 42, 132, 429],
+        (Perm((2, 1, 0)),): [1, 1, 2, 4, 8, 16, 32, 64],
+        (Perm((2, 1, 0, 3)),): [1, 1, 2, 5, 13, 34, 89, 233],
+        (Perm((3, 1, 0, 2)),): [1, 1, 2, 5, 13, 34, 89, 233],
+        (Perm((3, 2, 0, 1)),): [1, 1, 2, 5, 13, 34, 89, 233],
+        (Perm((3, 2, 1, 0)),): [1, 1, 2, 5, 13, 34, 89, 233],
+        (Perm((2, 1, 0, 3, 4)),): [1, 1, 2, 5, 14, 41, 121, 355],
+        (Perm((4, 1, 0, 2, 3)),): [1, 1, 2, 5, 14, 41, 121, 355],
+        (Perm((4, 3, 0, 1, 2)),): [1, 1, 2, 5, 14, 41, 121, 356],
+        (Perm((2, 1, 0, 4, 3)),): [1, 1, 2, 5, 14, 41, 122, 365],
+        (Perm((3, 1, 0, 2, 4)),): [1, 1, 2, 5, 14, 41, 122, 365],
+        (Perm((3, 2, 0, 1, 4)),): [1, 1, 2, 5, 14, 41, 122, 365],
+        (Perm((3, 2, 1, 0, 4)),): [1, 1, 2, 5, 14, 41, 122, 365],
+        (Perm((4, 1, 0, 3, 2)),): [1, 1, 2, 5, 14, 41, 122, 365],
+        (Perm((4, 2, 0, 1, 3)),): [1, 1, 2, 5, 14, 41, 122, 365],
+        (Perm((4, 2, 1, 0, 3)),): [1, 1, 2, 5, 14, 41, 122, 365],
+        (Perm((4, 3, 0, 2, 1)),): [1, 1, 2, 5, 14, 41, 122, 365],
+        (Perm((4, 3, 1, 0, 2)),): [1, 1, 2, 5, 14, 41, 122, 365],
+        (Perm((4, 3, 2, 0, 1)),): [1, 1, 2, 5, 14, 41, 122, 365],
+        (Perm((4, 3, 2, 1, 0)),): [1, 1, 2, 5, 14, 41, 122, 365],
+    }
+
+    all_patts = patts_to_enumeration.keys()
+    compares = 7  # can be increased to 8 at most but slow
+    res = {k: [0] * compares for k in all_patts}
+    for i in range(compares):
+        for perm in Perm.of_length(i):
+            for k in all_patts:
+                if perm.bkv_sortable(k):
+                    res[k][i] += 1
+    slicer = compares - 8
+    if slicer == 0:
+        slicer = 8
+    assert all(res[pat] == patts_to_enumeration[pat][:slicer] for pat in all_patts)
+    assert Perm((0, 1)).bkv_sortable(())
+    assert not Perm((7, 6, 9, 2, 0, 3, 8, 1, 5, 4)).bkv_sortable((Perm((0, 2, 1)),))
+    assert not Perm((4, 5, 2, 6, 7, 8, 1, 0, 3)).bkv_sortable((Perm((0, 1)),))
+    assert Perm((2, 0, 1, 3, 4, 5, 6)).bkv_sortable((Perm((2, 0, 1, 3)),))
+    assert not Perm((5, 2, 1, 0, 3, 4)).bkv_sortable((Perm((2, 1, 0)), Perm((0, 2, 1))))
+    assert Perm((3, 2, 1, 0, 4)).bkv_sortable(())
+    assert not Perm((4, 1, 2, 3, 0, 5)).bkv_sortable((Perm((0, 2, 1)),))
+    assert Perm((2, 0, 1)).bkv_sortable((Perm((0, 1)),))
+    assert Perm((2, 1, 0)).bkv_sortable((Perm((2, 0, 1, 3)),))
+    assert Perm((5, 3, 1, 0, 4, 2)).bkv_sortable((Perm((2, 1, 0)), Perm((0, 2, 1))))
+    assert Perm((0,)).bkv_sortable(())
+    assert Perm((2, 1, 3, 0)).bkv_sortable((Perm((0, 2, 1)),))
+    assert Perm((0,)).bkv_sortable((Perm((0, 1)),))
+    assert not Perm((6, 4, 0, 5, 8, 3, 2, 7, 1)).bkv_sortable((Perm((2, 0, 1, 3)),))
+    assert Perm(()).bkv_sortable((Perm((2, 1, 0)), Perm((0, 2, 1))))
+    assert not Perm((4, 1, 3, 2, 0)).bkv_sortable(())
+    assert not Perm((1, 2, 0, 3)).bkv_sortable((Perm((0, 2, 1)),))
+    assert Perm(()).bkv_sortable((Perm((0, 1)),))
+    assert not Perm((1, 5, 4, 2, 0, 3)).bkv_sortable((Perm((2, 0, 1, 3)),))
+    assert Perm(()).bkv_sortable((Perm((2, 1, 0)), Perm((0, 2, 1))))
+
+
+def test_west_2_stack_sortable():
+    eq_patt_avoidance = (Perm((1, 2, 3, 0)), MeshPatt(Perm((2, 1, 3, 0)), {(1, 4)}))
+    for _ in range(100):
+        if random.randint(0, 10) < 1:
+            p = Perm.random(random.randint(0, 3))
+        else:
+            p = Perm.random(random.randint(4, 10))
+        if p.avoids(*eq_patt_avoidance):
+            assert p.west_2_stack_sortable()
+        else:
+            assert not p.west_2_stack_sortable()
+    for n in (5, 6, 7):
+        assert sum(
+            1 for p in Perm.of_length(n) if p.west_2_stack_sortable()
+        ) == 2 * factorial(3 * n) / (factorial(n + 1) * factorial(2 * n + 1))
+
+
+def test_west_3_stack_sortable():
+    assert Perm(()).west_3_stack_sortable()
+    assert Perm((0,)).west_3_stack_sortable()
+    assert Perm((0, 1)).west_3_stack_sortable()
+    assert Perm((1, 0)).west_3_stack_sortable()
+    assert Perm((0, 1, 2)).west_3_stack_sortable()
+    assert Perm((0, 2, 1)).west_3_stack_sortable()
+    assert Perm((1, 0, 2)).west_3_stack_sortable()
+    assert Perm((1, 2, 0)).west_3_stack_sortable()
+    assert Perm((2, 0, 1)).west_3_stack_sortable()
+    assert Perm((2, 1, 0)).west_3_stack_sortable()
+    assert Perm((0, 1, 2, 3)).west_3_stack_sortable()
+    assert Perm((0, 1, 3, 2)).west_3_stack_sortable()
+    assert Perm((2, 0, 5, 4, 1, 3)).west_3_stack_sortable()
+    assert not Perm((3, 2, 0, 4, 5, 1)).west_3_stack_sortable()
+    assert Perm((4, 6, 3, 2, 1, 0, 5)).west_3_stack_sortable()
+    assert Perm((6, 2, 3, 0, 5, 1, 4)).west_3_stack_sortable()
+    assert Perm((0, 3, 6, 2, 5, 1, 7, 4)).west_3_stack_sortable()
+    assert Perm((0, 3, 7, 8, 1, 6, 4, 2, 5)).west_3_stack_sortable()
+    assert not Perm((0, 2, 3, 4, 6, 5, 1)).west_3_stack_sortable()
+    assert not Perm((2, 3, 0, 4, 6, 1, 5)).west_3_stack_sortable()
+    assert not Perm((5, 4, 8, 0, 3, 6, 7, 2, 1)).west_3_stack_sortable()
+    assert not Perm((0, 3, 7, 5, 1, 4, 8, 6, 2, 9)).west_3_stack_sortable()
+    assert not Perm((5, 1, 11, 10, 9, 8, 6, 0, 4, 3, 7, 2)).west_3_stack_sortable()
+    assert not Perm(
+        (4, 6, 9, 10, 13, 2, 0, 5, 8, 12, 3, 1, 11, 7)
+    ).west_3_stack_sortable()
+    assert 3494 == sum(1 for p in Perm.of_length(7) if p.west_3_stack_sortable())
+
+
+def test_count_column_sum_primes():
+    assert Perm((0,)).count_column_sum_primes() == 1
+    assert Perm((0, 1)).count_column_sum_primes() == 1
+    assert Perm((1, 0)).count_column_sum_primes() == 2
+    assert Perm((0, 1, 2)).count_column_sum_primes() == 1
+    assert Perm((0, 2, 1)).count_column_sum_primes() == 3
+    assert Perm((1, 0, 2)).count_column_sum_primes() == 2
+    assert Perm((1, 2, 0)).count_column_sum_primes() == 2
+    assert Perm((2, 0, 1)).count_column_sum_primes() == 2
+    assert Perm((2, 1, 0)).count_column_sum_primes() == 0
+    assert Perm((1, 0, 3, 4, 2)).count_column_sum_primes() == 3
+    assert Perm((3, 2, 1, 4, 0)).count_column_sum_primes() == 3
+    assert Perm((0, 2, 1, 4, 5, 3)).count_column_sum_primes() == 4
+    assert Perm((0, 4, 3, 2, 5, 1)).count_column_sum_primes() == 5
+    assert Perm((1, 2, 0, 4, 5, 3)).count_column_sum_primes() == 3
+    assert Perm((1, 4, 3, 2, 5, 0)).count_column_sum_primes() == 6
+    assert Perm((2, 1, 0, 4, 5, 3)).count_column_sum_primes() == 1
+    assert Perm((2, 4, 3, 1, 5, 0)).count_column_sum_primes() == 4
+    assert Perm((3, 1, 0, 4, 5, 2)).count_column_sum_primes() == 2
+    assert Perm((3, 4, 2, 1, 5, 0)).count_column_sum_primes() == 4
+    assert Perm((4, 1, 0, 3, 5, 2)).count_column_sum_primes() == 1
+    assert Perm((4, 3, 2, 1, 5, 0)).count_column_sum_primes() == 2
+    assert Perm((5, 1, 0, 3, 4, 2)).count_column_sum_primes() == 1
+    assert Perm((5, 3, 2, 1, 4, 0)).count_column_sum_primes() == 2
+    assert Perm((0, 1, 3, 2, 5, 6, 4)).count_column_sum_primes() == 5
+    assert Perm((0, 1, 5, 4, 3, 6, 2)).count_column_sum_primes() == 2
+    assert Perm((0, 2, 3, 1, 5, 6, 4)).count_column_sum_primes() == 5
+    assert Perm((0, 2, 5, 4, 3, 6, 1)).count_column_sum_primes() == 3
+    assert Perm((0, 3, 2, 1, 5, 6, 4)).count_column_sum_primes() == 3
+
+
+def test_holeyness():
+    assert Perm(()).holeyness() == 0
+    assert Perm((0,)).holeyness() == 0
+    assert Perm((0, 1)).holeyness() == 0
+    assert Perm((1, 0)).holeyness() == 0
+    assert Perm((0, 1, 2)).holeyness() == 0
+    assert Perm((0, 2, 1)).holeyness() == 1
+    assert Perm((1, 0, 2)).holeyness() == 1
+    assert Perm((1, 2, 0)).holeyness() == 1
+    assert Perm((2, 0, 1)).holeyness() == 1
+    assert Perm((2, 1, 0)).holeyness() == 0
+    assert Perm((1, 0, 3, 4, 2)).holeyness() == 1
+    assert Perm((3, 2, 1, 4, 0)).holeyness() == 1
+    assert Perm((0, 2, 1, 4, 5, 3)).holeyness() == 1
+    assert Perm((0, 4, 3, 2, 5, 1)).holeyness() == 1
+    assert Perm((1, 2, 0, 4, 5, 3)).holeyness() == 2
+    assert Perm((1, 4, 3, 2, 5, 0)).holeyness() == 2
+    assert Perm((2, 1, 0, 4, 5, 3)).holeyness() == 1
+    assert Perm((2, 4, 3, 1, 5, 0)).holeyness() == 2
+    assert Perm((3, 1, 0, 4, 5, 2)).holeyness() == 2
+    assert Perm((3, 4, 2, 1, 5, 0)).holeyness() == 1
+    assert Perm((4, 1, 0, 3, 5, 2)).holeyness() == 2
+    assert Perm((4, 3, 2, 1, 5, 0)).holeyness() == 1
+    assert Perm((5, 1, 0, 3, 4, 2)).holeyness() == 2
+    assert Perm((5, 3, 2, 1, 4, 0)).holeyness() == 1
+    assert Perm((0, 1, 3, 2, 5, 6, 4)).holeyness() == 1
+    assert Perm((0, 1, 5, 4, 3, 6, 2)).holeyness() == 1
+    assert Perm((0, 2, 3, 1, 5, 6, 4)).holeyness() == 2
+    assert Perm((0, 2, 5, 4, 3, 6, 1)).holeyness() == 2
+    assert Perm((0, 3, 2, 1, 5, 6, 4)).holeyness() == 1
+
+
+def test_count_stack_sorts():
+    assert Perm(()).count_stack_sorts() == 0
+    assert Perm((0,)).count_stack_sorts() == 0
+    assert Perm((0, 1)).count_stack_sorts() == 0
+    assert Perm((1, 0)).count_stack_sorts() == 1
+    assert Perm((0, 1, 2)).count_stack_sorts() == 0
+    assert Perm((0, 2, 1)).count_stack_sorts() == 1
+    assert Perm((1, 0, 2)).count_stack_sorts() == 1
+    assert Perm((1, 2, 0)).count_stack_sorts() == 2
+    assert Perm((2, 0, 1)).count_stack_sorts() == 1
+    assert Perm((2, 1, 0)).count_stack_sorts() == 1
+    assert Perm((1, 4, 3, 0, 2)).count_stack_sorts() == 2
+    assert Perm((0, 1, 3, 2, 4, 5)).count_stack_sorts() == 1
+    assert Perm((0, 4, 3, 2, 1, 5)).count_stack_sorts() == 1
+    assert Perm((1, 2, 5, 4, 0, 3)).count_stack_sorts() == 3
+    assert Perm((2, 0, 3, 1, 4, 5)).count_stack_sorts() == 2
+    assert Perm((2, 4, 3, 1, 0, 5)).count_stack_sorts() == 2
+    assert Perm((3, 1, 5, 4, 0, 2)).count_stack_sorts() == 3
+    assert Perm((4, 0, 2, 1, 3, 5)).count_stack_sorts() == 1
+    assert Perm((4, 3, 2, 1, 0, 5)).count_stack_sorts() == 1
+    assert Perm((5, 1, 4, 3, 0, 2)).count_stack_sorts() == 2
+    assert Perm((0, 2, 6, 1, 3, 4, 5)).count_stack_sorts() == 2
+    assert Perm((3, 2, 4, 1, 5, 6, 0)).count_stack_sorts() == 6
+    assert Perm((7, 6, 5, 4, 3, 2, 1, 0)).count_stack_sorts() == 1
+    assert Perm((7, 1, 0, 2, 3, 4, 5, 6)).count_stack_sorts() == 1
+    assert Perm((1, 0, 4, 3, 5, 2, 7, 6)).count_stack_sorts() == 3
+    assert Perm((2, 0, 3, 1, 5, 7, 4, 6)).count_stack_sorts() == 2
+    assert Perm((0, 5, 6, 1, 2, 3, 4, 7)).count_stack_sorts() == 2
+    assert Perm((5, 4, 7, 6, 1, 0, 3, 2)).count_stack_sorts() == 3
+    assert Perm((0, 5, 1, 4, 2, 6, 3, 7)).count_stack_sorts() == 3
+    assert Perm((1, 0, 7, 3, 6, 4, 5, 2)).count_stack_sorts() == 3
+    assert Perm((1, 0, 4, 2, 7, 6, 5, 3)).count_stack_sorts() == 2
+    assert Perm((2, 1, 4, 0, 6, 3, 7, 5)).count_stack_sorts() == 3
+    assert Perm((5, 4, 1, 0, 6, 2, 7, 3)).count_stack_sorts() == 4
+    assert Perm((6, 5, 7, 0, 2, 1, 3, 4)).count_stack_sorts() == 3
+    assert Perm((4, 3, 6, 0, 7, 2, 1, 5)).count_stack_sorts() == 4
+    assert Perm((6, 0, 4, 3, 7, 1, 5, 2)).count_stack_sorts() == 4
+    assert Perm((0, 7, 8, 1, 2, 3, 4, 5, 6)).count_stack_sorts() == 2
+    assert Perm((9, 6, 5, 4, 3, 2, 1, 8, 7, 0)).count_stack_sorts() == 7
+    assert Perm((8, 4, 9, 1, 5, 6, 0, 2, 3, 7)).count_stack_sorts() == 3
+    assert Perm((9, 8, 7, 5, 6, 3, 4, 0, 1, 2)).count_stack_sorts() == 2
+    assert Perm((2, 3, 7, 8, 10, 11, 0, 1, 4, 5, 6, 9)).count_stack_sorts() == 6
+    assert Perm((2, 3, 5, 9, 10, 11, 0, 1, 4, 6, 7, 8)).count_stack_sorts() == 6
+    assert Perm((1, 0, 3, 2, 5, 4, 11, 10, 9, 8, 7, 6)).count_stack_sorts() == 1
+
+
+def test_count_pop_stack_sorts():
+    assert Perm(()).count_pop_stack_sorts() == 0
+    assert Perm((0,)).count_pop_stack_sorts() == 0
+    assert Perm((0, 1)).count_pop_stack_sorts() == 0
+    assert Perm((1, 0)).count_pop_stack_sorts() == 1
+    assert Perm((0, 1, 2)).count_pop_stack_sorts() == 0
+    assert Perm((0, 2, 1)).count_pop_stack_sorts() == 1
+    assert Perm((1, 0, 2)).count_pop_stack_sorts() == 1
+    assert Perm((1, 2, 0)).count_pop_stack_sorts() == 2
+    assert Perm((2, 0, 1)).count_pop_stack_sorts() == 2
+    assert Perm((2, 1, 0)).count_pop_stack_sorts() == 1
+    assert Perm((1, 4, 3, 0, 2)).count_pop_stack_sorts() == 3
+    assert Perm((0, 1, 3, 2, 4, 5)).count_pop_stack_sorts() == 1
+    assert Perm((0, 4, 3, 2, 1, 5)).count_pop_stack_sorts() == 1
+    assert Perm((1, 2, 5, 4, 0, 3)).count_pop_stack_sorts() == 3
+    assert Perm((2, 0, 3, 1, 4, 5)).count_pop_stack_sorts() == 2
+    assert Perm((2, 4, 3, 1, 0, 5)).count_pop_stack_sorts() == 3
+    assert Perm((3, 1, 5, 4, 0, 2)).count_pop_stack_sorts() == 4
+    assert Perm((4, 0, 2, 1, 3, 5)).count_pop_stack_sorts() == 4
+    assert Perm((4, 3, 2, 1, 0, 5)).count_pop_stack_sorts() == 1
+    assert Perm((5, 1, 4, 3, 0, 2)).count_pop_stack_sorts() == 4
+    assert Perm((0, 1, 2, 4, 3, 5, 6)).count_pop_stack_sorts() == 1
+    assert Perm((0, 1, 5, 4, 3, 2, 6)).count_pop_stack_sorts() == 1
+    assert Perm((0, 2, 3, 6, 5, 1, 4)).count_pop_stack_sorts() == 3
+    assert Perm((0, 3, 1, 4, 2, 5, 6)).count_pop_stack_sorts() == 2
+    assert Perm((0, 3, 5, 4, 2, 1, 6)).count_pop_stack_sorts() == 3
+    assert Perm((3, 2, 4, 1, 5, 6, 0)).count_pop_stack_sorts() == 6
+    assert Perm((7, 6, 5, 4, 3, 2, 1, 0)).count_pop_stack_sorts() == 1
+    assert Perm((7, 1, 0, 2, 3, 4, 5, 6)).count_pop_stack_sorts() == 6
+    assert Perm((1, 0, 4, 3, 5, 2, 7, 6)).count_pop_stack_sorts() == 3
+    assert Perm((2, 0, 3, 1, 5, 7, 4, 6)).count_pop_stack_sorts() == 2
+    assert Perm((0, 5, 6, 1, 2, 3, 4, 7)).count_pop_stack_sorts() == 5
+    assert Perm((5, 4, 7, 6, 1, 0, 3, 2)).count_pop_stack_sorts() == 6
+    assert Perm((0, 5, 1, 4, 2, 6, 3, 7)).count_pop_stack_sorts() == 4
+    assert Perm((1, 0, 7, 3, 6, 4, 5, 2)).count_pop_stack_sorts() == 5
+    assert Perm((1, 0, 4, 2, 7, 6, 5, 3)).count_pop_stack_sorts() == 2
+    assert Perm((2, 1, 4, 0, 6, 3, 7, 5)).count_pop_stack_sorts() == 3
+    assert Perm((5, 4, 1, 0, 6, 2, 7, 3)).count_pop_stack_sorts() == 4
+    assert Perm((6, 5, 7, 0, 2, 1, 3, 4)).count_pop_stack_sorts() == 7
+    assert Perm((4, 3, 6, 0, 7, 2, 1, 5)).count_pop_stack_sorts() == 5
+    assert Perm((6, 0, 4, 3, 7, 1, 5, 2)).count_pop_stack_sorts() == 6
+    assert Perm((0, 7, 8, 1, 2, 3, 4, 5, 6)).count_pop_stack_sorts() == 7
+    assert Perm((9, 6, 5, 4, 3, 2, 1, 8, 7, 0)).count_pop_stack_sorts() == 8
+    assert Perm((8, 4, 9, 1, 5, 6, 0, 2, 3, 7)).count_pop_stack_sorts() == 7
+    assert Perm((9, 8, 7, 5, 6, 3, 4, 0, 1, 2)).count_pop_stack_sorts() == 9
+    assert Perm((2, 3, 7, 8, 10, 11, 0, 1, 4, 5, 6, 9)).count_pop_stack_sorts() == 8
+    assert Perm((2, 3, 5, 9, 10, 11, 0, 1, 4, 6, 7, 8)).count_pop_stack_sorts() == 8
+    assert Perm((1, 0, 3, 2, 5, 4, 11, 10, 9, 8, 7, 6)).count_pop_stack_sorts() == 1
+
+
+def test_cyclic_peaks():
+    assert list(Perm(()).cyclic_peaks()) == []
+    assert list(Perm((0,)).cyclic_peaks()) == []
+    assert list(Perm((0, 1)).cyclic_peaks()) == []
+    assert list(Perm((1, 0)).cyclic_peaks()) == [0]
+    assert list(Perm((0, 1, 2)).cyclic_peaks()) == []
+    assert list(Perm((0, 2, 1)).cyclic_peaks()) == [1]
+    assert list(Perm((1, 0, 2)).cyclic_peaks()) == [0]
+    assert list(Perm((1, 2, 0)).cyclic_peaks()) == [1]
+    assert list(Perm((2, 0, 1)).cyclic_peaks()) == [0]
+    assert list(Perm((2, 1, 0)).cyclic_peaks()) == [0]
+    assert list(Perm((0, 1, 2, 3)).cyclic_peaks()) == []
+    assert list(Perm((0, 1, 3, 2)).cyclic_peaks()) == [2]
+    assert list(Perm((0, 2, 1, 3)).cyclic_peaks()) == [1]
+    assert list(Perm((0, 2, 3, 1)).cyclic_peaks()) == [2]
+    assert list(Perm((0, 3, 1, 2)).cyclic_peaks()) == [1]
+    assert list(Perm((0, 3, 2, 1)).cyclic_peaks()) == [1]
+    assert list(Perm((1, 0, 2, 3)).cyclic_peaks()) == [0]
+    assert list(Perm((1, 0, 3, 2)).cyclic_peaks()) == [0, 2]
+    assert list(Perm((1, 2, 0, 3)).cyclic_peaks()) == [1]
+    assert list(Perm((1, 2, 3, 0)).cyclic_peaks()) == [2]
+    assert list(Perm((1, 3, 0, 2)).cyclic_peaks()) == [1]
+    assert list(Perm((1, 3, 2, 0)).cyclic_peaks()) == [1]
+    assert list(Perm((2, 0, 1, 3)).cyclic_peaks()) == [0]
+    assert list(Perm((2, 0, 3, 1)).cyclic_peaks()) == [2]
+    assert list(Perm((2, 1, 0, 3)).cyclic_peaks()) == [0]
+    assert list(Perm((2, 1, 3, 0)).cyclic_peaks()) == [2]
+    assert list(Perm((2, 3, 0, 1)).cyclic_peaks()) == [0, 1]
+    assert list(Perm((2, 3, 1, 0)).cyclic_peaks()) == [0, 1]
+    assert list(Perm((3, 0, 1, 2)).cyclic_peaks()) == [0]
+    assert list(Perm((3, 0, 2, 1)).cyclic_peaks()) == [0]
+    assert list(Perm((3, 1, 0, 2)).cyclic_peaks()) == [0]
+    assert list(Perm((3, 1, 2, 0)).cyclic_peaks()) == [0]
+    assert list(Perm((3, 2, 0, 1)).cyclic_peaks()) == [0, 1]
+    assert list(Perm((3, 2, 1, 0)).cyclic_peaks()) == [0, 1]
+
+
+def test_cyclic_peaks_list():
+    assert Perm(()).cyclic_peaks_list() == []
+    assert Perm((0,)).cyclic_peaks_list() == []
+    assert Perm((0, 1)).cyclic_peaks_list() == []
+    assert Perm((1, 0)).cyclic_peaks_list() == [0]
+    assert Perm((0, 1, 2)).cyclic_peaks_list() == []
+    assert Perm((0, 2, 1)).cyclic_peaks_list() == [1]
+    assert Perm((1, 0, 2)).cyclic_peaks_list() == [0]
+    assert Perm((1, 2, 0)).cyclic_peaks_list() == [1]
+    assert Perm((2, 0, 1)).cyclic_peaks_list() == [0]
+    assert Perm((2, 1, 0)).cyclic_peaks_list() == [0]
+    assert Perm((0, 1, 2, 3)).cyclic_peaks_list() == []
+    assert Perm((0, 1, 3, 2)).cyclic_peaks_list() == [2]
+    assert Perm((0, 2, 1, 3)).cyclic_peaks_list() == [1]
+    assert Perm((0, 2, 3, 1)).cyclic_peaks_list() == [2]
+    assert Perm((0, 3, 1, 2)).cyclic_peaks_list() == [1]
+    assert Perm((0, 3, 2, 1)).cyclic_peaks_list() == [1]
+    assert Perm((1, 0, 2, 3)).cyclic_peaks_list() == [0]
+    assert Perm((1, 0, 3, 2)).cyclic_peaks_list() == [0, 2]
+    assert Perm((1, 2, 0, 3)).cyclic_peaks_list() == [1]
+    assert Perm((1, 2, 3, 0)).cyclic_peaks_list() == [2]
+    assert Perm((1, 3, 0, 2)).cyclic_peaks_list() == [1]
+    assert Perm((1, 3, 2, 0)).cyclic_peaks_list() == [1]
+    assert Perm((2, 0, 1, 3)).cyclic_peaks_list() == [0]
+    assert Perm((2, 0, 3, 1)).cyclic_peaks_list() == [2]
+    assert Perm((2, 1, 0, 3)).cyclic_peaks_list() == [0]
+    assert Perm((2, 1, 3, 0)).cyclic_peaks_list() == [2]
+    assert Perm((2, 3, 0, 1)).cyclic_peaks_list() == [0, 1]
+    assert Perm((2, 3, 1, 0)).cyclic_peaks_list() == [0, 1]
+    assert Perm((3, 0, 1, 2)).cyclic_peaks_list() == [0]
+    assert Perm((3, 0, 2, 1)).cyclic_peaks_list() == [0]
+    assert Perm((3, 1, 0, 2)).cyclic_peaks_list() == [0]
+    assert Perm((3, 1, 2, 0)).cyclic_peaks_list() == [0]
+    assert Perm((3, 2, 0, 1)).cyclic_peaks_list() == [0, 1]
+    assert Perm((3, 2, 1, 0)).cyclic_peaks_list() == [0, 1]
+
+
+def test_count_cyclic_peaks():
+    assert Perm(()).count_cyclic_peaks() == 0
+    assert Perm((0,)).count_cyclic_peaks() == 0
+    assert Perm((0, 1)).count_cyclic_peaks() == 0
+    assert Perm((1, 0)).count_cyclic_peaks() == 1
+    assert Perm((0, 1, 2)).count_cyclic_peaks() == 0
+    assert Perm((0, 2, 1)).count_cyclic_peaks() == 1
+    assert Perm((1, 0, 2)).count_cyclic_peaks() == 1
+    assert Perm((1, 2, 0)).count_cyclic_peaks() == 1
+    assert Perm((2, 0, 1)).count_cyclic_peaks() == 1
+    assert Perm((2, 1, 0)).count_cyclic_peaks() == 1
+    assert Perm((0, 1, 2, 3)).count_cyclic_peaks() == 0
+    assert Perm((0, 1, 3, 2)).count_cyclic_peaks() == 1
+    assert Perm((0, 2, 1, 3)).count_cyclic_peaks() == 1
+    assert Perm((0, 2, 3, 1)).count_cyclic_peaks() == 1
+    assert Perm((0, 3, 1, 2)).count_cyclic_peaks() == 1
+    assert Perm((0, 3, 2, 1)).count_cyclic_peaks() == 1
+    assert Perm((1, 0, 2, 3)).count_cyclic_peaks() == 1
+    assert Perm((1, 0, 3, 2)).count_cyclic_peaks() == 2
+    assert Perm((1, 2, 0, 3)).count_cyclic_peaks() == 1
+    assert Perm((1, 2, 3, 0)).count_cyclic_peaks() == 1
+    assert Perm((1, 3, 0, 2)).count_cyclic_peaks() == 1
+    assert Perm((1, 3, 2, 0)).count_cyclic_peaks() == 1
+    assert Perm((2, 0, 1, 3)).count_cyclic_peaks() == 1
+    assert Perm((2, 0, 3, 1)).count_cyclic_peaks() == 1
+    assert Perm((2, 1, 0, 3)).count_cyclic_peaks() == 1
+    assert Perm((2, 1, 3, 0)).count_cyclic_peaks() == 1
+    assert Perm((2, 3, 0, 1)).count_cyclic_peaks() == 2
+    assert Perm((2, 3, 1, 0)).count_cyclic_peaks() == 2
+    assert Perm((3, 0, 1, 2)).count_cyclic_peaks() == 1
+    assert Perm((3, 0, 2, 1)).count_cyclic_peaks() == 1
+    assert Perm((3, 1, 0, 2)).count_cyclic_peaks() == 1
+    assert Perm((3, 1, 2, 0)).count_cyclic_peaks() == 1
+    assert Perm((3, 2, 0, 1)).count_cyclic_peaks() == 2
+    assert Perm((3, 2, 1, 0)).count_cyclic_peaks() == 2
+
+
+def test_cyclic_valleys():
+    assert list(Perm(()).cyclic_valleys()) == []
+    assert list(Perm((0,)).cyclic_valleys()) == []
+    assert list(Perm((0, 1)).cyclic_valleys()) == []
+    assert list(Perm((1, 0)).cyclic_valleys()) == [1]
+    assert list(Perm((0, 1, 2)).cyclic_valleys()) == []
+    assert list(Perm((0, 2, 1)).cyclic_valleys()) == [2]
+    assert list(Perm((1, 0, 2)).cyclic_valleys()) == [1]
+    assert list(Perm((1, 2, 0)).cyclic_valleys()) == [2]
+    assert list(Perm((2, 0, 1)).cyclic_valleys()) == [1]
+    assert list(Perm((2, 1, 0)).cyclic_valleys()) == [2]
+    assert list(Perm((0, 1, 2, 3)).cyclic_valleys()) == []
+    assert list(Perm((0, 1, 3, 2)).cyclic_valleys()) == [3]
+    assert list(Perm((0, 2, 1, 3)).cyclic_valleys()) == [2]
+    assert list(Perm((0, 2, 3, 1)).cyclic_valleys()) == [3]
+    assert list(Perm((0, 3, 1, 2)).cyclic_valleys()) == [2]
+    assert list(Perm((0, 3, 2, 1)).cyclic_valleys()) == [3]
+    assert list(Perm((1, 0, 2, 3)).cyclic_valleys()) == [1]
+    assert list(Perm((1, 0, 3, 2)).cyclic_valleys()) == [1, 3]
+    assert list(Perm((1, 2, 0, 3)).cyclic_valleys()) == [2]
+    assert list(Perm((1, 2, 3, 0)).cyclic_valleys()) == [3]
+    assert list(Perm((1, 3, 0, 2)).cyclic_valleys()) == [2]
+    assert list(Perm((1, 3, 2, 0)).cyclic_valleys()) == [3]
+    assert list(Perm((2, 0, 1, 3)).cyclic_valleys()) == [1]
+    assert list(Perm((2, 0, 3, 1)).cyclic_valleys()) == [1]
+    assert list(Perm((2, 1, 0, 3)).cyclic_valleys()) == [2]
+    assert list(Perm((2, 1, 3, 0)).cyclic_valleys()) == [3]
+    assert list(Perm((2, 3, 0, 1)).cyclic_valleys()) == [2, 3]
+    assert list(Perm((2, 3, 1, 0)).cyclic_valleys()) == [2, 3]
+    assert list(Perm((3, 0, 1, 2)).cyclic_valleys()) == [1]
+    assert list(Perm((3, 0, 2, 1)).cyclic_valleys()) == [1]
+    assert list(Perm((3, 1, 0, 2)).cyclic_valleys()) == [2]
+    assert list(Perm((3, 1, 2, 0)).cyclic_valleys()) == [3]
+    assert list(Perm((3, 2, 0, 1)).cyclic_valleys()) == [2, 3]
+    assert list(Perm((3, 2, 1, 0)).cyclic_valleys()) == [2, 3]
+
+
+def test_cyclic_valleys_list():
+    assert Perm(()).cyclic_valleys_list() == []
+    assert Perm((0,)).cyclic_valleys_list() == []
+    assert Perm((0, 1)).cyclic_valleys_list() == []
+    assert Perm((1, 0)).cyclic_valleys_list() == [1]
+    assert Perm((0, 1, 2)).cyclic_valleys_list() == []
+    assert Perm((0, 2, 1)).cyclic_valleys_list() == [2]
+    assert Perm((1, 0, 2)).cyclic_valleys_list() == [1]
+    assert Perm((1, 2, 0)).cyclic_valleys_list() == [2]
+    assert Perm((2, 0, 1)).cyclic_valleys_list() == [1]
+    assert Perm((2, 1, 0)).cyclic_valleys_list() == [2]
+    assert Perm((0, 1, 2, 3)).cyclic_valleys_list() == []
+    assert Perm((0, 1, 3, 2)).cyclic_valleys_list() == [3]
+    assert Perm((0, 2, 1, 3)).cyclic_valleys_list() == [2]
+    assert Perm((0, 2, 3, 1)).cyclic_valleys_list() == [3]
+    assert Perm((0, 3, 1, 2)).cyclic_valleys_list() == [2]
+    assert Perm((0, 3, 2, 1)).cyclic_valleys_list() == [3]
+    assert Perm((1, 0, 2, 3)).cyclic_valleys_list() == [1]
+    assert Perm((1, 0, 3, 2)).cyclic_valleys_list() == [1, 3]
+    assert Perm((1, 2, 0, 3)).cyclic_valleys_list() == [2]
+    assert Perm((1, 2, 3, 0)).cyclic_valleys_list() == [3]
+    assert Perm((1, 3, 0, 2)).cyclic_valleys_list() == [2]
+    assert Perm((1, 3, 2, 0)).cyclic_valleys_list() == [3]
+    assert Perm((2, 0, 1, 3)).cyclic_valleys_list() == [1]
+    assert Perm((2, 0, 3, 1)).cyclic_valleys_list() == [1]
+    assert Perm((2, 1, 0, 3)).cyclic_valleys_list() == [2]
+    assert Perm((2, 1, 3, 0)).cyclic_valleys_list() == [3]
+    assert Perm((2, 3, 0, 1)).cyclic_valleys_list() == [2, 3]
+    assert Perm((2, 3, 1, 0)).cyclic_valleys_list() == [2, 3]
+    assert Perm((3, 0, 1, 2)).cyclic_valleys_list() == [1]
+    assert Perm((3, 0, 2, 1)).cyclic_valleys_list() == [1]
+    assert Perm((3, 1, 0, 2)).cyclic_valleys_list() == [2]
+    assert Perm((3, 1, 2, 0)).cyclic_valleys_list() == [3]
+    assert Perm((3, 2, 0, 1)).cyclic_valleys_list() == [2, 3]
+    assert Perm((3, 2, 1, 0)).cyclic_valleys_list() == [2, 3]
+
+
+def test_count_cyclic_valleys():
+    assert Perm(()).count_cyclic_valleys() == 0
+    assert Perm((0,)).count_cyclic_valleys() == 0
+    assert Perm((0, 1)).count_cyclic_valleys() == 0
+    assert Perm((1, 0)).count_cyclic_valleys() == 1
+    assert Perm((0, 1, 2)).count_cyclic_valleys() == 0
+    assert Perm((0, 2, 1)).count_cyclic_valleys() == 1
+    assert Perm((1, 0, 2)).count_cyclic_valleys() == 1
+    assert Perm((1, 2, 0)).count_cyclic_valleys() == 1
+    assert Perm((2, 0, 1)).count_cyclic_valleys() == 1
+    assert Perm((2, 1, 0)).count_cyclic_valleys() == 1
+    assert Perm((0, 1, 2, 3)).count_cyclic_valleys() == 0
+    assert Perm((0, 1, 3, 2)).count_cyclic_valleys() == 1
+    assert Perm((0, 2, 1, 3)).count_cyclic_valleys() == 1
+    assert Perm((0, 2, 3, 1)).count_cyclic_valleys() == 1
+    assert Perm((0, 3, 1, 2)).count_cyclic_valleys() == 1
+    assert Perm((0, 3, 2, 1)).count_cyclic_valleys() == 1
+    assert Perm((1, 0, 2, 3)).count_cyclic_valleys() == 1
+    assert Perm((1, 0, 3, 2)).count_cyclic_valleys() == 2
+    assert Perm((1, 2, 0, 3)).count_cyclic_valleys() == 1
+    assert Perm((1, 2, 3, 0)).count_cyclic_valleys() == 1
+    assert Perm((1, 3, 0, 2)).count_cyclic_valleys() == 1
+    assert Perm((1, 3, 2, 0)).count_cyclic_valleys() == 1
+    assert Perm((2, 0, 1, 3)).count_cyclic_valleys() == 1
+    assert Perm((2, 0, 3, 1)).count_cyclic_valleys() == 1
+    assert Perm((2, 1, 0, 3)).count_cyclic_valleys() == 1
+    assert Perm((2, 1, 3, 0)).count_cyclic_valleys() == 1
+    assert Perm((2, 3, 0, 1)).count_cyclic_valleys() == 2
+    assert Perm((2, 3, 1, 0)).count_cyclic_valleys() == 2
+    assert Perm((3, 0, 1, 2)).count_cyclic_valleys() == 1
+    assert Perm((3, 0, 2, 1)).count_cyclic_valleys() == 1
+    assert Perm((3, 1, 0, 2)).count_cyclic_valleys() == 1
+    assert Perm((3, 1, 2, 0)).count_cyclic_valleys() == 1
+    assert Perm((3, 2, 0, 1)).count_cyclic_valleys() == 2
+    assert Perm((3, 2, 1, 0)).count_cyclic_valleys() == 2
+
+
+def test_double_excedance():
+    assert list(Perm(()).double_excedance()) == []
+    assert list(Perm((0,)).double_excedance()) == []
+    assert list(Perm((0, 1)).double_excedance()) == []
+    assert list(Perm((1, 0)).double_excedance()) == []
+    assert list(Perm((0, 1, 2)).double_excedance()) == []
+    assert list(Perm((0, 2, 1)).double_excedance()) == []
+    assert list(Perm((1, 0, 2)).double_excedance()) == []
+    assert list(Perm((1, 2, 0)).double_excedance()) == [0]
+    assert list(Perm((2, 0, 1)).double_excedance()) == []
+    assert list(Perm((2, 1, 0)).double_excedance()) == []
+    assert list(Perm((0, 1, 2, 3)).double_excedance()) == []
+    assert list(Perm((0, 1, 3, 2)).double_excedance()) == []
+    assert list(Perm((0, 2, 1, 3)).double_excedance()) == []
+    assert list(Perm((0, 2, 3, 1)).double_excedance()) == [1]
+    assert list(Perm((0, 3, 1, 2)).double_excedance()) == []
+    assert list(Perm((0, 3, 2, 1)).double_excedance()) == []
+    assert list(Perm((1, 0, 2, 3)).double_excedance()) == []
+    assert list(Perm((1, 0, 3, 2)).double_excedance()) == []
+    assert list(Perm((1, 2, 0, 3)).double_excedance()) == [0]
+    assert list(Perm((1, 2, 3, 0)).double_excedance()) == [0, 1]
+    assert list(Perm((1, 3, 0, 2)).double_excedance()) == [0]
+    assert list(Perm((1, 3, 2, 0)).double_excedance()) == [0]
+    assert list(Perm((2, 0, 1, 3)).double_excedance()) == []
+    assert list(Perm((2, 0, 3, 1)).double_excedance()) == [0]
+    assert list(Perm((2, 1, 0, 3)).double_excedance()) == []
+    assert list(Perm((2, 1, 3, 0)).double_excedance()) == [0]
+    assert list(Perm((2, 3, 0, 1)).double_excedance()) == []
+    assert list(Perm((2, 3, 1, 0)).double_excedance()) == []
+    assert list(Perm((3, 0, 1, 2)).double_excedance()) == []
+    assert list(Perm((3, 0, 2, 1)).double_excedance()) == []
+    assert list(Perm((3, 1, 0, 2)).double_excedance()) == []
+    assert list(Perm((3, 1, 2, 0)).double_excedance()) == []
+    assert list(Perm((3, 2, 0, 1)).double_excedance()) == []
+    assert list(Perm((3, 2, 1, 0)).double_excedance()) == []
+
+
+def tets_double_excedance_list():
+    assert Perm(()).double_excedance_list() == []
+    assert Perm((0,)).double_excedance_list() == []
+    assert Perm((0, 1)).double_excedance_list() == []
+    assert Perm((1, 0)).double_excedance_list() == []
+    assert Perm((0, 1, 2)).double_excedance_list() == []
+    assert Perm((0, 2, 1)).double_excedance_list() == []
+    assert Perm((1, 0, 2)).double_excedance_list() == []
+    assert Perm((1, 2, 0)).double_excedance_list() == [0]
+    assert Perm((2, 0, 1)).double_excedance_list() == []
+    assert Perm((2, 1, 0)).double_excedance_list() == []
+    assert Perm((0, 1, 2, 3)).double_excedance_list() == []
+    assert Perm((0, 1, 3, 2)).double_excedance_list() == []
+    assert Perm((0, 2, 1, 3)).double_excedance_list() == []
+    assert Perm((0, 2, 3, 1)).double_excedance_list() == [1]
+    assert Perm((0, 3, 1, 2)).double_excedance_list() == []
+    assert Perm((0, 3, 2, 1)).double_excedance_list() == []
+    assert Perm((1, 0, 2, 3)).double_excedance_list() == []
+    assert Perm((1, 0, 3, 2)).double_excedance_list() == []
+    assert Perm((1, 2, 0, 3)).double_excedance_list() == [0]
+    assert Perm((1, 2, 3, 0)).double_excedance_list() == [0, 1]
+    assert Perm((1, 3, 0, 2)).double_excedance_list() == [0]
+    assert Perm((1, 3, 2, 0)).double_excedance_list() == [0]
+    assert Perm((2, 0, 1, 3)).double_excedance_list() == []
+    assert Perm((2, 0, 3, 1)).double_excedance_list() == [0]
+    assert Perm((2, 1, 0, 3)).double_excedance_list() == []
+    assert Perm((2, 1, 3, 0)).double_excedance_list() == [0]
+    assert Perm((2, 3, 0, 1)).double_excedance_list() == []
+    assert Perm((2, 3, 1, 0)).double_excedance_list() == []
+    assert Perm((3, 0, 1, 2)).double_excedance_list() == []
+    assert Perm((3, 0, 2, 1)).double_excedance_list() == []
+    assert Perm((3, 1, 0, 2)).double_excedance_list() == []
+    assert Perm((3, 1, 2, 0)).double_excedance_list() == []
+    assert Perm((3, 2, 0, 1)).double_excedance_list() == []
+    assert Perm((3, 2, 1, 0)).double_excedance_list() == []
+
+
+def test_count_double_excedance():
+    assert Perm(()).count_double_excedance() == 0
+    assert Perm((0,)).count_double_excedance() == 0
+    assert Perm((0, 1)).count_double_excedance() == 0
+    assert Perm((1, 0)).count_double_excedance() == 0
+    assert Perm((0, 1, 2)).count_double_excedance() == 0
+    assert Perm((0, 2, 1)).count_double_excedance() == 0
+    assert Perm((1, 0, 2)).count_double_excedance() == 0
+    assert Perm((1, 2, 0)).count_double_excedance() == 1
+    assert Perm((2, 0, 1)).count_double_excedance() == 0
+    assert Perm((2, 1, 0)).count_double_excedance() == 0
+    assert Perm((0, 1, 2, 3)).count_double_excedance() == 0
+    assert Perm((0, 1, 3, 2)).count_double_excedance() == 0
+    assert Perm((0, 2, 1, 3)).count_double_excedance() == 0
+    assert Perm((0, 2, 3, 1)).count_double_excedance() == 1
+    assert Perm((0, 3, 1, 2)).count_double_excedance() == 0
+    assert Perm((0, 3, 2, 1)).count_double_excedance() == 0
+    assert Perm((1, 0, 2, 3)).count_double_excedance() == 0
+    assert Perm((1, 0, 3, 2)).count_double_excedance() == 0
+    assert Perm((1, 2, 0, 3)).count_double_excedance() == 1
+    assert Perm((1, 2, 3, 0)).count_double_excedance() == 2
+    assert Perm((1, 3, 0, 2)).count_double_excedance() == 1
+    assert Perm((1, 3, 2, 0)).count_double_excedance() == 1
+    assert Perm((2, 0, 1, 3)).count_double_excedance() == 0
+    assert Perm((2, 0, 3, 1)).count_double_excedance() == 1
+    assert Perm((2, 1, 0, 3)).count_double_excedance() == 0
+    assert Perm((2, 1, 3, 0)).count_double_excedance() == 1
+    assert Perm((2, 3, 0, 1)).count_double_excedance() == 0
+    assert Perm((2, 3, 1, 0)).count_double_excedance() == 0
+    assert Perm((3, 0, 1, 2)).count_double_excedance() == 0
+    assert Perm((3, 0, 2, 1)).count_double_excedance() == 0
+    assert Perm((3, 1, 0, 2)).count_double_excedance() == 0
+    assert Perm((3, 1, 2, 0)).count_double_excedance() == 0
+    assert Perm((3, 2, 0, 1)).count_double_excedance() == 0
+    assert Perm((3, 2, 1, 0)).count_double_excedance() == 0
+
+
+def test_double_drops():
+    assert list(Perm(()).double_drops()) == []
+    assert list(Perm((0,)).double_drops()) == []
+    assert list(Perm((0, 1)).double_drops()) == []
+    assert list(Perm((1, 0)).double_drops()) == []
+    assert list(Perm((0, 1, 2)).double_drops()) == []
+    assert list(Perm((0, 2, 1)).double_drops()) == []
+    assert list(Perm((1, 0, 2)).double_drops()) == []
+    assert list(Perm((1, 2, 0)).double_drops()) == []
+    assert list(Perm((2, 0, 1)).double_drops()) == [2]
+    assert list(Perm((2, 1, 0)).double_drops()) == []
+    assert list(Perm((0, 1, 2, 3)).double_drops()) == []
+    assert list(Perm((0, 1, 3, 2)).double_drops()) == []
+    assert list(Perm((0, 2, 1, 3)).double_drops()) == []
+    assert list(Perm((0, 2, 3, 1)).double_drops()) == []
+    assert list(Perm((0, 3, 1, 2)).double_drops()) == [3]
+    assert list(Perm((0, 3, 2, 1)).double_drops()) == []
+    assert list(Perm((1, 0, 2, 3)).double_drops()) == []
+    assert list(Perm((1, 0, 3, 2)).double_drops()) == []
+    assert list(Perm((1, 2, 0, 3)).double_drops()) == []
+    assert list(Perm((1, 2, 3, 0)).double_drops()) == []
+    assert list(Perm((1, 3, 0, 2)).double_drops()) == [3]
+    assert list(Perm((1, 3, 2, 0)).double_drops()) == []
+    assert list(Perm((2, 0, 1, 3)).double_drops()) == [2]
+    assert list(Perm((2, 0, 3, 1)).double_drops()) == [3]
+    assert list(Perm((2, 1, 0, 3)).double_drops()) == []
+    assert list(Perm((2, 1, 3, 0)).double_drops()) == []
+    assert list(Perm((2, 3, 0, 1)).double_drops()) == []
+    assert list(Perm((2, 3, 1, 0)).double_drops()) == []
+    assert list(Perm((3, 0, 1, 2)).double_drops()) == [2, 3]
+    assert list(Perm((3, 0, 2, 1)).double_drops()) == [3]
+    assert list(Perm((3, 1, 0, 2)).double_drops()) == [3]
+    assert list(Perm((3, 1, 2, 0)).double_drops()) == []
+    assert list(Perm((3, 2, 0, 1)).double_drops()) == []
+    assert list(Perm((3, 2, 1, 0)).double_drops()) == []
+
+
+def test_double_drops_list():
+    assert Perm(()).double_drops_list() == []
+    assert Perm((0,)).double_drops_list() == []
+    assert Perm((0, 1)).double_drops_list() == []
+    assert Perm((1, 0)).double_drops_list() == []
+    assert Perm((0, 1, 2)).double_drops_list() == []
+    assert Perm((0, 2, 1)).double_drops_list() == []
+    assert Perm((1, 0, 2)).double_drops_list() == []
+    assert Perm((1, 2, 0)).double_drops_list() == []
+    assert Perm((2, 0, 1)).double_drops_list() == [2]
+    assert Perm((2, 1, 0)).double_drops_list() == []
+    assert Perm((0, 1, 2, 3)).double_drops_list() == []
+    assert Perm((0, 1, 3, 2)).double_drops_list() == []
+    assert Perm((0, 2, 1, 3)).double_drops_list() == []
+    assert Perm((0, 2, 3, 1)).double_drops_list() == []
+    assert Perm((0, 3, 1, 2)).double_drops_list() == [3]
+    assert Perm((0, 3, 2, 1)).double_drops_list() == []
+    assert Perm((1, 0, 2, 3)).double_drops_list() == []
+    assert Perm((1, 0, 3, 2)).double_drops_list() == []
+    assert Perm((1, 2, 0, 3)).double_drops_list() == []
+    assert Perm((1, 2, 3, 0)).double_drops_list() == []
+    assert Perm((1, 3, 0, 2)).double_drops_list() == [3]
+    assert Perm((1, 3, 2, 0)).double_drops_list() == []
+    assert Perm((2, 0, 1, 3)).double_drops_list() == [2]
+    assert Perm((2, 0, 3, 1)).double_drops_list() == [3]
+    assert Perm((2, 1, 0, 3)).double_drops_list() == []
+    assert Perm((2, 1, 3, 0)).double_drops_list() == []
+    assert Perm((2, 3, 0, 1)).double_drops_list() == []
+    assert Perm((2, 3, 1, 0)).double_drops_list() == []
+    assert Perm((3, 0, 1, 2)).double_drops_list() == [2, 3]
+    assert Perm((3, 0, 2, 1)).double_drops_list() == [3]
+    assert Perm((3, 1, 0, 2)).double_drops_list() == [3]
+    assert Perm((3, 1, 2, 0)).double_drops_list() == []
+    assert Perm((3, 2, 0, 1)).double_drops_list() == []
+    assert Perm((3, 2, 1, 0)).double_drops_list() == []
+
+
+def test_count_double_drops():
+    assert Perm(()).count_double_drops() == 0
+    assert Perm((0,)).count_double_drops() == 0
+    assert Perm((0, 1)).count_double_drops() == 0
+    assert Perm((1, 0)).count_double_drops() == 0
+    assert Perm((0, 1, 2)).count_double_drops() == 0
+    assert Perm((0, 2, 1)).count_double_drops() == 0
+    assert Perm((1, 0, 2)).count_double_drops() == 0
+    assert Perm((1, 2, 0)).count_double_drops() == 0
+    assert Perm((2, 0, 1)).count_double_drops() == 1
+    assert Perm((2, 1, 0)).count_double_drops() == 0
+    assert Perm((0, 1, 2, 3)).count_double_drops() == 0
+    assert Perm((0, 1, 3, 2)).count_double_drops() == 0
+    assert Perm((0, 2, 1, 3)).count_double_drops() == 0
+    assert Perm((0, 2, 3, 1)).count_double_drops() == 0
+    assert Perm((0, 3, 1, 2)).count_double_drops() == 1
+    assert Perm((0, 3, 2, 1)).count_double_drops() == 0
+    assert Perm((1, 0, 2, 3)).count_double_drops() == 0
+    assert Perm((1, 0, 3, 2)).count_double_drops() == 0
+    assert Perm((1, 2, 0, 3)).count_double_drops() == 0
+    assert Perm((1, 2, 3, 0)).count_double_drops() == 0
+    assert Perm((1, 3, 0, 2)).count_double_drops() == 1
+    assert Perm((1, 3, 2, 0)).count_double_drops() == 0
+    assert Perm((2, 0, 1, 3)).count_double_drops() == 1
+    assert Perm((2, 0, 3, 1)).count_double_drops() == 1
+    assert Perm((2, 1, 0, 3)).count_double_drops() == 0
+    assert Perm((2, 1, 3, 0)).count_double_drops() == 0
+    assert Perm((2, 3, 0, 1)).count_double_drops() == 0
+    assert Perm((2, 3, 1, 0)).count_double_drops() == 0
+    assert Perm((3, 0, 1, 2)).count_double_drops() == 2
+    assert Perm((3, 0, 2, 1)).count_double_drops() == 1
+    assert Perm((3, 1, 0, 2)).count_double_drops() == 1
+    assert Perm((3, 1, 2, 0)).count_double_drops() == 0
+    assert Perm((3, 2, 0, 1)).count_double_drops() == 0
+    assert Perm((3, 2, 1, 0)).count_double_drops() == 0
+
+
+def test_foremaxima():
+    assert Perm(()).foremaxima() == []
+    assert Perm((0,)).foremaxima() == []
+    assert Perm((0, 1)).foremaxima() == []
+    assert Perm((1, 0)).foremaxima() == []
+    assert Perm((0, 1, 2)).foremaxima() == []
+    assert Perm((0, 2, 1)).foremaxima() == [0]
+    assert Perm((1, 0, 2)).foremaxima() == []
+    assert Perm((1, 2, 0)).foremaxima() == []
+    assert Perm((2, 0, 1)).foremaxima() == []
+    assert Perm((2, 1, 0)).foremaxima() == []
+    assert Perm((0, 1, 2, 3)).foremaxima() == []
+    assert Perm((0, 1, 3, 2)).foremaxima() == [1]
+    assert Perm((0, 2, 1, 3)).foremaxima() == [0]
+    assert Perm((0, 2, 3, 1)).foremaxima() == [0]
+    assert Perm((0, 3, 1, 2)).foremaxima() == []
+    assert Perm((0, 3, 2, 1)).foremaxima() == []
+    assert Perm((1, 0, 2, 3)).foremaxima() == []
+    assert Perm((1, 0, 3, 2)).foremaxima() == []
+    assert Perm((1, 2, 0, 3)).foremaxima() == []
+    assert Perm((1, 2, 3, 0)).foremaxima() == []
+    assert Perm((1, 3, 0, 2)).foremaxima() == [0]
+    assert Perm((1, 3, 2, 0)).foremaxima() == [0]
+    assert Perm((2, 0, 1, 3)).foremaxima() == []
+    assert Perm((2, 0, 3, 1)).foremaxima() == []
+    assert Perm((2, 1, 0, 3)).foremaxima() == []
+    assert Perm((2, 1, 3, 0)).foremaxima() == []
+    assert Perm((2, 3, 0, 1)).foremaxima() == []
+    assert Perm((2, 3, 1, 0)).foremaxima() == []
+    assert Perm((3, 0, 1, 2)).foremaxima() == []
+    assert Perm((3, 0, 2, 1)).foremaxima() == []
+    assert Perm((3, 1, 0, 2)).foremaxima() == []
+    assert Perm((3, 1, 2, 0)).foremaxima() == []
+    assert Perm((3, 2, 0, 1)).foremaxima() == []
+    assert Perm((3, 2, 1, 0)).foremaxima() == []
+    assert Perm((1, 3, 5, 4, 2, 0)).foremaxima() == [0, 1]
+
+
+def test_count_foremaxima():
+    assert Perm(()).count_foremaxima() == 0
+    assert Perm((0,)).count_foremaxima() == 0
+    assert Perm((0, 1)).count_foremaxima() == 0
+    assert Perm((1, 0)).count_foremaxima() == 0
+    assert Perm((0, 1, 2)).count_foremaxima() == 0
+    assert Perm((0, 2, 1)).count_foremaxima() == 1
+    assert Perm((1, 0, 2)).count_foremaxima() == 0
+    assert Perm((1, 2, 0)).count_foremaxima() == 0
+    assert Perm((2, 0, 1)).count_foremaxima() == 0
+    assert Perm((2, 1, 0)).count_foremaxima() == 0
+    assert Perm((0, 1, 2, 3)).count_foremaxima() == 0
+    assert Perm((0, 1, 3, 2)).count_foremaxima() == 1
+    assert Perm((0, 2, 1, 3)).count_foremaxima() == 1
+    assert Perm((0, 2, 3, 1)).count_foremaxima() == 1
+    assert Perm((0, 3, 1, 2)).count_foremaxima() == 0
+    assert Perm((0, 3, 2, 1)).count_foremaxima() == 0
+    assert Perm((1, 0, 2, 3)).count_foremaxima() == 0
+    assert Perm((1, 0, 3, 2)).count_foremaxima() == 0
+    assert Perm((1, 2, 0, 3)).count_foremaxima() == 0
+    assert Perm((1, 2, 3, 0)).count_foremaxima() == 0
+    assert Perm((1, 3, 0, 2)).count_foremaxima() == 1
+    assert Perm((1, 3, 2, 0)).count_foremaxima() == 1
+    assert Perm((2, 0, 1, 3)).count_foremaxima() == 0
+    assert Perm((2, 0, 3, 1)).count_foremaxima() == 0
+    assert Perm((2, 1, 0, 3)).count_foremaxima() == 0
+    assert Perm((2, 1, 3, 0)).count_foremaxima() == 0
+    assert Perm((2, 3, 0, 1)).count_foremaxima() == 0
+    assert Perm((2, 3, 1, 0)).count_foremaxima() == 0
+    assert Perm((3, 0, 1, 2)).count_foremaxima() == 0
+    assert Perm((3, 0, 2, 1)).count_foremaxima() == 0
+    assert Perm((3, 1, 0, 2)).count_foremaxima() == 0
+    assert Perm((3, 1, 2, 0)).count_foremaxima() == 0
+    assert Perm((3, 2, 0, 1)).count_foremaxima() == 0
+    assert Perm((3, 2, 1, 0)).count_foremaxima() == 0
+    assert Perm((1, 3, 5, 4, 2, 0)).count_foremaxima() == 2
+
+
+def test_afterminima():
+    assert Perm(()).afterminima() == []
+    assert Perm((0,)).afterminima() == []
+    assert Perm((0, 1)).afterminima() == []
+    assert Perm((1, 0)).afterminima() == []
+    assert Perm((0, 1, 2)).afterminima() == []
+    assert Perm((0, 2, 1)).afterminima() == [0]
+    assert Perm((1, 0, 2)).afterminima() == [1]
+    assert Perm((1, 2, 0)).afterminima() == []
+    assert Perm((2, 0, 1)).afterminima() == []
+    assert Perm((2, 1, 0)).afterminima() == []
+    assert Perm((0, 1, 2, 3)).afterminima() == []
+    assert Perm((0, 1, 3, 2)).afterminima() == [1]
+    assert Perm((0, 2, 1, 3)).afterminima() == [0, 2]
+    assert Perm((0, 2, 3, 1)).afterminima() == [0]
+    assert Perm((0, 3, 1, 2)).afterminima() == []
+    assert Perm((0, 3, 2, 1)).afterminima() == []
+    assert Perm((1, 0, 2, 3)).afterminima() == [1]
+    assert Perm((1, 0, 3, 2)).afterminima() == []
+    assert Perm((1, 2, 0, 3)).afterminima() == []
+    assert Perm((1, 2, 3, 0)).afterminima() == []
+    assert Perm((1, 3, 0, 2)).afterminima() == [2]
+    assert Perm((1, 3, 2, 0)).afterminima() == []
+    assert Perm((2, 0, 1, 3)).afterminima() == [2]
+    assert Perm((2, 0, 3, 1)).afterminima() == []
+    assert Perm((2, 1, 0, 3)).afterminima() == []
+    assert Perm((2, 1, 3, 0)).afterminima() == []
+    assert Perm((2, 3, 0, 1)).afterminima() == []
+    assert Perm((2, 3, 1, 0)).afterminima() == []
+    assert Perm((3, 0, 1, 2)).afterminima() == []
+    assert Perm((3, 0, 2, 1)).afterminima() == [1]
+    assert Perm((3, 1, 0, 2)).afterminima() == [2]
+    assert Perm((3, 1, 2, 0)).afterminima() == []
+    assert Perm((3, 2, 0, 1)).afterminima() == []
+    assert Perm((3, 2, 1, 0)).afterminima() == []
+
+
+def test_count_afterminima():
+    assert Perm(()).count_afterminima() == 0
+    assert Perm((0,)).count_afterminima() == 0
+    assert Perm((0, 1)).count_afterminima() == 0
+    assert Perm((1, 0)).count_afterminima() == 0
+    assert Perm((0, 1, 2)).count_afterminima() == 0
+    assert Perm((0, 2, 1)).count_afterminima() == 1
+    assert Perm((1, 0, 2)).count_afterminima() == 1
+    assert Perm((1, 2, 0)).count_afterminima() == 0
+    assert Perm((2, 0, 1)).count_afterminima() == 0
+    assert Perm((2, 1, 0)).count_afterminima() == 0
+    assert Perm((0, 1, 2, 3)).count_afterminima() == 0
+    assert Perm((0, 1, 3, 2)).count_afterminima() == 1
+    assert Perm((0, 2, 1, 3)).count_afterminima() == 2
+    assert Perm((0, 2, 3, 1)).count_afterminima() == 1
+    assert Perm((0, 3, 1, 2)).count_afterminima() == 0
+    assert Perm((0, 3, 2, 1)).count_afterminima() == 0
+    assert Perm((1, 0, 2, 3)).count_afterminima() == 1
+    assert Perm((1, 0, 3, 2)).count_afterminima() == 0
+    assert Perm((1, 2, 0, 3)).count_afterminima() == 0
+    assert Perm((1, 2, 3, 0)).count_afterminima() == 0
+    assert Perm((1, 3, 0, 2)).count_afterminima() == 1
+    assert Perm((1, 3, 2, 0)).count_afterminima() == 0
+    assert Perm((2, 0, 1, 3)).count_afterminima() == 1
+    assert Perm((2, 0, 3, 1)).count_afterminima() == 0
+    assert Perm((2, 1, 0, 3)).count_afterminima() == 0
+    assert Perm((2, 1, 3, 0)).count_afterminima() == 0
+    assert Perm((2, 3, 0, 1)).count_afterminima() == 0
+    assert Perm((2, 3, 1, 0)).count_afterminima() == 0
+    assert Perm((3, 0, 1, 2)).count_afterminima() == 0
+    assert Perm((3, 0, 2, 1)).count_afterminima() == 1
+    assert Perm((3, 1, 0, 2)).count_afterminima() == 1
+    assert Perm((3, 1, 2, 0)).count_afterminima() == 0
+    assert Perm((3, 2, 0, 1)).count_afterminima() == 0
+    assert Perm((3, 2, 1, 0)).count_afterminima() == 0
+
+
+def test_aftermaxima():
+    assert Perm(()).aftermaxima() == []
+    assert Perm((0,)).aftermaxima() == []
+    assert Perm((0, 1)).aftermaxima() == []
+    assert Perm((1, 0)).aftermaxima() == []
+    assert Perm((0, 1, 2)).aftermaxima() == []
+    assert Perm((0, 2, 1)).aftermaxima() == []
+    assert Perm((1, 0, 2)).aftermaxima() == []
+    assert Perm((1, 2, 0)).aftermaxima() == [1]
+    assert Perm((2, 0, 1)).aftermaxima() == [0]
+    assert Perm((2, 1, 0)).aftermaxima() == []
+    assert Perm((0, 1, 2, 3)).aftermaxima() == []
+    assert Perm((0, 1, 3, 2)).aftermaxima() == []
+    assert Perm((0, 2, 1, 3)).aftermaxima() == []
+    assert Perm((0, 2, 3, 1)).aftermaxima() == [2]
+    assert Perm((0, 3, 1, 2)).aftermaxima() == [1]
+    assert Perm((0, 3, 2, 1)).aftermaxima() == []
+    assert Perm((1, 0, 2, 3)).aftermaxima() == []
+    assert Perm((1, 0, 3, 2)).aftermaxima() == []
+    assert Perm((1, 2, 0, 3)).aftermaxima() == []
+    assert Perm((1, 2, 3, 0)).aftermaxima() == []
+    assert Perm((1, 3, 0, 2)).aftermaxima() == []
+    assert Perm((1, 3, 2, 0)).aftermaxima() == [2]
+    assert Perm((2, 0, 1, 3)).aftermaxima() == []
+    assert Perm((2, 0, 3, 1)).aftermaxima() == [2]
+    assert Perm((2, 1, 0, 3)).aftermaxima() == []
+    assert Perm((2, 1, 3, 0)).aftermaxima() == []
+    assert Perm((2, 3, 0, 1)).aftermaxima() == []
+    assert Perm((2, 3, 1, 0)).aftermaxima() == [1]
+    assert Perm((3, 0, 1, 2)).aftermaxima() == []
+    assert Perm((3, 0, 2, 1)).aftermaxima() == []
+    assert Perm((3, 1, 0, 2)).aftermaxima() == [0]
+    assert Perm((3, 1, 2, 0)).aftermaxima() == [0, 2]
+    assert Perm((3, 2, 0, 1)).aftermaxima() == [1]
+    assert Perm((3, 2, 1, 0)).aftermaxima() == []
+
+
+def test_count_aftermaxima():
+    assert Perm(()).count_aftermaxima() == 0
+    assert Perm((0,)).count_aftermaxima() == 0
+    assert Perm((0, 1)).count_aftermaxima() == 0
+    assert Perm((1, 0)).count_aftermaxima() == 0
+    assert Perm((0, 1, 2)).count_aftermaxima() == 0
+    assert Perm((0, 2, 1)).count_aftermaxima() == 0
+    assert Perm((1, 0, 2)).count_aftermaxima() == 0
+    assert Perm((1, 2, 0)).count_aftermaxima() == 1
+    assert Perm((2, 0, 1)).count_aftermaxima() == 1
+    assert Perm((2, 1, 0)).count_aftermaxima() == 0
+    assert Perm((0, 1, 2, 3)).count_aftermaxima() == 0
+    assert Perm((0, 1, 3, 2)).count_aftermaxima() == 0
+    assert Perm((0, 2, 1, 3)).count_aftermaxima() == 0
+    assert Perm((0, 2, 3, 1)).count_aftermaxima() == 1
+    assert Perm((0, 3, 1, 2)).count_aftermaxima() == 1
+    assert Perm((0, 3, 2, 1)).count_aftermaxima() == 0
+    assert Perm((1, 0, 2, 3)).count_aftermaxima() == 0
+    assert Perm((1, 0, 3, 2)).count_aftermaxima() == 0
+    assert Perm((1, 2, 0, 3)).count_aftermaxima() == 0
+    assert Perm((1, 2, 3, 0)).count_aftermaxima() == 0
+    assert Perm((1, 3, 0, 2)).count_aftermaxima() == 0
+    assert Perm((1, 3, 2, 0)).count_aftermaxima() == 1
+    assert Perm((2, 0, 1, 3)).count_aftermaxima() == 0
+    assert Perm((2, 0, 3, 1)).count_aftermaxima() == 1
+    assert Perm((2, 1, 0, 3)).count_aftermaxima() == 0
+    assert Perm((2, 1, 3, 0)).count_aftermaxima() == 0
+    assert Perm((2, 3, 0, 1)).count_aftermaxima() == 0
+    assert Perm((2, 3, 1, 0)).count_aftermaxima() == 1
+    assert Perm((3, 0, 1, 2)).count_aftermaxima() == 0
+    assert Perm((3, 0, 2, 1)).count_aftermaxima() == 0
+    assert Perm((3, 1, 0, 2)).count_aftermaxima() == 1
+    assert Perm((3, 1, 2, 0)).count_aftermaxima() == 2
+    assert Perm((3, 2, 0, 1)).count_aftermaxima() == 1
+    assert Perm((3, 2, 1, 0)).count_aftermaxima() == 0
+
+
+def test_foreminima():
+    assert Perm(()).foreminima() == []
+    assert Perm((0,)).foreminima() == []
+    assert Perm((0, 1)).foreminima() == []
+    assert Perm((1, 0)).foreminima() == []
+    assert Perm((0, 1, 2)).foreminima() == []
+    assert Perm((0, 2, 1)).foreminima() == []
+    assert Perm((1, 0, 2)).foreminima() == []
+    assert Perm((1, 2, 0)).foreminima() == []
+    assert Perm((2, 0, 1)).foreminima() == [0]
+    assert Perm((2, 1, 0)).foreminima() == []
+    assert Perm((0, 1, 2, 3)).foreminima() == []
+    assert Perm((0, 1, 3, 2)).foreminima() == []
+    assert Perm((0, 2, 1, 3)).foreminima() == []
+    assert Perm((0, 2, 3, 1)).foreminima() == []
+    assert Perm((0, 3, 1, 2)).foreminima() == []
+    assert Perm((0, 3, 2, 1)).foreminima() == []
+    assert Perm((1, 0, 2, 3)).foreminima() == []
+    assert Perm((1, 0, 3, 2)).foreminima() == []
+    assert Perm((1, 2, 0, 3)).foreminima() == []
+    assert Perm((1, 2, 3, 0)).foreminima() == []
+    assert Perm((1, 3, 0, 2)).foreminima() == []
+    assert Perm((1, 3, 2, 0)).foreminima() == []
+    assert Perm((2, 0, 1, 3)).foreminima() == [0]
+    assert Perm((2, 0, 3, 1)).foreminima() == [0]
+    assert Perm((2, 1, 0, 3)).foreminima() == []
+    assert Perm((2, 1, 3, 0)).foreminima() == []
+    assert Perm((2, 3, 0, 1)).foreminima() == []
+    assert Perm((2, 3, 1, 0)).foreminima() == []
+    assert Perm((3, 0, 1, 2)).foreminima() == []
+    assert Perm((3, 0, 2, 1)).foreminima() == []
+    assert Perm((3, 1, 0, 2)).foreminima() == [0]
+    assert Perm((3, 1, 2, 0)).foreminima() == [0]
+    assert Perm((3, 2, 0, 1)).foreminima() == [1]
+    assert Perm((3, 2, 1, 0)).foreminima() == []
+
+
+def test_count_foreminima():
+    assert Perm(()).count_foreminima() == 0
+    assert Perm((0,)).count_foreminima() == 0
+    assert Perm((0, 1)).count_foreminima() == 0
+    assert Perm((1, 0)).count_foreminima() == 0
+    assert Perm((0, 1, 2)).count_foreminima() == 0
+    assert Perm((0, 2, 1)).count_foreminima() == 0
+    assert Perm((1, 0, 2)).count_foreminima() == 0
+    assert Perm((1, 2, 0)).count_foreminima() == 0
+    assert Perm((2, 0, 1)).count_foreminima() == 1
+    assert Perm((2, 1, 0)).count_foreminima() == 0
+    assert Perm((0, 1, 2, 3)).count_foreminima() == 0
+    assert Perm((0, 1, 3, 2)).count_foreminima() == 0
+    assert Perm((0, 2, 1, 3)).count_foreminima() == 0
+    assert Perm((0, 2, 3, 1)).count_foreminima() == 0
+    assert Perm((0, 3, 1, 2)).count_foreminima() == 0
+    assert Perm((0, 3, 2, 1)).count_foreminima() == 0
+    assert Perm((1, 0, 2, 3)).count_foreminima() == 0
+    assert Perm((1, 0, 3, 2)).count_foreminima() == 0
+    assert Perm((1, 2, 0, 3)).count_foreminima() == 0
+    assert Perm((1, 2, 3, 0)).count_foreminima() == 0
+    assert Perm((1, 3, 0, 2)).count_foreminima() == 0
+    assert Perm((1, 3, 2, 0)).count_foreminima() == 0
+    assert Perm((2, 0, 1, 3)).count_foreminima() == 1
+    assert Perm((2, 0, 3, 1)).count_foreminima() == 1
+    assert Perm((2, 1, 0, 3)).count_foreminima() == 0
+    assert Perm((2, 1, 3, 0)).count_foreminima() == 0
+    assert Perm((2, 3, 0, 1)).count_foreminima() == 0
+    assert Perm((2, 3, 1, 0)).count_foreminima() == 0
+    assert Perm((3, 0, 1, 2)).count_foreminima() == 0
+    assert Perm((3, 0, 2, 1)).count_foreminima() == 0
+    assert Perm((3, 1, 0, 2)).count_foreminima() == 1
+    assert Perm((3, 1, 2, 0)).count_foreminima() == 1
+    assert Perm((3, 2, 0, 1)).count_foreminima() == 1
+    assert Perm((3, 2, 1, 0)).count_foreminima() == 0

@@ -8,6 +8,14 @@ PermutationStatisticType = Callable[[Perm], int]
 BijectionType = Dict[Perm, Perm]
 
 
+def _count_descents(perm: Perm) -> int:
+    return perm.count_descents()
+
+
+def _count_ascents(perm: Perm) -> int:
+    return perm.count_ascents()
+
+
 class PermutationStatistic:
     """
     A class for checking preservation of statistics
@@ -19,8 +27,8 @@ class PermutationStatistic:
         ("Number of inversions", Perm.count_inversions),
         ("Number of non-inversions", Perm.count_non_inversions),
         ("Major index", Perm.major_index),
-        ("Number of descents", Perm.count_descents),
-        ("Number of ascents", Perm.count_ascents),
+        ("Number of descents", _count_descents),
+        ("Number of ascents", _count_ascents),
         ("Number of peaks", Perm.count_peaks),
         ("Number of valleys", Perm.count_valleys),
         ("Number of cycles", Perm.count_cycles),
@@ -33,6 +41,21 @@ class PermutationStatistic:
         ("Longest increasing subsequence", Perm.length_of_longestrun_ascending),
         ("Longest decreasing subsequence", Perm.length_of_longestrun_descending),
         ("Depth", Perm.depth),
+        ("Number of bounces", Perm.count_bounces),
+        ("Maximum drop size", Perm.max_drop_size),
+        ("Number of primes in the column sums", Perm.count_column_sum_primes),
+        ("Holeyness of a permutation", Perm.holeyness),
+        ("Number of stack-sorts needed", Perm.count_stack_sorts),
+        ("Number of pop-stack-sorts needed", Perm.count_pop_stack_sorts),
+        ("Number of pinnacles", Perm.count_pinnacles),
+        ("Number of cyclic peaks", Perm.count_cyclic_peaks),
+        ("Number of cyclic valleys", Perm.count_cyclic_valleys),
+        ("Number of double excedance", Perm.count_double_excedance),
+        ("Number of double drops", Perm.count_double_drops),
+        ("Number of foremaxima", Perm.count_foremaxima),
+        ("Number of afterminima", Perm.count_afterminima),
+        ("Number of aftermaxima", Perm.count_aftermaxima),
+        ("Number of foreminima", Perm.count_foreminima),
     )
 
     @staticmethod
