@@ -26,6 +26,7 @@ from typing import (
 )
 
 from permuta.misc import HTMLViewer
+from permuta.misc.math import is_prime
 
 from .patt import Patt
 
@@ -745,96 +746,147 @@ class Perm(TupleType, Patt):
 
     sum_decomposable = is_sum_decomposable
 
-    def descents(self) -> Iterator[int]:
-        """Yield the 0-based descents of self.
+    def descents(self, step_size: Optional[int] = None) -> Iterator[int]:
+        """Yield the 0-based descents of self. If step size is specified it only yields
+        descents of that size, otherwise it yields all descents.
 
         Examples:
             >>> tuple(Perm((0, 1, 3, 2, 4)).descents())
             (2,)
-            >>> tuple(Perm((3, 2, 1, 0)).descents())
-            (0, 1, 2)
+            >>> tuple(Perm((0, 1, 3, 2, 4)).descents(step_size=2))
+            ()
+            >>> tuple(Perm((3, 1, 0, 2)).descents())
+            (0, 1)
+            >>> tuple(Perm((3, 1, 0, 2)).descents(step_size=2))
+            (0,)
             >>> tuple(Perm((0, 1, 2)).descents())
             ()
         """
+
+        if step_size is None:
+            return (
+                idx
+                for idx, (prev, curr) in enumerate(
+                    zip(self, itertools.islice(self, 1, None))
+                )
+                if prev > curr
+            )
+
+        if step_size < 1:
+            raise ValueError("Step size has to be 1 or more")
+
         return (
             idx
             for idx, (prev, curr) in enumerate(
                 zip(self, itertools.islice(self, 1, None))
             )
-            if prev > curr
+            if prev == curr + step_size
         )
 
-    def descent_set(self) -> List[int]:
-        """Return the list of descents of self.
+    def descent_set(self, step_size: Optional[int] = None) -> List[int]:
+        """Return the list of descents of self. If step size is specified it only
+        returns a list of descents of that size,
+        otherwise it returns list of all descents.
 
         Examples:
-            >>> Perm((0, 1, 3, 2, 4)).descent_set()
+            >>> Perm((0, 4, 3, 1, 2)).descent_set()
+            [1, 2]
+            >>> Perm((0, 4, 3, 1, 2)).descent_set(step_size=2)
             [2]
             >>> Perm((3, 2, 1, 0)).descent_set()
             [0, 1, 2]
             >>> Perm((0, 1, 2)).descent_set()
             []
         """
-        return list(self.descents())
+        return list(self.descents(step_size))
 
-    def count_descents(self) -> int:
-        """Count the number of descents of self.
+    def count_descents(self, step_size: Optional[int] = None) -> int:
+        """Count the number of descents of self. If step size is specified
+        if only counts descents of that size, otherwise it counts all descents.
+
         Examples:
-            >>> Perm((0, 1, 3, 2, 4)).count_descents()
+            >>> Perm((0, 4, 3, 1, 2)).count_descents()
+            2
+            >>> Perm((0, 4, 3, 1, 2)).count_descents(step_size=2)
             1
             >>> Perm((3, 2, 1, 0)).count_descents()
             3
             >>> Perm((0, 1, 2)).count_descents()
             0
         """
-        return sum(1 for _ in self.descents())
+        return sum(1 for _ in self.descents(step_size))
 
     num_descents = count_descents
 
-    def ascents(self) -> Iterator[int]:
-        """Yield the 0-based ascent of self.
+    def ascents(self, step_size: Optional[int] = None) -> Iterator[int]:
+        """Yield the 0-based ascent of self. If step size is specified it only yields
+        ascents of that size, otherwise it yields all ascents.
 
         Examples:
             >>> tuple(Perm((0, 1, 3, 2, 4)).ascents())
             (0, 1, 3)
+            >>> tuple(Perm((0, 1, 3, 2, 4)).ascents(step_size=2))
+            (1, 3)
             >>> tuple(Perm((0, 4, 3, 2, 1)).ascents())
             (0,)
+            >>> tuple(Perm((0, 4, 3, 2, 1)).ascents(step_size=1))
+            ()
             >>> tuple(Perm((3, 2, 1, 0)).ascents())
             ()
         """
+
+        if step_size is None:
+            return (
+                idx
+                for idx, (prev, curr) in enumerate(
+                    zip(self, itertools.islice(self, 1, None))
+                )
+                if prev < curr
+            )
+
+        if step_size < 1:
+            raise ValueError("Step size has to be 1 or more")
+
         return (
             idx
             for idx, (prev, curr) in enumerate(
                 zip(self, itertools.islice(self, 1, None))
             )
-            if prev < curr
+            if prev + step_size == curr
         )
 
-    def ascent_set(self) -> List[int]:
-        """Return the list of ascents of self.
+    def ascent_set(self, step_size: Optional[int] = None) -> List[int]:
+        """Return the list of ascents of self. If step size is specified it only
+        returns a list of ascents of that size,
+        otherwise it returns list of all ascents.
 
         Examples:
             >>> Perm((0, 1, 3, 2, 4)).ascent_set()
             [0, 1, 3]
+            >>> Perm((0, 1, 3, 2, 4)).ascent_set(step_size=2)
+            [1, 3]
             >>> Perm((0, 4, 3, 2, 1)).ascent_set()
             [0]
             >>> Perm((3, 2, 1, 0)).ascent_set()
             []
         """
-        return list(self.ascents())
+        return list(self.ascents(step_size))
 
-    def count_ascents(self) -> int:
-        """Count the number of ascents in self.
+    def count_ascents(self, step_size: Optional[int] = None) -> int:
+        """Count the number of ascents in self. If step size is specified
+        if only counts ascents of that size, otherwise it counts all ascents.
 
         Examples:
             >>> Perm((0, 1, 3, 2, 4)).count_ascents()
             3
+            >>> Perm((0, 1, 3, 2, 4)).count_ascents(step_size=2)
+            2
             >>> Perm((0, 4, 3, 2, 1)).count_ascents()
             1
             >>> Perm((3, 2, 1, 0)).count_ascents()
             0
         """
-        return sum(1 for _ in self.ascents())
+        return sum(1 for _ in self.ascents(step_size))
 
     num_ascents = count_ascents
 
@@ -889,6 +941,68 @@ class Perm(TupleType, Patt):
         return sum(1 for _ in self.peaks())
 
     num_peaks = count_peaks
+    count_pinnacles = count_peaks
+    num_pinnacles = count_peaks
+
+    def pinnacles(self) -> Iterator[int]:
+        """Yield the pinnacles of self. The value of the i-th element of a perm is
+        a pinnacle if self[i-1] < self[i] > self[i+1].
+        See: https://arxiv.org/abs/2105.10388
+        https://arxiv.org/abs/1704.05494
+        https://arxiv.org/abs/2001.07325
+
+        Examples:
+            >>> tuple(Perm((5, 3, 4, 0, 2, 1)).pinnacles())
+            (4, 2)
+            >>> tuple(Perm((1, 2, 0)).pinnacles())
+            (2,)
+            >>> tuple(Perm((2, 1, 0)).pinnacles())
+            ()
+        """
+        return (
+            curr
+            for (prev, curr, nxt) in zip(
+                itertools.islice(self, 0, None),
+                itertools.islice(self, 1, None),
+                itertools.islice(self, 2, None),
+            )
+            if prev < curr > nxt
+        )
+
+    def pinnacle_set(self) -> List[int]:
+        """Return the pinnacle set of self.
+        See: https://arxiv.org/abs/2105.10388
+        https://arxiv.org/abs/1704.05494
+        https://arxiv.org/abs/2001.07325
+
+        Examples:
+            >>> Perm((5, 3, 4, 0, 2, 1)).pinnacle_set()
+            [4, 2]
+            >>> Perm((1, 2, 0)).pinnacle_set()
+            [2]
+            >>> Perm((2, 1, 0)).pinnacle_set()
+            []
+        """
+        return list(self.pinnacles())
+
+    def count_column_sum_primes(self) -> int:
+        """Returns the number of primes in the column sums of the two line notation
+        of a permutation.
+        See: https://www.findstat.org/StatisticsDatabase/St001285/
+        https://arxiv.org/abs/1809.01012
+
+        Examples:
+            >>> Perm((0,)).count_column_sum_primes()
+            1
+            >>> Perm((0, 1)).count_column_sum_primes()
+            1
+            >>> Perm((1, 0)).count_column_sum_primes()
+            2
+        """
+        return sum(1 for idx, val in enumerate(self) if is_prime(val + idx + 2))
+        # + 2 because both values are 0 indexed
+
+    num_column_sum_primes = count_column_sum_primes
 
     def valleys(self) -> Iterator[int]:
         """Yield the indices of the valleys of self. The i-th element of a perm is a
@@ -1119,6 +1233,588 @@ class Perm(TupleType, Patt):
                 # Increase index by the largest power of two that divides it
                 bit_index += bit_index & -bit_index
         return bit[0]
+
+    def count_bounces(self) -> int:
+        """The Number of "bounces" in a permutation.
+        See https://www.findstat.org/StatisticsDatabase/St000133/#
+
+        Examples:
+            >>> Perm((0,)).count_bounces()
+            0
+            >>> Perm((0, 1)).count_bounces()
+            1
+            >>> Perm((1, 0)).count_bounces()
+            0
+        """
+        n = len(self)
+        if n == 0:
+            return 0
+        inv = self.inverse()
+        bounce_arr = [inv[0] + 1]
+        while bounce_arr[-1] < n:
+            bounce_arr.append(max(inv[: bounce_arr[-1] + 1]) + 1)
+        return sum(n - i for i in bounce_arr)
+
+    def max_drop_size(self):
+        """The maximum drop size of a permutation.
+        See: https://www.findstat.org/StatisticsDatabase/St000141/
+        https://arxiv.org/abs/1306.5428
+        https://mathscinet.ams.org/mathscinet/search/publdoc.html?pg1=MR&s1=MR2673024
+
+        Examples:
+            >>> Perm((0,)).max_drop_size()
+            0
+            >>> Perm((0, 1)).max_drop_size()
+            0
+            >>> Perm((1, 0)).max_drop_size()
+            1
+            >>> Perm((2, 0, 1)).max_drop_size()
+            2
+        """
+        return max((val - idx for idx, val in enumerate(self)), default=0)
+
+    def holeyness(self) -> int:
+        """The holeyness of a permutation.
+        See: https://www.findstat.org/StatisticsDatabase/St001469/
+        https://mathoverflow.net/questions/340179/how-rare-are-unholey-permutations
+
+        Examples:
+            >>> Perm((1, 0)).holeyness()
+            0
+            >>> Perm((0, 1, 2)).holeyness()
+            0
+            >>> Perm((0, 2, 1)).holeyness()
+            1
+            >>> Perm((1, 0, 2)).holeyness()
+            1
+        """
+
+        def _delta(d_set: Set[int]) -> int:
+            return sum(1 for x in d_set if x + 1 not in d_set)
+
+        def _set_generator(num: int) -> Iterator[Set[int]]:
+            for y in range(0, num + 1):
+                for x in itertools.combinations(range(num), y):
+                    yield set(x)
+
+        return max(
+            _delta({self[s] for s in tmp_set}) - _delta(tmp_set)
+            for tmp_set in _set_generator(len(self))
+        )
+
+    def count_stack_sorts(self):
+        """The number of stack-sorts needed to sort a permutation.
+        See: https://www.findstat.org/StatisticsDatabase/St000028/
+        https://mathscinet.ams.org/mathscinet/search/publdoc.html?pg1=MR&s1=MR2028290
+        https://arxiv.org/abs/1110.1219
+        https://mathscinet.ams.org/mathscinet/search/publdoc.html?pg1=MR&s1=MR0445948
+        https://mathscinet.ams.org/mathscinet/search/publdoc.html?pg1=MR&s1=MR1168135
+
+        Examples:
+        >>> Perm(()).count_stack_sorts()
+        0
+        >>> Perm((0,)).count_stack_sorts()
+        0
+        >>> Perm((0, 1)).count_stack_sorts()
+        0
+        >>> Perm((1, 0)).count_stack_sorts()
+        1
+        >>> Perm((1, 2, 0)).count_stack_sorts()
+        2
+        >>> Perm((2, 1, 0)).count_stack_sorts()
+        1
+        """
+        num_sorts = 0
+        identity = list(self.identity(len(self)))
+        perm_list = list(self)
+        while perm_list != identity:
+            perm_list = self._stack_sort(perm_list)
+            num_sorts += 1
+        return num_sorts
+
+    def count_pop_stack_sorts(self):
+        """The number of pop-stack-sorts needed to sort a permutation.
+        See: https://www.findstat.org/StatisticsDatabase/St001090/
+        http://www.arxiv.org/abs/1710.04978
+        http://www.arxiv.org/abs/1801.05005
+        http://www.arxiv.org/abs/1911.03104
+
+        Examples:
+        >>> Perm(()).count_pop_stack_sorts()
+        0
+        >>> Perm((0,)).count_pop_stack_sorts()
+        0
+        >>> Perm((0, 1)).count_pop_stack_sorts()
+        0
+        >>> Perm((1, 0)).count_pop_stack_sorts()
+        1
+        >>> Perm((4, 0, 2, 1, 3, 5)).count_pop_stack_sorts()
+        4
+        >>> Perm((4, 3, 2, 1, 0, 5)).count_pop_stack_sorts()
+        1
+        >>> Perm((5, 1, 4, 3, 0, 2)).count_pop_stack_sorts()
+        4
+        """
+        num_sorts = 0
+        perm = self
+        while not perm.is_increasing():
+            perm = perm.pop_stack_sort()
+            num_sorts += 1
+        return num_sorts
+
+    def cyclic_peaks(self) -> Iterator[int]:
+        """Yields the indexes of cyclic peaks in the permutation.
+        Satisfies: i < x > P(x), where x = P(i)
+        See: https://arxiv.org/abs/1908.01084
+
+        Examples:
+            >>> list(Perm((3, 2, 0, 1)).cyclic_peaks())
+            [0, 1]
+            >>> list(Perm((1, 0, 2)).cyclic_peaks())
+            [0]
+            >>> list(Perm((0, 1, 2)).cyclic_peaks())
+            []
+            >>> list(Perm((2, 0, 1)).cyclic_peaks())
+            [0]
+            >>> list(Perm((1, 3, 0, 2)).cyclic_peaks())
+            [1]
+            >>> list(Perm((0, 1, 2, 3)).cyclic_peaks())
+            []
+            >>> list(Perm((0, 2, 1, 3)).cyclic_peaks())
+            [1]
+        """
+        for idx, val in enumerate(self):
+            if idx < val > self[val]:
+                yield idx
+
+    def cyclic_peaks_list(self) -> List[int]:
+        """Returns a list of indexes of the cyclic peaks in the permutation.
+        Satisfies: i < x > P(x), where x = P(i)
+        See: https://arxiv.org/abs/1908.01084
+
+        Examples:
+            >>> Perm((3, 2, 0, 1)).cyclic_peaks_list()
+            [0, 1]
+            >>> Perm((1, 0, 2)).cyclic_peaks_list()
+            [0]
+            >>> Perm((0, 1, 2)).cyclic_peaks_list()
+            []
+            >>> Perm((2, 0, 1)).cyclic_peaks_list()
+            [0]
+            >>> Perm((1, 3, 0, 2)).cyclic_peaks_list()
+            [1]
+            >>> Perm((0, 1, 2, 3)).cyclic_peaks_list()
+            []
+            >>> Perm((0, 2, 1, 3)).cyclic_peaks_list()
+            [1]
+        """
+        return list(self.cyclic_peaks())
+
+    def count_cyclic_peaks(self) -> int:
+        """Returns the number of cyclic peaks in the permutation.
+        Satisfies: i < x > P(x), where x = P(i)
+        See: https://arxiv.org/abs/1908.01084
+
+        Examples:
+            >>> Perm((3, 2, 0, 1)).count_cyclic_peaks()
+            2
+            >>> Perm((1, 0, 2)).count_cyclic_peaks()
+            1
+            >>> Perm((0, 1, 2)).count_cyclic_peaks()
+            0
+            >>> Perm((2, 0, 1)).count_cyclic_peaks()
+            1
+            >>> Perm((1, 3, 0, 2)).count_cyclic_peaks()
+            1
+            >>> Perm((0, 1, 2, 3)).count_cyclic_peaks()
+            0
+            >>> Perm((0, 2, 1, 3)).count_cyclic_peaks()
+            1
+        """
+        return sum(1 for _ in self.cyclic_peaks())
+
+    def cyclic_valleys(self) -> Iterator[int]:
+        """Yields the indexes of cyclic valleys in the permutation.
+        Satisfies: i > x < P(x), where x = P(i)
+        See: https://arxiv.org/abs/1908.01084
+
+        Examples:
+            >>> list(Perm((1, 3, 0, 2)).cyclic_valleys())
+            [2]
+            >>> list(Perm((2, 1, 0)).cyclic_valleys())
+            [2]
+            >>> list(Perm((1, 2, 3, 0)).cyclic_valleys())
+            [3]
+            >>> list(Perm((1, 2, 0)).cyclic_valleys())
+            [2]
+            >>> list(Perm((2, 0, 1)).cyclic_valleys())
+            [1]
+            >>> list(Perm((0, 1, 2)).cyclic_valleys())
+            []
+        """
+        for idx, val in enumerate(self):
+            if idx > val < self[val]:
+                yield idx
+
+    def cyclic_valleys_list(self) -> List[int]:
+        """Returns a list of index of the cyclic valleys in the permutation.
+        Satisfies: i > x < P(x), where x = P(i)
+        See: https://arxiv.org/abs/1908.01084
+
+        Examples:
+            >>> Perm((1, 3, 0, 2)).cyclic_valleys_list()
+            [2]
+            >>> Perm((2, 1, 0)).cyclic_valleys_list()
+            [2]
+            >>> Perm((1, 2, 3, 0)).cyclic_valleys_list()
+            [3]
+            >>> Perm((1, 2, 0)).cyclic_valleys_list()
+            [2]
+            >>> Perm((2, 0, 1)).cyclic_valleys_list()
+            [1]
+            >>> Perm((0, 1, 2)).cyclic_valleys_list()
+            []
+        """
+        return list(self.cyclic_valleys())
+
+    def count_cyclic_valleys(self) -> int:
+        """Returns the number of cyclic valleys in the permutation.
+        Satisfies: i > x < P(x), where x = P(i)
+        See: https://arxiv.org/abs/1908.01084
+
+        Examples:
+            >>> Perm((1, 3, 0, 2)).count_cyclic_valleys()
+            1
+            >>> Perm((2, 1, 0)).count_cyclic_valleys()
+            1
+            >>> Perm((1, 2, 3, 0)).count_cyclic_valleys()
+            1
+            >>> Perm((1, 2, 0)).count_cyclic_valleys()
+            1
+            >>> Perm((2, 0, 1)).count_cyclic_valleys()
+            1
+            >>> Perm((0, 1, 2)).count_cyclic_valleys()
+            0
+        """
+        return sum(1 for _ in self.cyclic_valleys())
+
+    def double_excedance(self) -> Iterator[int]:
+        """Yields the indexes of double excedances in the permutation.
+        Satisfies: i < x < P(x), where x = P(i)
+        See: https://arxiv.org/abs/1908.01084
+
+        Examples:
+            >>> list(Perm((1, 0, 3, 2)).double_excedance())
+            []
+            >>> list(Perm((1, 3, 0, 2)).double_excedance())
+            [0]
+            >>> list(Perm((2, 1, 0)).double_excedance())
+            []
+            >>> list(Perm((3, 1, 0, 2)).double_excedance())
+            []
+            >>> list(Perm((1, 2, 3, 0)).double_excedance())
+            [0, 1]
+            >>> list(Perm((2, 0, 3, 1)).double_excedance())
+            [0]
+        """
+        for idx, val in enumerate(self):
+            if idx < val < self[val]:
+                yield idx
+
+    def double_excedance_list(self) -> List[int]:
+        """Returns a list of indees of the double excedances in the permutation.
+        Satisfies: i < x < P(x), where x = P(i)
+        See: https://arxiv.org/abs/1908.01084
+
+        Examples:
+            >>> Perm((1, 0, 3, 2)).double_excedance_list()
+            []
+            >>> Perm((1, 3, 0, 2)).double_excedance_list()
+            [0]
+            >>> Perm((2, 1, 0)).double_excedance_list()
+            []
+            >>> Perm((3, 1, 0, 2)).double_excedance_list()
+            []
+            >>> Perm((1, 2, 3, 0)).double_excedance_list()
+            [0, 1]
+            >>> Perm((2, 0, 3, 1)).double_excedance_list()
+            [0]
+        """
+        return list(self.double_excedance())
+
+    def count_double_excedance(self) -> int:
+        """Returns the number of double excedances in the permutation.
+        Satisfies: i < x < P(x), where x = P(i)
+        See: https://arxiv.org/abs/1908.01084
+
+        Examples:
+            >>> Perm((1, 0, 3, 2)).count_double_excedance()
+            0
+            >>> Perm((1, 3, 0, 2)).count_double_excedance()
+            1
+            >>> Perm((2, 1, 0)).count_double_excedance()
+            0
+            >>> Perm((3, 1, 0, 2)).count_double_excedance()
+            0
+            >>> Perm((1, 2, 3, 0)).count_double_excedance()
+            2
+            >>> Perm((2, 0, 3, 1)).count_double_excedance()
+            1
+        """
+        return sum(1 for _ in self.double_excedance())
+
+    def double_drops(self) -> Iterator[int]:
+        """Yields the indexes of double drops in the permutation.
+        Satisfies: i > x > P(x), where x = P(i)
+        See: https://arxiv.org/abs/1908.01084
+
+        Examples:
+            >>> list(Perm((2, 0, 1)).double_drops())
+            [2]
+            >>> list(Perm((1, 0, 2)).double_drops())
+            []
+            >>> list(Perm((2, 1, 3, 0)).double_drops())
+            []
+            >>> list(Perm((2, 0, 3, 1)).double_drops())
+            [3]
+            >>> list(Perm((3, 0, 1, 2)).double_drops())
+            [2, 3]
+            >>> list(Perm((2, 0, 1, 3)).double_drops())
+            [2]
+        """
+        for idx, val in enumerate(self):
+            if idx > val > self[val]:
+                yield idx
+
+    def double_drops_list(self) -> List[int]:
+        """Returns a list of indexes of the double drops in the permutation.
+        Satisfies: i > x > P(x), where x = P(i)
+        See: https://arxiv.org/abs/1908.01084
+
+        Examples:
+            >>> Perm((2, 0, 1)).double_drops_list()
+            [2]
+            >>> Perm((1, 0, 2)).double_drops_list()
+            []
+            >>> Perm((2, 1, 3, 0)).double_drops_list()
+            []
+            >>> Perm((2, 0, 3, 1)).double_drops_list()
+            [3]
+            >>> Perm((3, 0, 1, 2)).double_drops_list()
+            [2, 3]
+            >>> Perm((2, 0, 1, 3)).double_drops_list()
+            [2]
+        """
+        return list(self.double_drops())
+
+    def count_double_drops(self) -> int:
+        """Counts the number of double drops in the permutation.
+        Satisfies: i > x > P(x), where x = P(i)
+        See: https://arxiv.org/abs/1908.01084
+
+        Examples:
+            >>> Perm((2, 0, 1)).count_double_drops()
+            1
+            >>> Perm((1, 0, 2)).count_double_drops()
+            0
+            >>> Perm((2, 1, 3, 0)).count_double_drops()
+            0
+            >>> Perm((2, 0, 3, 1)).count_double_drops()
+            1
+            >>> Perm((3, 0, 1, 2)).count_double_drops()
+            2
+            >>> Perm((2, 0, 1, 3)).count_double_drops()
+            1
+        """
+        return sum(1 for _ in self.double_drops())
+
+    def foremaxima(self) -> List[int]:
+        """Returns a list of indexes of the foremaxima of the permutation.
+        If P(i) is both a double ascent and ltrmax it is a foremaximum.
+        See: https://arxiv.org/abs/1908.01084
+
+        Examples:
+            >>> Perm((3, 2, 5, 0, 1, 4)).foremaxima()
+            []
+            >>> Perm((3, 4, 1, 0, 5, 2)).foremaxima()
+            []
+            >>> Perm((1, 3, 5, 2, 4, 0)).foremaxima()
+            [0, 1]
+            >>> Perm((2, 3, 5, 4, 1, 6, 0)).foremaxima()
+            [1]
+            >>> Perm((1, 3, 2, 5, 4, 0, 6)).foremaxima()
+            [0]
+            >>> Perm((2, 5, 4, 1, 3, 0)).foremaxima()
+            []
+        """
+        double_ascents = set(self.ascent_set(step_size=2))
+        ltrmax = set(self.ltrmax())
+        return list(double_ascents & ltrmax)
+
+    def count_foremaxima(self):
+        """Returns the number of foremaxima in the permutation.
+        If P(i) is both a double ascent and ltrmax it is a foremaximum.
+        See: https://arxiv.org/abs/1908.01084
+
+        Examples:
+            >>> Perm((3, 2, 5, 0, 1, 4)).count_foremaxima()
+            0
+            >>> Perm((3, 4, 1, 0, 5, 2)).count_foremaxima()
+            0
+            >>> Perm((1, 3, 5, 2, 4, 0)).count_foremaxima()
+            2
+            >>> Perm((2, 3, 5, 4, 1, 6, 0)).count_foremaxima()
+            1
+            >>> Perm((1, 3, 2, 5, 4, 0, 6)).count_foremaxima()
+            1
+            >>> Perm((2, 5, 4, 1, 3, 0)).count_foremaxima()
+            0
+        """
+        return len(self.foremaxima())
+
+    def afterminima(self) -> List[int]:
+        """Returns a list of indexes of the afterminima of the permutation.
+        If P(i) is both a double ascent and rtlmin it is a afterminimum.
+        See: https://arxiv.org/abs/1908.01084
+
+        Examples:
+            >>> Perm((3, 1, 4, 6, 5, 0, 2)).afterminima()
+            [5]
+            >>> Perm((2, 1, 0)).afterminima()
+            []
+            >>> Perm((1, 5, 0, 3, 2, 4, 6)).afterminima()
+            [4, 5]
+            >>> Perm((2, 0, 1, 3)).afterminima()
+            [2]
+            >>> Perm((0, 2, 1, 3, 4)).afterminima()
+            [0, 2]
+            >>> Perm((3, 1, 0, 2, 4, 6, 5)).afterminima()
+            [2, 3, 4]
+            >>> Perm((3, 4, 0, 2, 1)).afterminima()
+            [2]
+        """
+        double_ascents = set(self.ascent_set(step_size=2))
+        rtlmin = set(self.rtlmin())
+        return list(double_ascents & rtlmin)
+
+    def count_afterminima(self):
+        """Returns the number of afterminima in the permutation.
+        If P(i) is both a double ascent and rtlmin it is a afterminimum.
+        See: https://arxiv.org/abs/1908.01084
+
+        Examples:
+            >>> Perm((3, 1, 4, 6, 5, 0, 2)).count_afterminima()
+            1
+            >>> Perm((2, 1, 0)).count_afterminima()
+            0
+            >>> Perm((1, 5, 0, 3, 2, 4, 6)).count_afterminima()
+            2
+            >>> Perm((2, 0, 1, 3)).count_afterminima()
+            1
+            >>> Perm((0, 2, 1, 3, 4)).count_afterminima()
+            2
+            >>> Perm((3, 1, 0, 2, 4, 6, 5)).count_afterminima()
+            3
+            >>> Perm((3, 4, 0, 2, 1)).count_afterminima()
+            1
+        """
+        return len(self.afterminima())
+
+    def aftermaxima(self):
+        """Returns a list of indexes of the aftermaxima of the permutation.
+        If P(i) is both a double descent and rtlmax it is an aftermaximum.
+        See: https://arxiv.org/abs/1908.01084
+
+        Examples:
+            >>> Perm((4, 1, 2, 5, 3, 0, 6)).aftermaxima()
+            []
+            >>> Perm((5, 4, 3, 1, 2, 0)).aftermaxima()
+            [2, 4]
+            >>> Perm((1, 2, 0)).aftermaxima()
+            [1]
+            >>> Perm((2, 4, 0, 3, 1)).aftermaxima()
+            [3]
+            >>> Perm((1, 3, 2, 0)).aftermaxima()
+            [2]
+            >>> Perm((2, 0, 1)).aftermaxima()
+            [0]
+            >>> Perm((1, 4, 2, 0, 3)).aftermaxima()
+            [1]
+        """
+        double_descents = set(self.descents(step_size=2))
+        rtlmax = set(self.rtlmax())
+        return list(double_descents & rtlmax)
+
+    def count_aftermaxima(self):
+        """Returns the number of aftermaxima in the permutation.
+        If P(i) is both a double descent and rtlmax it is an afermaximum.
+        See: https://arxiv.org/abs/1908.01084
+
+        Examples:
+            >>> Perm((4, 1, 2, 5, 3, 0, 6)).count_aftermaxima()
+            0
+            >>> Perm((5, 4, 3, 1, 2, 0)).count_aftermaxima()
+            2
+            >>> Perm((1, 2, 0)).count_aftermaxima()
+            1
+            >>> Perm((2, 4, 0, 3, 1)).count_aftermaxima()
+            1
+            >>> Perm((1, 3, 2, 0)).count_aftermaxima()
+            1
+            >>> Perm((2, 0, 1)).count_aftermaxima()
+            1
+            >>> Perm((1, 4, 2, 0, 3)).count_aftermaxima()
+            1
+        """
+        return len(self.aftermaxima())
+
+    def foreminima(self):
+        """Returns a list of indexes of the foreminima of the permutation.
+        If P(i) is both a double descent and ltrmin it is a foreminimum.
+        See: https://arxiv.org/abs/1908.01084
+
+        Examples:
+            >>> Perm((5, 6, 0, 1, 3, 4, 2)).foreminima()
+            []
+            >>> Perm((3, 1, 4, 0, 2)).foreminima()
+            [0]
+            >>> Perm((3, 1, 2, 5, 4, 0)).foreminima()
+            [0]
+            >>> Perm((3, 1, 4, 2, 0)).foreminima()
+            [0]
+            >>> Perm((3, 1, 0, 5, 4, 2)).foreminima()
+            [0]
+            >>> Perm((2, 0, 1)).foreminima()
+            [0]
+            >>> Perm((6, 4, 2, 3, 5, 1, 0)).foreminima()
+            [0, 1]
+        """
+        double_descents = set(self.descents(step_size=2))
+        ltrmin = set(self.ltrmin())
+        return list(double_descents & ltrmin)
+
+    def count_foreminima(self):
+        """Returns the number of foreminima in the permutation.
+        If P(i) is both a double descent and ltrmin it is a foreminimum.
+        See: https://arxiv.org/abs/1908.01084
+
+        Examples:
+            >>> Perm((5, 6, 0, 1, 3, 4, 2)).count_foreminima()
+            0
+            >>> Perm((3, 1, 4, 0, 2)).count_foreminima()
+            1
+            >>> Perm((3, 1, 2, 5, 4, 0)).count_foreminima()
+            1
+            >>> Perm((3, 1, 4, 2, 0)).count_foreminima()
+            1
+            >>> Perm((3, 1, 0, 5, 4, 2)).count_foreminima()
+            1
+            >>> Perm((2, 0, 1)).count_foreminima()
+            1
+            >>> Perm((6, 4, 2, 3, 5, 1, 0)).count_foreminima()
+            2
+        """
+        return len(self.foreminima())
 
     def inversions(self) -> Iterator[Tuple[int, int]]:
         """Yield the inversions of the permutation, i.e., the pairs i,j
@@ -2026,6 +2722,166 @@ class Perm(TupleType, Patt):
         return tuple(iterable[index] for index in self)
 
     permute = apply
+
+    @staticmethod
+    def _is_sorted(lis: List[int]) -> bool:
+        return all(val == idx for idx, val in enumerate(lis))
+
+    @staticmethod
+    def _stack_sort(perm_slice: List[int]) -> List[int]:
+        """Helper function for the stack sorting function on perms"""
+        n = len(perm_slice)
+        if n in (0, 1):
+            return perm_slice
+        max_i, max_v = max(enumerate(perm_slice), key=lambda pos_elem: pos_elem[1])
+        # Recursively solve without largest
+        if max_i == 0:
+            n_lis = Perm._stack_sort(perm_slice[1:n])
+        elif max_i == n - 1:
+            n_lis = Perm._stack_sort(perm_slice[0 : n - 1])
+        else:
+            n_lis = Perm._stack_sort(perm_slice[0:max_i])
+            n_lis.extend(Perm._stack_sort(perm_slice[max_i + 1 : n]))
+        n_lis.append(max_v)
+        return n_lis
+
+    def stack_sort(self) -> "Perm":
+        """Stack sorting the permutation"""
+        return Perm(Perm._stack_sort(list(self)))
+
+    def stack_sortable(self) -> bool:
+        """Returns true if perm is stack sortable."""
+        return self.stack_sort().is_increasing()
+
+    def pop_stack_sort(self) -> "Perm":
+        """Pop-stack sorting the permutation"""
+        stack: Deque[int] = collections.deque()
+        result: List[int] = []
+        for num in self:
+            if stack and num > stack[0]:
+                result.extend(stack)
+                stack.clear()
+            stack.appendleft(num)
+
+        result.extend(stack)
+        return Perm(result)
+
+    def pop_stack_sortable(self) -> bool:
+        """Returns true if perm is pop-stack sortable."""
+        return self.pop_stack_sort().is_increasing()
+
+    @staticmethod
+    def _bubble_sort(perm_slice: List[int]) -> List[int]:
+        """Helper function for the bubble sorting function on perms"""
+        n = len(perm_slice)
+        if n in (0, 1):
+            return perm_slice
+        max_i, max_v = max(enumerate(perm_slice), key=lambda pos_elem: pos_elem[1])
+        # Recursively solve without largest
+        if max_i == 0:
+            n_lis = perm_slice[1:n]
+        elif max_i == n - 1:
+            n_lis = Perm._bubble_sort(perm_slice[0 : n - 1])
+        else:
+            n_lis = Perm._bubble_sort(perm_slice[0:max_i])
+            n_lis.extend(perm_slice[max_i + 1 : n])
+        n_lis.append(max_v)
+        return n_lis
+
+    def bubble_sort(self) -> "Perm":
+        """Bubble sorting the permutation"""
+        return Perm(Perm._bubble_sort(list(self)))
+
+    def bubble_sortable(self) -> bool:
+        """Returns true if perm is stack sortable."""
+        return self.bubble_sort().is_increasing()
+
+    @staticmethod
+    def _quick_sort(perm_slice: List[int]) -> List[int]:
+        """Helper function for the quick sorting function on perms"""
+        assert not perm_slice or set(perm_slice) == set(
+            range(min(perm_slice), max(perm_slice) + 1)
+        )
+        n = len(perm_slice)
+        if n == 0:
+            return perm_slice
+        maxind = -1
+        # Note that perm does not need standardizing as sfp uses left to right maxima.
+        for maxind in Perm(perm_slice).strong_fixed_points():
+            pass
+        if maxind != -1:
+            lis: List[int] = (
+                Perm._quick_sort(perm_slice[:maxind])
+                + [perm_slice[maxind]]
+                + Perm._quick_sort(perm_slice[maxind + 1 :])
+            )
+        else:
+            firstval = perm_slice[0]
+            lis = (
+                list(filter(lambda x: x < firstval, perm_slice))
+                + [perm_slice[0]]
+                + list(filter(lambda x: x > firstval, perm_slice))
+            )
+        return lis
+
+    def quick_sort(self) -> "Perm":
+        """Quick sorting the permutation"""
+        return Perm(Perm._quick_sort(list(self)))
+
+    def quick_sortable(self) -> bool:
+        """Returns true if perm is quicksort sortable."""
+        return self.quick_sort().is_increasing()
+
+    def bkv_sortable(self, patterns: Tuple[Patt, ...] = ()) -> bool:
+        """Check if a permutation is BKV sortable.
+        See:
+            https://arxiv.org/pdf/1907.08142.pdf
+            https://arxiv.org/pdf/2004.01812.pdf
+        """
+        # See
+        n = len(self)
+        inp = collections.deque(self)
+        # the right stack read from top to bottom
+        # the left stack read from top to bottom
+        right_stack: Deque[int] = collections.deque([])
+        left_stack: Deque[int] = collections.deque([])
+        expected = 0
+        print(self)
+        while expected < n:
+            print("inp", inp)
+            print("left_stack", left_stack)
+            print("right_stack", right_stack)
+            print("------------------------------")
+            if inp:
+                right_stack.appendleft(inp[0])
+                if Perm.to_standard(right_stack).avoids(*patterns):
+                    inp.popleft()
+                    continue
+                right_stack.popleft()
+
+            if right_stack:
+                left_stack.appendleft(right_stack[0])
+                if Perm.to_standard(left_stack).is_increasing():
+                    right_stack.popleft()
+                    continue
+                left_stack.popleft()
+
+            assert left_stack
+            # Normally, we would gather elements from left stack but since we only care
+            # about wether it sorts the permutation, we just compare it against
+            # expected.
+            if expected != left_stack.popleft():
+                return False
+            expected += 1
+        return True
+
+    def west_2_stack_sortable(self) -> bool:
+        """Returns true if perm can be sorted by two passes through a stack"""
+        return self.stack_sort().stack_sort().is_increasing()
+
+    def west_3_stack_sortable(self) -> bool:
+        """Returns true if perm can be sorted by three passes through a stack"""
+        return self.stack_sort().stack_sort().stack_sort().is_increasing()
 
     def ascii_plot(self, cell_size: int = 1) -> str:
         """Return an ascii plot of the given Permutation.

@@ -237,6 +237,22 @@ and a class (no class will use the set of all permutations).
     [14] Longest increasing subsequence
     [15] Longest decreasing subsequence
     [16] Depth
+    [17] Number of bounces
+    [18] Maximum drop size
+    [19] Number of primes in the column sums
+    [20] Holeyness of a permutation
+    [21] Number of stack-sorts needed
+    [22] Number of pop-stack-sorts needed
+    [23] Number of pinnacles
+    [24] Number of cyclic peaks
+    [25] Number of cyclic valleys
+    [26] Number of double excedance
+    [27] Number of double drops
+    [28] Number of foremaxima
+    [29] Number of afterminima
+    [30] Number of aftermaxima
+    [31] Number of foreminima
+
     >>> depth = PermutationStatistic.get_by_index(16)
     >>> depth.distribution_for_length(5)
     [1, 4, 12, 24, 35, 24, 20]
@@ -253,6 +269,8 @@ Given a bijection as a dictionary, we can check which statistics are preserved w
     ...     print(stat)
     Number of peaks
     Number of valleys
+    Holeyness of a permutation
+    Number of pinnacles
 
 We can find all (predefined) statistics equally distributed over two permutation
 classes with ``equally_distributed``. We also support checks for joint distribution
@@ -274,6 +292,7 @@ of jointly distributed stats with ``jointly_transformed_equally_distributed``.
     Number of right-to-left maximas
     Longest increasing subsequence
     Longest decreasing subsequence
+    Number of pinnacles
 
 The BiSC algorithm
 ==================
@@ -289,20 +308,19 @@ To use the algorithm we first need to import it.
     >>> from permuta.bisc import *
 
 A classic example of a set of permutations described by pattern avoidance are
-the permutations sortable in one pass through a stack. We start by loading a
-function ``stack_sortable`` which returns ``True`` for permutations that
-satisfy this property. The user now has two choices: Run
-``auto_bisc(stack_sortable)`` and let the algorithm run without any more user
-input. It will try to use sensible values, starting by learning small patterns
-from small permutations, and only considering longer patterns when that fails.
-If the user wants to have more control over what happens that is also possible
-and we now walk through that: We input the property into ``bisc`` and ask it to
-search for patterns of length 3.
+the permutations sortable in one pass through a stack. We use the function
+``stack_sortable`` which returns ``True`` for permutations that satisfy this
+property. The user now has two choices: Run
+``auto_bisc(Perm.stack_sortable)`` and let the algorithm run
+without any more user input. It will try to use sensible values, starting by
+learning small patterns from small permutations, and only considering longer
+patterns when that fails. If the user wants to have more control over what
+happens that is also possible and we now walk through that: We input the
+property into ``bisc`` and ask it to search for patterns of length 3.
 
 .. code-block:: python
 
-    >>> from permuta.bisc.perm_properties import stack_sortable
-    >>> bisc(stack_sortable, 3)
+    >>> bisc(Perm.stack_sortable, 3)
     I will use permutations up to length 7
     {3: {Perm((1, 2, 0)): [set()]}}
 
@@ -317,7 +335,7 @@ be considered.
 
 .. code-block:: python
 
-    >>> SG = bisc(stack_sortable, 3, 5)
+    >>> SG = bisc(Perm.stack_sortable, 3, 5)
     >>> show_me(SG)
     There are 1 underlying classical patterns of length 3
     There are 1 different shadings on 120
@@ -343,8 +361,7 @@ patterns, such as the West-2-stack-sortable permutations
 
 .. code-block:: python
 
-    >>> from permuta.bisc.perm_properties import west_2_stack_sortable
-    >>> SG = bisc(west_2_stack_sortable, 5, 7)
+    >>> SG = bisc(Perm.west_2_stack_sortable, 5, 7)
     >>> show_me(SG)
     There are 2 underlying classical patterns of length 4
     There are 1 different shadings on 1230
@@ -396,7 +413,7 @@ which keeps them separated by length.
 
 .. code-block:: python
 
-    >>> A, B = create_bisc_input(7, west_2_stack_sortable)
+    >>> A, B = create_bisc_input(7, Perm.west_2_stack_sortable)
 
 This creates two dictionaries with keys 1, 2, ..., 7 such that ``A[i]`` points
 to the list of permutations of length ``i`` that are West-2-stack-sortable, and
