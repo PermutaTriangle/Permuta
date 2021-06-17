@@ -1,5 +1,5 @@
 from permuta import Perm
-from permuta.permutils import Bijections
+from permuta.permutils.bijections import Bijections
 
 
 def test_simion_and_schmidt():
