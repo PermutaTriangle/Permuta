@@ -3536,7 +3536,6 @@ def test_count_afterminima():
     assert Perm((3, 2, 1, 0)).count_afterminima() == 0
 
 
-
 def test_matrix_class():
     assert Matrix(0) == Matrix(0)
     matrix = Matrix(size=3, elements={(0, 0): 1, (0, 1): 1, (0, 2): 1})
@@ -3677,6 +3676,7 @@ def test_to_triangular_perm_matrix():
         .apply_perm(Perm.random(4), row=False)
         .apply_perm(Perm.random(4))
     )
+
 
 def test_aftermaxima():
     assert Perm(()).aftermaxima() == []
