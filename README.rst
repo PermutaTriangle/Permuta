@@ -167,7 +167,7 @@ There are numerous practical methods available:
     |0|0|1|
     |0|1|0|
     |1|0|0|
-
+    <BLANKLINE>
 
 
 Creating a perm class

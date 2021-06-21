@@ -126,7 +126,9 @@ class Matrix:
         return out
 
     def row_labels(self) -> Tuple[int, ...]:
-        """Looks at each row as a binary number and returns the binary value for each."""
+        """
+        Looks at each row as a binary number and returns the binary value for each.
+        """
         out_list: List[int] = list()
         for row_idx in range(len(self)):
             num = 0
