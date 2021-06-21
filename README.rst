@@ -264,6 +264,8 @@ and a class (no class will use the set of all permutations).
     [27] Number of double drops
     [28] Number of foremaxima
     [29] Number of afterminima
+    [30] Number of aftermaxima
+    [31] Number of foreminima
 
     >>> depth = PermutationStatistic.get_by_index(16)
     >>> depth.distribution_for_length(5)
