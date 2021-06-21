@@ -54,6 +54,8 @@ class PermutationStatistic:
         ("Number of double drops", Perm.count_double_drops),
         ("Number of foremaxima", Perm.count_foremaxima),
         ("Number of afterminima", Perm.count_afterminima),
+        ("Number of aftermaxima", Perm.count_aftermaxima),
+        ("Number of foreminima", Perm.count_foreminima),
     )
 
     @staticmethod
