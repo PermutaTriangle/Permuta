@@ -3089,6 +3089,7 @@ class Perm(TupleType, Patt):
                             1 for _ in range(len(matrix))
                         ]:
                             return tmp_mat
+        raise Exception("Invalid matrix used.")
 
     def __call__(self, value: int) -> int:
         assert 0 <= value < len(self)

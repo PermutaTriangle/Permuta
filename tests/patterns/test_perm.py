@@ -3670,12 +3670,6 @@ def test_to_triangular_perm_matrix():
         .apply_perm([4, 3, 5, 1, 2, 0, 6], row=False)
         .apply_perm([5, 6, 4, 3, 2, 1, 0])
     )
-    perm = Perm.random(4)
-    assert perm.matrix_repr() == perm.revert_triangular_perm_matrix(
-        perm.to_triangular_perm_matrix()
-        .apply_perm(Perm.random(4), row=False)
-        .apply_perm(Perm.random(4))
-    )
 
 
 def test_aftermaxima():
