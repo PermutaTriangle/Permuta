@@ -155,6 +155,10 @@ There are numerous practical methods available:
     [(1, 2)]
     >>> p.major_index()
     2
+    >>> Perm((0, 1, 3, 2)).is_costas()
+    True
+    >>> Perm((2,1,0,4,3)).slope_between(0, 1)
+    -1.0
 
 Creating a perm class
 #####################

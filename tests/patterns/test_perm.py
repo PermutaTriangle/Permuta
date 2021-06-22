@@ -3682,3 +3682,44 @@ def test_count_foreminima():
     assert Perm((3, 1, 2, 0)).count_foreminima() == 1
     assert Perm((3, 2, 0, 1)).count_foreminima() == 1
     assert Perm((3, 2, 1, 0)).count_foreminima() == 0
+
+
+def test_slope_between():
+    pass
+
+
+def test_is_costas():
+    assert Perm(()).is_costas() == 1
+    assert Perm((0,)).is_costas() == 1
+    assert Perm((0, 1)).is_costas() == 1
+    assert Perm((1, 0)).is_costas() == 1
+    assert Perm((0, 1, 2)).is_costas() == 0
+    assert Perm((0, 2, 1)).is_costas() == 1
+    assert Perm((1, 0, 2)).is_costas() == 1
+    assert Perm((1, 2, 0)).is_costas() == 1
+    assert Perm((2, 0, 1)).is_costas() == 1
+    assert Perm((2, 1, 0)).is_costas() == 0
+    assert Perm((0, 1, 2, 3)).is_costas() == 0
+    assert Perm((0, 1, 3, 2)).is_costas() == 1
+    assert Perm((0, 2, 1, 3)).is_costas() == 0
+    assert Perm((0, 2, 3, 1)).is_costas() == 1
+    assert Perm((0, 3, 1, 2)).is_costas() == 1
+    assert Perm((0, 3, 2, 1)).is_costas() == 0
+    assert Perm((1, 0, 2, 3)).is_costas() == 1
+    assert Perm((1, 0, 3, 2)).is_costas() == 0
+    assert Perm((1, 2, 0, 3)).is_costas() == 1
+    assert Perm((1, 2, 3, 0)).is_costas() == 0
+    assert Perm((1, 3, 0, 2)).is_costas() == 0
+    assert Perm((1, 3, 2, 0)).is_costas() == 1
+    assert Perm((2, 0, 1, 3)).is_costas() == 1
+    assert Perm((2, 0, 3, 1)).is_costas() == 0
+    assert Perm((2, 1, 0, 3)).is_costas() == 0
+    assert Perm((2, 1, 3, 0)).is_costas() == 1
+    assert Perm((2, 3, 0, 1)).is_costas() == 0
+    assert Perm((2, 3, 1, 0)).is_costas() == 1
+    assert Perm((3, 0, 1, 2)).is_costas() == 0
+    assert Perm((3, 0, 2, 1)).is_costas() == 1
+    assert Perm((3, 1, 0, 2)).is_costas() == 1
+    assert Perm((3, 1, 2, 0)).is_costas() == 0
+    assert Perm((3, 2, 0, 1)).is_costas() == 1
+    assert Perm((3, 2, 1, 0)).is_costas() == 0
