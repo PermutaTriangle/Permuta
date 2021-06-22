@@ -1,4 +1,4 @@
-from .misc.math import LoTriMatrix, Matrix
+from .misc.math import Matrix
 from .patterns import BivincularPatt, CovincularPatt, MeshPatt, Perm, VincularPatt
 from .perm_sets.permset import Av, Basis, MeshBasis
 
@@ -14,5 +14,4 @@ __all__ = [
     "CovincularPatt",
     "VincularPatt",
     "Matrix",
-    "LoTriMatrix",
 ]

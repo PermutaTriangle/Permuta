@@ -158,14 +158,3 @@ class Matrix:
 
     def __hash__(self) -> int:
         return hash(str(self))
-
-
-class LoTriMatrix(Matrix):
-    """Returns a (n x n) lower triangular matrix"""
-
-    def __init__(self, size: int):
-        super().__init__(size)
-        for row in range(size):
-            for col in range(size):
-                if col <= row:
-                    self[row, col] = 1
