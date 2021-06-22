@@ -2961,8 +2961,7 @@ class Perm(TupleType, Patt):
                 slope = self.slope_between(first, second)
                 if slope in prev_slopes:
                     return False
-                else:
-                    prev_slopes.add(slope)
+                prev_slopes.add(slope)
         return True
 
     def to_svg(self, image_scale: float = 1.0) -> str:
