@@ -3685,7 +3685,36 @@ def test_count_foreminima():
 
 
 def test_slope_between():
-    pass
+    assert Perm((0, 1, 2)).slope_between(0, 2) == 1.0
+    assert Perm((0, 2, 1)).slope_between(1, 2) == -1.0
+    assert Perm((1, 0, 2)).slope_between(1, 2) == 2.0
+    assert Perm((1, 2, 0)).slope_between(0, 2) == -0.5
+    assert Perm((2, 0, 1)).slope_between(1, 2) == 1.0
+    assert Perm((2, 1, 0)).slope_between(1, 2) == -1.0
+    assert Perm((0, 1, 2, 3)).slope_between(0, 1) == 1.0
+    assert Perm((0, 1, 3, 2)).slope_between(1, 2) == 2.0
+    assert Perm((0, 2, 1, 3)).slope_between(1, 2) == -1.0
+    assert Perm((0, 2, 3, 1)).slope_between(2, 3) == -2.0
+    assert Perm((0, 3, 1, 2)).slope_between(2, 3) == 1.0
+    assert Perm((0, 3, 2, 1)).slope_between(2, 3) == -1.0
+    assert Perm((1, 0, 2, 3)).slope_between(2, 3) == 1.0
+    assert Perm((1, 0, 3, 2)).slope_between(0, 3) == 0.3333333333333333
+    assert Perm((1, 2, 0, 3)).slope_between(0, 3) == 0.6666666666666666
+    assert Perm((1, 2, 3, 0)).slope_between(0, 1) == 1.0
+    assert Perm((1, 3, 0, 2)).slope_between(2, 3) == 2.0
+    assert Perm((1, 3, 2, 0)).slope_between(1, 2) == -1.0
+    assert Perm((2, 0, 1, 3)).slope_between(1, 2) == 1.0
+    assert Perm((2, 0, 3, 1)).slope_between(1, 2) == 3.0
+    assert Perm((2, 1, 0, 3)).slope_between(0, 1) == -1.0
+    assert Perm((2, 1, 3, 0)).slope_between(2, 3) == -3.0
+    assert Perm((2, 3, 0, 1)).slope_between(1, 3) == -1.0
+    assert Perm((2, 3, 1, 0)).slope_between(0, 1) == 1.0
+    assert Perm((3, 0, 1, 2)).slope_between(1, 3) == 1.0
+    assert Perm((3, 0, 2, 1)).slope_between(1, 2) == 2.0
+    assert Perm((3, 1, 0, 2)).slope_between(0, 2) == -1.5
+    assert Perm((3, 1, 2, 0)).slope_between(2, 3) == -2.0
+    assert Perm((3, 2, 0, 1)).slope_between(1, 3) == -0.5
+    assert Perm((3, 2, 1, 0)).slope_between(2, 3) == -1.0
 
 
 def test_is_costas():
