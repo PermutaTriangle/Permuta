@@ -91,13 +91,13 @@ class Perm(TupleType, Patt):
     def from_matrix(cls, matrix: "Matrix") -> "Perm":
         """Returns the perm corresponding to the matrix given."""
         if matrix.test_sum() != len(matrix):
-            raise Exception("Invalid matrix used")
+            raise ValueError("Incorrect amount of numbers in permutation matrix")
         perm_list: List[Optional[int]] = [None for _ in range(len(matrix))]
         for (row, col), val in matrix.elements.items():
             if val:
                 perm_list[row] = col
         if None in perm_list:
-            raise Exception("Invalid matrix used")
+            raise ValueError("Some rows/cols are empty.")
         return cls.to_standard(perm_list)
 
     @classmethod

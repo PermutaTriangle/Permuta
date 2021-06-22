@@ -38,7 +38,7 @@ class Matrix:
         else:
             self.elements = dict()
         self.binary = binary
-        self.__size = size
+        self._size = size
 
     def __getitem__(self, pos) -> int:
         """Get value in row, col specified"""
@@ -81,7 +81,7 @@ class Matrix:
         return mat
 
     def __len__(self) -> int:
-        return self.__size
+        return self._size
 
     def __str__(self) -> str:
         string = ""
