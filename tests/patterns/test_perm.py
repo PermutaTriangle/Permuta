@@ -6,7 +6,6 @@ from math import factorial
 import pytest
 
 from permuta import Matrix, MeshPatt, Perm
-from permuta.misc.math import LoTriMatrix
 
 
 def test_from_iterable_validated():
@@ -3695,17 +3694,6 @@ def test_matrix_class():
     matrix2[2, 2] = 1
     assert matrix == matrix2
     assert matrix + matrix2 == Matrix(size=3)
-    assert LoTriMatrix(3) == Matrix(
-        size=3,
-        elements={
-            (0, 0): 1,
-            (1, 0): 1,
-            (1, 1): 1,
-            (2, 0): 1,
-            (2, 1): 1,
-            (2, 2): 1,
-        },
-    )
     pmat = Matrix(
         4,
         elements={
