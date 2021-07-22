@@ -5,9 +5,6 @@ permuta
 .. image:: https://travis-ci.org/PermutaTriangle/Permuta.svg?branch=master
     :alt: Travis
     :target: https://travis-ci.org/PermutaTriangle/Permuta
-.. image:: https://coveralls.io/repos/github/PermutaTriangle/Permuta/badge.svg?branch=master
-    :alt: Coveralls
-    :target: https://coveralls.io/github/PermutaTriangle/Permuta?branch=master
 .. image:: https://img.shields.io/pypi/v/Permuta.svg
     :alt: PyPI
     :target: https://pypi.python.org/pypi/Permuta
@@ -19,13 +16,17 @@ permuta
     :alt: Travis
     :target: https://travis-ci.org/PermutaTriangle/Permuta
 .. image:: https://requires.io/github/PermutaTriangle/Permuta/requirements.svg?branch=master
-     :target: https://requires.io/github/PermutaTriangle/Permuta/requirements/?branch=master
-     :alt: Requirements Status
+    :target: https://requires.io/github/PermutaTriangle/Permuta/requirements/?branch=master
+    :alt: Requirements Status
+.. image:: https://zenodo.org/badge/DOI/10.5281/zenodo.4725759.svg
+   :target: https://doi.org/10.5281/zenodo.4725759
 
 Permuta is a Python library for working with perms (short for permutations),
 patterns, and mesh patterns.
 
-If you need support, you can join us in our `Discord support server<https://discord.gg/ngPZVT5>`_.
+If you need support, you can join us in our `Discord support server`_.
+
+.. _Discord support server: https://discord.gg/ngPZVT5
 
 Installing
 ==========
@@ -80,18 +81,6 @@ Permutations are zero-based in Permuta and can be created using any iterable.
     Perm((0, 1, 2, 3))
     >>> Perm((2, 1, 3)) # Warning: it will initialise with any iterable
     Perm((2, 1, 3))
-    >>> Perm((2, 1, 3), check=True) # If you are unsure, you can check
-    Traceback (most recent call last):
-        ...
-    ValueError: Element out of range: 3
-    >>> Perm((4, 2, 3, 0, 0), check=True)
-    Traceback (most recent call last):
-        ...
-    ValueError: Duplicate element: 0
-    >>> Perm("123", check=True)
-    Traceback (most recent call last):
-        ...
-    TypeError: ''1'' object is not an integer
 
 Permutations can also be created using some specific class methods.
 
@@ -166,36 +155,29 @@ There are numerous practical methods available:
     [(1, 2)]
     >>> p.major_index()
     2
+    >>> Perm((2,3,1,0)).matrix_repr()
+    Matrix(4, {(0, 2): 1, (1, 3): 1, (2, 1): 1, (3, 0): 1})
+    >>> Perm.from_matrix(Matrix(4, {(0, 2): 1, (1, 3): 1, (2, 1): 1, (3, 0): 1}))
+    Perm((2, 3, 1, 0))
+    >>> print(Matrix(3, {(0, 0): 0, (1, 0): 0, (2, 0): 1, (1, 1): 1, (2, 1): 0, (0, 2): 1, (2, 2): 0}))
+    |0|0|1|
+    |0|1|0|
+    |1|0|0|
+    <BLANKLINE>
 
 Creating a perm class
 #####################
 
-You might want the set of all perms:
+Perm classes are specified with a basis:
 
 .. code-block:: python
 
-    >>> all_perms = PermSet()
-    >>> print(all_perms)
-    <The set of all perms>
-
-Perm classes can be specified with a basis:
-
-.. code-block:: python
-
-    >>> basis = [Perm((1, 0, 2)), Perm((1, 2, 0))]
+    >>> basis = Basis(Perm((1, 0, 2)), Perm((1, 2, 0)))
     >>> basis
-    [Perm((1, 0, 2)), Perm((1, 2, 0))]
+    Basis((Perm((1, 0, 2)), Perm((1, 2, 0))))
     >>> perm_class = Av(basis)
     >>> perm_class
-    Av((Perm((1, 0, 2)), Perm((1, 2, 0))))
-
-When a basis consists of a single element you can pass it directly to `Av`:
-
-.. code-block:: python
-
-    >>> q = Perm((1,0))
-    >>> len(Av(q).of_length(100))
-    1
+    Av(Basis((Perm((1, 0, 2)), Perm((1, 2, 0)))))
 
 You can ask whether a perm belongs to the perm class:
 
@@ -206,49 +188,120 @@ You can ask whether a perm belongs to the perm class:
     >>> Perm((0, 2, 1, 3)) in perm_class
     False
 
-You can get the n-th perm of the class or iterate:
+You can get its enumeration up to a fixed length.
 
 .. code-block:: python
 
-    >>> sorted([perm_class[n] for n in range(8)])
-    [Perm(()), Perm((0,)), Perm((0, 1)), Perm((1, 0)), Perm((0, 1, 2)), Perm((0, 2, 1)), Perm((2, 0, 1)), Perm((2, 1, 0))]
-    >>> perm_class_iter = iter(perm_class)
-    >>> sorted([next(perm_class_iter) for _ in range(8)])
-    [Perm(()), Perm((0,)), Perm((0, 1)), Perm((1, 0)), Perm((0, 1, 2)), Perm((0, 2, 1)), Perm((2, 0, 1)), Perm((2, 1, 0))]
+    >>> perm_class.enumeration(10)
+    [1, 1, 2, 4, 8, 16, 32, 64, 128, 256, 512]
+    >>> perm_class.count(11)
+    1024
 
-(BEWARE: Lexicographic order is not guaranteed at the moment!)
-
-The subset of a perm class where the perms are a specific length
-################################################################
-
-You can define a subset of perms of a specific length in the perm class:
+You can also look to see if some well know enumeration strategies apply to a
+given class.
 
 .. code-block:: python
 
-    >>> perm_class_14 = perm_class.of_length(14)
-    >>> perm_class_14
-    Av((Perm((1, 0, 2)), Perm((1, 2, 0)))).of_length(14)
+    >>> from permuta.enumeration_strategies import find_strategies
+    >>> basis = [Perm((3, 2, 0, 1)), Perm((1, 0, 2, 3))]
+    >>> for strat in find_strategies(basis):
+    ...     print(strat.reference())
+    The insertion encoding of permutations: Corollary 10
+    >>> basis = [Perm((1, 2, 0, 3)), Perm((2, 0, 1, 3)), Perm((0, 1, 2, 3))]
+    >>> for strat in find_strategies(basis):
+    ...     print(strat.reference())
+    Enumeration of Permutation Classes and Weighted Labelled Independent Sets: Corollary 4.3
 
-You can ask for the size of the subset because it is guaranteed to be finite:
+Permutation statistics
+######################
+
+With the ``PermutationStatistic`` class we can look for distributions of statistics for
+classes and look for statistics preservations (or transformation) either for two classes
+or given a bijection. First we need to import it.
 
 .. code-block:: python
 
-    >>> len(perm_class_14)
-    8192
+    >>> from permuta.permutils.statistics import PermutationStatistic
 
-The iterating and containment functionality is the same as with `perm_class`,
-but indexing has yet to be implemented:
+To see a distribution for a given statistic we grab its instance and provide a length
+and a class (no class will use the set of all permutations).
 
 .. code-block:: python
 
-    >>> Perm((2, 1, 0)) in perm_class_14
-    False
-    >>> Perm((0, 13, 1, 12, 2, 3, 4, 11, 5, 10, 6, 7, 8, 9)) in perm_class_14
-    True
-    >>> Perm(range(10)) - Perm(range(4)) in perm_class_14
-    False
-    >>> next(iter(perm_class_14)) in perm_class_14
-    True
+    >>> PermutationStatistic.show_predefined_statistics() # Show all statistics with id
+    [0] Number of inversions
+    [1] Number of non-inversions
+    [2] Major index
+    [3] Number of descents
+    [4] Number of ascents
+    [5] Number of peaks
+    [6] Number of valleys
+    [7] Number of cycles
+    [8] Number of left-to-right minimas
+    [9] Number of left-to-right maximas
+    [10] Number of right-to-left minimas
+    [11] Number of right-to-left maximas
+    [12] Number of fixed points
+    [13] Order
+    [14] Longest increasing subsequence
+    [15] Longest decreasing subsequence
+    [16] Depth
+    [17] Number of bounces
+    [18] Maximum drop size
+    [19] Number of primes in the column sums
+    [20] Holeyness of a permutation
+    [21] Number of stack-sorts needed
+    [22] Number of pop-stack-sorts needed
+    [23] Number of pinnacles
+    [24] Number of cyclic peaks
+    [25] Number of cyclic valleys
+    [26] Number of double excedance
+    [27] Number of double drops
+    [28] Number of foremaxima
+    [29] Number of afterminima
+    [30] Number of aftermaxima
+    [31] Number of foreminima
+
+    >>> depth = PermutationStatistic.get_by_index(16)
+    >>> depth.distribution_for_length(5)
+    [1, 4, 12, 24, 35, 24, 20]
+    >>> depth.distribution_up_to(4, Av.from_string("123"))
+    [[1], [1], [1, 1], [0, 2, 3], [0, 0, 3, 7, 4]]
+
+Given a bijection as a dictionary, we can check which statistics are preserved with 
+``check_all_preservations`` and which are transformed with ``check_all_transformed``
+
+.. code-block:: python
+
+    >>> bijection = {p: p.reverse() for p in Perm.up_to_length(5)}
+    >>> for stat in PermutationStatistic.check_all_preservations(bijection):
+    ...     print(stat)
+    Number of peaks
+    Number of valleys
+    Holeyness of a permutation
+    Number of pinnacles
+
+We can find all (predefined) statistics equally distributed over two permutation
+classes with ``equally_distributed``. We also support checks for joint distribution
+of more than one statistics with ``jointly_equally_distributed`` and transformation
+of jointly distributed stats with ``jointly_transformed_equally_distributed``.
+
+.. code-block:: python
+
+    >>> cls1 = Av.from_string("2143,415263")
+    >>> cls2 = Av.from_string("3142")
+    >>> for stat in PermutationStatistic.equally_distributed(cls1, cls2, 6):
+    ...     print(stat)
+    Major index
+    Number of descents
+    Number of ascents
+    Number of peaks
+    Number of valleys
+    Number of left-to-right minimas
+    Number of right-to-left maximas
+    Longest increasing subsequence
+    Longest decreasing subsequence
+    Number of pinnacles
 
 The BiSC algorithm
 ==================
@@ -264,20 +317,19 @@ To use the algorithm we first need to import it.
     >>> from permuta.bisc import *
 
 A classic example of a set of permutations described by pattern avoidance are
-the permutations sortable in one pass through a stack. We start by loading a
-function ``stack_sortable`` which returns ``True`` for permutations that
-satisfy this property. The user now has two choices: Run
-``auto_bisc(stack_sortable)`` and let the algorithm run without any more user
-input. It will try to use sensible values, starting by learning small patterns
-from small permutations, and only considering longer patterns when that fails.
-If the user wants to have more control over what happens that is also possible
-and we now walk through that: We input the property into ``bisc`` and ask it to
-search for patterns of length 3.
+the permutations sortable in one pass through a stack. We use the function
+``stack_sortable`` which returns ``True`` for permutations that satisfy this
+property. The user now has two choices: Run
+``auto_bisc(Perm.stack_sortable)`` and let the algorithm run
+without any more user input. It will try to use sensible values, starting by
+learning small patterns from small permutations, and only considering longer
+patterns when that fails. If the user wants to have more control over what
+happens that is also possible and we now walk through that: We input the
+property into ``bisc`` and ask it to search for patterns of length 3.
 
 .. code-block:: python
 
-    >>> from permuta.bisc.permsets.perm_properties import stack_sortable
-    >>> bisc(stack_sortable, 3)
+    >>> bisc(Perm.stack_sortable, 3)
     I will use permutations up to length 7
     {3: {Perm((1, 2, 0)): [set()]}}
 
@@ -292,7 +344,7 @@ be considered.
 
 .. code-block:: python
 
-    >>> SG = bisc(stack_sortable, 3, 5)
+    >>> SG = bisc(Perm.stack_sortable, 3, 5)
     >>> show_me(SG)
     There are 1 underlying classical patterns of length 3
     There are 1 different shadings on 120
@@ -318,8 +370,7 @@ patterns, such as the West-2-stack-sortable permutations
 
 .. code-block:: python
 
-    >>> from permuta.bisc.permsets.perm_properties import West_2_stack_sortable
-    >>> SG = bisc(West_2_stack_sortable, 5, 7)
+    >>> SG = bisc(Perm.west_2_stack_sortable, 5, 7)
     >>> show_me(SG)
     There are 2 underlying classical patterns of length 4
     There are 1 different shadings on 1230
@@ -371,7 +422,7 @@ which keeps them separated by length.
 
 .. code-block:: python
 
-    >>> A, B = create_bisc_input(7, West_2_stack_sortable)
+    >>> A, B = create_bisc_input(7, Perm.west_2_stack_sortable)
 
 This creates two dictionaries with keys 1, 2, ..., 7 such that ``A[i]`` points
 to the list of permutations of length ``i`` that are West-2-stack-sortable, and
@@ -443,8 +494,8 @@ There is one basis of mesh patterns found, with 2 patterns
     <BLANKLINE>
 
 This is the output we were expecting. There are several other properties of
-permutations that can be imported from ``permuta.bisc.permsets.perm_properties``, such
-as ``smooth``, ``forest-like``, ``Baxter``, ``Simsun``, ``quick_sortable``, etc.
+permutations that can be imported from ``permuta.bisc.perm_properties``, such
+as ``smooth``, ``forest-like``, ``baxter``, ``simsun``, ``quick_sortable``, etc.
 
 Both ``bisc`` and ``auto_bisc`` can accept input in the form of a property,
 or a list of permutations (satisfying some property).
@@ -453,3 +504,13 @@ License
 #######
 
 BSD-3: see the `LICENSE <https://github.com/PermutaTriangle/Permuta/blob/master/LICENSE>`_ file.
+
+Citing
+######
+
+If you found this library helpful with your research and would like to cite us, 
+you can use the following `BibTeX`_ or go to `Zenodo`_ for alternative formats. 
+
+.. _BibTex: https://zenodo.org/record/4725759/export/hx#.YImTibX7SUk
+
+.. _Zenodo: https://doi.org/10.5281/zenodo.4725759
