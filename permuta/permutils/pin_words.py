@@ -77,7 +77,7 @@ class PinWords:
     @classmethod
     @lru_cache(maxsize=None)
     def perm_to_strict_pinword_mapping(cls, length: int) -> Dict:
-        """Maps perms to pinword if the pinowrd is strict"""
+        """Maps perms o pinword if the pinowrd is strict"""
         original = cls.perm_to_pinword_mapping(length)
         filtered = {
             k: {x for x in v if cls.is_strict_pinword(x)} for k, v in original.items()
@@ -300,10 +300,10 @@ class PinWords:
         )
 
     @staticmethod
-    def dfa_name_reset(dfa_in: "DFA", minimize=True):
+    def dfa_name_reset(dfa_in: "DFA", minimize=True) -> "DFA":
         """DFA name reset."""
         if minimize:
-            return dfa_in.minify(False)
+            return dfa_in.minify()
         m_dict: Dict[str, str] = dict()
         for state in dfa_in.states:
             m_dict[state] = str(len(m_dict))
@@ -366,8 +366,8 @@ class PinWords:
                 out_dfa = cls.make_dfa_for_pinword(word)
             else:
                 out_dfa2 = cls.make_dfa_for_pinword(word)
-                for_union = out_dfa.union(out_dfa2)
-                out_dfa = cls.dfa_name_reset(for_union)
+                out_dfa = out_dfa.union(out_dfa2)
+                # out_dfa = cls.dfa_name_reset(for_union)
         return out_dfa
 
     @classmethod
@@ -398,82 +398,6 @@ class PinWords:
         for perm in basis:
             res.extend(cls.perm_to_pinword_mapping(len(perm))[perm])
         return res
-
-    @staticmethod
-    def make_graph(dfa: "DFA") -> dict:
-        """Make a graph from DFA."""
-        graph = defaultdict(set)
-        for key, val in dfa.transitions.items():
-            for _, word in val.items():
-                graph[key].add(word)
-        return graph
-
-    @staticmethod
-    def reverse_graph(graph: dict) -> dict:
-        """Returns a reversed graph."""
-        rev_graph = defaultdict(set)
-        for key, val in graph.items():
-            for word in val:
-                rev_graph[word].add(key)
-        return rev_graph
-
-    @classmethod
-    def reachable_nodes(cls, graph: dict, visiting: str, visited=None) -> None:
-        """Find reachable nodes."""
-        if visited is None:
-            visited = set()
-        if visiting not in visited:
-            visited.add(visiting)
-            for word in graph[visiting]:
-                cls.reachable_nodes(graph, word, visited)
-
-    @staticmethod
-    def constrain_graph(
-        graph: dict,
-        visited: Set[str],
-    ) -> Dict[str, set]:
-        """Returns a constrain graph."""
-        return {k: {x for x in graph[k] if x in visited} for k in graph if k in visited}
-
-    @staticmethod
-    def has_cycle(graph: dict) -> bool:
-        """Returns True if graph has a cycle."""
-
-        def dfs(graph, curr_pos, visited, stack):
-            if curr_pos not in visited:
-                visited.add(curr_pos)
-                stack.add(curr_pos)
-                for k in graph[curr_pos]:
-                    if k not in visited and dfs(graph, k, visited, stack):
-                        return True
-                    if k in stack:
-                        return True
-                stack.remove(curr_pos)
-            return False
-
-        visited: Set[str] = set()
-        stack: Set[str] = set()
-        return any(dfs(graph, k, visited, stack) for k in graph.keys())
-
-    @classmethod
-    def is_finite_language(cls, dfa_in: "DFA") -> bool:
-        """Returns True if DFA is finite language."""
-        graph = cls.make_graph(dfa_in)
-        rev_graph = cls.reverse_graph(graph)
-
-        accessible_nodes: Set[str] = set()
-        cls.reachable_nodes(graph, dfa_in.initial_state, accessible_nodes)
-        coaccessible_nodes: Set[str] = set()
-        for state in dfa_in.final_states:
-            cls.reachable_nodes(rev_graph, state, coaccessible_nodes)
-
-        important_nodes = accessible_nodes.intersection(coaccessible_nodes)
-
-        constrained_graph = cls.constrain_graph(graph, important_nodes)
-
-        contains_cycle = cls.has_cycle(constrained_graph)
-
-        return not contains_cycle
 
     @staticmethod
     def has_finite_alternations(basis) -> bool:
@@ -545,7 +469,7 @@ class PinWords:
             dfa = cls.make_dfa_for_basis(basis, use_db)
         dfa = dfa.complement()
         dfa = cls.dfa_name_reset(cls.make_dfa_for_m() & dfa)
-        return cls.is_finite_language(dfa)
+        return dfa.isfinite()
 
     @classmethod
     def has_finite_simples(cls, basis, use_db=False, check_all=False, dfa=None) -> bool:
@@ -569,7 +493,15 @@ class PinWords:
         if in_dfa is None:
             in_dfa = cls.make_dfa_for_perm(perm)
         with open(str(path), "w") as file_object:
-            file_object.write("{}\n".format(repr(in_dfa)))
+            file_object.write(
+                "{}\n".format(
+                    f"DFA(states={in_dfa.states}, "
+                    + f"input_symbols={in_dfa.input_symbols}, "
+                    + f"transitions={dict(in_dfa.transitions)}, "
+                    + f"initial_state='{in_dfa.initial_state}', "
+                    + f"final_states={in_dfa.final_states})"
+                )
+            )
 
     @classmethod
     def load_dfa_for_perm(cls, perm) -> "DFA":
@@ -582,7 +514,6 @@ class PinWords:
         if not path.is_file():
             cls.store_dfa_for_perm(perm)
         with open(str(path), "r") as file_object:
-            # TODO: avoid eval
             dfa = eval(file_object.readline().strip())
         return dfa
 
@@ -591,39 +522,3 @@ class PinWords:
         """Create a database of DFAs for perms of specified length"""
         for perm in Perm.of_length(length):
             cls.store_dfa_for_perm(perm)
-
-    # def all_classes_with_infinite_simples(self, n):
-    #     finite = dict()
-    #     perms = list(Perm.of_length(n))
-    #     q = deque()
-    #     for p in perms:
-    #         cur = (p,)
-    #         if cur != lex_min(cur):
-    #             continue
-    #         dfa = self.load_DFA_for_perm(p)
-    #         q.append((cur, dfa))
-    #         val = self.has_finite_special_simples(cur) and self.has_finite_pinperms(
-    #             cur, dfa=dfa
-    #         )
-    #         finite[cur] = val
-    #         if val == False:
-    #             yield cur
-    #
-    #     while len(q) > 0:
-    #         cur, L = q.popleft()
-    #         sys.stderr.write("{}\n".format(cur))
-    #         for p in tqdm(perms):
-    #             if p in cur:
-    #                 continue
-    #             nxt = tuple(sorted(cur + (p,)))
-    #             if nxt != lex_min(nxt):
-    #                 continue
-    #             if nxt not in finite:
-    #                 nxt_dfa = self.dfa_name_reset(L.union(self.load_dfa_for_perm(p)))
-    #                 val = self.has_finite_special_simples(
-    #                     nxt
-    #                 ) and self.has_finite_pinperms(nxt, dfa=nxt_dfa)
-    #                 finite[nxt] = val
-    #                 if val is False:
-    #                     yield nxt
-    #                     q.append((nxt, nxt_dfa))
