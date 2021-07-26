@@ -52,7 +52,7 @@ setup(
         "Topic :: Scientific/Engineering :: Mathematics",
     ],
     install_requires=[
-        "automata @ git+https://github.com/caleb531/automata.git@"
+        "automata-lib @ git+https://github.com/caleb531/automata.git@"
         + "84064dd2e6cc724ceec3d1d19eaedebec102ec76"
     ],
     entry_points={"console_scripts": ["permtools=permuta.cli:main"]},
