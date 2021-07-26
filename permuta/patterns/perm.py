@@ -9,7 +9,6 @@ import math
 import numbers
 import operator
 import random
-from bisect import bisect_left
 from typing import (
     TYPE_CHECKING,
     Callable,
@@ -28,7 +27,6 @@ from typing import (
 
 from permuta.misc import HTMLViewer
 from permuta.misc.math import Matrix, is_prime
-from permuta.misc.pinword_util import PinWordUtil
 
 from .patt import Patt
 
@@ -88,35 +86,6 @@ class Perm(TupleType, Patt):
 
     standardize = to_standard
     from_iterable = to_standard
-
-    @classmethod
-    def from_pinword(cls, word: str) -> "Perm":
-        """Returns the permutation corresponding to a given pinword.
-
-        Examples:
-            >>> Perm.from_pinword("31")
-            Perm((0, 1))
-            >>> Perm.from_pinword("4R")
-            Perm((0, 1))
-            >>> Perm.from_pinword("3DL2UR")
-            Perm((3, 5, 1, 2, 0, 4))
-            >>> Perm.from_pinword("14L2UR")
-            Perm((3, 5, 1, 2, 0, 4))
-        """
-        pwu = PinWordUtil()
-        pre_perm = [(pwu.rzero(), pwu.rzero())]
-
-        for char in word:
-            next_x, next_y = pwu.call(char, pre_perm)
-            if not (next_x and next_y):
-                assert False
-            pre_perm.append((next_x, next_y))
-
-        pre_perm.pop(0)
-        pre_perm.sort()
-        sorted_y_coord = sorted(x[1] for x in pre_perm)
-        perm = tuple(bisect_left(sorted_y_coord, x[1]) for x in pre_perm)
-        return cls(perm)
 
     @classmethod
     def from_matrix(cls, matrix: "Matrix") -> "Perm":

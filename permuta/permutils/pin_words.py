@@ -2,6 +2,7 @@
 # pylint: disable=eval-used
 
 
+from bisect import bisect_left
 from collections import defaultdict
 from functools import lru_cache
 from pathlib import Path
@@ -12,6 +13,7 @@ from automata.fa.nfa import NFA
 
 from permuta import Av, Perm
 from permuta.permutils import all_symmetry_sets
+from permuta.permutils.pinword_util import PinWordUtil
 
 DIRS = "ULDR"
 QUADS = "1234"
@@ -19,6 +21,35 @@ QUADS = "1234"
 
 class PinWords:
     """Class for pinowords"""
+
+    @staticmethod
+    def pinword_to_perm(word: str) -> "Perm":
+        """Returns the permutation corresponding to a given pinword.
+
+        Examples:
+            >>> PinWords.pinword_to_perm("31")
+            Perm((0, 1))
+            >>> PinWords.pinword_to_perm("4R")
+            Perm((0, 1))
+            >>> PinWords.pinword_to_perm("3DL2UR")
+            Perm((3, 5, 1, 2, 0, 4))
+            >>> PinWords.pinword_to_perm("14L2UR")
+            Perm((3, 5, 1, 2, 0, 4))
+        """
+        pwu = PinWordUtil()
+        pre_perm = [(pwu.rzero(), pwu.rzero())]
+
+        for char in word:
+            next_x, next_y = pwu.call(char, pre_perm)
+            if not (next_x and next_y):
+                assert False
+            pre_perm.append((next_x, next_y))
+
+        pre_perm.pop(0)
+        pre_perm.sort()
+        sorted_y_coord = sorted(x[1] for x in pre_perm)
+        perm = tuple(bisect_left(sorted_y_coord, x[1]) for x in pre_perm)
+        return Perm(perm)
 
     @classmethod
     def pinwords_of_length(cls, length: int) -> Iterator[str]:
@@ -45,7 +76,7 @@ class PinWords:
     def pinword_to_perm_mapping(cls, length: int) -> Dict[str, "Perm"]:
         """Returns a dict that maps pinword to it's corresponding Perm"""
         return {
-            pinword: Perm.from_pinword(pinword)
+            pinword: cls.pinword_to_perm(pinword)
             for pinword in cls.pinwords_of_length(length)
         }
 
@@ -469,7 +500,7 @@ class PinWords:
             dfa = cls.make_dfa_for_basis(basis, use_db)
         dfa = dfa.complement()
         dfa = cls.dfa_name_reset(cls.make_dfa_for_m() & dfa)
-        return dfa.isfinite()
+        return dfa.isfinite() is True
 
     @classmethod
     def has_finite_simples(cls, basis, use_db=False, check_all=False, dfa=None) -> bool:
