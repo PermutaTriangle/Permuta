@@ -159,6 +159,15 @@ There are numerous practical methods available:
     True
     >>> Perm((2,1,0,4,3)).slope_between(0, 1)
     -1.0
+    >>> Perm((2,3,1,0)).matrix_repr()
+    Matrix(4, {(0, 2): 1, (1, 3): 1, (2, 1): 1, (3, 0): 1})
+    >>> Perm.from_matrix(Matrix(4, {(0, 2): 1, (1, 3): 1, (2, 1): 1, (3, 0): 1}))
+    Perm((2, 3, 1, 0))
+    >>> print(Matrix(3, {(0, 0): 0, (1, 0): 0, (2, 0): 1, (1, 1): 1, (2, 1): 0, (0, 2): 1, (2, 2): 0}))
+    |0|0|1|
+    |0|1|0|
+    |1|0|0|
+    <BLANKLINE>
 
 Creating a perm class
 #####################

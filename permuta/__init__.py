@@ -1,3 +1,4 @@
+from .misc.math import Matrix
 from .patterns import BivincularPatt, CovincularPatt, MeshPatt, Perm, VincularPatt
 from .perm_sets.permset import Av, Basis, MeshBasis
 
@@ -12,4 +13,5 @@ __all__ = [
     "BivincularPatt",
     "CovincularPatt",
     "VincularPatt",
+    "Matrix",
 ]
