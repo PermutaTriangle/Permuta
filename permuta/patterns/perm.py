@@ -26,7 +26,7 @@ from typing import (
 )
 
 from permuta.misc import HTMLViewer
-from permuta.misc.math import is_prime
+from permuta.misc.math import Matrix, is_prime
 
 from .patt import Patt
 
@@ -86,6 +86,19 @@ class Perm(TupleType, Patt):
 
     standardize = to_standard
     from_iterable = to_standard
+
+    @classmethod
+    def from_matrix(cls, matrix: "Matrix") -> "Perm":
+        """Returns the perm corresponding to the matrix given."""
+        if matrix.test_sum() != len(matrix):
+            raise ValueError("Incorrect amount of numbers in permutation matrix")
+        perm_list: List[Optional[int]] = [None for _ in range(len(matrix))]
+        for (row, col), val in matrix.elements.items():
+            if val:
+                perm_list[row] = col
+        if None in perm_list:
+            raise ValueError("Some rows/cols are empty.")
+        return cls.to_standard(perm_list)
 
     @classmethod
     def from_integer(cls, integer: int) -> "Perm":
@@ -2921,6 +2934,49 @@ class Perm(TupleType, Patt):
 
     cycles = cycle_notation
 
+    def slope_between(self, first: int, second: int) -> float:
+        """Calculates the slope between the two given indices.
+
+        Examples:
+            >>> Perm((2,1,0,4,3)).slope_between(0, 1)
+            -1.0
+            >>> Perm((2,1,0,4,3)).slope_between(0, 2)
+            -1.0
+            >>> Perm((2,1,0,4,3)).slope_between(2, 3)
+            4.0
+        """
+        if not 0 <= first < second < len(self):
+            raise ValueError("Incorrect indices")
+        return (self[second] - self[first]) / (second - first)
+
+    def is_costas(self) -> bool:
+        """
+        Checks if permutation is a Costas Array, that is, all the slopes are different.
+
+        Examples:
+            >>> Perm((0, 1, 2, 3)).is_costas()
+            False
+            >>> Perm((0, 2, 1, 3)).is_costas()
+            False
+            >>> Perm((0, 3, 2, 1)).is_costas()
+            False
+            >>> Perm((0, 1, 3, 2)).is_costas()
+            True
+            >>> Perm((0, 2, 3, 1)).is_costas()
+            True
+            >>> Perm((0, 3, 1, 2)).is_costas()
+            True
+        """
+        width: int = len(self)
+        prev_slopes: Set[float] = set()
+        for first in range(width - 1):
+            for second in range(first + 1, width):
+                slope = self.slope_between(first, second)
+                if slope in prev_slopes:
+                    return False
+                prev_slopes.add(slope)
+        return True
+
     def to_svg(self, image_scale: float = 1.0) -> str:
         """Return the svg code to plot the permutation. The image size defaults to
         100x100 pixels and the parameter scales that.
@@ -2991,6 +3047,12 @@ class Perm(TupleType, Patt):
         """Open a browser tab and display permutation graphically. Image can be
         enlarged with scale parameter"""
         HTMLViewer.open_svg(self.to_svg(image_scale=scale))
+
+    def matrix_repr(self):
+        """Returns the matrix representation of the perm"""
+        return Matrix(
+            len(self), elements={(idx, val): 1 for idx, val in enumerate(self)}
+        )
 
     def __call__(self, value: int) -> int:
         assert 0 <= value < len(self)
