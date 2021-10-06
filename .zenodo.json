@@ -1,8 +1,33 @@
 {
     "upload_type": "software",
+    "title": "Permuta: A Python Library for Permutations and Patterns",
     "creators": [
         {
             "name": "Ragnar Pall Ardal"
+        },
+        {
+            "name": "Arnar Bjarni Arnarson"
+        },
+        {
+            "affiliation": "Reykjavik University",
+            "name": "Christian Bean"
+        },
+        {
+            "name": "Alfur Birkir Bjarnason"
+        },
+        {
+            "affiliation": "Reykjavik University",
+            "name": "Jon Steinn Eliasson"
+        },
+        {
+            "name": "Bjarki Agust Gudmundsson"
+        },
+        {
+            "affiliation": "Reykjavik University",
+            "name": "Sigurjón Ingi Jónsson"
+        }
+        {
+            "name": "Bjarni Jens Kristinsson"
         },
         {
             "name": "Tomas Ken Magnusson"
@@ -12,39 +37,15 @@
             "name": "Émile Nadeau"
         },
         {
-            "name": "Bjarni Jens Kristinsson"
-        },
-        {
-            "name": "Bjarki Agust Gudmundsson"
-        },
-        {
-            "affiliation": "Reykjavik University",
-            "name": "Christian Bean"
-        },
-        {
-            "affiliation": "Reykjavik University",
-            "name": "Henning Ulfarsson"
-        },
-        {
-            "affiliation": "Reykjavik University",
-            "name": "Jon Steinn Eliasson"
+            "affiliation": "Marquette University",
+            "name": "Jay Pantone"
         },
         {
             "name": "Murray Tannock"
         },
         {
-            "name": "Alfur Birkir Bjarnason"
-        },
-        {
-            "affiliation": "Marquette University",
-            "name": "Jay Pantone"
-        },
-        {
-            "name": "Arnar Bjarni Arnarson"
-        },
-        {
             "affiliation": "Reykjavik University",
-            "name": "Sigurjón Ingi Jónsson"
-        }
+            "name": "Henning Ulfarsson"
+        },
     ]
 }
