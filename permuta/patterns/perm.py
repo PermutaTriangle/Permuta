@@ -73,10 +73,10 @@ class Perm(TupleType, Patt):
 
     @classmethod
     @functools.lru_cache(maxsize=10000)
-    def _to_standard(cls, tuple: Tuple) -> "Perm":
+    def _to_standard(cls, iterable: Tuple) -> "Perm":
         """A cached function that standardise a tuple."""
         return cls(
-            idx for (idx, _) in sorted(enumerate(tuple), key=operator.itemgetter(1))
+            idx for (idx, _) in sorted(enumerate(iterable), key=operator.itemgetter(1))
         ).inverse()
 
     standardize = to_standard
