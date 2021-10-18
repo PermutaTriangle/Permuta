@@ -14,6 +14,9 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
   - Function: Get the slope between 2 indices
   - Function: Tells if perm is a Costas array
 
+### Changed 
+  - Perm.to_standard now uses an lru cache
+
 ## 2.1.0 - 2021-06-14
 ### Added
  - Statistic: bounce of a permutation.
@@ -23,7 +26,7 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
  - Algorithm: `pop stack sort`.
  - Statistic: count stack sorts.
  - Statistic: count pop stack sorts.
- - Statistic: Pinnacle set and number of pinnacles.
+ - Statistic: Pinnacle set and number of pinnacles. 
 
 ### Changed
   - Functions for ascents and descents now take an optional argument to specify what step size to calculate.
