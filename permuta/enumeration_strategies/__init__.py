@@ -5,13 +5,16 @@ from permuta import Perm
 from .abstract_strategy import EnumerationStrategy
 from .core_strategies import core_strategies
 from .insertion_encodable import InsertionEncodingStrategy
+from .finitely_many_simples import FinitelyManySimplesStrategy
 
 fast_enumeration_strategies: List[Type[EnumerationStrategy]] = [
     InsertionEncodingStrategy
 ]
 fast_enumeration_strategies.extend(core_strategies)
 
-long_enumeration_strategies: List[Type[EnumerationStrategy]] = []
+long_enumeration_strategies: List[Type[EnumerationStrategy]] = [
+    FinitelyManySimplesStrategy
+]
 
 all_enumeration_strategies: List[Type[EnumerationStrategy]] = (
     fast_enumeration_strategies + long_enumeration_strategies
