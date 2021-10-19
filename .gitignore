@@ -1,3 +1,4 @@
+dfa_db/*
 .mypy_cache
 # Mac stuff
 *.DS_Store
