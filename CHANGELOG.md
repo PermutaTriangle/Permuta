@@ -6,9 +6,13 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 
 ## Unreleased
 ### Added
+ - Bijection class for known bijection.
+ - An implementation of the Simion and Schmidt bijection.
   - Matrix object
   - Function: Create Perm from a Matrix
   - Function: Create Matrix from Perm
+  - Function: Get the slope between 2 indices
+  - Function: Tells if perm is a Costas array
 
 ## 2.1.0 - 2021-06-14
 ### Added

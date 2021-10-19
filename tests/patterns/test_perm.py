@@ -3684,6 +3684,76 @@ def test_count_foreminima():
     assert Perm((3, 2, 1, 0)).count_foreminima() == 0
 
 
+def test_slope_between():
+    assert Perm((0, 1, 2)).slope_between(0, 2) == 1.0
+    assert Perm((0, 2, 1)).slope_between(1, 2) == -1.0
+    assert Perm((1, 0, 2)).slope_between(1, 2) == 2.0
+    assert Perm((1, 2, 0)).slope_between(0, 2) == -0.5
+    assert Perm((2, 0, 1)).slope_between(1, 2) == 1.0
+    assert Perm((2, 1, 0)).slope_between(1, 2) == -1.0
+    assert Perm((0, 1, 2, 3)).slope_between(0, 1) == 1.0
+    assert Perm((0, 1, 3, 2)).slope_between(1, 2) == 2.0
+    assert Perm((0, 2, 1, 3)).slope_between(1, 2) == -1.0
+    assert Perm((0, 2, 3, 1)).slope_between(2, 3) == -2.0
+    assert Perm((0, 3, 1, 2)).slope_between(2, 3) == 1.0
+    assert Perm((0, 3, 2, 1)).slope_between(2, 3) == -1.0
+    assert Perm((1, 0, 2, 3)).slope_between(2, 3) == 1.0
+    assert Perm((1, 0, 3, 2)).slope_between(0, 3) == 0.3333333333333333
+    assert Perm((1, 2, 0, 3)).slope_between(0, 3) == 0.6666666666666666
+    assert Perm((1, 2, 3, 0)).slope_between(0, 1) == 1.0
+    assert Perm((1, 3, 0, 2)).slope_between(2, 3) == 2.0
+    assert Perm((1, 3, 2, 0)).slope_between(1, 2) == -1.0
+    assert Perm((2, 0, 1, 3)).slope_between(1, 2) == 1.0
+    assert Perm((2, 0, 3, 1)).slope_between(1, 2) == 3.0
+    assert Perm((2, 1, 0, 3)).slope_between(0, 1) == -1.0
+    assert Perm((2, 1, 3, 0)).slope_between(2, 3) == -3.0
+    assert Perm((2, 3, 0, 1)).slope_between(1, 3) == -1.0
+    assert Perm((2, 3, 1, 0)).slope_between(0, 1) == 1.0
+    assert Perm((3, 0, 1, 2)).slope_between(1, 3) == 1.0
+    assert Perm((3, 0, 2, 1)).slope_between(1, 2) == 2.0
+    assert Perm((3, 1, 0, 2)).slope_between(0, 2) == -1.5
+    assert Perm((3, 1, 2, 0)).slope_between(2, 3) == -2.0
+    assert Perm((3, 2, 0, 1)).slope_between(1, 3) == -0.5
+    assert Perm((3, 2, 1, 0)).slope_between(2, 3) == -1.0
+
+
+def test_is_costas():
+    assert Perm(()).is_costas() == 1
+    assert Perm((0,)).is_costas() == 1
+    assert Perm((0, 1)).is_costas() == 1
+    assert Perm((1, 0)).is_costas() == 1
+    assert Perm((0, 1, 2)).is_costas() == 0
+    assert Perm((0, 2, 1)).is_costas() == 1
+    assert Perm((1, 0, 2)).is_costas() == 1
+    assert Perm((1, 2, 0)).is_costas() == 1
+    assert Perm((2, 0, 1)).is_costas() == 1
+    assert Perm((2, 1, 0)).is_costas() == 0
+    assert Perm((0, 1, 2, 3)).is_costas() == 0
+    assert Perm((0, 1, 3, 2)).is_costas() == 1
+    assert Perm((0, 2, 1, 3)).is_costas() == 0
+    assert Perm((0, 2, 3, 1)).is_costas() == 1
+    assert Perm((0, 3, 1, 2)).is_costas() == 1
+    assert Perm((0, 3, 2, 1)).is_costas() == 0
+    assert Perm((1, 0, 2, 3)).is_costas() == 1
+    assert Perm((1, 0, 3, 2)).is_costas() == 0
+    assert Perm((1, 2, 0, 3)).is_costas() == 1
+    assert Perm((1, 2, 3, 0)).is_costas() == 0
+    assert Perm((1, 3, 0, 2)).is_costas() == 0
+    assert Perm((1, 3, 2, 0)).is_costas() == 1
+    assert Perm((2, 0, 1, 3)).is_costas() == 1
+    assert Perm((2, 0, 3, 1)).is_costas() == 0
+    assert Perm((2, 1, 0, 3)).is_costas() == 0
+    assert Perm((2, 1, 3, 0)).is_costas() == 1
+    assert Perm((2, 3, 0, 1)).is_costas() == 0
+    assert Perm((2, 3, 1, 0)).is_costas() == 1
+    assert Perm((3, 0, 1, 2)).is_costas() == 0
+    assert Perm((3, 0, 2, 1)).is_costas() == 1
+    assert Perm((3, 1, 0, 2)).is_costas() == 1
+    assert Perm((3, 1, 2, 0)).is_costas() == 0
+    assert Perm((3, 2, 0, 1)).is_costas() == 1
+    assert Perm((3, 2, 1, 0)).is_costas() == 0
+
+
 def test_matrix_class():
     assert Matrix(0) == Matrix(0)
     matrix = Matrix(size=3, elements={(0, 0): 1, (1, 1): 1, (2, 2): 1})
