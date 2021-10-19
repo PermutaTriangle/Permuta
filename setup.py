@@ -51,9 +51,6 @@ setup(
         "Topic :: Education",
         "Topic :: Scientific/Engineering :: Mathematics",
     ],
-    install_requires=[
-        "automata-lib @ git+https://github.com/caleb531/automata.git@"
-        + "84064dd2e6cc724ceec3d1d19eaedebec102ec76"
-    ],
+    install_requires=["automata-lib==5.0.0"],
     entry_points={"console_scripts": ["permtools=permuta.cli:main"]},
 )
