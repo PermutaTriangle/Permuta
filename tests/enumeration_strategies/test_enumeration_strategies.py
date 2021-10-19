@@ -8,7 +8,6 @@ from permuta.enumeration_strategies.finitely_many_simples import (
     FinitelyManySimplesStrategy,
 )
 from permuta.enumeration_strategies.insertion_encodable import InsertionEncodingStrategy
-
 from permuta.perm_sets.basis import Basis
 
 ru = Perm((1, 2, 0, 3))
