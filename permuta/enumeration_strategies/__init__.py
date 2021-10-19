@@ -4,8 +4,8 @@ from permuta import Perm
 
 from .abstract_strategy import EnumerationStrategy
 from .core_strategies import core_strategies
-from .insertion_encodable import InsertionEncodingStrategy
 from .finitely_many_simples import FinitelyManySimplesStrategy
+from .insertion_encodable import InsertionEncodingStrategy
 
 fast_enumeration_strategies: List[Type[EnumerationStrategy]] = [
     InsertionEncodingStrategy

@@ -1,7 +1,5 @@
 from permuta.enumeration_strategies.abstract_strategy import EnumerationStrategy
-from permuta.permutils.pin_words import (
-    PinWords,
-)
+from permuta.permutils.pin_words import PinWords
 
 
 class FinitelyManySimplesStrategy(EnumerationStrategy):
