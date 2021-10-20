@@ -2142,7 +2142,7 @@ class Perm(TupleType, Patt):
         fact = [1]
         for i in range(n):
             fact.append(fact[i] * (i + 1))
-        vals: List[int] = list()
+        vals: List[int] = []
         for idx, val in enumerate(self):
             ordered_pos = bisect.bisect_left(vals, val)
             res += (val - ordered_pos) * fact[n - idx - 1] + fact[n - idx - 1]

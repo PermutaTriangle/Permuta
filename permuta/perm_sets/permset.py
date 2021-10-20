@@ -138,7 +138,7 @@ class Av(AvBase):
         max_size = max(lengths)
         for nplusone in range(len(self.cache), level_number + 1):
             n = nplusone - 1
-            new_level: Dict[Perm, Optional[List[int]]] = dict()
+            new_level: Dict[Perm, Optional[List[int]]] = {}
             last_level = self.cache[-1]
             check_length = nplusone in lengths
             smaller_elems = {b for b in self.basis if len(b) == nplusone}

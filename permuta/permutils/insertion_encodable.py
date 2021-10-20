@@ -10,7 +10,7 @@ class InsertionEncodablePerms:
     """
 
     _ALL_PROPERTIES: ClassVar[int] = 15
-    _CACHE: ClassVar[Dict[Tuple, int]] = dict()
+    _CACHE: ClassVar[Dict[Tuple, int]] = {}
 
     @staticmethod
     def _is_incr_next_incr(perm: Perm) -> bool:
