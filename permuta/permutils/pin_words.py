@@ -517,7 +517,7 @@ class PinWords:
         directory = f"dfa_db/S{len(perm)}/"
         path = Path(directory)
         path.mkdir(parents=True, exist_ok=True)
-        filename = "{''.join(str(i) for i in perm)}.txt"
+        filename = f"{''.join(str(i) for i in perm)}.txt"
         path = path / filename
         if path.is_file():
             return
