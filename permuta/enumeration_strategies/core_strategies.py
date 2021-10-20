@@ -1,4 +1,4 @@
-from abc import abstractmethod, abstractproperty
+from abc import abstractmethod
 from typing import ClassVar, FrozenSet, List, Type
 
 from permuta import Av, MeshPatt, Perm
@@ -13,7 +13,8 @@ class CoreStrategy(EnumerationStrategyWithSymmetry):
     # https://arxiv.org/pdf/1912.07503.pdf
     # See this paper for corr_number
 
-    @abstractproperty
+    @property
+    @abstractmethod
     def patterns_needed(self) -> FrozenSet[Perm]:
         """Return the set of patterns that are needed for the strategy to be useful."""
 

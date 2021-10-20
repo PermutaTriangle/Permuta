@@ -182,7 +182,7 @@ class PinWords:
             '4D'
         """
         letter_dict = {"1": "RU", "2": "LU", "3": "LD", "4": "RD"}
-        rev_letter_dict = dict()
+        rev_letter_dict = {}
         for key, val in letter_dict.items():
             rev_letter_dict[val] = key
             rev_letter_dict[val[::-1]] = key
@@ -335,7 +335,7 @@ class PinWords:
         """DFA name reset."""
         if minimize:
             return dfa_in.minify()
-        m_dict: Dict[str, str] = dict()
+        m_dict: Dict[str, str] = {}
         for state in dfa_in.states:
             m_dict[state] = str(len(m_dict))
 
@@ -514,10 +514,10 @@ class PinWords:
     @classmethod
     def store_dfa_for_perm(cls, perm, in_dfa=None) -> None:
         """Write the DFA for the specified Perm to a file."""
-        directory = "dfa_db/S{}/".format(len(perm))
+        directory = f"dfa_db/S{len(perm)}/"
         path = Path(directory)
         path.mkdir(parents=True, exist_ok=True)
-        filename = "{}.txt".format("".join(str(i) for i in perm))
+        filename = f"{''.join(str(i) for i in perm)}.txt"
         path = path / filename
         if path.is_file():
             return
@@ -525,21 +525,19 @@ class PinWords:
             in_dfa = cls.make_dfa_for_perm(perm)
         with open(str(path), "w") as file_object:
             file_object.write(
-                "{}\n".format(
-                    f"DFA(states={in_dfa.states}, "
-                    + f"input_symbols={in_dfa.input_symbols}, "
-                    + f"transitions={dict(in_dfa.transitions)}, "
-                    + f"initial_state='{in_dfa.initial_state}', "
-                    + f"final_states={in_dfa.final_states})"
-                )
+                f"DFA(states={in_dfa.states}, "
+                + f"input_symbols={in_dfa.input_symbols}, "
+                + f"transitions={dict(in_dfa.transitions)}, "
+                + f"initial_state='{in_dfa.initial_state}', "
+                + f"final_states={in_dfa.final_states})\n"
             )
 
     @classmethod
     def load_dfa_for_perm(cls, perm) -> "DFA":
         """Loads the DFA for the specified Perm from file."""
-        directory = "dfa_db/S{}/".format(len(perm))
+        directory = f"dfa_db/S{len(perm)}/"
         path = Path(directory)
-        filename = "{}.txt".format("".join(str(i) for i in perm))
+        filename = f"{''.join(str(i) for i in perm)}.txt"
         path = path / filename
         dfa: "DFA" = None
         if not path.is_file():

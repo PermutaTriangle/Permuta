@@ -36,7 +36,7 @@ class Matrix:
                 key: (1 if binary and val else val) for key, val in elements.items()
             }
         else:
-            self.elements = dict()
+            self.elements = {}
         self.binary = binary
         self._size = size
 
@@ -128,7 +128,7 @@ class Matrix:
         """
         Looks at each row as a binary number and returns the binary value for each.
         """
-        out_list: List[int] = list()
+        out_list: List[int] = []
         for row_idx in range(len(self)):
             num = 0
             for key, val in self.elements.items():
@@ -140,7 +140,7 @@ class Matrix:
     def apply_perm(self, perm: Iterable[int], row: bool = True) -> "Matrix":
         """Returns a new matrix which has the given permutation
         applied on either the rows or columns of the matrix"""
-        new_func: Dict[Tuple[int, int], int] = dict()
+        new_func: Dict[Tuple[int, int], int] = {}
         for n_idx, p_idx in enumerate(perm):
             for idx in range(len(self)):
                 if row:
