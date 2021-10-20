@@ -4,6 +4,7 @@
 
 import bisect
 import collections
+import functools
 import itertools
 import math
 import numbers
@@ -12,7 +13,6 @@ import random
 from typing import (
     TYPE_CHECKING,
     Callable,
-    ClassVar,
     Deque,
     Dict,
     Iterable,
@@ -43,8 +43,6 @@ ApplyType = TypeVar("ApplyType")
 class Perm(TupleType, Patt):
     """A perm class."""
 
-    _TO_STANDARD_CACHE: ClassVar[Dict[Tuple, "Perm"]] = {}
-
     def __new__(cls, iterable: Iterable[int] = ()) -> "Perm":
         """Return a Perm instance.
 
@@ -61,11 +59,6 @@ class Perm(TupleType, Patt):
         self._cached_pattern_details: Optional[List[Tuple[int, int, int, int]]] = None
 
     @classmethod
-    def clear_cache(cls):
-        """Clears to_standardize cache."""
-        cls._TO_STANDARD_CACHE = {}
-
-    @classmethod
     def to_standard(cls, iterable: Iterable) -> "Perm":
         """Return the perm corresponding to iterable. Duplicate elements
         are allowed and become consecutive elements (see example).
@@ -76,13 +69,15 @@ class Perm(TupleType, Patt):
             >>> Perm.to_standard("caaba")
             Perm((4, 0, 1, 3, 2))
         """
-        iterable = tuple(iterable)
-        if iterable not in cls._TO_STANDARD_CACHE:
-            cls._TO_STANDARD_CACHE[iterable] = cls(
-                idx
-                for (idx, _) in sorted(enumerate(iterable), key=operator.itemgetter(1))
-            ).inverse()
-        return cls._TO_STANDARD_CACHE[iterable]
+        return cls._to_standard(tuple(iterable))
+
+    @classmethod
+    @functools.lru_cache(maxsize=10000)
+    def _to_standard(cls, iterable: Tuple) -> "Perm":
+        """A cached function that standardise a tuple."""
+        return cls(
+            idx for (idx, _) in sorted(enumerate(iterable), key=operator.itemgetter(1))
+        ).inverse()
 
     standardize = to_standard
     from_iterable = to_standard
@@ -2933,6 +2928,49 @@ class Perm(TupleType, Patt):
         )
 
     cycles = cycle_notation
+
+    def slope_between(self, first: int, second: int) -> float:
+        """Calculates the slope between the two given indices.
+
+        Examples:
+            >>> Perm((2,1,0,4,3)).slope_between(0, 1)
+            -1.0
+            >>> Perm((2,1,0,4,3)).slope_between(0, 2)
+            -1.0
+            >>> Perm((2,1,0,4,3)).slope_between(2, 3)
+            4.0
+        """
+        if not 0 <= first < second < len(self):
+            raise ValueError("Incorrect indices")
+        return (self[second] - self[first]) / (second - first)
+
+    def is_costas(self) -> bool:
+        """
+        Checks if permutation is a Costas Array, that is, all the slopes are different.
+
+        Examples:
+            >>> Perm((0, 1, 2, 3)).is_costas()
+            False
+            >>> Perm((0, 2, 1, 3)).is_costas()
+            False
+            >>> Perm((0, 3, 2, 1)).is_costas()
+            False
+            >>> Perm((0, 1, 3, 2)).is_costas()
+            True
+            >>> Perm((0, 2, 3, 1)).is_costas()
+            True
+            >>> Perm((0, 3, 1, 2)).is_costas()
+            True
+        """
+        width: int = len(self)
+        prev_slopes: Set[float] = set()
+        for first in range(width - 1):
+            for second in range(first + 1, width):
+                slope = self.slope_between(first, second)
+                if slope in prev_slopes:
+                    return False
+                prev_slopes.add(slope)
+        return True
 
     def to_svg(self, image_scale: float = 1.0) -> str:
         """Return the svg code to plot the permutation. The image size defaults to
