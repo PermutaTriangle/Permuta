@@ -5,18 +5,20 @@ The format is based on [Keep a Changelog](http://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.html).
 
 ## Unreleased
+
+## 2.2.0 - 2021-10-21
 ### Added
  - Bijection class for known bijection.
  - An implementation of the Simion and Schmidt bijection.
-  - Matrix object
-  - Function: Create Perm from a Matrix
-  - Function: Create Matrix from Perm
-  - Function: Get the slope between 2 indices
-  - Function: Tells if perm is a Costas array
-  - Enumeration strategy to check whether a class has finitely many simple permutations
+ - Matrix object
+ - Function: Create Perm from a Matrix
+ - Function: Create Matrix from Perm
+ - Function: Get the slope between 2 indices
+ - Function: Tells if perm is a Costas array
+ - Enumeration strategy to check whether a class has finitely many simple permutations
 
 ### Changed
-  - Perm.to_standard now uses an lru cache
+ - Perm.to_standard now uses an lru cache
 
 ## 2.1.0 - 2021-06-14
 ### Added
