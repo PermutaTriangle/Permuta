@@ -2929,49 +2929,6 @@ class Perm(TupleType, Patt):
 
     cycles = cycle_notation
 
-    def slope_between(self, first: int, second: int) -> float:
-        """Calculates the slope between the two given indices.
-
-        Examples:
-            >>> Perm((2,1,0,4,3)).slope_between(0, 1)
-            -1.0
-            >>> Perm((2,1,0,4,3)).slope_between(0, 2)
-            -1.0
-            >>> Perm((2,1,0,4,3)).slope_between(2, 3)
-            4.0
-        """
-        if not 0 <= first < second < len(self):
-            raise ValueError("Incorrect indices")
-        return (self[second] - self[first]) / (second - first)
-
-    def is_costas(self) -> bool:
-        """
-        Checks if permutation is a Costas Array, that is, all the slopes are different.
-
-        Examples:
-            >>> Perm((0, 1, 2, 3)).is_costas()
-            False
-            >>> Perm((0, 2, 1, 3)).is_costas()
-            False
-            >>> Perm((0, 3, 2, 1)).is_costas()
-            False
-            >>> Perm((0, 1, 3, 2)).is_costas()
-            True
-            >>> Perm((0, 2, 3, 1)).is_costas()
-            True
-            >>> Perm((0, 3, 1, 2)).is_costas()
-            True
-        """
-        width: int = len(self)
-        prev_slopes: Set[float] = set()
-        for first in range(width - 1):
-            for second in range(first + 1, width):
-                slope = self.slope_between(first, second)
-                if slope in prev_slopes:
-                    return False
-                prev_slopes.add(slope)
-        return True
-
     def to_svg(self, image_scale: float = 1.0) -> str:
         """Return the svg code to plot the permutation. The image size defaults to
         100x100 pixels and the parameter scales that.

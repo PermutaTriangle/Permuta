@@ -13,8 +13,6 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
  - Matrix object
  - Function: Create Perm from a Matrix
  - Function: Create Matrix from Perm
- - Function: Get the slope between 2 indices
- - Function: Tells if perm is a Costas array
  - Enumeration strategy to check whether a class has finitely many simple permutations
 
 ### Changed
