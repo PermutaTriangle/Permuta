@@ -10,9 +10,6 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 ### Added
  - Bijection class for known bijection.
  - An implementation of the Simion and Schmidt bijection.
- - Matrix object
- - Function: Create Perm from a Matrix
- - Function: Create Matrix from Perm
  - Enumeration strategy to check whether a class has finitely many simple permutations
 
 ### Changed
