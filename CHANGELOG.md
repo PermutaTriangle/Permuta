@@ -6,6 +6,15 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 
 ## Unreleased
 
+## 2.2.0 - 2021-10-21
+### Added
+ - Bijection class for known bijection.
+ - An implementation of the Simion and Schmidt bijection.
+ - Enumeration strategy to check whether a class has finitely many simple permutations
+
+### Changed
+ - Perm.to_standard now uses an lru cache
+
 ## 2.1.0 - 2021-06-14
 ### Added
  - Statistic: bounce of a permutation.

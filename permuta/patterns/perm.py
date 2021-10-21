@@ -4,6 +4,7 @@
 
 import bisect
 import collections
+import functools
 import itertools
 import math
 import numbers
@@ -12,7 +13,6 @@ import random
 from typing import (
     TYPE_CHECKING,
     Callable,
-    ClassVar,
     Deque,
     Dict,
     Iterable,
@@ -43,8 +43,6 @@ ApplyType = TypeVar("ApplyType")
 class Perm(TupleType, Patt):
     """A perm class."""
 
-    _TO_STANDARD_CACHE: ClassVar[Dict[Tuple, "Perm"]] = {}
-
     def __new__(cls, iterable: Iterable[int] = ()) -> "Perm":
         """Return a Perm instance.
 
@@ -61,11 +59,6 @@ class Perm(TupleType, Patt):
         self._cached_pattern_details: Optional[List[Tuple[int, int, int, int]]] = None
 
     @classmethod
-    def clear_cache(cls):
-        """Clears to_standardize cache."""
-        cls._TO_STANDARD_CACHE = {}
-
-    @classmethod
     def to_standard(cls, iterable: Iterable) -> "Perm":
         """Return the perm corresponding to iterable. Duplicate elements
         are allowed and become consecutive elements (see example).
@@ -76,13 +69,15 @@ class Perm(TupleType, Patt):
             >>> Perm.to_standard("caaba")
             Perm((4, 0, 1, 3, 2))
         """
-        iterable = tuple(iterable)
-        if iterable not in cls._TO_STANDARD_CACHE:
-            cls._TO_STANDARD_CACHE[iterable] = cls(
-                idx
-                for (idx, _) in sorted(enumerate(iterable), key=operator.itemgetter(1))
-            ).inverse()
-        return cls._TO_STANDARD_CACHE[iterable]
+        return cls._to_standard(tuple(iterable))
+
+    @classmethod
+    @functools.lru_cache(maxsize=10000)
+    def _to_standard(cls, iterable: Tuple) -> "Perm":
+        """A cached function that standardise a tuple."""
+        return cls(
+            idx for (idx, _) in sorted(enumerate(iterable), key=operator.itemgetter(1))
+        ).inverse()
 
     standardize = to_standard
     from_iterable = to_standard
@@ -2134,7 +2129,7 @@ class Perm(TupleType, Patt):
         fact = [1]
         for i in range(n):
             fact.append(fact[i] * (i + 1))
-        vals: List[int] = list()
+        vals: List[int] = []
         for idx, val in enumerate(self):
             ordered_pos = bisect.bisect_left(vals, val)
             res += (val - ordered_pos) * fact[n - idx - 1] + fact[n - idx - 1]

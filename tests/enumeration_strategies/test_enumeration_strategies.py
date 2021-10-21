@@ -4,6 +4,9 @@ from permuta.enumeration_strategies.core_strategies import (
     RdCdCoreStrategy,
     RuCuCoreStrategy,
 )
+from permuta.enumeration_strategies.finitely_many_simples import (
+    FinitelyManySimplesStrategy,
+)
 from permuta.enumeration_strategies.insertion_encodable import InsertionEncodingStrategy
 from permuta.perm_sets.basis import Basis
 
@@ -28,6 +31,21 @@ def test_insertion_encoding():
     assert not strat.applies()
 
 
+def test_finite_simples():
+    strat = FinitelyManySimplesStrategy([Perm((0, 1, 2))])
+    assert not strat.applies()
+    strat = FinitelyManySimplesStrategy([Perm((1, 3, 0, 2))])
+    assert not strat.applies()
+    strat = FinitelyManySimplesStrategy([Perm((2, 0, 3, 1))])
+    assert not strat.applies()
+    strat = FinitelyManySimplesStrategy([Perm((0, 2, 1, 3))])
+    assert not strat.applies()
+    strat = FinitelyManySimplesStrategy([Perm((0, 2, 1))])
+    assert strat.applies()
+    strat = FinitelyManySimplesStrategy([Perm((1, 3, 0, 2)), Perm((2, 0, 3, 1))])
+    assert strat.applies()
+
+
 def test_RuCu():
     assert not RuCuCoreStrategy([ru, cu, Perm((1, 4, 0, 2, 3))]).applies()
     assert not RuCuCoreStrategy([ru, Perm((0, 1, 2, 3))]).applies()
@@ -45,8 +63,11 @@ def test_RdCd():
 def test_find_strategies():
     b1 = [Perm((0, 1, 2, 3, 4))]
     b2 = Basis(*[Perm((0, 1, 2, 3)), Perm((2, 0, 1))])
+    b3 = [Perm((1, 3, 0, 2)), Perm((2, 0, 3, 1))]
     assert len(find_strategies(b1, long_runnning=True)) == 0
     assert len(find_strategies(b1, long_runnning=False)) == 0
     assert len(find_strategies(b2)) > 0
+    assert len(find_strategies(b3, long_runnning=False)) == 1
+    assert len(find_strategies(b3, long_runnning=True)) == 2
     assert any(isinstance(s, InsertionEncodingStrategy) for s in find_strategies(b2))
     assert any(isinstance(s, RuCuCoreStrategy) for s in find_strategies([ru, cu]))

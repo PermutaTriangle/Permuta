@@ -24,6 +24,10 @@ permuta
 Permuta is a Python library for working with perms (short for permutations),
 patterns, and mesh patterns.
 
+If this code is useful to you in your work, please consider citing it. To generate a
+BibTeX entry (or another format), click the "DOI" badge above and locate the "Cite As"
+section.
+
 If you need support, you can join us in our `Discord support server`_.
 
 .. _Discord support server: https://discord.gg/ngPZVT5
@@ -259,7 +263,7 @@ and a class (no class will use the set of all permutations).
     >>> depth.distribution_up_to(4, Av.from_string("123"))
     [[1], [1], [1, 1], [0, 2, 3], [0, 0, 3, 7, 4]]
 
-Given a bijection as a dictionary, we can check which statistics are preserved with 
+Given a bijection as a dictionary, we can check which statistics are preserved with
 ``check_all_preservations`` and which are transformed with ``check_all_transformed``
 
 .. code-block:: python
@@ -499,8 +503,8 @@ BSD-3: see the `LICENSE <https://github.com/PermutaTriangle/Permuta/blob/master/
 Citing
 ######
 
-If you found this library helpful with your research and would like to cite us, 
-you can use the following `BibTeX`_ or go to `Zenodo`_ for alternative formats. 
+If you found this library helpful with your research and would like to cite us,
+you can use the following `BibTeX`_ or go to `Zenodo`_ for alternative formats.
 
 .. _BibTex: https://zenodo.org/record/4725759/export/hx#.YImTibX7SUk
 
