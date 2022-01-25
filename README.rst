@@ -506,6 +506,6 @@ Citing
 If you found this library helpful with your research and would like to cite us,
 you can use the following `BibTeX`_ or go to `Zenodo`_ for alternative formats.
 
-.. _BibTex: https://zenodo.org/record/4725758/export/hx#.YImTibX7SUk
+.. _BibTex: https://zenodo.org/record/4945792/export/hx#.YImTibX7SUk
 
 .. _Zenodo: https://doi.org/10.5281/zenodo.4725758
