@@ -11,7 +11,7 @@ from typing import DefaultDict, Dict, Iterator, List, Set, Tuple
 from automata.fa.dfa import DFA
 from automata.fa.nfa import NFA
 
-from permuta import Perm
+from permuta.patterns.perm import Perm
 from permuta.permutils import all_symmetry_sets
 from permuta.permutils.pinword_util import PinWordUtil
 
