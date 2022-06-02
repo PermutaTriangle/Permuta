@@ -50,10 +50,20 @@ def has_poly_growth(args: argparse.Namespace) -> None:
     print(f"Av({basis}) is {'' if poly else 'not '}polynomial")
 
 
+def has_finitely_many_simples(args: argparse.Namespace) -> None:
+    """Check if a perm class has finitely many simples."""
+    basis = Basis.from_string(args.basis)
+    perm_class = Av(basis)
+    if perm_class.has_finitely_many_simples():
+        print(f"The class {perm_class} has finitely many simples.")
+    else:
+        print(f"The class {perm_class} has infinitely many simples")
+
+
 def get_parser() -> argparse.ArgumentParser:
     """Construct and return parser."""
     basis_str: str = (
-        "The basis as a string where the permutations are separated any token, "
+        "The basis as a string where the permutations are separated by any token, "
         "(e.g. '231_4321', '0132:43210')"
     )
 
@@ -95,6 +105,14 @@ def get_parser() -> argparse.ArgumentParser:
     )
     poly_parser.set_defaults(func=has_poly_growth)
     poly_parser.add_argument("basis", help=basis_str)
+
+    # The simples command
+    simple_parser: argparse.ArgumentParser = subparsers.add_parser(
+        "simple",
+        description="A tool to check if a permutation class has finitely many simples.",
+    )
+    simple_parser.set_defaults(func=has_finitely_many_simples)
+    simple_parser.add_argument("basis", help=basis_str)
 
     return parser
 
