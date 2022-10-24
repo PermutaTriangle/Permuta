@@ -308,9 +308,6 @@ class PinWords:
                     position = nxt
 
         decomp = [cls.sp_to_m(x) for x in cls.factor_pinword(u_word)]
-        rev = False
-        if rev:
-            decomp = [x[::-1] for x in decomp[::-1]]
         input_symbols = set(DIRS)
         initial_state = "0"
         states: Set[str] = set()
