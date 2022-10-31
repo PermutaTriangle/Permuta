@@ -18,7 +18,6 @@ from permuta.permutils.pinword_util import PinWordUtil
 DIRS = "ULDR"
 QUADS = "1234"
 
-
 class PinWords:
     """Class for pinowords"""
 
@@ -266,10 +265,10 @@ class PinWords:
         prefix = ""
 
         def new_state(states) -> None:
-            states.add(prefix + str(len(states)))
+            states.add(len(states))
 
         def last_state(states) -> str:
-            return prefix + str(len(states) - 1)
+            return len(states) - 1
 
         def add_a_star(states, transitions) -> None:
             new_state(states)
@@ -308,8 +307,8 @@ class PinWords:
                     position = nxt
 
         decomp = [cls.sp_to_m(x) for x in cls.factor_pinword(u_word)]
-        input_symbols = set(DIRS)
-        initial_state = "0"
+        input_symbols = frozenset(DIRS)
+        initial_state = 0
         states: Set[str] = set()
         transitions: DefaultDict[str, dict] = defaultdict(dict)
 
@@ -317,10 +316,10 @@ class PinWords:
         for u_i in decomp:
             add_sp(u_i, states, transitions)
 
-        final_states = {last_state(states)}
+        final_states = frozenset({last_state(states)})
 
         return NFA(
-            states=states,
+            states=frozenset(states),
             input_symbols=input_symbols,
             transitions=transitions,
             initial_state=initial_state,
@@ -328,45 +327,26 @@ class PinWords:
         )
 
     @staticmethod
-    def dfa_name_reset(dfa_in: "DFA", minimize=True) -> "DFA":
-        """DFA name reset."""
-        if minimize:
-            return dfa_in.minify()
-        m_dict: Dict[str, str] = {}
-        for state in dfa_in.states:
-            m_dict[state] = str(len(m_dict))
-
-        return DFA(
-            states={m_dict[x] for x in dfa_in.states},
-            input_symbols=dfa_in.input_symbols,
-            transitions={
-                m_dict[x]: {k: m_dict[v] for k, v in dfa_in.transitions[x].items()}
-                for x in dfa_in.transitions
-            },
-            initial_state=m_dict[dfa_in.initial_state],
-            final_states={m_dict[x] for x in dfa_in.final_states},
-        )
-
-    @staticmethod
+    @lru_cache(maxsize=None)
     def make_dfa_for_m() -> "DFA":
         """Returns DFA for M."""
         return DFA(
-            states={"0", "1", "2", "3"},
-            input_symbols=set(DIRS),
+            states=frozenset({0, 1, 2, 3}),
+            input_symbols=frozenset(DIRS),
             transitions={
-                "0": {"U": "1", "D": "1", "L": "2", "R": "2"},
-                "1": {"U": "3", "D": "3", "L": "2", "R": "2"},
-                "2": {"U": "1", "D": "1", "L": "3", "R": "3"},
-                "3": {"U": "3", "D": "3", "L": "3", "R": "3"},
+                0: {"U": 1, "D": 1, "L": 2, "R": 2},
+                1: {"U": 3, "D": 3, "L": 2, "R": 2},
+                2: {"U": 1, "D": 1, "L": 3, "R": 3},
+                3: {"U": 3, "D": 3, "L": 3, "R": 3},
             },
-            initial_state="0",
-            final_states={"0", "1", "2"},
+            initial_state=0,
+            final_states=frozenset({0, 1, 2}),
         )
 
     @classmethod
     def make_dfa_for_pinword(cls, word: str) -> "DFA":
         """Returns DFA for pinword."""
-        return cls.dfa_name_reset(DFA.from_nfa(cls.make_nfa_for_pinword(word)))
+        return DFA.from_nfa(cls.make_nfa_for_pinword(word))
 
     @classmethod
     def make_dfa_for_perm(cls, perm: "Perm") -> "DFA":
@@ -379,8 +359,7 @@ class PinWords:
                 out_dfa = cls.make_dfa_for_pinword(word)
             else:
                 out_dfa2 = cls.make_dfa_for_pinword(word)
-                for_union = out_dfa.union(out_dfa2)
-                out_dfa = cls.dfa_name_reset(for_union)
+                out_dfa = out_dfa.union(out_dfa2)
         return out_dfa
 
     @classmethod
@@ -395,7 +374,6 @@ class PinWords:
             else:
                 out_dfa2 = cls.make_dfa_for_pinword(word)
                 out_dfa = out_dfa.union(out_dfa2)
-                # out_dfa = cls.dfa_name_reset(for_union)
         return out_dfa
 
     @classmethod
@@ -408,8 +386,7 @@ class PinWords:
                 out_dfa = cls.load_dfa_for_perm(word)
             else:
                 out_dfa2 = cls.load_dfa_for_perm(word)
-                for_union = out_dfa.union(out_dfa2)
-                out_dfa = cls.dfa_name_reset(for_union)
+                out_dfa = out_dfa.union(out_dfa2)
         return out_dfa
 
     @classmethod
@@ -495,8 +472,7 @@ class PinWords:
         """Check if basis has finite pinperms"""
         if dfa is None:
             dfa = cls.make_dfa_for_basis(basis, use_db)
-        dfa = dfa.complement()
-        dfa = cls.dfa_name_reset(cls.make_dfa_for_m() & dfa)
+        dfa = cls.make_dfa_for_m().difference(dfa)
         return dfa.isfinite() is True
 
     @classmethod
@@ -530,6 +506,7 @@ class PinWords:
             )
 
     @classmethod
+    @lru_cache(maxsize=None)
     def load_dfa_for_perm(cls, perm) -> "DFA":
         """Loads the DFA for the specified Perm from file."""
         directory = f"dfa_db/S{len(perm)}/"
