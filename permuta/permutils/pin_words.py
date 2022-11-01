@@ -10,6 +10,7 @@ from typing import DefaultDict, Dict, Iterator, List, Set, Tuple
 
 from automata.fa.dfa import DFA
 from automata.fa.nfa import NFA
+import frozendict
 
 from permuta.patterns.perm import Perm
 from permuta.permutils import all_symmetry_sets
@@ -309,8 +310,8 @@ class PinWords:
         decomp = [cls.sp_to_m(x) for x in cls.factor_pinword(u_word)]
         input_symbols = frozenset(DIRS)
         initial_state = 0
-        states: Set[str] = set()
-        transitions: DefaultDict[str, dict] = defaultdict(dict)
+        states: Set[int] = set()
+        transitions: DefaultDict[int, dict] = defaultdict(dict)
 
         add_a_star(states, transitions)
         for u_i in decomp:
@@ -352,41 +353,32 @@ class PinWords:
     def make_dfa_for_perm(cls, perm: "Perm") -> "DFA":
         """Returns DFA for Perm."""
         pinwords = cls.pinwords_for_basis((perm,))
-        out_dfa: "DFA" = None
+        out_dfa: "DFA" = DFA.empty_language(frozenset(DIRS))
         sorted_pinwords = sorted(pinwords)
         for word in sorted_pinwords:
-            if out_dfa is None:
-                out_dfa = cls.make_dfa_for_pinword(word)
-            else:
-                out_dfa2 = cls.make_dfa_for_pinword(word)
-                out_dfa = out_dfa.union(out_dfa2)
+            out_dfa2 = cls.make_dfa_for_pinword(word)
+            out_dfa = out_dfa.union(out_dfa2)
         return out_dfa
 
     @classmethod
     def make_dfa_for_basis_from_pinwords(cls, basis: List["Perm"]) -> "DFA":
         """Returns DFA for basis from list of pinwords"""
         pinwords = cls.pinwords_for_basis(basis)
-        out_dfa: "DFA" = None
+        out_dfa: "DFA" = DFA.empty_language(frozenset(DIRS))
         sorted_pinwords = sorted(pinwords)
         for word in sorted_pinwords:
-            if out_dfa is None:
-                out_dfa = cls.make_dfa_for_pinword(word)
-            else:
-                out_dfa2 = cls.make_dfa_for_pinword(word)
-                out_dfa = out_dfa.union(out_dfa2)
+            out_dfa2 = cls.make_dfa_for_pinword(word)
+            out_dfa = out_dfa.union(out_dfa2)
         return out_dfa
 
     @classmethod
     def make_dfa_for_basis_from_db(cls, basis: List["Perm"]) -> "DFA":
         """Returns DFA for basis from db."""
-        out_dfa: "DFA" = None
+        out_dfa: "DFA" = DFA.empty_language(frozenset(DIRS))
         sorted_basis = sorted(basis)
-        for word in sorted_basis:
-            if out_dfa is None:
-                out_dfa = cls.load_dfa_for_perm(word)
-            else:
-                out_dfa2 = cls.load_dfa_for_perm(word)
-                out_dfa = out_dfa.union(out_dfa2)
+        for perm in sorted_basis:
+            out_dfa2 = cls.load_dfa_for_perm(perm)
+            out_dfa = out_dfa.union(out_dfa2)
         return out_dfa
 
     @classmethod
@@ -497,13 +489,7 @@ class PinWords:
         if in_dfa is None:
             in_dfa = cls.make_dfa_for_perm(perm)
         with open(str(path), "w") as file_object:
-            file_object.write(
-                f"DFA(states={in_dfa.states}, "
-                + f"input_symbols={in_dfa.input_symbols}, "
-                + f"transitions={dict(in_dfa.transitions)}, "
-                + f"initial_state='{in_dfa.initial_state}', "
-                + f"final_states={in_dfa.final_states})\n"
-            )
+            file_object.write(repr(in_dfa))
 
     @classmethod
     @lru_cache(maxsize=None)
