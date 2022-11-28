@@ -2,8 +2,8 @@ import argparse
 import signal
 import sys
 import types
-
 from typing import Any, Optional
+
 from permuta import Av, Basis
 from permuta.permutils import InsertionEncodablePerms, PolyPerms, lex_min
 

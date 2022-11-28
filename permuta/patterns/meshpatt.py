@@ -3,16 +3,7 @@
 import collections
 import random
 from itertools import chain, cycle, islice
-from typing import (
-    Dict,
-    Iterable,
-    Iterator,
-    List,
-    Optional,
-    Set,
-    Tuple,
-    Union,
-)
+from typing import Dict, Iterable, Iterator, List, Optional, Set, Tuple, Union
 
 from ..misc import DIR_EAST, DIR_NONE, DIR_NORTH, DIR_SOUTH, DIR_WEST, HTMLViewer
 from .patt import Patt
