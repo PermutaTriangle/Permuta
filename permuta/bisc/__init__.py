@@ -1,3 +1,5 @@
+# type: ignore
+
 from .bisc import auto_bisc, bisc, create_bisc_input, read_bisc_file, write_bisc_files
 from .bisc_subfunctions import (
     patterns_suffice_for_bad,

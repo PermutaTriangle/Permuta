@@ -1,3 +1,5 @@
+# type: ignore
+
 from itertools import chain
 from math import factorial
 
@@ -80,20 +82,20 @@ def mine(goodperms, M, N=None, report=False):
 
             for i in range(loc, min(max_patt_len + 1, L)):
 
-                newPerm = []
+                newPermList = []
                 for j in chain(range(i), range(i + 1, L)):
                     if perm[j] > perm[i]:
-                        newPerm.append(perm[j] - 1)
+                        newPermList.append(perm[j] - 1)
                     else:
-                        newPerm.append(perm[j])
-                nL = len(newPerm)
-                newPerm = Perm(newPerm)
+                        newPermList.append(perm[j])
+                nL = len(newPermList)
+                newPerm = Perm(newPermList)
 
-                newShading = [
+                newShadingList = [
                     (sh[0] - (sh[0] > i), sh[1] - (sh[1] > perm[i])) for sh in shading
                 ]
-                newShading.append((i, perm[i]))
-                newShading = set(newShading)
+                newShadingList.append((i, perm[i]))
+                newShading = set(newShadingList)
 
                 if nL <= max_patt_len:
 

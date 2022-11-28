@@ -5,7 +5,6 @@ import random
 from itertools import chain, cycle, islice
 from typing import (
     Dict,
-    FrozenSet,
     Iterable,
     Iterator,
     List,
@@ -815,8 +814,8 @@ class MeshPatt(Patt):
     def __hash__(self) -> int:
         return hash((self.pattern, self.shading))
 
-    def __iter__(self) -> Iterator[Union[Perm, FrozenSet]]:
-        return iter((self.pattern, self.shading))
+    # def __iter__(self) -> Iterator[Union[Perm, FrozenSet]]:
+    #     return iter((self.pattern, self.shading))
 
     def __repr__(self) -> str:
         return f"MeshPatt({repr(self.pattern)}, {sorted(self.shading)})"

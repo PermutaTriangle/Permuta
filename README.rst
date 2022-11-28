@@ -116,7 +116,7 @@ Printing perms gives zero-based strings.
 
 To get an iterator of all permutations of a certain length you can use
 
-.. code-block>:: python
+.. code-block:: python
 
     >>> Perms4 = Perm.of_length(4)
 
@@ -124,7 +124,7 @@ You can run a for-loop over this iterator if you need to do something with all
 the permutations of this size. If you just want a specific permutation of this
 size you might be better off using the unrank function.
 
-.. code-block>:: python
+.. code-block:: python
 
     >>> Perm.unrank(23,4)
     Perm((3, 2, 1, 0))

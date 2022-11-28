@@ -161,6 +161,7 @@ class Av(AvBase):
                     val = perm[i]
                     subperm = perm.remove(i)
                     spots = self.cache[n - 1][subperm]
+                    assert spots is not None
                     acceptable = [k for k in spots if k <= val]
                     acceptable.extend(k + 1 for k in spots if k >= val)
                     if res is None:
