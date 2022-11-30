@@ -18,8 +18,8 @@ permuta
 .. image:: https://requires.io/github/PermutaTriangle/Permuta/requirements.svg?branch=master
     :target: https://requires.io/github/PermutaTriangle/Permuta/requirements/?branch=master
     :alt: Requirements Status
-.. image:: https://zenodo.org/badge/DOI/10.5281/zenodo.4725759.svg
-   :target: https://doi.org/10.5281/zenodo.4725759
+.. image:: https://zenodo.org/badge/DOI/10.5281/zenodo.4725758.svg
+   :target: https://doi.org/10.5281/zenodo.4725758
 
 Permuta is a Python library for working with perms (short for permutations),
 patterns, and mesh patterns.
@@ -114,6 +114,21 @@ Printing perms gives zero-based strings.
     >>> print(Perm((6, 2, 10, 9, 3, 8, 0, 1, 5, 11, 4, 7)))
     (6)(2)(10)(9)(3)(8)(0)(1)(5)(11)(4)(7)
 
+To get an iterator of all permutations of a certain length you can use
+
+.. code-block:: python
+
+    >>> Perms4 = Perm.of_length(4)
+
+You can run a for-loop over this iterator if you need to do something with all
+the permutations of this size. If you just want a specific permutation of this
+size you might be better off using the unrank function.
+
+.. code-block:: python
+
+    >>> Perm.unrank(23,4)
+    Perm((3, 2, 1, 0))
+
 The avoids, contains, and occurrence methods enable working with patterns:
 
 .. code-block:: python
@@ -206,6 +221,11 @@ given class.
     >>> for strat in find_strategies(basis):
     ...     print(strat.reference())
     Enumeration of Permutation Classes and Weighted Labelled Independent Sets: Corollary 4.3
+    >>> basis = [Perm((1, 3, 0, 2)), Perm((2, 0, 3, 1))]
+    >>> for strat in find_strategies(basis):
+    ...     print(strat.reference())
+    Enumeration of Permutation Classes and Weighted Labelled Independent Sets: Corollary 4.6
+    The class contains only finitely many simple permutations
 
 Permutation statistics
 ######################
@@ -506,6 +526,6 @@ Citing
 If you found this library helpful with your research and would like to cite us,
 you can use the following `BibTeX`_ or go to `Zenodo`_ for alternative formats.
 
-.. _BibTex: https://zenodo.org/record/4725759/export/hx#.YImTibX7SUk
+.. _BibTex: https://zenodo.org/record/4945792/export/hx#.YImTibX7SUk
 
-.. _Zenodo: https://doi.org/10.5281/zenodo.4725759
+.. _Zenodo: https://doi.org/10.5281/zenodo.4725758

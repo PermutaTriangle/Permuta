@@ -4,6 +4,7 @@ from typing import ClassVar, Dict, Iterable, List, NamedTuple, Optional, Union
 
 from ..patterns import MeshPatt, Perm
 from ..permutils import is_finite, is_insertion_encodable, is_polynomial
+from ..permutils.pin_words import PinWords
 from .basis import Basis, MeshBasis
 
 
@@ -86,6 +87,16 @@ class Av(AvBase):
             raise NotImplementedError(Av._BASIS_ONLY_MSG)
         return is_insertion_encodable(self.basis)
 
+    def has_finitely_many_simples(self) -> bool:
+        """Check if the perm class has finitely many simples."""
+        if isinstance(self.basis, MeshBasis):
+            raise NotImplementedError(Av._BASIS_ONLY_MSG)
+        return (
+            self.is_finite()
+            or self.is_polynomial()
+            or PinWords.has_finite_simples(self.basis)
+        )
+
     def first(self, count: int) -> Iterable[Perm]:
         """Generate the first `count` permutation in this permutation class given
         that it has that many, if not all are generated.
@@ -150,6 +161,7 @@ class Av(AvBase):
                     val = perm[i]
                     subperm = perm.remove(i)
                     spots = self.cache[n - 1][subperm]
+                    assert spots is not None
                     acceptable = [k for k in spots if k <= val]
                     acceptable.extend(k + 1 for k in spots if k >= val)
                     if res is None:

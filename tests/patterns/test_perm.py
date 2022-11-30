@@ -2616,7 +2616,7 @@ def test_stack_sortable():
 
 def test_bubble_sortable():
     enumeration = [1]
-    enumeration.extend([2 ** i for i in range(10)])
+    enumeration.extend([2**i for i in range(10)])
     assert Perm(()).bubble_sortable()
     assert Perm((0,)).bubble_sortable()
     assert Perm((0, 1)).bubble_sortable()

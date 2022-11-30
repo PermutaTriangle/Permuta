@@ -11,7 +11,7 @@ from typing import DefaultDict, Dict, Iterator, List, Set, Tuple
 from automata.fa.dfa import DFA
 from automata.fa.nfa import NFA
 
-from permuta import Av, Perm
+from permuta.patterns.perm import Perm
 from permuta.permutils import all_symmetry_sets
 from permuta.permutils.pinword_util import PinWordUtil
 
@@ -308,9 +308,6 @@ class PinWords:
                     position = nxt
 
         decomp = [cls.sp_to_m(x) for x in cls.factor_pinword(u_word)]
-        rev = False
-        if rev:
-            decomp = [x[::-1] for x in decomp[::-1]]
         input_symbols = set(DIRS)
         initial_state = "0"
         states: Set[str] = set()
@@ -435,7 +432,7 @@ class PinWords:
         """Returns True if basis has finite alterations."""
         alt_basis = (Perm((0, 1, 2)), Perm((1, 3, 0, 2)), Perm((2, 3, 0, 1)))
         for sym in all_symmetry_sets(alt_basis):
-            if all(x not in Av(sym) for x in basis):
+            if all(any(x.contains(p) for p in sym) for x in basis):
                 return False
         return True
 
@@ -455,7 +452,7 @@ class PinWords:
             Perm((3, 2, 0, 1)),
         )
         for sym in all_symmetry_sets(wedge1_b):
-            if all(x not in Av(sym) for x in basis):
+            if all(any(x.contains(p) for p in sym) for x in basis):
                 return False
         return True
 
@@ -475,7 +472,7 @@ class PinWords:
             Perm((3, 2, 0, 1)),
         )
         for sym in all_symmetry_sets(wedge2_b):
-            if all(x not in Av(sym) for x in basis):
+            if all(any(x.contains(p) for p in sym) for x in basis):
                 return False
         return True
 
