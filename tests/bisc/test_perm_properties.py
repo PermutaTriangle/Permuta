@@ -93,13 +93,13 @@ def test_simsun():
     assert not simsun(Perm((2, 1, 0)))
     assert simsun(Perm((0, 1, 2, 3)))
     assert simsun(Perm((0, 1, 3, 2)))
-    assert not simsun(Perm((0, 5, 1, 4, 2, 3)))
+    assert simsun(Perm((0, 5, 1, 4, 2, 3)))
     assert not simsun(Perm((1, 3, 5, 4, 2, 0)))
     assert simsun(Perm((1, 5, 0, 2, 3, 6, 4)))
     assert not simsun(Perm((3, 1, 2, 6, 5, 0, 4)))
     assert not simsun(Perm((4, 7, 3, 0, 6, 5, 2, 1)))
     assert not simsun(Perm((4, 6, 7, 0, 3, 5, 2, 8, 1)))
-    assert 429 == sum(1 for p in Perm.of_length(7) if simsun(p))
+    assert 1385 == sum(1 for p in Perm.of_length(7) if simsun(p))
 
 
 def test_dihedral():

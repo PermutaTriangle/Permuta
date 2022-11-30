@@ -54,11 +54,16 @@ class MeshBasis(tuple):
     """
 
     @staticmethod
-    def is_mesh_basis(basis: Iterable[Patt]) -> bool:
+    def is_mesh_basis(basis: Union[Patt, Iterable[Patt]]) -> bool:
         """Checks if a collection of patterns contains any non-classical ones."""
-        return not (
-            isinstance(basis, Perm) or all(isinstance(patt, Perm) for patt in basis)
-        )
+        if isinstance(basis, Perm):
+            return False
+        if isinstance(basis, MeshPatt):
+            return True
+        if isinstance(basis, Patt):
+            raise ValueError
+
+        return any(isinstance(patt, MeshPatt) for patt in basis)
 
     def __new__(cls, *patts: Union[Perm, MeshPatt]) -> "MeshBasis":
         if not patts:

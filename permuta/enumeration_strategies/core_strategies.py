@@ -42,8 +42,7 @@ class CoreStrategy(EnumerationStrategyWithSymmetry):
         )
 
     @property
-    @staticmethod
-    def corr_number() -> str:
+    def corr_number(self) -> str:
         """The number of the corollary in the that gives this strategy."""
         raise NotImplementedError
 
