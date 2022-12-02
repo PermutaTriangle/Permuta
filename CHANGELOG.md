@@ -6,7 +6,10 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 
 ## Unreleased
 ### Changed
- - Updated dependency on automata-lib to version 6.0.2
+ - Updated dependency on automata-lib to version 7.0.1
+
+### Added
+ - Now testing on Python 3.11
 
 ## 2.2.0 - 2021-10-21
 ### Added
