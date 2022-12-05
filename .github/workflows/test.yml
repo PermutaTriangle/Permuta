@@ -34,6 +34,9 @@ jobs:
           - python: "3.10"
             toxenv: py310
             os: ubuntu-latest
+          - python: "3.11"
+            toxenv: py311
+            os: ubuntu-latest
           - python: pypy-3.7
             toxenv: pypy37
             os: ubuntu-latest
