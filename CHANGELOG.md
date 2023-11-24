@@ -34,6 +34,8 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 ### Changed
   - Functions for ascents and descents now take an optional argument to specify what step size to calculate.
   - Moved sorting functions from `permuta/bisc/perm_properties.py` to `permuta/patterns/perm.py`.
+  - If you pass an iterable (that is not a perm) to a contains method, then it will now raise an error. 
+  These should be passed with the splat '*'. 
 
 ## 2.0.3 - 2021-04-28
 ### Added
