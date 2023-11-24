@@ -336,7 +336,7 @@ class MeshPatt(Patt):
             >>> MeshPatt(Perm((0,)), [(0, 1)]).contains(MeshPatt(Perm((0,)), []))
             True
         """
-        return all(self._contains(patt) for patt in patts)
+        return all(self.contains(patt) for patt in patts)
 
     def _contains(self, patt: Patt) -> bool:
         if isinstance(patt, Patt):
@@ -849,4 +849,6 @@ class MeshPatt(Patt):
         return other.__le__(self)
 
     def __contains__(self, patt: object) -> bool:
-        return self._contains(patt)
+        if isinstance(patt, Patt):
+            return self._contains(patt)
+        raise TypeError("patt must be a Patt")

@@ -3031,4 +3031,6 @@ class Perm(Tuple[int], Patt):
         return tuple.__len__(self)
 
     def __contains__(self, patt: object) -> bool:
-        return self._contains(patt)
+        if isinstance(patt, Patt):
+            return self._contains(patt)
+        raise TypeError("patt must be a Patt")

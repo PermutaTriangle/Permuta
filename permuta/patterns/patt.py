@@ -11,11 +11,11 @@ class Patt(abc.ABC):
 
     def avoided_by(self, *patts: "Patt") -> bool:
         """Check if self is avoided by all the provided patterns."""
-        return all(not patt._contains(self) for patt in patts)
+        return all(not patt.contains(self) for patt in patts)
 
     def contained_in(self, *patts: "Patt") -> bool:
         """Check if self is a pattern of all the provided patterns."""
-        return all(patt._contains(self) for patt in patts)
+        return all(patt.contains(self) for patt in patts)
 
     def count_occurrences_in(self, patt: "Patt") -> int:
         """Count the number of occurrences of self in the pattern."""
@@ -39,5 +39,7 @@ class Patt(abc.ABC):
     def _contains(self, patt: "Patt") -> bool:
         """Does pattern contains another?"""
 
-    def __contains__(self, patt: object) -> bool:
+    contains = _contains
+
+    def __contains__(self, patt: "Patt") -> bool:
         return self._contains(patt)
