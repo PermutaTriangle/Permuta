@@ -327,6 +327,11 @@ class MeshPatt(Patt):
         x, y = pos
         return self.add_point((x, y)).add_point((x + 1, y))
 
+    def _contains(self, patt: Patt) -> bool:
+        if isinstance(patt, Patt):
+            return any(True for _ in patt.occurrences_in(self))
+        raise TypeError("patt must be a Patt")
+
     def contains(self, *patts: Patt) -> bool:
         """Check if self contains all provided patterns.
 
@@ -336,12 +341,7 @@ class MeshPatt(Patt):
             >>> MeshPatt(Perm((0,)), [(0, 1)]).contains(MeshPatt(Perm((0,)), []))
             True
         """
-        return all(self.contains(patt) for patt in patts)
-
-    def _contains(self, patt: Patt) -> bool:
-        if isinstance(patt, Patt):
-            return any(True for _ in patt.occurrences_in(self))
-        raise TypeError("patt must be a Patt")
+        return all(self._contains(patt) for patt in patts)
 
     def avoids(self, *patts: Patt) -> bool:
         """Check if self avoids all provided patterns.
