@@ -2501,7 +2501,7 @@ class Perm(Tuple[int], Patt):
     def _contains(self, patt: "Patt") -> bool:
         if isinstance(patt, Patt):
             return any(True for _ in patt.occurrences_in(self))
-        return False
+        raise TypeError("patt must be a Patt")
 
     def avoids(self, *patts: "Patt") -> bool:
         """Check if self avoids patts.

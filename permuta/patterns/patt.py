@@ -36,7 +36,7 @@ class Patt(abc.ABC):
         """Get the permutation part of the pattern"""
 
     @abc.abstractmethod
-    def _contains(self, patt: object) -> bool:
+    def _contains(self, patt: "Patt") -> bool:
         """Does pattern contains another?"""
 
     def __contains__(self, patt: object) -> bool:
