@@ -55,7 +55,7 @@ jobs:
         with:
           python-version: ${{  matrix.python }}
       - name: install dependencies
-        run: python -m pip install --upgrade pip tox
+        run: python -m pip install --upgrade pip tox setuptools wheel
       - name: run
         env:
           TOXENV: ${{ matrix.toxenv }}
