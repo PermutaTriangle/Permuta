@@ -19,7 +19,6 @@ from permuta.patterns.perm import Perm
 
 
 def bisc(A, m, n=None, report=False):
-
     if isinstance(A, list):
         D = defaultdict(list)
         for perm in A:
@@ -56,7 +55,6 @@ def bisc(A, m, n=None, report=False):
 
 
 def auto_bisc(prop):
-
     L = 8  # Want to sanity check on at least S8, and one above n
     n = 4
     m = 2
@@ -274,7 +272,6 @@ def create_bisc_input(N, prop):
     A, B = {}, {}
 
     for n in range(N + 1):
-
         An, Bn = [], []
 
         for perm in Perm.of_length(n):

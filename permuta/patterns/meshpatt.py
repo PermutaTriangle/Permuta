@@ -27,7 +27,7 @@ class MeshPatt(Patt):
             and 0 <= coordinate[0] <= len(self.pattern)
             and 0 <= coordinate[1] <= len(self.pattern)
             for coordinate in self.shading
-        )
+        ), "shadings should be 2-tuples with integers between 0 and len(pattern)"
 
     @classmethod
     def unrank(cls, pattern: Perm, number: int) -> "MeshPatt":
@@ -327,6 +327,11 @@ class MeshPatt(Patt):
         x, y = pos
         return self.add_point((x, y)).add_point((x + 1, y))
 
+    def _contains(self, patt: Patt) -> bool:
+        if isinstance(patt, Patt):
+            return any(True for _ in patt.occurrences_in(self))
+        raise TypeError("patt must be a Patt")
+
     def contains(self, *patts: Patt) -> bool:
         """Check if self contains all provided patterns.
 
@@ -336,7 +341,7 @@ class MeshPatt(Patt):
             >>> MeshPatt(Perm((0,)), [(0, 1)]).contains(MeshPatt(Perm((0,)), []))
             True
         """
-        return all(patt in self for patt in patts)
+        return all(self._contains(patt) for patt in patts)
 
     def avoids(self, *patts: Patt) -> bool:
         """Check if self avoids all provided patterns.
@@ -351,7 +356,7 @@ class MeshPatt(Patt):
             >>> MeshPatt(Perm((0,)), [(0, 1)]).avoids(MeshPatt(Perm((0,)), []))
             False
         """
-        return all(patt not in self for patt in patts)
+        return all(not self._contains(patt) for patt in patts)
 
     def occurrences_in(self, patt: Patt, *args, **kwargs) -> Iterator[Tuple[int, ...]]:
         """
@@ -689,7 +694,7 @@ class MeshPatt(Patt):
             '0b1011101001100101'
         """
         n, res = len(self), 0
-        for (x, y) in self.shading:
+        for x, y in self.shading:
             res |= 1 << (x * (n + 1) + y)
         return res
 
@@ -845,5 +850,5 @@ class MeshPatt(Patt):
 
     def __contains__(self, patt: object) -> bool:
         if isinstance(patt, Patt):
-            return any(True for _ in patt.occurrences_in(self))
-        return False
+            return self._contains(patt)
+        raise TypeError("patt must be a Patt")

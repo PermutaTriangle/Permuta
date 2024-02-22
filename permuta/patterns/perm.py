@@ -2496,7 +2496,12 @@ class Perm(Tuple[int], Patt):
             >>> Perm((5, 3, 0, 4, 2, 1)).contains(pattern2, pattern3)
             False
         """
-        return all(patt in self for patt in patts)
+        return all(self._contains(patt) for patt in patts)
+
+    def _contains(self, patt: "Patt") -> bool:
+        if isinstance(patt, Patt):
+            return any(True for _ in patt.occurrences_in(self))
+        raise TypeError("patt must be a Patt")
 
     def avoids(self, *patts: "Patt") -> bool:
         """Check if self avoids patts.
@@ -2519,7 +2524,7 @@ class Perm(Tuple[int], Patt):
             >>> Perm((5, 3, 0, 4, 2, 1)).avoids(pattern3, pattern4)
             True
         """
-        return all(patt not in self for patt in patts)
+        return all(not self._contains(patt) for patt in patts)
 
     def avoids_set(self, patts: Iterable["Patt"]) -> bool:
         """Check if self avoids patts for an iterable of patterns.
@@ -3027,5 +3032,5 @@ class Perm(Tuple[int], Patt):
 
     def __contains__(self, patt: object) -> bool:
         if isinstance(patt, Patt):
-            return any(True for _ in patt.occurrences_in(self))
-        return False
+            return self._contains(patt)
+        raise TypeError("patt must be a Patt")
