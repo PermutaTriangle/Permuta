@@ -37,7 +37,7 @@ jobs:
           - python: "3.12"
             toxenv: py312
             os: ubuntu-latest
-          - python: "pypy3.9"
+          - python: 'pypy3.9'
             toxenv: pypy39
             os: ubuntu-latest
 
