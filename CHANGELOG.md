@@ -4,9 +4,12 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](http://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.html).
 
-## Unreleased
+## Unreleased 
+
+## 2.3.0 - 2024-04-03
 ### Changed
  - Updated dependency on automata-lib to version 7.0.1
+ - Perm.avoids/contains will raise a TypeError if input is not an iterable of Patt
 
 ### Added
  - Now testing on Python 3.11
