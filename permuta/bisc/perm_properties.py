@@ -37,7 +37,7 @@ _SIMSUN_PATT = MeshPatt(Perm((2, 1, 0)), [(1, 0), (1, 1), (2, 2)])
 
 def simsun(perm: Perm) -> bool:
     """Returns true if the perm is a simsun permutation."""
-    return perm.avoids(*_SIMSUN_PATT)
+    return perm.avoids(_SIMSUN_PATT)
 
 
 def dihedral(perm: Perm) -> bool:

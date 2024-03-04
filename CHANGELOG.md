@@ -4,7 +4,19 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](http://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.html).
 
-## Unreleased
+## Unreleased 
+
+## 2.3.0 - 2024-04-03
+### Changed
+ - Updated dependency on automata-lib to version 7.0.1
+ - Perm.avoids/contains will raise a TypeError if input is not an iterable of Patt
+
+### Added
+ - Now testing on Python 3.11
+ - 'simple' to the permtool command for checking if finitely many simples in a class
+
+### Fixed
+ - bug in autobisc during setup
 
 ## 2.2.0 - 2021-10-21
 ### Added
@@ -29,6 +41,8 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 ### Changed
   - Functions for ascents and descents now take an optional argument to specify what step size to calculate.
   - Moved sorting functions from `permuta/bisc/perm_properties.py` to `permuta/patterns/perm.py`.
+  - If you pass an iterable (that is not a perm) to a contains method, then it will now raise an error. 
+  These should be passed with the splat '*'. 
 
 ## 2.0.3 - 2021-04-28
 ### Added

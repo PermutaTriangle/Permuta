@@ -11,7 +11,7 @@ from typing import DefaultDict, Dict, Iterator, List, Set, Tuple
 from automata.fa.dfa import DFA
 from automata.fa.nfa import NFA
 
-from permuta import Av, Perm
+from permuta.patterns.perm import Perm
 from permuta.permutils import all_symmetry_sets
 from permuta.permutils.pinword_util import PinWordUtil
 
@@ -263,13 +263,12 @@ class PinWords:
     @classmethod
     def make_nfa_for_pinword(cls, u_word: str) -> "NFA":
         """NFA for pinword"""
-        prefix = ""
 
         def new_state(states) -> None:
-            states.add(prefix + str(len(states)))
+            states.add(len(states))
 
-        def last_state(states) -> str:
-            return prefix + str(len(states) - 1)
+        def last_state(states) -> int:
+            return len(states) - 1
 
         def add_a_star(states, transitions) -> None:
             new_state(states)
@@ -308,22 +307,19 @@ class PinWords:
                     position = nxt
 
         decomp = [cls.sp_to_m(x) for x in cls.factor_pinword(u_word)]
-        rev = False
-        if rev:
-            decomp = [x[::-1] for x in decomp[::-1]]
-        input_symbols = set(DIRS)
-        initial_state = "0"
-        states: Set[str] = set()
-        transitions: DefaultDict[str, dict] = defaultdict(dict)
+        input_symbols = frozenset(DIRS)
+        initial_state = 0
+        states: Set[int] = set()
+        transitions: DefaultDict[int, dict] = defaultdict(dict)
 
         add_a_star(states, transitions)
         for u_i in decomp:
             add_sp(u_i, states, transitions)
 
-        final_states = {last_state(states)}
+        final_states = frozenset({last_state(states)})
 
         return NFA(
-            states=states,
+            states=frozenset(states),
             input_symbols=input_symbols,
             transitions=transitions,
             initial_state=initial_state,
@@ -331,88 +327,57 @@ class PinWords:
         )
 
     @staticmethod
-    def dfa_name_reset(dfa_in: "DFA", minimize=True) -> "DFA":
-        """DFA name reset."""
-        if minimize:
-            return dfa_in.minify()
-        m_dict: Dict[str, str] = {}
-        for state in dfa_in.states:
-            m_dict[state] = str(len(m_dict))
-
-        return DFA(
-            states={m_dict[x] for x in dfa_in.states},
-            input_symbols=dfa_in.input_symbols,
-            transitions={
-                m_dict[x]: {k: m_dict[v] for k, v in dfa_in.transitions[x].items()}
-                for x in dfa_in.transitions
-            },
-            initial_state=m_dict[dfa_in.initial_state],
-            final_states={m_dict[x] for x in dfa_in.final_states},
-        )
-
-    @staticmethod
+    @lru_cache(maxsize=None)
     def make_dfa_for_m() -> "DFA":
         """Returns DFA for M."""
         return DFA(
-            states={"0", "1", "2", "3"},
-            input_symbols=set(DIRS),
+            states=frozenset({0, 1, 2, 3}),
+            input_symbols=frozenset(DIRS),
             transitions={
-                "0": {"U": "1", "D": "1", "L": "2", "R": "2"},
-                "1": {"U": "3", "D": "3", "L": "2", "R": "2"},
-                "2": {"U": "1", "D": "1", "L": "3", "R": "3"},
-                "3": {"U": "3", "D": "3", "L": "3", "R": "3"},
+                0: {"U": 1, "D": 1, "L": 2, "R": 2},
+                1: {"U": 3, "D": 3, "L": 2, "R": 2},
+                2: {"U": 1, "D": 1, "L": 3, "R": 3},
+                3: {"U": 3, "D": 3, "L": 3, "R": 3},
             },
-            initial_state="0",
-            final_states={"0", "1", "2"},
+            initial_state=0,
+            final_states=frozenset({0, 1, 2}),
         )
 
     @classmethod
     def make_dfa_for_pinword(cls, word: str) -> "DFA":
         """Returns DFA for pinword."""
-        return cls.dfa_name_reset(DFA.from_nfa(cls.make_nfa_for_pinword(word)))
+        return DFA.from_nfa(cls.make_nfa_for_pinword(word))
 
     @classmethod
     def make_dfa_for_perm(cls, perm: "Perm") -> "DFA":
         """Returns DFA for Perm."""
         pinwords = cls.pinwords_for_basis((perm,))
-        out_dfa: "DFA" = None
+        out_dfa: "DFA" = DFA.empty_language(frozenset(DIRS))
         sorted_pinwords = sorted(pinwords)
         for word in sorted_pinwords:
-            if out_dfa is None:
-                out_dfa = cls.make_dfa_for_pinword(word)
-            else:
-                out_dfa2 = cls.make_dfa_for_pinword(word)
-                for_union = out_dfa.union(out_dfa2)
-                out_dfa = cls.dfa_name_reset(for_union)
+            out_dfa2 = cls.make_dfa_for_pinword(word)
+            out_dfa = out_dfa.union(out_dfa2)
         return out_dfa
 
     @classmethod
     def make_dfa_for_basis_from_pinwords(cls, basis: List["Perm"]) -> "DFA":
         """Returns DFA for basis from list of pinwords"""
         pinwords = cls.pinwords_for_basis(basis)
-        out_dfa: "DFA" = None
+        out_dfa: "DFA" = DFA.empty_language(frozenset(DIRS))
         sorted_pinwords = sorted(pinwords)
         for word in sorted_pinwords:
-            if out_dfa is None:
-                out_dfa = cls.make_dfa_for_pinword(word)
-            else:
-                out_dfa2 = cls.make_dfa_for_pinword(word)
-                out_dfa = out_dfa.union(out_dfa2)
-                # out_dfa = cls.dfa_name_reset(for_union)
+            out_dfa2 = cls.make_dfa_for_pinword(word)
+            out_dfa = out_dfa.union(out_dfa2)
         return out_dfa
 
     @classmethod
     def make_dfa_for_basis_from_db(cls, basis: List["Perm"]) -> "DFA":
         """Returns DFA for basis from db."""
-        out_dfa: "DFA" = None
+        out_dfa: "DFA" = DFA.empty_language(frozenset(DIRS))
         sorted_basis = sorted(basis)
-        for word in sorted_basis:
-            if out_dfa is None:
-                out_dfa = cls.load_dfa_for_perm(word)
-            else:
-                out_dfa2 = cls.load_dfa_for_perm(word)
-                for_union = out_dfa.union(out_dfa2)
-                out_dfa = cls.dfa_name_reset(for_union)
+        for perm in sorted_basis:
+            out_dfa2 = cls.load_dfa_for_perm(perm)
+            out_dfa = out_dfa.union(out_dfa2)
         return out_dfa
 
     @classmethod
@@ -435,7 +400,7 @@ class PinWords:
         """Returns True if basis has finite alterations."""
         alt_basis = (Perm((0, 1, 2)), Perm((1, 3, 0, 2)), Perm((2, 3, 0, 1)))
         for sym in all_symmetry_sets(alt_basis):
-            if all(x not in Av(sym) for x in basis):
+            if all(any(x.contains(p) for p in sym) for x in basis):
                 return False
         return True
 
@@ -455,7 +420,7 @@ class PinWords:
             Perm((3, 2, 0, 1)),
         )
         for sym in all_symmetry_sets(wedge1_b):
-            if all(x not in Av(sym) for x in basis):
+            if all(any(x.contains(p) for p in sym) for x in basis):
                 return False
         return True
 
@@ -475,7 +440,7 @@ class PinWords:
             Perm((3, 2, 0, 1)),
         )
         for sym in all_symmetry_sets(wedge2_b):
-            if all(x not in Av(sym) for x in basis):
+            if all(any(x.contains(p) for p in sym) for x in basis):
                 return False
         return True
 
@@ -498,8 +463,7 @@ class PinWords:
         """Check if basis has finite pinperms"""
         if dfa is None:
             dfa = cls.make_dfa_for_basis(basis, use_db)
-        dfa = dfa.complement()
-        dfa = cls.dfa_name_reset(cls.make_dfa_for_m() & dfa)
+        dfa = cls.make_dfa_for_m().difference(dfa)
         return dfa.isfinite() is True
 
     @classmethod
@@ -524,15 +488,10 @@ class PinWords:
         if in_dfa is None:
             in_dfa = cls.make_dfa_for_perm(perm)
         with open(str(path), "w") as file_object:
-            file_object.write(
-                f"DFA(states={in_dfa.states}, "
-                + f"input_symbols={in_dfa.input_symbols}, "
-                + f"transitions={dict(in_dfa.transitions)}, "
-                + f"initial_state='{in_dfa.initial_state}', "
-                + f"final_states={in_dfa.final_states})\n"
-            )
+            file_object.write(repr(in_dfa))
 
     @classmethod
+    @lru_cache(maxsize=None)
     def load_dfa_for_perm(cls, perm) -> "DFA":
         """Loads the DFA for the specified Perm from file."""
         directory = f"dfa_db/S{len(perm)}/"

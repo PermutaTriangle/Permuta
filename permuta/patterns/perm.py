@@ -11,7 +11,6 @@ import numbers
 import operator
 import random
 from typing import (
-    TYPE_CHECKING,
     Callable,
     Deque,
     Dict,
@@ -32,15 +31,10 @@ from .patt import Patt
 
 __all__ = ("Perm",)
 
-# Remove when pypy is 3.7 compatible andn replace TupleType with Tuple[int]
-if TYPE_CHECKING:
-    TupleType = Tuple[int]
-else:
-    TupleType = tuple
-ApplyType = TypeVar("ApplyType")
+ApplyType = TypeVar("ApplyType")  # pylint: disable=invalid-name
 
 
-class Perm(TupleType, Patt):
+class Perm(Tuple[int], Patt):
     """A perm class."""
 
     def __new__(cls, iterable: Iterable[int] = ()) -> "Perm":
@@ -2502,7 +2496,12 @@ class Perm(TupleType, Patt):
             >>> Perm((5, 3, 0, 4, 2, 1)).contains(pattern2, pattern3)
             False
         """
-        return all(patt in self for patt in patts)
+        return all(self._contains(patt) for patt in patts)
+
+    def _contains(self, patt: "Patt") -> bool:
+        if isinstance(patt, Patt):
+            return any(True for _ in patt.occurrences_in(self))
+        raise TypeError("patt must be a Patt")
 
     def avoids(self, *patts: "Patt") -> bool:
         """Check if self avoids patts.
@@ -2525,7 +2524,7 @@ class Perm(TupleType, Patt):
             >>> Perm((5, 3, 0, 4, 2, 1)).avoids(pattern3, pattern4)
             True
         """
-        return all(patt not in self for patt in patts)
+        return all(not self._contains(patt) for patt in patts)
 
     def avoids_set(self, patts: Iterable["Patt"]) -> bool:
         """Check if self avoids patts for an iterable of patterns.
@@ -2569,12 +2568,12 @@ class Perm(TupleType, Patt):
             [()]
         """
         self_colours, patt_colours = (None, None) if len(args) < 2 else args
-        n, patt = len(self), patt.get_perm()
+        n, pattern = len(self), patt.get_perm()
 
         if n == 0:
             yield ()
             return
-        if n > len(patt):
+        if n > len(pattern):
             return
 
         # The indices of the occurrence in perm
@@ -2586,7 +2585,7 @@ class Perm(TupleType, Patt):
         # k is how many elements of the perm have already been added to
         # occurrence
         def occurrences(i, k):
-            elements_remaining = len(patt) - i
+            elements_remaining = len(pattern) - i
             elements_needed = n - k
 
             # lfi = left floor index
@@ -2605,26 +2604,26 @@ class Perm(TupleType, Patt):
                 # The new element of the occurrence must be at least as far
                 # from its left floor as self[k] is from its left floor
                 # In this case, lbp = self[k] - self[lfi]
-                occurrence_left_floor = patt[occurrence_indices[lfi]]
+                occurrence_left_floor = pattern[occurrence_indices[lfi]]
                 lower_bound = occurrence_left_floor + lbp
             if lci == -1:
                 # The new element of the occurrence must be at least as less
                 # than its maximum possible element---i.e., len(perm)---as
                 # self[k] is to its maximum possible element---i.e., len(self)
                 # In this case, ubp = len(self) - self[k]
-                upper_bound = len(patt) - ubp
+                upper_bound = len(pattern) - ubp
             else:
                 # The new element of the occurrence must be at least as less
                 # than its left ceiling as self[k] is to its left ceiling
                 # In this case, ubp = self[lci] - self[k]
-                upper_bound = patt[occurrence_indices[lci]] - ubp
+                upper_bound = pattern[occurrence_indices[lci]] - ubp
 
             # Loop over remaining elements of perm (actually i, the index)
             while True:
                 if elements_remaining < elements_needed:
                     # Can't form an occurrence with remaining elements
                     return
-                element = patt[i]
+                element = pattern[i]
                 compare_colours = (
                     self_colours is None or patt_colours[i] == self_colours[k]
                 )
@@ -3033,5 +3032,5 @@ class Perm(TupleType, Patt):
 
     def __contains__(self, patt: object) -> bool:
         if isinstance(patt, Patt):
-            return any(True for _ in patt.occurrences_in(self))
-        return False
+            return self._contains(patt)
+        raise TypeError("patt must be a Patt")

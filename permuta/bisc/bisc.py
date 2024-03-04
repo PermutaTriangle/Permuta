@@ -1,3 +1,5 @@
+# type: ignore
+
 import json
 import os
 import types
@@ -17,7 +19,6 @@ from permuta.patterns.perm import Perm
 
 
 def bisc(A, m, n=None, report=False):
-
     if isinstance(A, list):
         D = defaultdict(list)
         for perm in A:
@@ -54,7 +55,6 @@ def bisc(A, m, n=None, report=False):
 
 
 def auto_bisc(prop):
-
     L = 8  # Want to sanity check on at least S8, and one above n
     n = 4
     m = 2
@@ -69,10 +69,10 @@ def auto_bisc(prop):
         if L not in A.keys():
             print("You should have permutations up to length at least 8")
             return
-        for i in range(L + 1):
-            for perm in Perm.of_length(i):
-                if perm not in A[i]:
-                    B[i].append(perm)
+        for i in range(max(L + 1, max(A.keys()) + 1)):
+            if i > 7:
+                print("Populating the dictionary of bad perms of length ", i)
+            B[i] = [perm for perm in Perm.of_length(i) if perm not in A[i]]
 
     elif isinstance(prop, types.FunctionType):
         # If a property is passed in then we use it to populate both
@@ -212,7 +212,7 @@ def auto_bisc(prop):
         oldL = L
         if L < n + 1:
             L = n + 1
-            if isinstance(prop, list) and L > max(A.keys):
+            if isinstance(prop, list) and L > max(A.keys()):
                 print("You need to input a longer list of permutations")
                 return
 
@@ -272,7 +272,6 @@ def create_bisc_input(N, prop):
     A, B = {}, {}
 
     for n in range(N + 1):
-
         An, Bn = [], []
 
         for perm in Perm.of_length(n):
