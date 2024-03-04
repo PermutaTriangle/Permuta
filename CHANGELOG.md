@@ -13,6 +13,10 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 
 ### Added
  - Now testing on Python 3.11
+ - 'simple' to the permtool command for checking if finitely many simples in a class
+
+### Fixed
+ - bug in autobisc during setup
 
 ## 2.2.0 - 2021-10-21
 ### Added
