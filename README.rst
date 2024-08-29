@@ -65,7 +65,7 @@ interactive Python session, just like any other Python library:
 
     >>> from permuta import *
 
-Importing ``*`` from it supplies you with the 'Perm' and 'PermSet'
+Importing ``*`` supplies you with the 'Perm' and 'PermSet'
 classes along with the 'AvoidanceClass' class (with alias 'Av') for generating
 perms avoiding a set of patterns. It also gives you the 'MeshPatt' class
 and some other submodules which we will not discuss in this readme.
@@ -178,7 +178,7 @@ There are numerous practical methods available:
 Creating a perm class
 #####################
 
-Perm classes are specified with a basis:
+Perm classes are created by first specifying a basis and then calling the 'Av' class, to create the set of permutations avoiding the basis:
 
 .. code-block:: python
 
@@ -226,6 +226,8 @@ given class.
     ...     print(strat.reference())
     Enumeration of Permutation Classes and Weighted Labelled Independent Sets: Corollary 4.6
     The class contains only finitely many simple permutations
+
+The output is the name of a paper, followed by the statement in the paper where the enumeration strategy is discussed or stated.
 
 Permutation statistics
 ######################
