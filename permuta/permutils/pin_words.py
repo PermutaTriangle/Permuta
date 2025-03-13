@@ -6,7 +6,7 @@ from bisect import bisect_left
 from collections import defaultdict
 from functools import lru_cache
 from pathlib import Path
-from typing import DefaultDict, Dict, Iterator, List, Set, Tuple
+from typing import DefaultDict, Dict, Iterator, List, Optional, Set, Tuple, cast
 
 from automata.fa.dfa import DFA
 from automata.fa.nfa import NFA
@@ -458,7 +458,9 @@ class PinWords:
         return True
 
     @classmethod
-    def has_finite_pinperms(cls, basis, use_db=False, dfa: "DFA" = None) -> bool:
+    def has_finite_pinperms(
+        cls, basis, use_db=False, dfa: Optional["DFA"] = None
+    ) -> bool:
         """Check if basis has finite pinperms"""
         if dfa is None:
             dfa = cls.make_dfa_for_basis(basis, use_db)
@@ -497,12 +499,11 @@ class PinWords:
         path = Path(directory)
         filename = f"{''.join(str(i) for i in perm)}.txt"
         path = path / filename
-        dfa: "DFA" = None
         if not path.is_file():
             cls.store_dfa_for_perm(perm)
         with open(str(path), "r") as file_object:
             dfa = eval(file_object.readline().strip())
-        return dfa
+        return cast(DFA, dfa)
 
     @classmethod
     def create_dfa_db_for_length(cls, length: int) -> None:
