@@ -23,7 +23,7 @@ def test_union_find_2():
     uf = UnionFind(100)
     for i in range(1, 100):
         assert uf.unite(0, i)
-    for (a, b) in combinations(range(100), 2):
+    for a, b in combinations(range(100), 2):
         assert uf.find(a) == uf.find(b)
         assert uf.size(a) == 100
         assert uf.size(b) == 100

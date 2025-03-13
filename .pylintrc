@@ -6,7 +6,7 @@ ignore-patterns=test_.*?py,
                 bisc.py,
                 bisc_subfunctions.py
 ignore= tests
-init-hook="from pylint.config import find_pylintrc; import os, sys; sys.path.append(os.path.dirname(find_pylintrc())+'/permuta')"
+init-hook="import os, sys; sys.path.append(os.path.dirname(os.path.abspath('.')) + '/permuta')"
 disable=missing-module-docstring,
         fixme,
         unsubscriptable-object,

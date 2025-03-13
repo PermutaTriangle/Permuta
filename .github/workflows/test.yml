@@ -9,25 +9,19 @@ jobs:
       fail-fast: false
       matrix:
         include:
-          - python: "3.11"
+          - python: "3.13"
             toxenv: flake8
             os: ubuntu-latest
-          - python: "3.11"
+          - python: "3.13"
             toxenv: mypy
             os: ubuntu-latest
-          - python: "3.11"
+          - python: "3.13"
             toxenv: pylint
             os: ubuntu-latest
-          - python: "3.11"
+          - python: "3.13"
             toxenv: black
             os: ubuntu-latest
 
-          - python: 3.8
-            toxenv: py38
-            os: ubuntu-latest
-          - python: 3.9
-            toxenv: py39
-            os: ubuntu-latest
           - python: "3.10"
             toxenv: py310
             os: ubuntu-latest
@@ -37,15 +31,22 @@ jobs:
           - python: "3.12"
             toxenv: py312
             os: ubuntu-latest
-          - python: 'pypy3.9'
-            toxenv: pypy39
+          - python: "3.13"
+            toxenv: py313
             os: ubuntu-latest
 
-          - python: "3.11"
-            toxenv: py311
+          - python: "pypy3.10"
+            toxenv: pypy310
+            os: ubuntu-latest
+          - python: "pypy3.11"
+            toxenv: pypy311
+            os: ubuntu-latest
+
+          - python: "3.13"
+            toxenv: py313
             os: macos-latest
           - python: "3.11"
-            toxenv: py311
+            toxenv: py313
             os: windows-latest
 
     runs-on: ${{ matrix.os }}
@@ -55,7 +56,7 @@ jobs:
         with:
           python-version: ${{  matrix.python }}
       - name: install dependencies
-        run: python -m pip install --upgrade pip tox setuptools wheel
+        run: python -m pip install --upgrade pip tox setuptools wheel twine
       - name: run
         env:
           TOXENV: ${{ matrix.toxenv }}

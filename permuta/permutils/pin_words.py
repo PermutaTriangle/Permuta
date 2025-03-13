@@ -249,8 +249,7 @@ class PinWords:
             else:
                 for occ in cls.pinword_occurrences_sp(word, u_word[j], i):
                     res.append(occ)
-                    for x in rec(word, u_word, occ + len(u_word[j]), j + 1, res):
-                        yield x
+                    yield from rec(word, u_word, occ + len(u_word[j]), j + 1, res)
                     res.pop()
 
         return rec(word, cls.factor_pinword(u_word), 0, 0, [])

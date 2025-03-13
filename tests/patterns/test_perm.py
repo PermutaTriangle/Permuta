@@ -91,7 +91,7 @@ def test_str_representation():
         str(Perm((0, 11, 1, 10, 2, 9, 3, 8, 4, 7, 5, 6)))
         == "(0)(11)(1)(10)(2)(9)(3)(8)(4)(7)(5)(6)"
     )
-    assert str(Perm(())) == "\u03B5"
+    assert str(Perm(())) == "\u03b5"
 
 
 def test_of_length():
