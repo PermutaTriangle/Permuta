@@ -497,7 +497,6 @@ class PinWords:
         path = Path(directory)
         filename = f"{''.join(str(i) for i in perm)}.txt"
         path = path / filename
-        dfa: Optional["DFA"] = None
         if not path.is_file():
             cls.store_dfa_for_perm(perm)
         with open(str(path), "r") as file_object:
