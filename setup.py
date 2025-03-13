@@ -51,6 +51,6 @@ setup(
         "Topic :: Education",
         "Topic :: Scientific/Engineering :: Mathematics",
     ],
-    install_requires=["automata-lib==7.0.1"],
+    install_requires=["automata-lib==9.0.0"],
     entry_points={"console_scripts": ["permtools=permuta.cli:main"]},
 )
