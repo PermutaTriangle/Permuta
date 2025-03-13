@@ -6,7 +6,7 @@ from bisect import bisect_left
 from collections import defaultdict
 from functools import lru_cache
 from pathlib import Path
-from typing import DefaultDict, Dict, Iterator, List, Set, Tuple
+from typing import DefaultDict, Dict, Iterator, List, Optional, Set, Tuple
 
 from automata.fa.dfa import DFA
 from automata.fa.nfa import NFA
@@ -497,7 +497,7 @@ class PinWords:
         path = Path(directory)
         filename = f"{''.join(str(i) for i in perm)}.txt"
         path = path / filename
-        dfa: "DFA" = None
+        dfa: Optional["DFA"] = None
         if not path.is_file():
             cls.store_dfa_for_perm(perm)
         with open(str(path), "r") as file_object:
