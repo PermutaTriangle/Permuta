@@ -1,0 +1,21 @@
+cff-version: 1.2.0
+message: "If you use this software, please cite it as below."
+title: "Permuta: A Python Library for Permutations and Patterns"
+type: software
+authors:
+  - name: "Ragnar Pall Ardal"
+  - name: "Arnar Bjarni Arnarson"
+  - name: "Christian Bean"
+    affiliation: "Keele University"
+  - name: "Alfur Birkir Bjarnason"
+  - name: "Jon Steinn Eliasson"
+  - name: "Bjarki Agust Gudmundsson"
+  - name: "Sigurjón Ingi Jónsson"
+  - name: "Bjarni Jens Kristinsson"
+  - name: "Tomas Ken Magnusson"
+  - name: "Émile Nadeau"
+  - name: "Jay Pantone"
+    affiliation: "Marquette University"
+  - name: "Murray Tannock"
+  - name: "Henning Ulfarsson"
+    affiliation: "Reykjavik University"
