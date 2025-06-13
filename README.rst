@@ -25,7 +25,7 @@ Permuta is a Python library for working with perms (short for permutations),
 patterns, and mesh patterns.
 
 If this code is useful to you in your work, please consider citing it. To generate a
-BibTeX entry (or another format), click the "DOI" badge above to go to `Zenodo_` and locate the "Export"
+BibTeX entry (or another format), click the "DOI" badge above to go to `Zenodo`_ and locate the "Export"
 section.
 
 .. _Zenodo: https://doi.org/10.5281/zenodo.4725758
