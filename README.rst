@@ -54,7 +54,6 @@ To run the unit tests:
 
 .. code-block:: bash
 
-    pip install -r test_requirements.txt
     tox
 
 Using Permuta
