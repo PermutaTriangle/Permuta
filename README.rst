@@ -25,8 +25,10 @@ Permuta is a Python library for working with perms (short for permutations),
 patterns, and mesh patterns.
 
 If this code is useful to you in your work, please consider citing it. To generate a
-BibTeX entry (or another format), click the "DOI" badge above and locate the "Cite As"
+BibTeX entry (or another format), click the "DOI" badge above to go to `Zenodo_` and locate the "Export"
 section.
+
+.. _Zenodo: https://doi.org/10.5281/zenodo.4725758
 
 If you need support, you can join us in our `Discord support server`_.
 
@@ -522,12 +524,3 @@ License
 
 BSD-3: see the `LICENSE <https://github.com/PermutaTriangle/Permuta/blob/master/LICENSE>`_ file.
 
-Citing
-######
-
-If you found this library helpful with your research and would like to cite us,
-you can use the following `BibTeX`_ or go to `Zenodo`_ for alternative formats.
-
-.. _BibTex: https://zenodo.org/record/4945792/export/hx#.YImTibX7SUk
-
-.. _Zenodo: https://doi.org/10.5281/zenodo.4725758
