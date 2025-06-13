@@ -4,7 +4,7 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](http://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.html).
 
-## Unreleased 
+## 2.3.1 - 2025-06-13 
 ### Changed
  - Migrated from setup.py to modern pyproject.toml packaging with hatchling backend
  - Updated minimum Python requirement to 3.10+ (removed support for 3.7-3.9)
