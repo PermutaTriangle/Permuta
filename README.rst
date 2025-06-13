@@ -2,9 +2,9 @@
 permuta
 #######
 
-.. image:: https://travis-ci.org/PermutaTriangle/Permuta.svg?branch=master
-    :alt: Travis
-    :target: https://travis-ci.org/PermutaTriangle/Permuta
+.. image:: https://github.com/PermutaTriangle/Permuta/workflows/tests/badge.svg
+    :alt: Tests
+    :target: https://github.com/PermutaTriangle/Permuta/actions
 .. image:: https://img.shields.io/pypi/v/Permuta.svg
     :alt: PyPI
     :target: https://pypi.python.org/pypi/Permuta
@@ -12,12 +12,12 @@ permuta
     :target: https://pypi.python.org/pypi/Permuta
 .. image:: https://img.shields.io/pypi/pyversions/Permuta.svg
     :target: https://pypi.python.org/pypi/Permuta
-.. image:: http://img.shields.io/badge/readme-tested-brightgreen.svg
-    :alt: Travis
-    :target: https://travis-ci.org/PermutaTriangle/Permuta
-.. image:: https://requires.io/github/PermutaTriangle/Permuta/requirements.svg?branch=master
-    :target: https://requires.io/github/PermutaTriangle/Permuta/requirements/?branch=master
-    :alt: Requirements Status
+.. image:: https://img.shields.io/badge/code%20style-black-000000.svg
+    :alt: Code style: black
+    :target: https://github.com/psf/black
+.. image:: http://www.mypy-lang.org/static/mypy_badge.svg
+    :alt: Checked with mypy
+    :target: http://mypy-lang.org/
 .. image:: https://zenodo.org/badge/DOI/10.5281/zenodo.4725758.svg
    :target: https://doi.org/10.5281/zenodo.4725758
 
@@ -25,8 +25,10 @@ Permuta is a Python library for working with perms (short for permutations),
 patterns, and mesh patterns.
 
 If this code is useful to you in your work, please consider citing it. To generate a
-BibTeX entry (or another format), click the "DOI" badge above and locate the "Cite As"
+BibTeX entry (or another format), click the "DOI" badge above to go to `Zenodo`_ and locate the "Export"
 section.
+
+.. _Zenodo: https://doi.org/10.5281/zenodo.4725758
 
 If you need support, you can join us in our `Discord support server`_.
 
@@ -46,14 +48,13 @@ source code, in which case you run the following after cloning the repository:
 
 .. code-block:: bash
 
-    ./setup.py develop
+    pip install -e .
 
 To run the unit tests:
 
 .. code-block:: bash
 
-    pip install -r test_requirements.txt
-    ./setup.py test
+    tox
 
 Using Permuta
 #############
@@ -522,12 +523,3 @@ License
 
 BSD-3: see the `LICENSE <https://github.com/PermutaTriangle/Permuta/blob/master/LICENSE>`_ file.
 
-Citing
-######
-
-If you found this library helpful with your research and would like to cite us,
-you can use the following `BibTeX`_ or go to `Zenodo`_ for alternative formats.
-
-.. _BibTex: https://zenodo.org/record/4945792/export/hx#.YImTibX7SUk
-
-.. _Zenodo: https://doi.org/10.5281/zenodo.4725758

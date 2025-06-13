@@ -105,3 +105,7 @@ ENV/
 
 # vscode settings
 .vscode/
+
+# Local Claude instructions
+CLAUDE.local.md
+.claude/

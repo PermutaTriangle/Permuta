@@ -1,3 +1,57 @@
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[project]
+name = "permuta"
+dynamic = ["version"]
+authors = [
+    {name = "Permuta Triangle", email = "permutatriangle@gmail.com"},
+]
+description = "A comprehensive high performance permutation library."
+readme = "README.rst"
+license = {text = "BSD-3-Clause"}
+keywords = ["permutation", "perm", "mesh", "pattern", "patt", "avoid", "contain", "occurrence", "statistic"]
+classifiers = [
+    "Development Status :: 5 - Production/Stable",
+    "Intended Audience :: Education",
+    "Intended Audience :: Science/Research",
+    "License :: OSI Approved :: BSD License",
+    "Programming Language :: Python :: 3.10",
+    "Programming Language :: Python :: 3.11",
+    "Programming Language :: Python :: 3.12",
+    "Programming Language :: Python :: 3.13",
+    "Programming Language :: Python :: Implementation :: CPython",
+    "Programming Language :: Python :: Implementation :: PyPy",
+    "Topic :: Education",
+    "Topic :: Scientific/Engineering :: Mathematics",
+]
+requires-python = ">=3.10"
+dependencies = [
+    "automata-lib==9.0.0",
+]
+
+[project.urls]
+Source = "https://github.com/PermutaTriangle/Permuta"
+Tracker = "https://github.com/PermutaTriangle/Permuta/issues"
+
+[project.scripts]
+permtools = "permuta.cli:main"
+
+[tool.hatch.version]
+path = "permuta/__init__.py"
+
+[tool.hatchling.build.targets.wheel]
+packages = ["permuta"]
+
+[tool.hatchling.build.targets.sdist]
+include = [
+    "/permuta",
+    "/tests",
+    "/README.rst",
+    "/LICENSE",
+]
+
 [tool.black]
 target-version = ['py310']
 include = '\.pyi?$'
