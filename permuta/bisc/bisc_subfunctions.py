@@ -588,7 +588,6 @@ def clean_up(
     detailed_report=False,
     limit_monitors=0,
 ):
-
     """
     Note that if limit_monitors > 0 then
     we do not remove redundant monitors (last step)

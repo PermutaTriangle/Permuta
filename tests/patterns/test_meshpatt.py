@@ -1045,8 +1045,8 @@ def test_is_shaded():
     mpatt = MeshPatt(
         (0, 2, 1), [(0, 0), (0, 2), (1, 1), (1, 3), (2, 0), (2, 2), (3, 1), (3, 3)]
     )
-    for (x0, y0) in itertools.combinations(range(len(mpatt) + 1), 2):
-        for (x1, y1) in itertools.combinations(range(len(mpatt) + 1), 2):
+    for x0, y0 in itertools.combinations(range(len(mpatt) + 1), 2):
+        for x1, y1 in itertools.combinations(range(len(mpatt) + 1), 2):
             if x0 > x1 or y0 > y1:
                 with pytest.raises(AssertionError):
                     mpatt.is_shaded((x0, y0), (x1, y1))

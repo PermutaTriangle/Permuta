@@ -45,7 +45,7 @@ test_classes = [
 def test_avoiding_enumeration(patts, enum):
     patts = [Perm(patt) for patt in patts]
     basis = Basis(*patts)
-    for (n, cnt) in enumerate(enum):
+    for n, cnt in enumerate(enum):
         # print(n, cnt)
         inst = Av(basis).of_length(n)
         gen = list(inst)
@@ -71,7 +71,7 @@ def test_avoiding_generic_mesh_patterns():
     avoiding_generic_basis = Av(meshbasis)
     enum = [1, 1, 2, 5, 15, 52, 203, 877]  # Bell numbers
 
-    for (n, cnt) in enumerate(enum):
+    for n, cnt in enumerate(enum):
         inst = avoiding_generic_basis.of_length(n)
         gen = list(inst)
         assert len(gen) == cnt
@@ -96,10 +96,10 @@ def test_avoiding_generic_finite_class():
         ([[0, 1, 2], [3, 2, 1, 0]], [1, 1, 2, 5, 13, 25, 25, 0, 0, 0, 0, 0]),
     ]
 
-    for (patts, enum) in ts:
+    for patts, enum in ts:
         patts = [Perm(patt) for patt in patts]
         basis = Basis(*patts)
-        for (n, cnt) in enumerate(enum):
+        for n, cnt in enumerate(enum):
             inst = Av(basis).of_length(n)
             gen = list(inst)
             assert len(gen) == cnt
@@ -157,7 +157,7 @@ def test_av_meshpatt():
     av = Av([mp])
     enum = [1, 1, 2, 5, 15, 52, 203, 877]  # Bell numbers
 
-    for (n, cnt) in enumerate(enum):
+    for n, cnt in enumerate(enum):
         inst = av.of_length(n)
         gen = list(inst)
         assert len(gen) == cnt

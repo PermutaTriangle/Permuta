@@ -3010,7 +3010,7 @@ class Perm(Tuple[int], Patt):
 
     def __str__(self) -> "str":
         if not self:
-            return "\u03B5"
+            return "\u03b5"
         if len(self) <= 10:
             return "".join(str(i) for i in self)
         return "".join(f"({i})" for i in self)
