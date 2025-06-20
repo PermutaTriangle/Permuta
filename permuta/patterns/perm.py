@@ -2451,7 +2451,7 @@ class Perm(Tuple[int], Patt):
 
         Examples:
             >>> Perm((2, 7, 3, 1, 4, 8, 6, 0, 5)).count_rtlmax_ltrmin_layers()
-            3
+            2
             >>> Perm((5, 4, 3, 0, 2, 1)).count_rtlmax_ltrmin_layers()
             1
         """
@@ -2468,7 +2468,7 @@ class Perm(Tuple[int], Patt):
 
         Examples:
             >>> list(Perm((2, 7, 3, 1, 4, 8, 6, 0, 5)).rtlmax_ltrmin_decomposition())
-            [[0, 3, 5, 6, 7, 8], [0, 2], [0]]
+            [[0, 3, 5, 6, 7, 8], [0, 1, 2]]
             >>> list(Perm((5, 4, 3, 0, 2, 1)).rtlmax_ltrmin_decomposition())
             [[0, 1, 2, 3, 4, 5]]
         """
@@ -2476,7 +2476,9 @@ class Perm(Tuple[int], Patt):
         while len(perm) > 0:
             pos_set = set(itertools.chain(perm.rtlmax(), perm.ltrmin()))
             yield sorted(pos_set)
-            perm = Perm(perm[i] for i in range(len(perm)) if i not in pos_set)
+            perm = Perm.to_standard(
+                perm[i] for i in range(len(perm)) if i not in pos_set
+            )
 
     def contains(self, *patts: "Patt") -> bool:
         """Check if self contains patts.

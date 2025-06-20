@@ -1966,7 +1966,7 @@ def test_count_rtlmax_ltrmin_layers():
     assert Perm((2, 1, 3, 0)).count_rtlmax_ltrmin_layers() == 1
     assert Perm((2, 0, 1, 3)).count_rtlmax_ltrmin_layers() == 2
     assert Perm((1, 3, 2, 7, 6, 5, 8, 0, 4)).count_rtlmax_ltrmin_layers() == 2
-    assert Perm((0, 8, 2, 4, 5, 6, 3, 7, 1)).count_rtlmax_ltrmin_layers() == 4
+    assert Perm((0, 8, 2, 4, 5, 6, 3, 7, 1)).count_rtlmax_ltrmin_layers() == 3
     assert Perm((1, 0, 2)).count_rtlmax_ltrmin_layers() == 1
     assert Perm((1, 2, 0, 3)).count_rtlmax_ltrmin_layers() == 2
     assert Perm((3, 0, 2, 1)).count_rtlmax_ltrmin_layers() == 1
@@ -1974,7 +1974,7 @@ def test_count_rtlmax_ltrmin_layers():
     assert Perm((1, 3, 2, 0)).count_rtlmax_ltrmin_layers() == 1
     assert Perm(()).count_rtlmax_ltrmin_layers() == 0
     assert Perm((5, 3, 7, 4, 2, 0, 6, 1)).count_rtlmax_ltrmin_layers() == 2
-    assert Perm((0, 2, 1, 6, 4, 3, 5, 7, 8)).count_rtlmax_ltrmin_layers() == 4
+    assert Perm((0, 2, 1, 6, 4, 3, 5, 7, 8)).count_rtlmax_ltrmin_layers() == 3
     assert Perm((2, 1, 0)).count_rtlmax_ltrmin_layers() == 1
     assert Perm((0, 2, 1)).count_rtlmax_ltrmin_layers() == 1
     assert Perm((0, 8, 3, 5, 7, 4, 2, 6, 1)).count_rtlmax_ltrmin_layers() == 2
@@ -2003,8 +2003,7 @@ def test_rtlmax_ltrmin_decomposition():
     ]
     assert list(Perm((2, 3, 0, 4, 1, 5)).rtlmax_ltrmin_decomposition()) == [
         [0, 2, 5],
-        [1, 2],
-        [0],
+        [0, 1, 2],
     ]
     assert list(Perm((4, 0, 2, 5, 3, 1)).rtlmax_ltrmin_decomposition()) == [
         [0, 1, 3, 4, 5],
