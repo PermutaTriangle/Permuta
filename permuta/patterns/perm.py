@@ -2476,7 +2476,9 @@ class Perm(Tuple[int], Patt):
         while len(perm) > 0:
             pos_set = set(itertools.chain(perm.rtlmax(), perm.ltrmin()))
             yield sorted(pos_set)
-            perm = Perm.to_standard(perm[i] for i in range(len(perm)) if i not in pos_set)
+            perm = Perm.to_standard(
+                perm[i] for i in range(len(perm)) if i not in pos_set
+            )
 
     def contains(self, *patts: "Patt") -> bool:
         """Check if self contains patts.
