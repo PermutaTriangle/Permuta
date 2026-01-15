@@ -9,16 +9,16 @@ jobs:
       fail-fast: false
       matrix:
         include:
-          - python: "3.13"
+          - python: "3.14"
             toxenv: flake8
             os: ubuntu-latest
-          - python: "3.13"
+          - python: "3.14"
             toxenv: mypy
             os: ubuntu-latest
-          - python: "3.13"
+          - python: "3.14"
             toxenv: pylint
             os: ubuntu-latest
-          - python: "3.13"
+          - python: "3.14"
             toxenv: black
             os: ubuntu-latest
 
@@ -34,6 +34,9 @@ jobs:
           - python: "3.13"
             toxenv: py313
             os: ubuntu-latest
+          - python: "3.14"
+            toxenv: py314
+            os: ubuntu-latest
 
           - python: "pypy3.10"
             toxenv: pypy310
@@ -42,11 +45,11 @@ jobs:
             toxenv: pypy311
             os: ubuntu-latest
 
-          - python: "3.13"
-            toxenv: py313
+          - python: "3.14"
+            toxenv: py314
             os: macos-latest
-          - python: "3.13"
-            toxenv: py313
+          - python: "3.14"
+            toxenv: py314
             os: windows-latest
 
     runs-on: ${{ matrix.os }}
