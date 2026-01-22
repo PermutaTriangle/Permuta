@@ -1,6 +1,6 @@
 import multiprocessing
-from itertools import islice
-from typing import ClassVar, Dict, Iterable, List, NamedTuple, Optional, Union
+from itertools import combinations, islice
+from typing import ClassVar, Dict, Iterable, Iterator, List, NamedTuple, Optional, Union
 
 from ..patterns import MeshPatt, Perm
 from ..permutils import is_finite, is_insertion_encodable, is_polynomial
@@ -201,6 +201,130 @@ class Av(AvBase):
             yield first
             yield from gen
             length += 1
+
+    def right_juxtaposition(self, other: "Av") -> "Av":
+        """Compute the basis of the juxtaposition of two permutation classes.
+
+        Given self = Av(B1) and other = Av(B2), returns the permutation class
+        E = Av(B) where E consists of all permutations that can be written as
+        the juxtaposition of a permutation from self on the left and a
+        permutation from other on the right.
+
+        Raises NotImplementedError: If either basis is a MeshBasis.
+        """
+        if not isinstance(self.basis, Basis) or not isinstance(other.basis, Basis):
+            raise NotImplementedError(Av._BASIS_ONLY_MSG)
+
+        candidates: List[Perm] = []
+
+        for b1 in self.basis:
+            for b2 in other.basis:
+                # |σ| = 0 case: no overlap
+                candidates.extend(self._sigma_0_candidates(b1, b2))
+                # |σ| = 1 case: one element overlap
+                candidates.extend(self._sigma_1_candidates(b1, b2))
+
+        # Basis constructor automatically minimizes
+        return Av(Basis(*candidates))
+
+    def above_juxtaposition(self, other: "Av") -> "Av":
+        """Compute the basis of the above juxtaposition of two permutation classes.
+
+        Given self = Av(B1) and other = Av(B2), returns the permutation class
+        where self is on the bottom and other is on top.
+
+        This is computed by taking inverses, computing right_juxtaposition,
+        then inverting the result.
+
+        Raises NotImplementedError: If either basis is a MeshBasis.
+        """
+        if not isinstance(self.basis, Basis) or not isinstance(other.basis, Basis):
+            raise NotImplementedError(Av._BASIS_ONLY_MSG)
+
+        # Compute inverse classes
+        self_inverse = Av(Basis(*[p.inverse() for p in self.basis]))
+        other_inverse = Av(Basis(*[p.inverse() for p in other.basis]))
+
+        # Compute right juxtaposition of inverses
+        result_inverse = self_inverse.right_juxtaposition(other_inverse)
+
+        # Return inverse of result
+        return Av(Basis(*[p.inverse() for p in result_inverse.basis]))
+
+    @staticmethod
+    def _sigma_0_candidates(b1: Perm, b2: Perm) -> Iterator[Perm]:
+        """Generate candidates where left and right patterns don't overlap.
+
+        Generates all permutations of length |b1| + |b2| where the first |b1|
+        positions have pattern b1 and the last |b2| positions have pattern b2.
+        """
+        n1, n2 = len(b1), len(b2)
+        total = n1 + n2
+
+        # Choose which values go to the left block
+        for left_values in combinations(range(total), n1):
+            right_values = [v for v in range(total) if v not in left_values]
+
+            # Build the permutation
+            result = [0] * total
+            # Left positions get values according to pattern b1
+            for pos in range(n1):
+                result[pos] = left_values[b1[pos]]
+            # Right positions get values according to pattern b2
+            for pos in range(n2):
+                result[n1 + pos] = right_values[b2[pos]]
+
+            yield Perm(result)
+
+    @staticmethod
+    def _sigma_1_candidates(b1: Perm, b2: Perm) -> Iterator[Perm]:
+        """Generate candidates where left and right patterns overlap by one element.
+
+        Generates all permutations of length |b1| + |b2| - 1 where the first |b1|
+        positions have pattern b1 and the last |b2| positions have pattern b2,
+        with position |b1| - 1 shared between both patterns.
+        """
+        n1, n2 = len(b1), len(b2)
+        total = n1 + n2 - 1
+
+        # The shared position is at index n1 - 1
+        # Its value v must satisfy: v = b1[-1] + b2[0]
+        # (it must be at rank b1[-1] among left values and rank b2[0] among right values)
+        v = b1[-1] + b2[0]
+
+        # Values less than v: {0, ..., v-1}
+        # Values greater than v: {v+1, ..., total-1}
+        values_below = list(range(v))
+        values_above = list(range(v + 1, total))
+
+        # Left block needs b1[-1] values below v, right block gets the rest
+        k1 = b1[-1]  # number of values < v in left block
+
+        # Iterate over all ways to partition values below v
+        for left_below in combinations(values_below, k1):
+            right_below = [x for x in values_below if x not in left_below]
+
+            # Iterate over all ways to partition values above v
+            for left_above in combinations(values_above, n1 - 1 - k1):
+                right_above = [x for x in values_above if x not in left_above]
+
+                # Build the left and right value sets
+                left_values = sorted(list(left_below) + [v] + list(left_above))
+                right_values = sorted(right_below + [v] + right_above)
+
+                # Build the permutation
+                result = [0] * total
+
+                # Left positions (0 to n1-1) get values according to pattern b1
+                for pos in range(n1):
+                    result[pos] = left_values[b1[pos]]
+
+                # Right positions (n1-1 to total-1) get values according to pattern b2
+                # But position n1-1 is already set, so we only set n1 to total-1
+                for pos in range(1, n2):
+                    result[n1 - 1 + pos] = right_values[b2[pos]]
+
+                yield Perm(result)
 
     def __str__(self) -> str:
         return f"Av({','.join(str(p) for p in self.basis)})"
