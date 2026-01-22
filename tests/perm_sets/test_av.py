@@ -326,7 +326,8 @@ def test_right_juxtaposition_enumeration():
 
 def test_right_juxtaposition_multiple_basis_elements():
     """Test juxtaposition with multiple basis elements."""
-    av_21_12 = Av(Basis(Perm((1, 0)), Perm((0, 1))))  # Only contains empty and singleton
+    # Only contains empty and singleton permutations
+    av_21_12 = Av(Basis(Perm((1, 0)), Perm((0, 1))))
     av_132 = Av(Basis(Perm((0, 2, 1))))
     result = av_21_12.right_juxtaposition(av_132)
     # The result should be a valid Av object with a minimized basis

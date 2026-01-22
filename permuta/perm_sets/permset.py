@@ -277,7 +277,7 @@ class Av(AvBase):
             yield Perm(result)
 
     @staticmethod
-    def _sigma_1_candidates(b1: Perm, b2: Perm) -> Iterator[Perm]:
+    def _sigma_1_candidates(b1: Perm, b2: Perm) -> Iterator[Perm]:  # pylint: disable=R0914
         """Generate candidates where left and right patterns overlap by one element.
 
         Generates all permutations of length |b1| + |b2| - 1 where the first |b1|
@@ -289,7 +289,7 @@ class Av(AvBase):
 
         # The shared position is at index n1 - 1
         # Its value v must satisfy: v = b1[-1] + b2[0]
-        # (it must be at rank b1[-1] among left values and rank b2[0] among right values)
+        # (it must be at rank b1[-1] among left and rank b2[0] among right values)
         v = b1[-1] + b2[0]
 
         # Values less than v: {0, ..., v-1}
