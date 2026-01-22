@@ -277,9 +277,9 @@ class Av(AvBase):
             yield Perm(result)
 
     @staticmethod
-    def _sigma_1_candidates(
+    def _sigma_1_candidates(  # pylint: disable=R0914
         b1: Perm, b2: Perm
-    ) -> Iterator[Perm]:  # pylint: disable=R0914
+    ) -> Iterator[Perm]:
         """Generate candidates where left and right patterns overlap by one element.
 
         Generates all permutations of length |b1| + |b2| - 1 where the first |b1|
