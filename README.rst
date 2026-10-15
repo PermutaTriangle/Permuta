@@ -227,8 +227,28 @@ given class.
     ...     print(strat.reference())
     Enumeration of Permutation Classes and Weighted Labelled Independent Sets: Corollary 4.6
     The class contains only finitely many simple permutations
+    >>> basis = [Perm((0, 1, 2, 3)), Perm((1, 2, 3, 0)), Perm((2, 3, 0, 1)), Perm((3, 0, 1, 2))]
+    >>> for strat in find_strategies(basis):
+    ...     print(strat.reference())
+    The class is closed under rotation (cyclic shifts): one in n of its permutations of length n starts with the minimum, and the min cut counts these
 
 The output is the name of a paper, followed by the statement in the paper where the enumeration strategy is discussed or stated.
+
+The last basis is closed under rotation, the cyclic shift that moves the first entry
+of each pattern to the end. Its min cut, the basis of the permutations p for which
+1 + p is in the class, may be closed under rotation again, and the strategy follows
+the cuts as far as they go.
+
+.. code-block:: python
+
+    >>> from permuta.enumeration_strategies.rotationally_stable import (
+    ...     RotationallyStableStrategy,
+    ... )
+    >>> strategy = RotationallyStableStrategy(basis)
+    >>> [str(b) for b in strategy.chain()]
+    ['{0123, 1230, 2301, 3012}', '{012, 2301}']
+    >>> [strategy.count(n) for n in range(9)]
+    [1, 1, 2, 6, 20, 65, 198, 560, 1480]
 
 Permutation statistics
 ######################

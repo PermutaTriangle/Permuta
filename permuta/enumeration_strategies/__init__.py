@@ -6,9 +6,11 @@ from .abstract_strategy import EnumerationStrategy
 from .core_strategies import core_strategies
 from .finitely_many_simples import FinitelyManySimplesStrategy
 from .insertion_encodable import InsertionEncodingStrategy
+from .rotationally_stable import RotationallyStableStrategy
 
 fast_enumeration_strategies: List[Type[EnumerationStrategy]] = [
-    InsertionEncodingStrategy
+    InsertionEncodingStrategy,
+    RotationallyStableStrategy,
 ]
 fast_enumeration_strategies.extend(core_strategies)
 

@@ -6,6 +6,9 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 
 ## Unreleased
 
+### Added
+- `RotationallyStableStrategy`, a fast enumeration strategy for a class whose basis, or a symmetry of it, is closed under rotation (cyclic shifts). It counts the class through its min cut, following the cuts as long as they are rotationally stable.
+
 ### Fixed
 - Fixed bug in `Perm.rtlmax_ltrmin_decomposition` and fixed associated tests.
 
