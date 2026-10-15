@@ -2,7 +2,7 @@ from itertools import combinations
 
 import pytest
 
-from permuta import Av, Perm
+from permuta import Av, CyclicPerm, Perm
 from permuta.enumeration_strategies import find_strategies
 from permuta.enumeration_strategies.rotationally_stable import (
     RotationallyStableStrategy,
@@ -31,6 +31,11 @@ def lift(basis):
             for i in range(len(patt) + 1)
         )
     )
+
+
+def cyclic_count(patts, n):
+    """The number of cyclic permutations of length n avoiding the patterns."""
+    return sum(1 for perm in CyclicPerm.of_length(n) if perm.avoids_set(patts))
 
 
 def test_is_rotationally_stable():
@@ -121,6 +126,20 @@ def test_chain():
 def test_count(basis):
     strategy = RotationallyStableStrategy(basis)
     assert [strategy.count(n) for n in range(9)] == Av(basis).enumeration(8)
+
+
+def test_count_is_n_times_the_cyclic_count():
+    # all rotations of some cyclic patterns are a rotationally stable basis, whose
+    # class has n times as many permutations of length n as there are cyclic
+    # permutations of length n avoiding the patterns
+    cases = [[patt] for k in (4, 5) for patt in CyclicPerm.of_length(k)]
+    cases.extend(list(pair) for pair in combinations(CyclicPerm.of_length(4), 2))
+    for patts in cases:
+        basis = Basis(*(rotation for patt in patts for rotation in patt.rotations()))
+        strategy = RotationallyStableStrategy(basis)
+        assert strategy.applies()
+        for n in range(1, 8):
+            assert strategy.count(n) == n * cyclic_count(patts, n)
 
 
 def test_counts_from_either_cut():
