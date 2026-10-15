@@ -7,6 +7,7 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 ## Unreleased
 
 ### Added
+- `CyclicPerm`, for cyclic permutations and cyclic pattern containment and avoidance. A cyclic permutation is stored by its rotation that starts with its minimum.
 - `RotationallyStableStrategy`, a fast enumeration strategy for a class whose basis, or a symmetry of it, is closed under rotation (cyclic shifts). It counts the class through its min cut, following the cuts as long as they are rotationally stable.
 
 ### Fixed
