@@ -1,3 +1,4 @@
+import itertools
 from typing import Iterable, Iterator, Tuple
 
 from permuta.patterns.perm import Perm
@@ -12,6 +13,7 @@ class CyclicPerm:
     """
 
     __slots__ = ("_rep",)
+    _rep: Perm  # set in __new__ and _from_canonical; declared for type checkers
 
     def __new__(cls, iterable: Iterable[int] = ()) -> "CyclicPerm":
         """Build a ``CyclicPerm`` from any rotation of the underlying class.
@@ -85,7 +87,7 @@ class CyclicPerm:
         """The ``σ`` in ``1 ⊕ σ`` as a ``Perm`` of length ``n - 1``."""
         if len(self._rep) <= 1:
             return Perm(())
-        return Perm(v - 1 for v in self._rep[1:])
+        return Perm(v - 1 for v in itertools.islice(self._rep, 1, None))
 
     def rotations(self) -> Iterator[Perm]:
         """All ``n`` linear rotations of the representative."""
@@ -95,12 +97,15 @@ class CyclicPerm:
             yield rep.shift_left(k)
 
     def reverse(self) -> "CyclicPerm":
+        """The cyclic class of the reverse of the representative."""
         return CyclicPerm(self._rep.reverse())
 
     def complement(self) -> "CyclicPerm":
+        """The cyclic class of the complement of the representative."""
         return CyclicPerm(self._rep.complement())
 
     def reverse_complement(self) -> "CyclicPerm":
+        """The cyclic class of the reverse-complement of the representative."""
         return CyclicPerm(self._rep.reverse_complement())
 
     def contains(self, *patts: "CyclicPerm") -> bool:
@@ -120,6 +125,7 @@ class CyclicPerm:
         return all(not self._contains_one(p) for p in patts)
 
     def avoids_set(self, patts: Iterable["CyclicPerm"]) -> bool:
+        """Cyclic avoidance of every cyclic pattern in the iterable ``patts``."""
         return self.avoids(*tuple(patts))
 
     def _contains_one(self, patt: "CyclicPerm") -> bool:
@@ -147,6 +153,7 @@ class CyclicPerm:
                 yield (k, positions)
 
     def count_occurrences_of(self, patt: "CyclicPerm") -> int:
+        """The number of occurrences that ``occurrences_of`` yields."""
         return sum(1 for _ in self.occurrences_of(patt))
 
     def cyclic_descents(self) -> Iterator[int]:
