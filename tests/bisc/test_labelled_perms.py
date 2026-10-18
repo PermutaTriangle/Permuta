@@ -1,5 +1,6 @@
 import contextlib
 import io
+from math import factorial
 
 import pytest
 
@@ -32,6 +33,20 @@ def test_views_match_lists():
     assert 6 in labels.bad and 7 not in labels.bad
     with pytest.raises(KeyError):
         _ = labels.good[7]
+
+
+def test_bit_order_is_perm_unrank():
+    # Bit i of length n is the label of Perm.unrank(i, n), and the permutation
+    # perm is at bit perm.rank() minus the number of shorter permutations
+    labels = labelled(stack_sortable, 6)
+    shorter = 0
+    for n in range(7):
+        bits = labels.bits[n]
+        for i in range(factorial(n)):
+            perm = Perm.unrank(i, n)
+            assert perm.rank() - shorter == i
+            assert bool(bits[i >> 3] >> (i & 7) & 1) == stack_sortable(perm)
+        shorter += factorial(n)
 
 
 def test_bitmaps_round_trip():

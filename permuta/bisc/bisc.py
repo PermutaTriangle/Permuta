@@ -318,11 +318,14 @@ class LabelledPerms:
     and bisc: which permutations of each length satisfy a property (good) and
     which do not (bad).
 
-    Bit i of length n is the i-th permutation of Perm.of_length(n)
-    (lexicographic order), in byte i // 8, from the low bit. The bitmaps can
-    be given (bitmaps={n: bytes}), made from a property (add_length), or both:
-    auto_bisc labels the lengths it needs and is not given with prop, and
-    stops, as for a tuple of dictionaries, when there is no prop.
+    Bit i of length n is the label of Perm.unrank(i, n), in byte i // 8, from
+    the low bit; so a permutation perm of length n is at bit
+    perm.rank() - sum(factorial(k) for k in range(n)). This is the order in
+    which Perm.of_length(n) yields the permutations (lexicographic), which the
+    views use to iterate. The bitmaps can be given (bitmaps={n: bytes}), made
+    from a property (add_length), or both: auto_bisc labels the lengths it
+    needs and is not given with prop, and stops, as for a tuple of
+    dictionaries, when there is no prop.
 
     auto_bisc reads its good and bad permutations only length by length:
     iterating over a length, counting it, asking whether a length is there.
