@@ -109,7 +109,7 @@ class BivincularPatt(MeshPatt):
         return hash(super())
 
 
-class VincularPatt(BivincularPatt):
+class VincularPatt(BivincularPatt):  # pylint: disable=abstract-method
     """A vincular pattern class."""
 
     def __init__(self, perm: Perm, adjacent_indices: Iterable[int]) -> None:
@@ -132,7 +132,7 @@ class VincularPatt(BivincularPatt):
         return f"VincularPatt({repr(self.pattern)}, {adj_idx})"
 
 
-class CovincularPatt(BivincularPatt):
+class CovincularPatt(BivincularPatt):  # pylint: disable=abstract-method
     """A covincular pattern class."""
 
     def __init__(self, perm: Perm, adjacent_values: Iterable[int]) -> None:
