@@ -291,3 +291,160 @@ def test_invalid_ops_with_mesh_patt():
         Av(MeshBasis(Perm((0, 1)))).is_insertion_encodable()
     with pytest.raises(NotImplementedError):
         Av(MeshBasis(Perm((0, 1)))).is_polynomial()
+
+
+# Tests for right_juxtaposition
+
+
+def test_right_juxtaposition_basic():
+    """Test Av(21) | Av(12) = Av(213, 312)."""
+    av_21 = Av(Basis(Perm((1, 0))))
+    av_12 = Av(Basis(Perm((0, 1))))
+    result = av_21.right_juxtaposition(av_12)
+    expected_basis = {Perm((1, 0, 2)), Perm((2, 0, 1))}
+    assert set(result.basis) == expected_basis
+
+
+def test_right_juxtaposition_same_class():
+    """Test Av(21) | Av(21) gives expected basis."""
+    av_21 = Av(Basis(Perm((1, 0))))
+    result = av_21.right_juxtaposition(av_21)
+    # Basis should be {321, 2143, 2431} = {(2,1,0), (1,0,3,2), (1,3,2,0)}
+    expected_basis = {Perm((2, 1, 0)), Perm((1, 0, 3, 2)), Perm((2, 0, 3, 1))}
+    assert set(result.basis) == expected_basis
+
+
+def test_right_juxtaposition_enumeration():
+    """Test that juxtaposition class has correct enumeration."""
+    av_21 = Av(Basis(Perm((1, 0))))
+    av_12 = Av(Basis(Perm((0, 1))))
+    result = av_21.right_juxtaposition(av_12)
+    # [Av(21)|Av(12)] = permutations that can be split into decreasing|increasing
+    # Enumeration: 1, 1, 2, 4, 8, 16, 32 (powers of 2 starting at n=2)
+    assert result.enumeration(6) == [1, 1, 2, 4, 8, 16, 32]
+
+
+def test_right_juxtaposition_multiple_basis_elements():
+    """Test juxtaposition with multiple basis elements."""
+    # Only contains empty and singleton permutations
+    av_21_12 = Av(Basis(Perm((1, 0)), Perm((0, 1))))
+    av_132 = Av(Basis(Perm((0, 2, 1))))
+    result = av_21_12.right_juxtaposition(av_132)
+    # The result should be a valid Av object with a minimized basis
+    assert isinstance(result.basis, Basis)
+    assert len(result.basis) > 0
+
+
+def test_right_juxtaposition_longer_patterns():
+    """Test juxtaposition with longer patterns."""
+    av_132 = Av(Basis(Perm((0, 2, 1))))
+    av_231 = Av(Basis(Perm((1, 2, 0))))
+    result = av_132.right_juxtaposition(av_231)
+    # Verify result is valid and has expected structure
+    assert isinstance(result.basis, Basis)
+    # All basis elements should have length between 3 and 6 (|b1|+|b2|-1 to |b1|+|b2|)
+    for perm in result.basis:
+        assert 5 <= len(perm) <= 6
+
+
+def test_right_juxtaposition_mesh_basis_raises():
+    """Test that juxtaposition with MeshBasis raises NotImplementedError."""
+    av_classical = Av(Basis(Perm((1, 0))))
+    av_mesh = Av(MeshBasis(Perm((0, 1))))
+    with pytest.raises(NotImplementedError):
+        av_classical.right_juxtaposition(av_mesh)
+    with pytest.raises(NotImplementedError):
+        av_mesh.right_juxtaposition(av_classical)
+
+
+def test_right_juxtaposition_containment():
+    """Test that permutations in the juxtaposition class can be split correctly."""
+    av_21 = Av(Basis(Perm((1, 0))))
+    av_12 = Av(Basis(Perm((0, 1))))
+    result = av_21.right_juxtaposition(av_12)
+
+    # Check some permutations that should be in the class
+    # 21 can be split as (2)|(1) where (2) is decreasing and (1) is increasing
+    assert Perm((1, 0)) in result
+    # 12 can be split as ()|(12) where () is trivially decreasing and (12) is increasing
+    assert Perm((0, 1)) in result
+    # 1 is trivially in the class
+    assert Perm((0,)) in result
+
+    # Check some permutations that should NOT be in the class
+    # 213 = (1,0,2) is a basis element, so not in the class
+    assert Perm((1, 0, 2)) not in result
+    # 312 = (2,0,1) is a basis element, so not in the class
+    assert Perm((2, 0, 1)) not in result
+
+
+# Tests for above_juxtaposition
+
+
+def test_above_juxtaposition_basic():
+    """Test basic above juxtaposition with Av(21) below and Av(12) above."""
+    av_21 = Av(Basis(Perm((1, 0))))
+    av_12 = Av(Basis(Perm((0, 1))))
+    result = av_21.above_juxtaposition(av_12)
+    # Result should be valid Av with Basis
+    assert isinstance(result.basis, Basis)
+    assert len(result.basis) > 0
+
+
+def test_above_juxtaposition_inverse_relationship():
+    """Test that above_juxtaposition relates to right_juxtaposition via inverses."""
+    av_21 = Av(Basis(Perm((1, 0))))
+    av_132 = Av(Basis(Perm((0, 2, 1))))
+
+    # Compute above juxtaposition directly
+    above_result = av_21.above_juxtaposition(av_132)
+
+    # Compute via inverses manually
+    av_21_inv = Av(Basis(*[p.inverse() for p in av_21.basis]))
+    av_132_inv = Av(Basis(*[p.inverse() for p in av_132.basis]))
+    right_result = av_21_inv.right_juxtaposition(av_132_inv)
+    manual_result = Av(Basis(*[p.inverse() for p in right_result.basis]))
+
+    # The bases should be equivalent
+    assert set(above_result.basis) == set(manual_result.basis)
+
+
+def test_above_juxtaposition_enumeration():
+    """Test that above juxtaposition class has expected enumeration."""
+    av_21 = Av(Basis(Perm((1, 0))))
+    av_12 = Av(Basis(Perm((0, 1))))
+    result = av_21.above_juxtaposition(av_12)
+    # Permutations that can be split by value: lower values decreasing, upper increasing
+    # This should give 2^(n-1) for n >= 1
+    assert result.enumeration(6) == [1, 1, 2, 4, 8, 16, 32]
+
+
+def test_above_juxtaposition_same_class():
+    """Test above juxtaposition with the same class."""
+    av_21 = Av(Basis(Perm((1, 0))))
+    result = av_21.above_juxtaposition(av_21)
+    # Should be valid and have a non-empty basis
+    assert isinstance(result.basis, Basis)
+    assert len(result.basis) > 0
+
+
+def test_above_juxtaposition_longer_patterns():
+    """Test above juxtaposition with longer patterns."""
+    av_132 = Av(Basis(Perm((0, 2, 1))))
+    av_231 = Av(Basis(Perm((1, 2, 0))))
+    result = av_132.above_juxtaposition(av_231)
+    # Verify result is valid
+    assert isinstance(result.basis, Basis)
+    # All basis elements should have length between 5 and 6
+    for perm in result.basis:
+        assert 5 <= len(perm) <= 6
+
+
+def test_above_juxtaposition_mesh_basis_raises():
+    """Test that above_juxtaposition with MeshBasis raises NotImplementedError."""
+    av_classical = Av(Basis(Perm((1, 0))))
+    av_mesh = Av(MeshBasis(Perm((0, 1))))
+    with pytest.raises(NotImplementedError):
+        av_classical.above_juxtaposition(av_mesh)
+    with pytest.raises(NotImplementedError):
+        av_mesh.above_juxtaposition(av_classical)
