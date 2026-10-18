@@ -7,7 +7,7 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 ## Unreleased
 
 ### Added
-- `LabelledPerms` in `permuta.bisc.bisc`: labels of permutations kept as one bitmap
+- `LabelledPerms` in `permuta.bisc`: labels of permutations kept as one bitmap
   per length (lexicographic order), made from a property, given as bitmaps, or both.
   `auto_bisc` and `bisc` accept it as input.
 - `auto_bisc(prop, labels="bitmaps")`: keeps a property's labels as bitmaps instead
