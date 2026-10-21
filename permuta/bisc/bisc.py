@@ -116,7 +116,7 @@ def auto_bisc(prop, labels="lists"):
         # LabelledPerms's property, if it has one
         labelled = prop
         for i in range(L + 1):
-            if i not in labelled.bits:
+            if i not in labelled.bitmaps:
                 if labelled.prop is None:
                     print("You should have labels up to length at least 8")
                     return
@@ -266,7 +266,7 @@ def auto_bisc(prop, labels="lists"):
 
             elif isinstance(prop, LabelledPerms):
                 for i in range(oldL + 1, L + 1):
-                    if i not in labelled.bits:
+                    if i not in labelled.bitmaps:
                         if labelled.prop is None:
                             print("You need to add labels of longer permutations")
                             return
@@ -337,26 +337,28 @@ class LabelledPerms:
 
     def __init__(self, prop=None, bitmaps=None):
         self.prop = prop
-        self.bits = {}
+        self.bitmaps = {}
         self.counts = {}
-        for n, data in (bitmaps or {}).items():
-            data = bytes(data)
-            if len(data) != (factorial(n) + 7) // 8:
-                raise ValueError("A bitmap of length {} has the wrong size".format(n))
-            self.bits[n] = data
-            self.counts[n] = sum(bin(b).count("1") for b in data)
+        for length, bitmap in (bitmaps or {}).items():
+            bitmap = bytes(bitmap)
+            if len(bitmap) != (factorial(length) + 7) // 8:
+                raise ValueError(
+                    "A bitmap of length {} has the wrong size".format(length)
+                )
+            self.bitmaps[length] = bitmap
+            self.counts[length] = sum(bin(byte).count("1") for byte in bitmap)
         self.good = _LengthViews(self, True)
         self.bad = _LengthViews(self, False)
 
-    def add_length(self, n):
-        bits = bytearray((factorial(n) + 7) // 8)
+    def add_length(self, length):
+        bitmap = bytearray((factorial(length) + 7) // 8)
         count = 0
-        for i, perm in enumerate(Perm.of_length(n)):
+        for i, perm in enumerate(Perm.of_length(length)):
             if self.prop(perm):
-                bits[i >> 3] |= 1 << (i & 7)
+                bitmap[i >> 3] |= 1 << (i & 7)
                 count += 1
-        self.bits[n] = bits
-        self.counts[n] = count
+        self.bitmaps[length] = bitmap
+        self.counts[length] = count
 
 
 class _LengthViews:
@@ -368,33 +370,33 @@ class _LengthViews:
         self.is_good = good
 
     def keys(self):
-        return self.labelled.bits.keys()
+        return self.labelled.bitmaps.keys()
 
-    def __contains__(self, n):
-        return n in self.labelled.bits
+    def __contains__(self, length):
+        return length in self.labelled.bitmaps
 
-    def __getitem__(self, n):
-        if n not in self.labelled.bits:
-            raise KeyError(n)
-        return _PermsOfLength(self.labelled, n, self.is_good)
+    def __getitem__(self, length):
+        if length not in self.labelled.bitmaps:
+            raise KeyError(length)
+        return _PermsOfLength(self.labelled, length, self.is_good)
 
 
 class _PermsOfLength:
-    def __init__(self, labelled, n, good):
+    def __init__(self, labelled, length, good):
         self.labelled = labelled
-        self.n = n
-        self.want = 1 if good else 0
+        self.length = length
+        self.wanted_bit = 1 if good else 0
 
     def __iter__(self):
-        bits = self.labelled.bits[self.n]
-        want = self.want
-        for i, perm in enumerate(Perm.of_length(self.n)):
-            if (bits[i >> 3] >> (i & 7)) & 1 == want:
+        bitmap = self.labelled.bitmaps[self.length]
+        wanted_bit = self.wanted_bit
+        for i, perm in enumerate(Perm.of_length(self.length)):
+            if (bitmap[i >> 3] >> (i & 7)) & 1 == wanted_bit:
                 yield perm
 
     def __len__(self):
-        good = self.labelled.counts[self.n]
-        return good if self.want else factorial(self.n) - good
+        good_count = self.labelled.counts[self.length]
+        return good_count if self.wanted_bit else factorial(self.length) - good_count
 
     def __bool__(self):
         return len(self) > 0

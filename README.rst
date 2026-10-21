@@ -528,8 +528,8 @@ both, and ``bisc`` accepts it too.
 .. code-block:: python
 
     >>> labels = LabelledPerms(Perm.stack_sortable)
-    >>> for n in range(6):
-    ...     labels.add_length(n)
+    >>> for length in range(6):
+    ...     labels.add_length(length)
     >>> len(labels.good[5]), len(labels.bad[5])
     (42, 78)
     >>> bisc(labels, 3, 5)
