@@ -25,7 +25,8 @@ def bisc(A, m, n=None, report=False):
     length n of a set A: a list of permutations, a property (a function), a
     dictionary (length -> the permutations of that length in the set), or a
     LabelledPerms. Without n, a property uses length 7, and the others their
-    longest length. A LabelledPerms's lengths up to n that are not labelled
+    longest length. mine() reads the lengths up to m and the permutations up
+    to n, so a LabelledPerms's lengths up to max(m, n) that are not labelled
     are labelled with its property, and added to it.
     """
     if isinstance(A, list):
@@ -54,12 +55,14 @@ def bisc(A, m, n=None, report=False):
                 n = 7
             else:
                 raise ValueError("The LabelledPerms has no labels and no property")
-        for length in range(n + 1):
+        for length in range(max(m, n) + 1):
             if length not in A.bitmaps:
                 if A.prop is None:
                     raise ValueError(
                         "bisc needs labels up to length {}, and the LabelledPerms "
-                        "has none of length {} and no property".format(n, length)
+                        "has none of length {} and no property".format(
+                            max(m, n), length
+                        )
                     )
                 A.add_length(length)
         D = A.good

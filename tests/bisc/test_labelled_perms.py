@@ -169,6 +169,44 @@ def test_bisc_needs_labels_or_a_property():
         bisc(LabelledPerms(), 3)
 
 
+def test_bisc_without_n_uses_the_longest_labelled_length_with_no_property():
+    bitmaps = {length: encode(Perm.stack_sortable, length) for length in range(6)}
+    assert bisc(LabelledPerms(bitmaps=bitmaps), 3) == BASIS_231
+
+
+def test_bisc_labels_only_the_missing_lengths():
+    labelled_lengths = []
+
+    def prop(perm):
+        labelled_lengths.append(len(perm))
+        return perm.stack_sortable()
+
+    given_lengths = (0, 1, 2, 3, 5)
+    labelled_perms = LabelledPerms(
+        prop,
+        bitmaps={
+            length: encode(Perm.stack_sortable, length) for length in given_lengths
+        },
+    )
+    assert bisc(labelled_perms, 3) == BASIS_231
+    assert labelled_lengths == [4] * factorial(4)
+    assert sorted(labelled_perms.bitmaps) == list(range(6))
+    assert bisc(labelled_perms, 3, 5) == BASIS_231
+    assert labelled_lengths == [4] * factorial(4)
+
+
+def test_bisc_labels_up_to_the_pattern_length():
+    # mine() reads the lengths up to m, so bisc labels up to m when n < m
+    labelled_perms = LabelledPerms(Perm.stack_sortable)
+    bisc(labelled_perms, 3, 0)
+    assert sorted(labelled_perms.bitmaps) == [0, 1, 2, 3]
+    labelled_perms = LabelledPerms(Perm.stack_sortable, bitmaps={0: b"\x01"})
+    bisc(labelled_perms, 3)
+    assert sorted(labelled_perms.bitmaps) == [0, 1, 2, 3]
+    with pytest.raises(ValueError):
+        bisc(LabelledPerms(bitmaps={0: b"\x01"}), 3)
+
+
 def test_bitmaps_need_a_property():
     for prop in ([Perm((0,))], ({}, {}), "yt_perm_avoids_22"):
         with pytest.raises(ValueError):
