@@ -95,6 +95,24 @@ def test_auto_bisc_labels_option():
         auto_bisc(Perm.stack_sortable, labels="sets")
 
 
+def test_labels_option_selects_the_representation(monkeypatch):
+    # The results are the same either way, so record which lengths are kept as
+    # bitmaps: none for lists, every length checked for bitmaps
+    added_lengths = []
+    real_add_length = LabelledPerms.add_length
+
+    def recording_add_length(self, length):
+        added_lengths.append(length)
+        return real_add_length(self, length)
+
+    monkeypatch.setattr(LabelledPerms, "add_length", recording_add_length)
+    assert auto_bisc(Perm.stack_sortable) == BASIS_231
+    assert auto_bisc(Perm.stack_sortable, labels="lists") == BASIS_231
+    assert added_lengths == []
+    assert auto_bisc(Perm.stack_sortable, labels="bitmaps") == BASIS_231
+    assert added_lengths == list(range(9))
+
+
 def test_auto_bisc_labelled_perms_input():
     assert auto_bisc(labelled_up_to(Perm.stack_sortable, 8)) == BASIS_231
     # Given bitmaps and no property: the lengths auto_bisc needs must be there
@@ -102,6 +120,34 @@ def test_auto_bisc_labelled_perms_input():
     assert auto_bisc(LabelledPerms(bitmaps=bitmaps)) == BASIS_231
     too_short = {length: bitmaps[length] for length in range(6)}
     assert auto_bisc(LabelledPerms(bitmaps=too_short)) is None
+
+
+def encode(prop, length):
+    """A length's bitmap made without LabelledPerms: bit i of the little-endian
+    integer is the label of Perm.unrank(i, length)."""
+    label_bits = sum(
+        1 << i for i in range(factorial(length)) if prop(Perm.unrank(i, length))
+    )
+    return label_bits.to_bytes((factorial(length) + 7) // 8, "little")
+
+
+def test_auto_bisc_labels_only_missing_lengths_with_the_property():
+    labelled_lengths = []
+
+    def prop(perm):
+        labelled_lengths.append(len(perm))
+        return perm.stack_sortable()
+
+    given_lengths = (0, 1, 2, 3, 5, 8)
+    labelled_perms = LabelledPerms(
+        prop,
+        bitmaps={
+            length: encode(Perm.stack_sortable, length) for length in given_lengths
+        },
+    )
+    assert auto_bisc(labelled_perms) == BASIS_231
+    assert set(labelled_lengths) == {4, 6, 7}
+    assert sorted(labelled_perms.bitmaps) == list(range(9))
 
 
 def test_west_2_stack_sortable_same_as_lists():
