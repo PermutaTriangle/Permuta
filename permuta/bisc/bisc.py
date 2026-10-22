@@ -107,8 +107,10 @@ def auto_bisc(prop, labels="lists"):
     each length as lists of Perm objects;
     "bitmaps": one bitmap per length (LabelledPerms), for the same result in
     far less memory, at the cost of generating a length's permutations again
-    each time it is read. Use it when the permutations checked are long: from
-    length 10 on the lists take gigabytes, the bitmaps under a megabyte.
+    each time it is read. Use it when the permutations checked are long: those
+    of length 10 take 0.9 to 1.8 GB as lists of Perm objects, depending on the
+    Python, and 454 KB as a bitmap, a bit for each permutation (5 MB at length
+    11, 60 MB at length 12).
 
     A LabelledPerms can also be given as prop directly. The lengths auto_bisc
     labels with its property are added to it, so a later run reuses them.
@@ -387,7 +389,7 @@ class LabelledPerms:
     The views good and bad do that from the bitmaps, generating a length's
     permutations again each time it is iterated, in the same order as the
     lists a property input makes. A bitmap of S_10 is 454 KB; S_10 as a list
-    of Perm objects is about 0.9 GB.
+    of Perm objects takes 0.9 GB on PyPy 3.11 and 1.3 to 1.8 GB on CPython.
     """
 
     def __init__(self, prop=None, bitmaps=None):

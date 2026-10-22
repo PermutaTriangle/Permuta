@@ -522,10 +522,10 @@ a list of permutations (satisfying some property), or a ``LabelledPerms``.
 not, as lists. For long runs it can keep them as one bitmap per length instead,
 with the same result in far less memory:
 ``auto_bisc(Perm.stack_sortable, labels="bitmaps")``. Use it when ``auto_bisc``
-has to check long permutations: the permutations of length 10 take about 0.9 GB
-as lists, and 454 KB as a bitmap. Such labels can also be given directly as a
-``LabelledPerms``, made from a property, from bitmaps, or both, and ``bisc``
-accepts it too.
+has to check long permutations: the permutations of length 10 take 0.9 to 1.8 GB
+as lists of ``Perm`` objects, depending on the Python, and 454 KB as a bitmap.
+Such labels can also be given directly as a ``LabelledPerms``, made from a
+property, from bitmaps, or both, and ``bisc`` accepts it too.
 
 .. code-block:: python
 
