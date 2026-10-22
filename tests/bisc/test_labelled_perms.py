@@ -58,6 +58,30 @@ def test_bitmaps_round_trip():
         LabelledPerms(bitmaps={3: b"\x00\x00"})  # 3! bits fit in one byte
 
 
+@pytest.mark.parametrize(
+    "length, bitmap",
+    [(0, b"\x03"), (1, b"\x81"), (2, b"\x04"), (3, b"\xff"), (3, b"\x40")],
+)
+def test_set_padding_bits_are_rejected(length, bitmap):
+    with pytest.raises(ValueError):
+        LabelledPerms(bitmaps={length: bitmap})
+
+
+@pytest.mark.parametrize("length, bitmap", [(0, 1), (3, 1), (4, 3), (5, 15)])
+def test_an_int_is_not_a_bitmap(length, bitmap):
+    with pytest.raises(TypeError):
+        LabelledPerms(bitmaps={length: bitmap})
+
+
+def test_bitmaps_may_be_any_bytes_like():
+    # All six permutations of length 3 are good, and the first of length 2
+    for bitmap in (b"\x3f", bytearray(b"\x3f"), memoryview(b"\x3f")):
+        labelled_perms = LabelledPerms(bitmaps={3: bitmap, 2: b"\x01"})
+        assert len(labelled_perms.good[3]) == 6 and not labelled_perms.bad[3]
+        assert list(labelled_perms.good[2]) == [Perm((0, 1))]
+        assert isinstance(labelled_perms.bitmaps[3], bytes)
+
+
 def test_bisc_accepts_labelled_perms():
     assert bisc(Perm.stack_sortable, 3, 5) == BASIS_231
     assert bisc(labelled_up_to(Perm.stack_sortable, 5), 3, 5) == BASIS_231

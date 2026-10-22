@@ -345,7 +345,9 @@ class LabelledPerms:
     (bitmaps={length: bytes}), made from a property (add_length), or both:
     auto_bisc labels the lengths it needs and is not given with prop, adding
     them to this object, and stops, as for a tuple of dictionaries, when
-    there is no prop.
+    there is no prop. A bitmap given must be bytes-like (bytes, a bytearray
+    or a memoryview), of its length's size, with no bit set past the length's
+    permutations.
 
     auto_bisc reads its good and bad permutations only length by length:
     iterating over a length, counting it, asking whether a length is there.
@@ -360,13 +362,24 @@ class LabelledPerms:
         self.bitmaps = {}
         self.good_counts = {}
         for length, bitmap in (bitmaps or {}).items():
+            if not isinstance(bitmap, (bytes, bytearray, memoryview)):
+                raise TypeError(
+                    "A bitmap must be bytes, a bytearray or a memoryview, "
+                    "not {}".format(type(bitmap).__name__)
+                )
             bitmap = bytes(bitmap)
             if len(bitmap) != _bitmap_size(length):
                 raise ValueError(
                     "A bitmap of length {} has the wrong size".format(length)
                 )
+            label_bits = int.from_bytes(bitmap, "little")
+            if label_bits >> factorial(length):
+                raise ValueError(
+                    "A bitmap of length {} has bits set past its {} "
+                    "permutations".format(length, factorial(length))
+                )
             self.bitmaps[length] = bitmap
-            self.good_counts[length] = sum(bin(byte).count("1") for byte in bitmap)
+            self.good_counts[length] = label_bits.bit_count()
         self.good = _LengthViews(self, True)
         self.bad = _LengthViews(self, False)
 
