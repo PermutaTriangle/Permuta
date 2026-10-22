@@ -20,6 +20,14 @@ from permuta.patterns.perm import Perm
 
 
 def bisc(A, m, n=None, report=False):
+    """
+    Mine the forbidden patterns of length up to m from the permutations up to
+    length n of a set A: a list of permutations, a property (a function), a
+    dictionary (length -> the permutations of that length in the set), or a
+    LabelledPerms. Without n, a property uses length 7, and the others their
+    longest length. A LabelledPerms's lengths up to n that are not labelled
+    are labelled with its property, and added to it.
+    """
     if isinstance(A, list):
         D = defaultdict(list)
         for perm in A:
@@ -38,6 +46,22 @@ def bisc(A, m, n=None, report=False):
         D = A
 
     elif isinstance(A, LabelledPerms):
+        if n is None:
+            if A.bitmaps:
+                n = max(A.bitmaps)
+            elif A.prop is not None:
+                print("I will use permutations up to length 7")
+                n = 7
+            else:
+                raise ValueError("The LabelledPerms has no labels and no property")
+        for length in range(n + 1):
+            if length not in A.bitmaps:
+                if A.prop is None:
+                    raise ValueError(
+                        "bisc needs labels up to length {}, and the LabelledPerms "
+                        "has none of length {} and no property".format(n, length)
+                    )
+                A.add_length(length)
         D = A.good
 
     elif isinstance(A, _LengthViews):
@@ -88,8 +112,13 @@ def auto_bisc(prop, labels="lists"):
     """
     if labels not in ("lists", "bitmaps"):
         raise ValueError('labels must be "lists" or "bitmaps"')
-    if labels == "bitmaps" and isinstance(prop, types.FunctionType):
-        prop = LabelledPerms(prop)
+    if labels == "bitmaps":
+        if isinstance(prop, types.FunctionType):
+            prop = LabelledPerms(prop)
+        elif not isinstance(prop, LabelledPerms):
+            raise ValueError(
+                'labels="bitmaps" needs a property (a function) or a LabelledPerms'
+            )
     L = 8  # Want to sanity check on at least S8, and one above n
     n = 4
     m = 2
@@ -188,7 +217,8 @@ def auto_bisc(prop, labels="lists"):
         1. A list of permutations
         2. A property of permutations
         3. A dictionary of lengths pointing to permutations
-        4. A string """
+        4. A string
+        5. A LabelledPerms (labels kept as bitmaps)"""
         )
         assert False
 

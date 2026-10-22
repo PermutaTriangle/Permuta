@@ -150,6 +150,33 @@ def test_auto_bisc_labels_only_missing_lengths_with_the_property():
     assert sorted(labelled_perms.bitmaps) == list(range(9))
 
 
+def test_bisc_labels_missing_lengths_with_the_property():
+    # Without n, bisc uses the longest length labelled, or 7 when there is none
+    assert bisc(labelled_up_to(Perm.stack_sortable, 5), 3) == BASIS_231
+    labelled_perms = LabelledPerms(Perm.stack_sortable)
+    assert bisc(labelled_perms, 3, 5) == BASIS_231
+    assert sorted(labelled_perms.bitmaps) == list(range(6))
+    labelled_perms = LabelledPerms(Perm.stack_sortable)
+    assert bisc(labelled_perms, 3) == BASIS_231
+    assert sorted(labelled_perms.bitmaps) == list(range(8))
+
+
+def test_bisc_needs_labels_or_a_property():
+    bitmaps = {length: encode(Perm.stack_sortable, length) for length in range(4)}
+    with pytest.raises(ValueError):
+        bisc(LabelledPerms(bitmaps=bitmaps), 3, 5)
+    with pytest.raises(ValueError):
+        bisc(LabelledPerms(), 3)
+
+
+def test_bitmaps_need_a_property():
+    for prop in ([Perm((0,))], ({}, {}), "yt_perm_avoids_22"):
+        with pytest.raises(ValueError):
+            auto_bisc(prop, labels="bitmaps")
+    labelled_perms = labelled_up_to(Perm.stack_sortable, 8)
+    assert auto_bisc(labelled_perms, labels="bitmaps") == BASIS_231
+
+
 def test_west_2_stack_sortable_same_as_lists():
     assert auto_bisc(Perm.west_2_stack_sortable, labels="bitmaps") == auto_bisc(
         Perm.west_2_stack_sortable
