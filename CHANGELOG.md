@@ -12,7 +12,8 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
   `auto_bisc` and `bisc` accept it as input.
 - `auto_bisc(prop, labels="bitmaps")`: keeps a property's labels as bitmaps instead
   of lists of permutations, for the same result in far less memory at longer
-  lengths. `labels="lists"`, the default, is the previous behaviour.
+  lengths (the permutations of length 10 take about 0.9 GB as lists, 454 KB as a
+  bitmap). `labels="lists"`, the default, is the previous behaviour.
 
 ### Fixed
 - Fixed bug in `Perm.rtlmax_ltrmin_decomposition` and fixed associated tests.

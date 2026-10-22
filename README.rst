@@ -521,18 +521,20 @@ a list of permutations (satisfying some property), or a ``LabelledPerms``.
 ``auto_bisc`` keeps the permutations satisfying a property, and those that do
 not, as lists. For long runs it can keep them as one bitmap per length instead,
 with the same result in far less memory:
-``auto_bisc(Perm.stack_sortable, labels="bitmaps")``. Such labels can also be
-given directly as a ``LabelledPerms``, made from a property, from bitmaps, or
-both, and ``bisc`` accepts it too.
+``auto_bisc(Perm.stack_sortable, labels="bitmaps")``. Use it when ``auto_bisc``
+has to check long permutations: the permutations of length 10 take about 0.9 GB
+as lists, and 454 KB as a bitmap. Such labels can also be given directly as a
+``LabelledPerms``, made from a property, from bitmaps, or both, and ``bisc``
+accepts it too.
 
 .. code-block:: python
 
-    >>> labels = LabelledPerms(Perm.stack_sortable)
+    >>> labelled_perms = LabelledPerms(Perm.stack_sortable)
     >>> for length in range(6):
-    ...     labels.add_length(length)
-    >>> len(labels.good[5]), len(labels.bad[5])
+    ...     labelled_perms.add_length(length)
+    >>> len(labelled_perms.good[5]), len(labelled_perms.bad[5])
     (42, 78)
-    >>> bisc(labels, 3, 5)
+    >>> bisc(labelled_perms, 3, 5)
     {3: {Perm((1, 2, 0)): [set()]}}
 
 License

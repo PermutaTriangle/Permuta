@@ -64,13 +64,27 @@ def bisc(A, m, n=None, report=False):
 
 def auto_bisc(prop, labels="lists"):
     """
-    labels says how the labels of a property (a function) are kept:
+    Learn a basis of forbidden patterns for a set of permutations, growing
+    the length of the patterns and of the permutations they are learned from
+    until the patterns found describe the set on every permutation up to
+    length L, at least 8. Returns the basis, in the form bisc returns its
+    patterns, or None when the input is too short to check a basis.
+
+    prop is the set: a property of permutations (a function), a list of
+    permutations, a tuple of two dictionaries (length -> the permutations in
+    the set, and those not in it), the name of a set in
+    permuta/resources/bisc, or a LabelledPerms.
+
+    labels says how the labels of a property are kept:
     "lists" (the default, as before): the good and the bad permutations of
     each length as lists of Perm objects;
     "bitmaps": one bitmap per length (LabelledPerms), for the same result in
     far less memory, at the cost of generating a length's permutations again
-    each time it is read.
-    A LabelledPerms can also be given as prop directly.
+    each time it is read. Use it when the permutations checked are long: from
+    length 10 on the lists take gigabytes, the bitmaps under a megabyte.
+
+    A LabelledPerms can also be given as prop directly. The lengths auto_bisc
+    labels with its property are added to it, so a later run reuses them.
     """
     if labels not in ("lists", "bitmaps"):
         raise ValueError('labels must be "lists" or "bitmaps"')
@@ -114,14 +128,13 @@ def auto_bisc(prop, labels="lists"):
         # and the bad permutations, generated length by length when they are
         # read, instead of lists. Lengths not given are labelled with the
         # LabelledPerms's property, if it has one
-        labelled = prop
         for i in range(L + 1):
-            if i not in labelled.bitmaps:
-                if labelled.prop is None:
+            if i not in prop.bitmaps:
+                if prop.prop is None:
                     print("You should have labels up to length at least 8")
                     return
-                labelled.add_length(i)
-        A, B = labelled.good, labelled.bad
+                prop.add_length(i)
+        A, B = prop.good, prop.bad
 
     elif (
         isinstance(prop, tuple)
@@ -266,12 +279,12 @@ def auto_bisc(prop, labels="lists"):
 
             elif isinstance(prop, LabelledPerms):
                 for i in range(oldL + 1, L + 1):
-                    if i not in labelled.bitmaps:
-                        if labelled.prop is None:
+                    if i not in prop.bitmaps:
+                        if prop.prop is None:
                             print("You need to add labels of longer permutations")
                             return
                         print("Adding perms of length {}".format(i))
-                        labelled.add_length(i)
+                        prop.add_length(i)
 
             elif isinstance(prop, tuple) and L > min(max(A.keys()), max(B.keys())):
                 print("You need to add longer permutations to the dictionaries")
@@ -313,19 +326,26 @@ def auto_bisc(prop, labels="lists"):
                     return
 
 
+def _bitmap_size(length):
+    """The number of bytes in the bitmap of a length: a bit for each of its
+    permutations."""
+    return (factorial(length) + 7) // 8
+
+
 class LabelledPerms:
     """Labels of permutations, one bitmap per length, as input to auto_bisc
     and bisc: which permutations of each length satisfy a property (good) and
     which do not (bad).
 
-    Bit i of length n is the label of Perm.unrank(i, n), in byte i // 8, from
-    the low bit; so a permutation perm of length n is at bit
-    perm.rank() - sum(factorial(k) for k in range(n)). This is the order in
-    which Perm.of_length(n) yields the permutations (lexicographic), which the
-    views use to iterate. The bitmaps can be given (bitmaps={n: bytes}), made
-    from a property (add_length), or both: auto_bisc labels the lengths it
-    needs and is not given with prop, and stops, as for a tuple of
-    dictionaries, when there is no prop.
+    Bit i of a length's bitmap is the label of Perm.unrank(i, length), in
+    byte i // 8, from the low bit; so a permutation perm is at bit
+    perm.rank() - sum(factorial(k) for k in range(len(perm))). This is the
+    order in which Perm.of_length(length) yields the permutations
+    (lexicographic), which the views use to iterate. The bitmaps can be given
+    (bitmaps={length: bytes}), made from a property (add_length), or both:
+    auto_bisc labels the lengths it needs and is not given with prop, adding
+    them to this object, and stops, as for a tuple of dictionaries, when
+    there is no prop.
 
     auto_bisc reads its good and bad permutations only length by length:
     iterating over a length, counting it, asking whether a length is there.
@@ -338,27 +358,29 @@ class LabelledPerms:
     def __init__(self, prop=None, bitmaps=None):
         self.prop = prop
         self.bitmaps = {}
-        self.counts = {}
+        self.good_counts = {}
         for length, bitmap in (bitmaps or {}).items():
             bitmap = bytes(bitmap)
-            if len(bitmap) != (factorial(length) + 7) // 8:
+            if len(bitmap) != _bitmap_size(length):
                 raise ValueError(
                     "A bitmap of length {} has the wrong size".format(length)
                 )
             self.bitmaps[length] = bitmap
-            self.counts[length] = sum(bin(byte).count("1") for byte in bitmap)
+            self.good_counts[length] = sum(bin(byte).count("1") for byte in bitmap)
         self.good = _LengthViews(self, True)
         self.bad = _LengthViews(self, False)
 
     def add_length(self, length):
-        bitmap = bytearray((factorial(length) + 7) // 8)
-        count = 0
+        """Label the permutations of a length with the property, and keep
+        their labels as the length's bitmap."""
+        bitmap = bytearray(_bitmap_size(length))
+        good_count = 0
         for i, perm in enumerate(Perm.of_length(length)):
             if self.prop(perm):
                 bitmap[i >> 3] |= 1 << (i & 7)
-                count += 1
-        self.bitmaps[length] = bitmap
-        self.counts[length] = count
+                good_count += 1
+        self.bitmaps[length] = bytes(bitmap)
+        self.good_counts[length] = good_count
 
 
 class _LengthViews:
@@ -395,11 +417,8 @@ class _PermsOfLength:
                 yield perm
 
     def __len__(self):
-        good_count = self.labelled.counts[self.length]
+        good_count = self.labelled.good_counts[self.length]
         return good_count if self.wanted_bit else factorial(self.length) - good_count
-
-    def __bool__(self):
-        return len(self) > 0
 
 
 def create_bisc_input(N, prop):
