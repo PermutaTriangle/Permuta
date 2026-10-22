@@ -27,7 +27,12 @@ def bisc(A, m, n=None, report=False):
     LabelledPerms. Without n, a property uses length 7, and the others their
     longest length. mine() reads the lengths up to m and the permutations up
     to n, so a LabelledPerms's lengths up to max(m, n) that are not labelled
-    are labelled with its property, and added to it.
+    are labelled with its property, and added to it. report prints the
+    progress of the search.
+
+    Returns the forbidden patterns found: a dictionary from length to
+    {pattern: [shadings]}, where each shading is a set of boxes, and an empty
+    one makes the pattern classical.
     """
     if isinstance(A, list):
         D = defaultdict(list)
@@ -221,7 +226,7 @@ def auto_bisc(prop, labels="lists"):
             """BiSC can accept inputs:
         1. A list of permutations
         2. A property of permutations
-        3. A dictionary of lengths pointing to permutations
+        3. A tuple of two dictionaries of lengths pointing to permutations
         4. A string
         5. A LabelledPerms (labels kept as bitmaps)"""
         )
@@ -378,11 +383,11 @@ class LabelledPerms:
     order in which Perm.of_length(length) yields the permutations
     (lexicographic), which the views use to iterate. The bitmaps can be given
     (bitmaps={length: bytes}), made from a property (add_length), or both:
-    auto_bisc labels the lengths it needs and is not given with prop, adding
-    them to this object, and stops, as for a tuple of dictionaries, when
-    there is no prop. A bitmap given must be bytes-like (bytes, a bytearray
-    or a memoryview), of its length's size, with no bit set past the length's
-    permutations.
+    auto_bisc and bisc label the lengths they need and are not given with
+    prop, adding them to this object. Without a prop, auto_bisc stops, as for
+    a tuple of dictionaries, and bisc raises a ValueError. A bitmap given must
+    be bytes-like (bytes, a bytearray or a memoryview), of its length's size,
+    with no bit set past the length's permutations.
 
     auto_bisc reads its good and bad permutations only length by length:
     iterating over a length, counting it, asking whether a length is there.
@@ -420,7 +425,8 @@ class LabelledPerms:
 
     def add_length(self, length):
         """Label the permutations of a length with the property, and keep
-        their labels as the length's bitmap."""
+        their labels as the length's bitmap. It needs a property, and replaces
+        the length's bitmap if there is one."""
         bitmap = bytearray(_bitmap_size(length))
         good_count = 0
         for i, perm in enumerate(Perm.of_length(length)):

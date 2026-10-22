@@ -29,7 +29,7 @@ def test_views_match_lists():
         assert bool(labelled_perms.bad[length]) == bool(bad)
     assert sorted(labelled_perms.good.keys()) == list(range(7))
     assert 6 in labelled_perms.bad and 7 not in labelled_perms.bad
-    with pytest.raises(KeyError):
+    with pytest.raises(KeyError, match="7"):
         _ = labelled_perms.good[7]
 
 
@@ -54,8 +54,19 @@ def test_bitmaps_round_trip():
     for length in range(7):
         assert list(round_trip.good[length]) == list(labelled_perms.good[length])
         assert list(round_trip.bad[length]) == list(labelled_perms.bad[length])
-    with pytest.raises(ValueError):
+    with pytest.raises(ValueError, match="wrong size"):
         LabelledPerms(bitmaps={3: b"\x00\x00"})  # 3! bits fit in one byte
+    with pytest.raises(ValueError, match="wrong size"):
+        LabelledPerms(bitmaps={3: b""})
+
+
+def test_lengths_0_and_1_labelled_bad():
+    labelled_perms = LabelledPerms(bitmaps={0: b"\x00", 1: b"\x00"})
+    for length in (0, 1):
+        assert list(labelled_perms.good[length]) == []
+        assert list(labelled_perms.bad[length]) == [Perm(range(length))]
+        assert len(labelled_perms.good[length]) == 0
+        assert len(labelled_perms.bad[length]) == 1
 
 
 @pytest.mark.parametrize(
@@ -63,13 +74,13 @@ def test_bitmaps_round_trip():
     [(0, b"\x03"), (1, b"\x81"), (2, b"\x04"), (3, b"\xff"), (3, b"\x40")],
 )
 def test_set_padding_bits_are_rejected(length, bitmap):
-    with pytest.raises(ValueError):
+    with pytest.raises(ValueError, match="bits set past"):
         LabelledPerms(bitmaps={length: bitmap})
 
 
 @pytest.mark.parametrize("length, bitmap", [(0, 1), (3, 1), (4, 3), (5, 15)])
 def test_an_int_is_not_a_bitmap(length, bitmap):
-    with pytest.raises(TypeError):
+    with pytest.raises(TypeError, match="must be bytes"):
         LabelledPerms(bitmaps={length: bitmap})
 
 
@@ -91,7 +102,7 @@ def test_auto_bisc_labels_option():
     assert auto_bisc(Perm.stack_sortable) == BASIS_231
     assert auto_bisc(Perm.stack_sortable, labels="lists") == BASIS_231
     assert auto_bisc(Perm.stack_sortable, labels="bitmaps") == BASIS_231
-    with pytest.raises(ValueError):
+    with pytest.raises(ValueError, match="labels must be"):
         auto_bisc(Perm.stack_sortable, labels="sets")
 
 
@@ -163,9 +174,9 @@ def test_bisc_labels_missing_lengths_with_the_property():
 
 def test_bisc_needs_labels_or_a_property():
     bitmaps = {length: encode(Perm.stack_sortable, length) for length in range(4)}
-    with pytest.raises(ValueError):
+    with pytest.raises(ValueError, match="none of length 4 and no property"):
         bisc(LabelledPerms(bitmaps=bitmaps), 3, 5)
-    with pytest.raises(ValueError):
+    with pytest.raises(ValueError, match="no labels and no property"):
         bisc(LabelledPerms(), 3)
 
 
@@ -203,13 +214,17 @@ def test_bisc_labels_up_to_the_pattern_length():
     labelled_perms = LabelledPerms(Perm.stack_sortable, bitmaps={0: b"\x01"})
     bisc(labelled_perms, 3)
     assert sorted(labelled_perms.bitmaps) == [0, 1, 2, 3]
-    with pytest.raises(ValueError):
+    with pytest.raises(ValueError, match="none of length 1 and no property"):
         bisc(LabelledPerms(bitmaps={0: b"\x01"}), 3)
+
+
+def test_bisc_accepts_the_views():
+    assert bisc(labelled_up_to(Perm.stack_sortable, 5).good, 3) == BASIS_231
 
 
 def test_bitmaps_need_a_property():
     for prop in ([Perm((0,))], ({}, {}), "yt_perm_avoids_22"):
-        with pytest.raises(ValueError):
+        with pytest.raises(ValueError, match="needs a property"):
             auto_bisc(prop, labels="bitmaps")
     labelled_perms = labelled_up_to(Perm.stack_sortable, 8)
     assert auto_bisc(labelled_perms, labels="bitmaps") == BASIS_231
