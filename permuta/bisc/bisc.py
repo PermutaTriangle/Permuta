@@ -406,6 +406,17 @@ def _bitmap_size(length: int) -> int:
     return (factorial(length) + 7) // 8
 
 
+def _set_label(bitmap: bytearray, index: int) -> None:
+    """Set the label of the permutation at index: bit index % 8 of byte
+    index // 8."""
+    bitmap[index // 8] |= 1 << (index % 8)
+
+
+def _label(bitmap: bytes, index: int) -> int:
+    """The label (0 or 1) of the permutation at index."""
+    return (bitmap[index // 8] >> (index % 8)) & 1
+
+
 class PropertyBitmaps:
     """Labels of permutations, one bitmap per length, as input to auto_bisc
     and bisc: which permutations of each length satisfy a property (good) and
@@ -479,9 +490,9 @@ class PropertyBitmaps:
             )
         bitmap = bytearray(_bitmap_size(length))
         good_count = 0
-        for i, perm in enumerate(Perm.of_length(length)):
+        for index, perm in enumerate(Perm.of_length(length)):
             if self.prop(perm):
-                bitmap[i >> 3] |= 1 << (i & 7)
+                _set_label(bitmap, index)
                 good_count += 1
         self.bitmaps[length] = bytes(bitmap)
         self.good_counts[length] = good_count
@@ -529,15 +540,14 @@ class _PermsOfLength(Collection[Perm]):
         shorter_count = sum(
             factorial(shorter_length) for shorter_length in range(self.length)
         )
-        i = perm.rank() - shorter_count
         bitmap = self.property_bitmaps.bitmaps[self.length]
-        return (bitmap[i >> 3] >> (i & 7)) & 1 == self.wanted_bit
+        return _label(bitmap, perm.rank() - shorter_count) == self.wanted_bit
 
     def __iter__(self) -> Iterator[Perm]:
         bitmap = self.property_bitmaps.bitmaps[self.length]
         wanted_bit = self.wanted_bit
-        for i, perm in enumerate(Perm.of_length(self.length)):
-            if (bitmap[i >> 3] >> (i & 7)) & 1 == wanted_bit:
+        for index, perm in enumerate(Perm.of_length(self.length)):
+            if _label(bitmap, index) == wanted_bit:
                 yield perm
 
     def __len__(self) -> int:
