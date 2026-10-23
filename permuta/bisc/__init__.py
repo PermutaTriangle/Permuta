@@ -1,5 +1,3 @@
-# type: ignore
-
 from .bisc import (
     PropertyBitmaps,
     auto_bisc,

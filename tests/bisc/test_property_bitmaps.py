@@ -128,13 +128,14 @@ def test_bitmaps_round_trip():
     for length in range(7):
         assert list(round_trip.good[length]) == list(property_bitmaps.good[length])
         assert list(round_trip.bad[length]) == list(property_bitmaps.bad[length])
-    with pytest.raises(ValueError, match="wrong size"):
-        PropertyBitmaps(bitmaps={3: b"\x00\x00"})  # 3! bits fit in one byte
-    with pytest.raises(ValueError, match="wrong size"):
+    # 3! bits fit in one byte
+    with pytest.raises(ValueError, match="length 3 has 2 bytes, and must have 1"):
+        PropertyBitmaps(bitmaps={3: b"\x00\x00"})
+    with pytest.raises(ValueError, match="length 3 has 0 bytes, and must have 1"):
         PropertyBitmaps(bitmaps={3: b""})
 
 
-def test_lengths_0_and_1_labelled_bad():
+def test_lengths_0_and_1_labeled_bad():
     property_bitmaps = PropertyBitmaps(bitmaps={0: b"\x00", 1: b"\x00"})
     for length in (0, 1):
         assert list(property_bitmaps.good[length]) == []
@@ -311,10 +312,10 @@ def encode(prop, length):
 
 
 def test_auto_bisc_labels_only_missing_lengths_with_the_property():
-    labelled_lengths = []
+    labeled_lengths = []
 
     def prop(perm):
-        labelled_lengths.append(len(perm))
+        labeled_lengths.append(len(perm))
         return perm.stack_sortable()
 
     given_lengths = (0, 1, 2, 3, 5, 8)
@@ -325,12 +326,12 @@ def test_auto_bisc_labels_only_missing_lengths_with_the_property():
         },
     )
     assert auto_bisc(property_bitmaps) == BASIS_231
-    assert set(labelled_lengths) == {4, 6, 7}
+    assert set(labeled_lengths) == {4, 6, 7}
     assert sorted(property_bitmaps.bitmaps) == list(range(9))
 
 
 def test_bisc_labels_missing_lengths_with_the_property():
-    # Without n, bisc uses the longest length labelled, or 7 when there is none
+    # Without n, bisc uses the longest length labeled, or 7 when there is none
     assert bisc(property_bitmaps_up_to(Perm.stack_sortable, 5), 3) == BASIS_231
     property_bitmaps = PropertyBitmaps(Perm.stack_sortable)
     assert bisc(property_bitmaps, 3, 5) == BASIS_231
@@ -355,16 +356,16 @@ def test_add_length_needs_a_property():
     assert sorted(property_bitmaps.bitmaps) == [0]
 
 
-def test_bisc_without_n_uses_the_longest_labelled_length_with_no_property():
+def test_bisc_without_n_uses_the_longest_labeled_length_with_no_property():
     bitmaps = {length: encode(Perm.stack_sortable, length) for length in range(6)}
     assert bisc(PropertyBitmaps(bitmaps=bitmaps), 3) == BASIS_231
 
 
 def test_bisc_labels_only_the_missing_lengths():
-    labelled_lengths = []
+    labeled_lengths = []
 
     def prop(perm):
-        labelled_lengths.append(len(perm))
+        labeled_lengths.append(len(perm))
         return perm.stack_sortable()
 
     given_lengths = (0, 1, 2, 3, 5)
@@ -375,10 +376,10 @@ def test_bisc_labels_only_the_missing_lengths():
         },
     )
     assert bisc(property_bitmaps, 3) == BASIS_231
-    assert labelled_lengths == [4] * factorial(4)
+    assert labeled_lengths == [4] * factorial(4)
     assert sorted(property_bitmaps.bitmaps) == list(range(6))
     assert bisc(property_bitmaps, 3, 5) == BASIS_231
-    assert labelled_lengths == [4] * factorial(4)
+    assert labeled_lengths == [4] * factorial(4)
 
 
 def test_bisc_labels_up_to_the_pattern_length():
@@ -423,7 +424,7 @@ class ReachedLength9(Exception):
 
 
 def test_auto_bisc_labels_new_lengths_from_the_property():
-    # When auto_bisc grows past the labelled lengths, it labels the new ones with
+    # When auto_bisc grows past the labeled lengths, it labels the new ones with
     # the property: here it is stopped at the first permutation of length 9
     def prop(perm):
         if len(perm) == 9:
