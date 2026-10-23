@@ -516,7 +516,7 @@ permutations that can be imported from ``permuta.bisc.perm_properties``, such
 as ``smooth``, ``forest-like``, ``baxter``, ``simsun``, ``quick_sortable``, etc.
 
 Both ``bisc`` and ``auto_bisc`` can accept input in the form of a property,
-a list of permutations (satisfying some property), or a ``LabelledPerms``.
+a list of permutations (satisfying some property), or a ``PropertyBitmaps``.
 
 ``auto_bisc`` keeps the permutations satisfying a property, and those that do
 not, as lists. For long runs it can keep them as one bitmap per length instead,
@@ -524,17 +524,17 @@ with the same result in far less memory:
 ``auto_bisc(Perm.stack_sortable, labels="bitmaps")``. Use it when ``auto_bisc``
 has to check long permutations: the permutations of length 10 take 0.9 to 1.8 GB
 as lists of ``Perm`` objects, depending on the Python, and 454 KB as a bitmap.
-Such labels can also be given directly as a ``LabelledPerms``, made from a
+Such labels can also be given directly as a ``PropertyBitmaps``, made from a
 property, from bitmaps, or both, and ``bisc`` accepts it too.
 
 .. code-block:: python
 
-    >>> labelled_perms = LabelledPerms(Perm.stack_sortable)
+    >>> property_bitmaps = PropertyBitmaps(Perm.stack_sortable)
     >>> for length in range(6):
-    ...     labelled_perms.add_length(length)
-    >>> len(labelled_perms.good[5]), len(labelled_perms.bad[5])
+    ...     property_bitmaps.add_length(length)
+    >>> len(property_bitmaps.good[5]), len(property_bitmaps.bad[5])
     (42, 78)
-    >>> bisc(labelled_perms, 3, 5)
+    >>> bisc(property_bitmaps, 3, 5)
     {3: {Perm((1, 2, 0)): [set()]}}
 
 License

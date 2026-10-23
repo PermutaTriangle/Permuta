@@ -1,7 +1,7 @@
 # type: ignore
 
 from .bisc import (
-    LabelledPerms,
+    PropertyBitmaps,
     auto_bisc,
     bisc,
     create_bisc_input,
@@ -17,7 +17,7 @@ from .bisc_subfunctions import (
 )
 
 __all__ = [
-    "LabelledPerms",
+    "PropertyBitmaps",
     "auto_bisc",
     "bisc",
     "create_bisc_input",
