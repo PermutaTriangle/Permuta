@@ -84,6 +84,21 @@ def test_views_unrank_a_length_with_few_wanted():
     assert list(PropertyBitmaps(bitmaps={3: b"\x3f"}).bad[3]) == []
 
 
+def test_views_unrank_a_byte_of_good_permutations():
+    # The first eight permutations of length 6 good, a byte of ones: 8 of 720,
+    # read by unranking, and the byte must not be skipped
+    first_eight_good = PropertyBitmaps(bitmaps={6: b"\xff" + b"\x00" * 89})
+    assert list(first_eight_good.good[6]) == list(Perm.of_length(6))[:8]
+    # A property that holds on a lexicographic block: the 120 permutations of
+    # length 7 that start with 0, 1 fill fifteen bytes
+    starts_0_1 = property_bitmaps_up_to(
+        lambda perm: len(perm) < 2 or (perm[0] == 0 and perm[1] == 1), 7
+    )
+    assert list(starts_0_1.good[7]) == [
+        perm for perm in Perm.of_length(7) if perm[0] == 0 and perm[1] == 1
+    ]
+
+
 def test_bit_order_is_perm_unrank():
     # Bit i of a length's bitmap is the label of Perm.unrank(i, length), and the
     # permutation perm is at bit perm.rank() minus the number of shorter
@@ -412,3 +427,42 @@ def test_auto_bisc_labels_new_lengths_from_the_property():
     with contextlib.redirect_stdout(output), pytest.raises(ReachedLength9):
         auto_bisc(prop)
     assert "Adding perms of length 9" in output.getvalue()
+
+
+def test_a_list_of_tuples_is_read_as_permutations():
+    # Tuples are read as the permutations they are, as they always were
+    perms = [
+        perm
+        for length in range(6)
+        for perm in Perm.of_length(length)
+        if perm.stack_sortable()
+    ]
+    assert bisc([tuple(perm) for perm in perms], 3, 5) == bisc(perms, 3, 5)
+
+
+def test_a_permutation_under_the_wrong_length_is_refused():
+    with pytest.raises(ValueError, match="length 3 is given as one of length 2"):
+        bisc({0: [Perm(())], 1: [Perm((0,))], 2: [Perm((0, 1, 2))]}, 2)
+
+
+def test_a_tuple_may_lack_a_length_in_one_dictionary(monkeypatch):
+    # A length one dictionary lacks is empty in it: here no permutation of
+    # length 0 is good
+    good, bad = create_bisc_input(8, Perm.stack_sortable)
+    good = {length: perms for length, perms in good.items() if perms}
+    bad = dict(bad)
+    bad[0] = bad.get(0, []) + good.pop(0, [])
+    given = []
+
+    class MineCalled(Exception):
+        pass
+
+    def recording_mine(goodperms, M, N=None, report=False):
+        given.append({length: list(goodperms[length]) for length in goodperms})
+        raise MineCalled
+
+    monkeypatch.setattr(bisc_module, "mine", recording_mine)
+    with pytest.raises(MineCalled):
+        auto_bisc((good, bad))
+    assert given[0][0] == []
+    assert given[0][3] == [perm for perm in Perm.of_length(3) if perm.stack_sortable()]
