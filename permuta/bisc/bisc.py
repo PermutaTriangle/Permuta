@@ -401,25 +401,32 @@ class PropertyBitmaps:
         self.prop = prop
         self.bitmaps = {}
         self.good_counts = {}
-        for length, bitmap in (bitmaps or {}).items():
-            if not isinstance(bitmap, (bytes, bytearray, memoryview)):
-                raise TypeError(
-                    "A bitmap must be bytes, a bytearray or a memoryview, "
-                    "not {}".format(type(bitmap).__name__)
-                )
-            bitmap = bytes(bitmap)
-            if len(bitmap) != _bitmap_size(length):
-                raise ValueError(
-                    "A bitmap of length {} has the wrong size".format(length)
-                )
-            label_bits = int.from_bytes(bitmap, "little")
-            if label_bits >> factorial(length):
-                raise ValueError(
-                    "A bitmap of length {} has bits set past its {} "
-                    "permutations".format(length, factorial(length))
-                )
-            self.bitmaps[length] = bitmap
-            self.good_counts[length] = label_bits.bit_count()
+        if bitmaps is not None:
+            for length, bitmap in bitmaps.items():
+                if not isinstance(bitmap, (bytes, bytearray, memoryview)):
+                    raise TypeError(
+                        "A bitmap must be bytes, a bytearray or a memoryview, "
+                        "not {}".format(type(bitmap).__name__)
+                    )
+                bitmap = bytes(bitmap)
+                if len(bitmap) != _bitmap_size(length):
+                    raise ValueError(
+                        "A bitmap of length {} has the wrong size".format(length)
+                    )
+                label_bits = int.from_bytes(bitmap, "little")
+                # The size check leaves spare bits in the last byte only at
+                # lengths 0 to 3 (7, 7, 6 and 2 of them), since n! is a
+                # multiple of 8 from n = 4 on. A spare bit set would be counted
+                # as a good permutation: len() of the good view would disagree
+                # with its iteration, and len() of the bad view could go
+                # negative.
+                if label_bits >> factorial(length):
+                    raise ValueError(
+                        "A bitmap of length {} has bits set past its {} "
+                        "permutations".format(length, factorial(length))
+                    )
+                self.bitmaps[length] = bitmap
+                self.good_counts[length] = label_bits.bit_count()
         self.good = _LengthViews(self, True)
         self.bad = _LengthViews(self, False)
 
