@@ -4,6 +4,7 @@ import json
 import os
 import types
 from collections import defaultdict
+from collections.abc import Collection, Mapping
 from math import factorial
 
 from permuta.bisc.bisc_subfunctions import (
@@ -23,12 +24,12 @@ def bisc(A, m, n=None, report=False):
     """
     Mine the forbidden patterns of length up to m from the permutations up to
     length n of a set A: a list of permutations, a property (a function), a
-    dictionary (length -> the permutations of that length in the set), or a
-    PropertyBitmaps. Without n, a property uses length 7, and the others their
-    longest length. mine() reads the lengths up to m and the permutations up
-    to n, so the lengths up to max(m, n) that a PropertyBitmaps lacks are
-    labelled with its property, and added to it. report prints the progress
-    of the search.
+    dictionary or another Mapping (length -> the permutations of that length
+    in the set), or a PropertyBitmaps. Without n, a property uses length 7,
+    and the others their longest length. mine() reads the lengths up to m and
+    the permutations up to n, so the lengths up to max(m, n) that a
+    PropertyBitmaps lacks are labelled with its property, and added to it.
+    report prints the progress of the search.
 
     Returns the forbidden patterns found: a dictionary from length to
     {pattern: [shadings]}, where each shading is a set of boxes, and an empty
@@ -48,7 +49,7 @@ def bisc(A, m, n=None, report=False):
                 if A(perm):
                     D[i].append(perm)
 
-    elif isinstance(A, dict):
+    elif isinstance(A, Mapping):
         D = A
 
     elif isinstance(A, PropertyBitmaps):
@@ -71,9 +72,6 @@ def bisc(A, m, n=None, report=False):
                     )
                 A.add_length(length)
         D = A.good
-
-    elif isinstance(A, _LengthViews):
-        D = A
 
     else:
         print(
@@ -444,31 +442,49 @@ class PropertyBitmaps:
         self.good_counts[length] = good_count
 
 
-class _LengthViews:
+class _LengthViews(Mapping[int, "_PermsOfLength"]):
     """length -> the good (or bad) permutations of that length, read-only, as
-    the dictionaries of lists auto_bisc builds from the other inputs."""
+    the dictionaries of lists auto_bisc builds from the other inputs: a
+    Mapping whose keys are the lengths with a bitmap."""
 
     def __init__(self, property_bitmaps, good):
         self.property_bitmaps = property_bitmaps
         self.is_good = good
-
-    def keys(self):
-        return self.property_bitmaps.bitmaps.keys()
-
-    def __contains__(self, length):
-        return length in self.property_bitmaps.bitmaps
 
     def __getitem__(self, length):
         if length not in self.property_bitmaps.bitmaps:
             raise KeyError(length)
         return _PermsOfLength(self.property_bitmaps, length, self.is_good)
 
+    def __iter__(self):
+        return iter(self.property_bitmaps.bitmaps)
 
-class _PermsOfLength:
+    def __len__(self):
+        return len(self.property_bitmaps.bitmaps)
+
+
+class _PermsOfLength(Collection[Perm]):
+    """The good (or bad) permutations of one length, read from its bitmap, as
+    the lists auto_bisc builds from the other inputs: a Collection. Iterating
+    generates the length's permutations in lexicographic order, the order of
+    the lists, and yields those whose bit is the one wanted; len() is the
+    count kept with the bitmap; and a permutation is in it when its bit is
+    the one wanted."""
+
     def __init__(self, property_bitmaps, length, good):
         self.property_bitmaps = property_bitmaps
         self.length = length
         self.wanted_bit = 1 if good else 0
+
+    def __contains__(self, perm):
+        if not isinstance(perm, Perm) or len(perm) != self.length:
+            return False
+        shorter_count = sum(
+            factorial(shorter_length) for shorter_length in range(self.length)
+        )
+        i = perm.rank() - shorter_count
+        bitmap = self.property_bitmaps.bitmaps[self.length]
+        return (bitmap[i >> 3] >> (i & 7)) & 1 == self.wanted_bit
 
     def __iter__(self):
         bitmap = self.property_bitmaps.bitmaps[self.length]

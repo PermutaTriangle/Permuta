@@ -1,5 +1,6 @@
 import contextlib
 import io
+from collections.abc import Collection, Mapping
 from math import factorial
 
 import pytest
@@ -31,6 +32,23 @@ def test_views_match_lists():
     assert 6 in property_bitmaps.bad and 7 not in property_bitmaps.bad
     with pytest.raises(KeyError, match="7"):
         _ = property_bitmaps.good[7]
+
+
+def test_views_are_a_mapping_of_collections():
+    property_bitmaps = property_bitmaps_up_to(Perm.stack_sortable, 6)
+    for view in (property_bitmaps.good, property_bitmaps.bad):
+        assert isinstance(view, Mapping)
+        assert list(view) == list(range(7)) and len(view) == 7
+        assert view.get(7) is None
+        assert all(isinstance(view[length], Collection) for length in view)
+    for length in range(7):
+        good, bad = property_bitmaps.good[length], property_bitmaps.bad[length]
+        for perm in Perm.of_length(length):
+            assert (perm in good) == perm.stack_sortable()
+            assert (perm in bad) == (not perm.stack_sortable())
+    # A permutation of another length is in neither view of a length
+    assert Perm((0, 1)) not in property_bitmaps.good[3]
+    assert Perm((0, 1, 2, 3)) not in property_bitmaps.bad[3]
 
 
 def test_bit_order_is_perm_unrank():
