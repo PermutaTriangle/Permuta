@@ -1,10 +1,9 @@
 import json
 import os
 import types
-from collections import defaultdict
 from collections.abc import Collection, Mapping
 from math import factorial
-from typing import Callable, DefaultDict, Dict, Iterator, List, Optional, Tuple, Union
+from typing import Callable, Dict, Iterable, Iterator, List, Optional, Tuple, Union
 
 from permuta.bisc.bisc_subfunctions import (
     forb,
@@ -34,40 +33,59 @@ def bisc(
     Mine the forbidden patterns of length up to m from the permutations up to
     length n of a set A: a list of permutations, a property (a function), a
     dictionary or another Mapping (length -> the permutations of that length
-    in the set), or a PropertyBitmaps. Without n, a property uses length 7,
-    and the others their longest length. mine() reads the lengths up to m and
-    the permutations up to n, so the lengths up to max(m, n) that a
-    PropertyBitmaps lacks are labelled with its property, and added to it.
+    in the set), or a PropertyBitmaps. Each is turned into a PropertyBitmaps,
+    whose good permutations of each length up to max(m, n) mine() reads.
+    Without n, a property uses length 7, and the others their longest length.
+    - A list sets the bits of the permutations it lists, and a length with
+      none listed is empty.
+    - A property labels the lengths up to n; a length past n, when m > n, is
+      empty, as it was in the lists before.
+    - A Mapping is read for each length up to max(m, n), and one it lacks is
+      its KeyError.
+    - A PropertyBitmaps labels the lengths up to max(m, n) it lacks with its
+      property, and they are added to it; without a property, a ValueError
+      names the first.
     report prints the progress of the search.
 
     Returns the forbidden patterns found: a dictionary from length to
     {pattern: [shadings]}, where each shading is a set of boxes, and an empty
     one makes the pattern classical.
     """
-    # length -> the permutations of that length in the set: for a list or a
-    # property, the dictionary of lists perm_lists
-    D: Mapping[int, Collection[Perm]]
-    perm_lists: DefaultDict[int, List[Perm]]
     if isinstance(A, list):
-        perm_lists = defaultdict(list)
+        if n is None:
+            n = max(len(perm) for perm in A)
+        perms_by_length: Dict[int, List[Perm]] = {
+            length: [] for length in range(max(m, n) + 1)
+        }
         for perm in A:
-            perm_lists[len(perm)].append(perm)
-        D = perm_lists
+            if len(perm) in perms_by_length:
+                perms_by_length[len(perm)].append(perm)
+        property_bitmaps = _from_perms_by_length(perms_by_length)
+
     elif isinstance(A, types.FunctionType):
         if n is None:
             print("I will use permutations up to length 7")
             n = 7
-        perm_lists = defaultdict(list)
-        for i in range(n + 1):
-            for perm in Perm.of_length(i):
-                if A(perm):
-                    perm_lists[i].append(perm)
-        D = perm_lists
+        # The property labels the lengths up to n. mine() reads those up to m
+        # too, and a length past n is empty, as it was in the lists before
+        property_bitmaps = PropertyBitmaps(
+            A,
+            bitmaps={
+                length: bytes(_bitmap_size(length)) for length in range(n + 1, m + 1)
+            },
+        )
+        for length in range(n + 1):
+            property_bitmaps.add_length(length)
 
     elif isinstance(A, Mapping):
-        D = A
+        if n is None:
+            n = max(A.keys())
+        property_bitmaps = _from_perms_by_length(
+            {length: A[length] for length in range(max(m, n) + 1)}
+        )
 
     elif isinstance(A, PropertyBitmaps):
+        property_bitmaps = A
         if n is None:
             if A.bitmaps:
                 n = max(A.bitmaps)
@@ -75,18 +93,17 @@ def bisc(
                 print("I will use permutations up to length 7")
                 n = 7
             else:
-                raise ValueError("The PropertyBitmaps has no labels and no property")
+                raise ValueError("The PropertyBitmaps has no bitmaps and no property")
         for length in range(max(m, n) + 1):
             if length not in A.bitmaps:
                 if A.prop is None:
                     raise ValueError(
-                        "bisc needs labels up to length {}, and the PropertyBitmaps "
+                        "bisc needs bitmaps up to length {}, and the PropertyBitmaps "
                         "has none of length {} and no property".format(
                             max(m, n), length
                         )
                     )
                 A.add_length(length)
-        D = A.good
 
     else:
         print(
@@ -94,14 +111,11 @@ def bisc(
         1. A list of permutations
         2. A property of permutations
         3. A dictionary of lengths pointing to permutations
-        4. A PropertyBitmaps (labels kept as bitmaps)"""
+        4. A PropertyBitmaps"""
         )
         assert False
 
-    if n is None:
-        n = max(D.keys())
-
-    ci, goodpatts = mine(D, m, n, report=report)
+    ci, goodpatts = mine(property_bitmaps.good, m, n, report=report)
     SG = forb(ci, goodpatts, m, report=report)
 
     return SG
@@ -115,7 +129,6 @@ def auto_bisc(
         str,
         "PropertyBitmaps",
     ],
-    labels: str = "lists",
 ):
     """
     Learn a basis of forbidden patterns for a set of permutations, growing
@@ -127,87 +140,59 @@ def auto_bisc(
     prop is the set: a property of permutations (a function), a list of
     permutations, a tuple of two dictionaries (length -> the permutations in
     the set, and those not in it), the name of a set in
-    permuta/resources/bisc, or a PropertyBitmaps.
-
-    labels says how the labels of a property are kept:
-    "lists" (the default, as before): the good and the bad permutations of
-    each length as lists of Perm objects;
-    "bitmaps": one bitmap per length (PropertyBitmaps), for the same result in
-    far less memory, at the cost of generating a length's permutations again
-    each time it is read. Use it when the permutations checked are long: those
-    of length 10 take 0.9 to 1.8 GB as lists of Perm objects, depending on the
-    Python, and 454 KB as a bitmap, a bit for each permutation (5 MB at length
-    11, 60 MB at length 12).
-
-    A PropertyBitmaps can also be given as prop directly. The lengths auto_bisc
-    labels with its property are added to it, so a later run reuses them.
+    permuta/resources/bisc, or a PropertyBitmaps. Each is turned into a
+    PropertyBitmaps at the start, whose views give the good and the bad
+    permutations of each length.
+    - A property labels each length when auto_bisc first needs it.
+    - A list sets the bits of the permutations it lists, and the others are
+      bad.
+    - A tuple of dictionaries, or a stored set, must give each permutation of
+      each length up to the shorter dictionary's longest exactly once, as good
+      or as bad, or a ValueError is raised. A length one of them lacks is
+      empty in it.
+    - A PropertyBitmaps labels the lengths it lacks with its property, and
+      they are added to it, so that a later run reuses them. Without a
+      property, auto_bisc stops when it needs a length it lacks, as it does
+      for a tuple of dictionaries.
     """
-    if labels not in ("lists", "bitmaps"):
-        raise ValueError('labels must be "lists" or "bitmaps"')
-    if labels == "bitmaps":
-        if isinstance(prop, types.FunctionType):
-            prop = PropertyBitmaps(prop)
-        elif not isinstance(prop, PropertyBitmaps):
-            raise ValueError(
-                'labels="bitmaps" needs a property (a function) or a PropertyBitmaps'
-            )
     L = 8  # Want to sanity check on at least S8, and one above n
     n = 4
     m = 2
 
-    # length -> the good (A) and the bad (B) permutations of that length: for
-    # a list or a property, the dictionaries of lists good_perm_lists and
-    # bad_perm_lists, to which a property's new lengths are added as L grows
-    A: Mapping[int, Collection[Perm]]
-    B: Mapping[int, Collection[Perm]]
-    good_perm_lists: DefaultDict[int, List[Perm]]
-    bad_perm_lists: DefaultDict[int, List[Perm]]
-
     if isinstance(prop, list):
-        # If a list is passed in then we put it in a dictionary at the start
-        good_perm_lists = defaultdict(list)
-        # We will put the complement up to S8 into another dictionary
-        bad_perm_lists = defaultdict(list)
-        for perm in prop:
-            good_perm_lists[len(perm)].append(perm)
-        if L not in good_perm_lists.keys():
+        # If a list is passed in then its permutations are the good ones, and
+        # the others up to its longest length are the bad ones
+        listed_lengths = {len(perm) for perm in prop}
+        if L not in listed_lengths:
             print("You should have permutations up to length at least 8")
             return
-        for i in range(max(L + 1, max(good_perm_lists.keys()) + 1)):
-            if i > 7:
-                print("Populating the dictionary of bad perms of length ", i)
-            bad_perm_lists[i] = [
-                perm for perm in Perm.of_length(i) if perm not in good_perm_lists[i]
-            ]
-        A, B = good_perm_lists, bad_perm_lists
+        longest_length = max(listed_lengths)
+        for i in range(L, longest_length + 1):
+            print("Populating the dictionary of bad perms of length ", i)
+        perms_by_length: Dict[int, List[Perm]] = {
+            length: [] for length in range(longest_length + 1)
+        }
+        for perm in prop:
+            perms_by_length[len(perm)].append(perm)
+        property_bitmaps = _from_perms_by_length(perms_by_length)
 
     elif isinstance(prop, types.FunctionType):
-        # If a property is passed in then we use it to populate both
-        # both dictionaries up to S8
-        good_perm_lists = defaultdict(list)
-        bad_perm_lists = defaultdict(list)
+        # If a property is passed in then it labels the lengths up to S8 now,
+        # and the longer ones as they are needed
+        property_bitmaps = PropertyBitmaps(prop)
         for i in range(L + 1):
-            good_perm_lists[i] = []
-            bad_perm_lists[i] = []
-            for perm in Perm.of_length(i):
-                if prop(perm):
-                    good_perm_lists[i].append(perm)
-                else:
-                    bad_perm_lists[i].append(perm)
-        A, B = good_perm_lists, bad_perm_lists
+            property_bitmaps.add_length(i)
 
     elif isinstance(prop, PropertyBitmaps):
-        # Labels kept as one bitmap per length: A and B are views of the good
-        # and the bad permutations, generated length by length when they are
-        # read, instead of lists. The lengths the PropertyBitmaps lacks are
-        # labelled with its property, if it has one
+        # The lengths the PropertyBitmaps lacks are labelled with its
+        # property, if it has one
+        property_bitmaps = prop
         for i in range(L + 1):
-            if i not in prop.bitmaps:
-                if prop.prop is None:
-                    print("You should have labels up to length at least 8")
+            if i not in property_bitmaps.bitmaps:
+                if property_bitmaps.prop is None:
+                    print("You should have bitmaps up to length at least 8")
                     return
-                prop.add_length(i)
-        A, B = prop.good, prop.bad
+                property_bitmaps.add_length(i)
 
     elif (
         isinstance(prop, tuple)
@@ -215,45 +200,19 @@ def auto_bisc(
         and isinstance(prop[1], dict)
     ):
         # If you already have the dictionaries you can pass them in as a tuple
-        A = prop[0]
-        B = prop[1]
-        if L not in A.keys():
+        if L not in prop[0].keys():
             print("You should have permutations up to length at least 8")
             return
+        property_bitmaps = _from_good_and_bad(prop[0], prop[1])
 
     elif isinstance(prop, str):
         # If you pass in a string we assume it is pointing to a file in permsets
         print("Attempting to read perms from permsets")
-        good_entry = None
-        bad_entry = None
-        bisc_dir = os.path.join(os.path.dirname(__file__), "..", "resources", "bisc")
-        bisc_dir = os.path.abspath(bisc_dir)
-
-        with os.scandir(bisc_dir) as entries:
-            for i, entry in enumerate(entries):
-                en = entry.name[:-5]
-                spl = en.split("_")
-                if spl[0] == prop:
-                    if (
-                        good_entry is None
-                        and spl[1] == "good"
-                        and int(spl[2].split("len")[1]) >= L
-                    ):
-                        good_entry = en
-                    if (
-                        bad_entry is None
-                        and spl[1] == "bad"
-                        and int(spl[2].split("len")[1]) >= L
-                    ):
-                        bad_entry = en
-                if good_entry is not None and bad_entry is not None:
-                    break
-        if good_entry is not None and bad_entry is not None:
-            A = read_bisc_file(bisc_dir + "/" + good_entry)
-            B = read_bisc_file(bisc_dir + "/" + bad_entry)
-        else:
+        stored_set = _read_stored_set(prop, L)
+        if stored_set is None:
             print("The required files do not exist")
             return
+        property_bitmaps = _from_good_and_bad(*stored_set)
 
     else:
         print(
@@ -262,13 +221,16 @@ def auto_bisc(
         2. A property of permutations
         3. A tuple of two dictionaries of lengths pointing to permutations
         4. A string
-        5. A PropertyBitmaps (labels kept as bitmaps)"""
+        5. A PropertyBitmaps"""
         )
         assert False
 
+    # length -> the good (A) and the bad (B) permutations of that length
+    A, B = property_bitmaps.good, property_bitmaps.bad
+
     while True:
         print("Learning patterns of length {} using perms of length {}".format(m, n))
-        SG = bisc(A, m, n)
+        SG = bisc(property_bitmaps, m, n)
         show_me(SG, more=True)
 
         if SG != {}:
@@ -341,63 +303,29 @@ def auto_bisc(
                 print("You need to input a longer list of permutations")
                 return
 
-            elif isinstance(prop, types.FunctionType):
-                # Adding perms to the dictionaries
+            elif isinstance(prop, (types.FunctionType, PropertyBitmaps)):
+                # The property labels the new lengths
                 for i in range(oldL + 1, L + 1):
-                    print("Adding perms of length {}".format(i))
-                    for perm in Perm.of_length(i):
-                        if prop(perm):
-                            good_perm_lists[i].append(perm)
-                        else:
-                            bad_perm_lists[i].append(perm)
-
-            elif isinstance(prop, PropertyBitmaps):
-                for i in range(oldL + 1, L + 1):
-                    if i not in prop.bitmaps:
-                        if prop.prop is None:
-                            print("You need to add labels of longer permutations")
+                    if i not in property_bitmaps.bitmaps:
+                        if property_bitmaps.prop is None:
+                            print("You need to add bitmaps of longer permutations")
                             return
                         print("Adding perms of length {}".format(i))
-                        prop.add_length(i)
+                        property_bitmaps.add_length(i)
 
-            elif isinstance(prop, tuple) and L > min(max(A.keys()), max(B.keys())):
+            elif isinstance(prop, tuple) and L > max(A.keys()):
                 print("You need to add longer permutations to the dictionaries")
                 return
 
-            elif isinstance(prop, str) and L > min(max(A.keys()), max(B.keys())):
+            elif isinstance(prop, str) and L > max(A.keys()):
                 # If you pass in a string we assume it is pointing to a file in permsets
                 print("Attempting to read perms from permsets")
-                good_entry = None
-                bad_entry = None
-                bisc_dir = os.path.join(
-                    os.path.dirname(__file__), "..", "resources", "bisc"
-                )
-                bisc_dir = os.path.abspath(bisc_dir)
-                with os.scandir(bisc_dir) as entries:
-                    for i, entry in enumerate(entries):
-                        en = entry.name[:-5]
-                        spl = en.split("_")
-                        if spl[0] == prop:
-                            if (
-                                good_entry is None
-                                and spl[1] == "good"
-                                and int(spl[2].split("len")[1]) >= L
-                            ):
-                                good_entry = en
-                            if (
-                                bad_entry is None
-                                and spl[1] == "bad"
-                                and int(spl[2].split("len")[1]) >= L
-                            ):
-                                bad_entry = en
-                        if good_entry is not None and bad_entry is not None:
-                            break
-                if good_entry is not None and bad_entry is not None:
-                    A = read_bisc_file(bisc_dir + "/" + good_entry)
-                    B = read_bisc_file(bisc_dir + "/" + bad_entry)
-                else:
+                stored_set = _read_stored_set(prop, L)
+                if stored_set is None:
                     print("The required files do not exist")
                     return
+                property_bitmaps = _from_good_and_bad(*stored_set)
+                A, B = property_bitmaps.good, property_bitmaps.bad
 
 
 def _bitmap_size(length: int) -> int:
@@ -418,28 +346,27 @@ def _label(bitmap: bytes, index: int) -> int:
 
 
 class PropertyBitmaps:
-    """Labels of permutations, one bitmap per length, as input to auto_bisc
-    and bisc: which permutations of each length satisfy a property (good) and
-    which do not (bad).
+    """A property's values on the permutations, one bitmap per length: which
+    permutations of each length satisfy it (good) and which do not (bad).
+    bisc and auto_bisc turn each of their inputs into one, and read its good
+    and bad permutations through its views, good and bad.
 
-    Bit i of a length's bitmap is the label of Perm.unrank(i, length), in
-    byte i // 8, from the low bit; so a permutation perm is at bit
-    perm.rank() - sum(factorial(k) for k in range(len(perm))). This is the
-    order in which Perm.of_length(length) yields the permutations
-    (lexicographic), which the views use to iterate. The bitmaps can be given
-    (bitmaps={length: bytes}), made from a property (add_length), or both:
-    auto_bisc and bisc label the lengths they need and are not given with
-    prop, adding them to this object. Without a prop, auto_bisc stops, as for
-    a tuple of dictionaries, and bisc raises a ValueError. A bitmap given must
-    be bytes-like (bytes, a bytearray or a memoryview), of its length's size,
-    with no bit set past the length's permutations.
+    Bit i of a length's bitmap is the label of Perm.unrank(i, length): bit
+    i % 8 of byte i // 8, from the low bit. So a permutation perm is at bit
+    perm.rank() - sum(factorial(k) for k in range(len(perm))), and the bits
+    are in the order in which Perm.of_length(length) yields the permutations
+    (lexicographic). The bitmaps can be given (bitmaps={length: bytes}), made
+    from a property (add_length), or both: auto_bisc and bisc label the
+    lengths they need and are not given with prop, adding them to this
+    object. Without a prop, auto_bisc stops, as for a tuple of dictionaries,
+    and bisc raises a ValueError. A bitmap given must be bytes-like (bytes, a
+    bytearray or a memoryview), of its length's size, with no bit set past
+    the length's permutations.
 
-    auto_bisc reads its good and bad permutations only length by length:
-    iterating over a length, counting it, asking whether a length is there.
-    The views good and bad do that from the bitmaps, generating a length's
-    permutations again each time it is iterated, in the same order as the
-    lists a property input makes. A bitmap of S_10 is 454 KB; S_10 as a list
-    of Perm objects takes 0.9 GB on PyPy 3.11 and 1.3 to 1.8 GB on CPython.
+    The views read the bitmaps length by length: iterating over a length,
+    counting it, asking whether a length is there, or whether a permutation
+    is in a length. A bitmap of S_10 is 454 KB; S_10 as a list of Perm
+    objects takes 0.9 GB on PyPy 3.11 and 1.3 to 1.8 GB on CPython.
     """
 
     def __init__(
@@ -499,9 +426,9 @@ class PropertyBitmaps:
 
 
 class _LengthViews(Mapping[int, "_PermsOfLength"]):
-    """length -> the good (or bad) permutations of that length, read-only, as
-    the dictionaries of lists auto_bisc builds from the other inputs: a
-    Mapping whose keys are the lengths with a bitmap."""
+    """length -> the good (or bad) permutations of that length, read-only: a
+    Mapping whose keys are the lengths with a bitmap, through which bisc and
+    auto_bisc read the permutations."""
 
     def __init__(self, property_bitmaps: PropertyBitmaps, good: bool) -> None:
         self.property_bitmaps = property_bitmaps
@@ -520,12 +447,11 @@ class _LengthViews(Mapping[int, "_PermsOfLength"]):
 
 
 class _PermsOfLength(Collection[Perm]):
-    """The good (or bad) permutations of one length, read from its bitmap, as
-    the lists auto_bisc builds from the other inputs: a Collection. Iterating
-    generates the length's permutations in lexicographic order, the order of
-    the lists, and yields those whose bit is the one wanted; len() is the
-    count kept with the bitmap; and a permutation is in it when its bit is
-    the one wanted."""
+    """The good (or bad) permutations of one length, read from its bitmap: a
+    Collection. Iterating generates the length's permutations in
+    lexicographic order and yields those whose bit is the one wanted; len()
+    is the count kept with the bitmap; and a permutation is in it when its
+    bit is the one wanted."""
 
     def __init__(
         self, property_bitmaps: PropertyBitmaps, length: int, good: bool
@@ -537,11 +463,9 @@ class _PermsOfLength(Collection[Perm]):
     def __contains__(self, perm: object) -> bool:
         if not isinstance(perm, Perm) or len(perm) != self.length:
             return False
-        shorter_count = sum(
-            factorial(shorter_length) for shorter_length in range(self.length)
-        )
         bitmap = self.property_bitmaps.bitmaps[self.length]
-        return _label(bitmap, perm.rank() - shorter_count) == self.wanted_bit
+        index = perm.rank() - _shorter_count(self.length)
+        return _label(bitmap, index) == self.wanted_bit
 
     def __iter__(self) -> Iterator[Perm]:
         bitmap = self.property_bitmaps.bitmaps[self.length]
@@ -553,6 +477,104 @@ class _PermsOfLength(Collection[Perm]):
     def __len__(self) -> int:
         good_count = self.property_bitmaps.good_counts[self.length]
         return good_count if self.wanted_bit else factorial(self.length) - good_count
+
+
+def _shorter_count(length: int) -> int:
+    """The number of permutations shorter than length: a permutation's bit is
+    its rank() less this."""
+    return sum(factorial(shorter_length) for shorter_length in range(length))
+
+
+def _bitmap_of(length: int, perms: Iterable[Perm]) -> bytearray:
+    """The bitmap of a length with the bits of the given permutations set. A
+    permutation given twice sets its bit once."""
+    bitmap = bytearray(_bitmap_size(length))
+    shorter_count = _shorter_count(length)
+    for perm in perms:
+        if len(perm) != length:
+            raise ValueError(
+                "A permutation of length {} is given as one of length {}".format(
+                    len(perm), length
+                )
+            )
+        if not isinstance(perm, Perm):
+            perm = Perm(perm)
+        _set_label(bitmap, perm.rank() - shorter_count)
+    return bitmap
+
+
+def _from_perms_by_length(
+    perms_by_length: Mapping[int, Iterable[Perm]],
+) -> PropertyBitmaps:
+    """A PropertyBitmaps, with no property, whose good permutations of each
+    length are the ones given for it."""
+    return PropertyBitmaps(
+        bitmaps={
+            length: _bitmap_of(length, perms)
+            for length, perms in perms_by_length.items()
+        }
+    )
+
+
+def _from_good_and_bad(
+    good: Mapping[int, Collection[Perm]], bad: Mapping[int, Collection[Perm]]
+) -> PropertyBitmaps:
+    """A PropertyBitmaps, with no property, from the good and the bad
+    permutations of each length up to the shorter mapping's longest. A length
+    one of them lacks is empty in it. Each permutation of each length must be
+    given exactly once, as good or as bad, or a ValueError is raised."""
+    bitmaps = {}
+    for length in range(min(max(good), max(bad)) + 1):
+        good_bitmap = _bitmap_of(length, good.get(length, ()))
+        bad_bitmap = _bitmap_of(length, bad.get(length, ()))
+        good_bits = int.from_bytes(good_bitmap, "little")
+        bad_bits = int.from_bytes(bad_bitmap, "little")
+        every_bit = (1 << factorial(length)) - 1
+        if good_bits & bad_bits or good_bits | bad_bits != every_bit:
+            raise ValueError(
+                "The good and the bad permutations of length {} must be all of "
+                "its {} permutations, each once".format(length, factorial(length))
+            )
+        bitmaps[length] = good_bitmap
+    return PropertyBitmaps(bitmaps=bitmaps)
+
+
+def _read_stored_set(
+    name: str, min_length: int
+) -> Optional[Tuple[Dict[int, List[Perm]], Dict[int, List[Perm]]]]:
+    """The good and the bad permutations of the set stored under name in
+    permuta/resources/bisc, from the first of its files of each kind that go
+    up to min_length or further, or None if there are none."""
+    good_entry = None
+    bad_entry = None
+    bisc_dir = os.path.join(os.path.dirname(__file__), "..", "resources", "bisc")
+    bisc_dir = os.path.abspath(bisc_dir)
+
+    with os.scandir(bisc_dir) as entries:
+        for entry in entries:
+            en = entry.name[:-5]
+            spl = en.split("_")
+            if spl[0] == name:
+                if (
+                    good_entry is None
+                    and spl[1] == "good"
+                    and int(spl[2].split("len")[1]) >= min_length
+                ):
+                    good_entry = en
+                if (
+                    bad_entry is None
+                    and spl[1] == "bad"
+                    and int(spl[2].split("len")[1]) >= min_length
+                ):
+                    bad_entry = en
+            if good_entry is not None and bad_entry is not None:
+                break
+    if good_entry is not None and bad_entry is not None:
+        return (
+            read_bisc_file(bisc_dir + "/" + good_entry),
+            read_bisc_file(bisc_dir + "/" + bad_entry),
+        )
+    return None
 
 
 def create_bisc_input(N, prop):

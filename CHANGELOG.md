@@ -7,15 +7,22 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 ## Unreleased
 
 ### Added
-- `PropertyBitmaps` in `permuta.bisc`: labels of permutations kept as one bitmap
-  per length (lexicographic order), made from a property, given as bitmaps, or both.
-  `auto_bisc` and `bisc` accept it as input, and label the lengths it lacks with
-  its property.
-- `auto_bisc(prop, labels="bitmaps")`: keeps a property's labels as bitmaps instead
-  of lists of permutations, for the same result in far less memory at longer
-  lengths (the permutations of length 10 take 0.9 to 1.8 GB as lists of `Perm`
-  objects, depending on the Python, and 454 KB as a bitmap). `labels="lists"`,
-  the default, is the previous behaviour.
+- `PropertyBitmaps` in `permuta.bisc`: a property's values on the permutations,
+  kept as one bitmap per length (lexicographic order), made from a property, given
+  as bitmaps, or both. `auto_bisc` and `bisc` accept it as input, and label the
+  lengths it lacks with its property.
+
+### Changed
+- `bisc` and `auto_bisc` turn every input into a `PropertyBitmaps` and read the
+  good and the bad permutations through its views, in lexicographic order, for
+  the same results in far less memory at longer lengths: the permutations of
+  length 10 take 454 KB as a bitmap, and 0.9 to 1.8 GB as lists of `Perm` objects,
+  depending on the Python.
+- A permutation listed twice in the input of `bisc` or `auto_bisc` counts once.
+  Before, duplicates could make `bisc` take a length as complete when it was not.
+- `auto_bisc` raises a `ValueError` when a tuple of dictionaries, or a stored set,
+  does not give each permutation of a length exactly once, as good or as bad.
+- `bisc` accepts any mapping of lengths to permutations, not only a `dict`.
 
 ### Fixed
 - Fixed bug in `Perm.rtlmax_ltrmin_decomposition` and fixed associated tests.

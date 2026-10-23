@@ -1,14 +1,27 @@
 import contextlib
+import importlib
 import io
+import os
 from collections.abc import Collection, Mapping
 from math import factorial
 
 import pytest
 
-from permuta.bisc.bisc import PropertyBitmaps, auto_bisc, bisc
+from permuta.bisc.bisc import (
+    PropertyBitmaps,
+    auto_bisc,
+    bisc,
+    create_bisc_input,
+    read_bisc_file,
+)
+from permuta.bisc.perm_properties import smooth
 from permuta.patterns.perm import Perm
 
 BASIS_231 = {3: {Perm((1, 2, 0)): [set()]}}
+BASIS_WEST_2 = {4: {Perm((1, 2, 3, 0)): [set()], Perm((2, 1, 3, 0)): [{(1, 4)}]}}
+# The module, which permuta.bisc's function bisc hides, and its mine()
+bisc_module = importlib.import_module("permuta.bisc.bisc")
+REAL_MINE = bisc_module.mine
 
 
 def property_bitmaps_up_to(prop, max_length):
@@ -116,17 +129,93 @@ def test_bisc_accepts_property_bitmaps():
     assert bisc(property_bitmaps_up_to(Perm.stack_sortable, 5), 3, 5) == BASIS_231
 
 
-def test_auto_bisc_labels_option():
-    assert auto_bisc(Perm.stack_sortable) == BASIS_231
-    assert auto_bisc(Perm.stack_sortable, labels="lists") == BASIS_231
-    assert auto_bisc(Perm.stack_sortable, labels="bitmaps") == BASIS_231
-    with pytest.raises(ValueError, match="labels must be"):
-        auto_bisc(Perm.stack_sortable, labels="sets")
+def mined_bitmaps(monkeypatch, A, m, n=None):
+    """bisc's answer for A, and the bitmaps of the good permutations it gave
+    mine()."""
+    mined = {}
+
+    def recording_mine(goodperms, M, N=None, report=False):
+        mined.update(goodperms.property_bitmaps.bitmaps)
+        return REAL_MINE(goodperms, M, N, report)
+
+    monkeypatch.setattr(bisc_module, "mine", recording_mine)
+    return bisc(A, m, n), mined
 
 
-def test_labels_option_selects_the_representation(monkeypatch):
-    # The results are the same either way, so record which lengths are kept as
-    # bitmaps: none for lists, every length checked for bitmaps
+def test_bisc_turns_each_input_into_bitmaps(monkeypatch):
+    bitmaps = {length: encode(Perm.stack_sortable, length) for length in range(6)}
+    good_lists = {
+        length: [perm for perm in Perm.of_length(length) if perm.stack_sortable()]
+        for length in range(6)
+    }
+    listed = [perm for length in range(6) for perm in good_lists[length]]
+    for A in (
+        Perm.stack_sortable,
+        listed,
+        good_lists,
+        property_bitmaps_up_to(Perm.stack_sortable, 5),
+    ):
+        assert mined_bitmaps(monkeypatch, A, 3, 5) == (BASIS_231, bitmaps)
+    # A Mapping must have each length up to max(m, n), as before
+    with pytest.raises(KeyError):
+        bisc({length: good_lists[length] for length in (0, 1, 3)}, 3)
+
+
+def test_a_list_sets_the_bits_of_the_permutations_it_lists(monkeypatch):
+    # A length with none listed is empty
+    _, mined = mined_bitmaps(monkeypatch, [Perm((0,)), Perm((0, 1, 2))], 2, 3)
+    assert mined == {0: b"\x00", 1: b"\x01", 2: b"\x00", 3: b"\x01"}
+    # A permutation listed twice sets one bit. The lists counted (0, 1) twice,
+    # as if both permutations of length 2 were in the set, and found nothing;
+    # the increasing permutations avoid 10
+    increasing = [Perm(()), Perm((0,)), Perm((0, 1)), Perm((0, 1)), Perm((0, 1, 2))]
+    answer, mined = mined_bitmaps(monkeypatch, increasing, 2, 3)
+    assert mined == {0: b"\x01", 1: b"\x01", 2: b"\x01", 3: b"\x01"}
+    assert answer == {2: {Perm((1, 0)): [set()]}}
+
+
+def test_a_property_leaves_the_lengths_past_n_empty(monkeypatch):
+    # mine() reads the lengths up to m, and a property labels those up to n; the
+    # others are empty, as they were in the lists before
+    answer, mined = mined_bitmaps(monkeypatch, Perm.stack_sortable, 4, 2)
+    assert mined == {
+        **{length: encode(Perm.stack_sortable, length) for length in range(3)},
+        3: bytes(1),
+        4: bytes(3),
+    }
+    assert answer == {3: {perm: [set()] for perm in Perm.of_length(3)}, 4: {}}
+
+
+def first_mined_bitmaps(monkeypatch, prop):
+    """auto_bisc's answer for prop, and the bitmaps of the good permutations it
+    first gave mine()."""
+    mined = []
+
+    def recording_mine(goodperms, M, N=None, report=False):
+        mined.append(dict(goodperms.property_bitmaps.bitmaps))
+        return REAL_MINE(goodperms, M, N, report)
+
+    monkeypatch.setattr(bisc_module, "mine", recording_mine)
+    return auto_bisc(prop), mined[0]
+
+
+def test_auto_bisc_turns_each_input_into_bitmaps(monkeypatch):
+    bitmaps = {length: encode(Perm.stack_sortable, length) for length in range(9)}
+    good, bad = create_bisc_input(8, Perm.stack_sortable)
+    listed = [perm for length in range(9) for perm in good[length]]
+    for prop in (
+        Perm.stack_sortable,
+        listed,
+        (good, bad),
+        PropertyBitmaps(bitmaps=bitmaps),
+    ):
+        assert first_mined_bitmaps(monkeypatch, prop) == (BASIS_231, bitmaps)
+    answer, mined = first_mined_bitmaps(monkeypatch, "smooth")
+    assert answer == {4: {Perm((0, 2, 1, 3)): [set()], Perm((1, 0, 3, 2)): [set()]}}
+    assert mined == {length: encode(smooth, length) for length in range(9)}
+
+
+def test_auto_bisc_labels_each_length_of_a_property(monkeypatch):
     added_lengths = []
     real_add_length = PropertyBitmaps.add_length
 
@@ -136,10 +225,29 @@ def test_labels_option_selects_the_representation(monkeypatch):
 
     monkeypatch.setattr(PropertyBitmaps, "add_length", recording_add_length)
     assert auto_bisc(Perm.stack_sortable) == BASIS_231
-    assert auto_bisc(Perm.stack_sortable, labels="lists") == BASIS_231
-    assert added_lengths == []
-    assert auto_bisc(Perm.stack_sortable, labels="bitmaps") == BASIS_231
     assert added_lengths == list(range(9))
+
+
+def test_a_tuple_must_give_each_permutation_once():
+    good, bad = create_bisc_input(8, Perm.stack_sortable)
+    missing_one = {**bad, 5: bad[5][1:]}
+    with pytest.raises(ValueError, match="permutations of length 5 must be all"):
+        auto_bisc((good, missing_one))
+    one_twice = {**bad, 4: bad[4] + good[4][:1]}
+    with pytest.raises(ValueError, match="permutations of length 4 must be all"):
+        auto_bisc((good, one_twice))
+
+
+def test_the_stored_sets_give_each_permutation_once():
+    folder = "permuta/resources/bisc/"
+    for file_name in sorted(os.listdir(folder)):
+        if "_good_len" in file_name:
+            good_name = file_name[: -len(".json")]
+            good = read_bisc_file(folder + good_name)
+            bad = read_bisc_file(folder + good_name.replace("_good_", "_bad_"))
+            property_bitmaps = bisc_module._from_good_and_bad(good, bad)
+            longest_length = int(good_name.rsplit("len", 1)[1])
+            assert sorted(property_bitmaps.bitmaps) == list(range(longest_length + 1))
 
 
 def test_auto_bisc_property_bitmaps_input():
@@ -190,11 +298,11 @@ def test_bisc_labels_missing_lengths_with_the_property():
     assert sorted(property_bitmaps.bitmaps) == list(range(8))
 
 
-def test_bisc_needs_labels_or_a_property():
+def test_bisc_needs_bitmaps_or_a_property():
     bitmaps = {length: encode(Perm.stack_sortable, length) for length in range(4)}
     with pytest.raises(ValueError, match="none of length 4 and no property"):
         bisc(PropertyBitmaps(bitmaps=bitmaps), 3, 5)
-    with pytest.raises(ValueError, match="no labels and no property"):
+    with pytest.raises(ValueError, match="no bitmaps and no property"):
         bisc(PropertyBitmaps(), 3)
 
 
@@ -247,18 +355,8 @@ def test_bisc_accepts_the_views():
     assert bisc(property_bitmaps_up_to(Perm.stack_sortable, 5).good, 3) == BASIS_231
 
 
-def test_bitmaps_need_a_property():
-    for prop in ([Perm((0,))], ({}, {}), "yt_perm_avoids_22"):
-        with pytest.raises(ValueError, match="needs a property"):
-            auto_bisc(prop, labels="bitmaps")
-    property_bitmaps = property_bitmaps_up_to(Perm.stack_sortable, 8)
-    assert auto_bisc(property_bitmaps, labels="bitmaps") == BASIS_231
-
-
-def test_west_2_stack_sortable_same_as_lists():
-    assert auto_bisc(Perm.west_2_stack_sortable, labels="bitmaps") == auto_bisc(
-        Perm.west_2_stack_sortable
-    )
+def test_west_2_stack_sortable():
+    assert auto_bisc(Perm.west_2_stack_sortable) == BASIS_WEST_2
 
 
 def derangement_in_av_213_231_312(perm):
@@ -269,13 +367,13 @@ def derangement_in_av_213_231_312(perm):
     )
 
 
-def test_auto_bisc_stops_without_labels_it_needs():
+def test_auto_bisc_stops_without_bitmaps_it_needs():
     # Bitmaps up to length 8 and no property: auto_bisc needs length 9 and stops
     bitmaps = property_bitmaps_up_to(derangement_in_av_213_231_312, 8).bitmaps
     output = io.StringIO()
     with contextlib.redirect_stdout(output):
         assert auto_bisc(PropertyBitmaps(bitmaps=bitmaps)) is None
-    assert "You need to add labels of longer permutations" in output.getvalue()
+    assert "You need to add bitmaps of longer permutations" in output.getvalue()
 
 
 class ReachedLength9(Exception):
@@ -284,18 +382,13 @@ class ReachedLength9(Exception):
 
 def test_auto_bisc_labels_new_lengths_from_the_property():
     # When auto_bisc grows past the labelled lengths, it labels the new ones with
-    # the property; stopped at the first permutation of length 9, both approaches
-    # have printed the same
+    # the property: here it is stopped at the first permutation of length 9
     def prop(perm):
         if len(perm) == 9:
             raise ReachedLength9
         return derangement_in_av_213_231_312(perm)
 
-    outputs = []
-    for labels in ("lists", "bitmaps"):
-        output = io.StringIO()
-        with contextlib.redirect_stdout(output), pytest.raises(ReachedLength9):
-            auto_bisc(prop, labels=labels)
-        outputs.append(output.getvalue())
-    assert outputs[0] == outputs[1]
-    assert "Adding perms of length 9" in outputs[1]
+    output = io.StringIO()
+    with contextlib.redirect_stdout(output), pytest.raises(ReachedLength9):
+        auto_bisc(prop)
+    assert "Adding perms of length 9" in output.getvalue()

@@ -518,14 +518,13 @@ as ``smooth``, ``forest-like``, ``baxter``, ``simsun``, ``quick_sortable``, etc.
 Both ``bisc`` and ``auto_bisc`` can accept input in the form of a property,
 a list of permutations (satisfying some property), or a ``PropertyBitmaps``.
 
-``auto_bisc`` keeps the permutations satisfying a property, and those that do
-not, as lists. For long runs it can keep them as one bitmap per length instead,
-with the same result in far less memory:
-``auto_bisc(Perm.stack_sortable, labels="bitmaps")``. Use it when ``auto_bisc``
-has to check long permutations: the permutations of length 10 take 0.9 to 1.8 GB
-as lists of ``Perm`` objects, depending on the Python, and 454 KB as a bitmap.
-Such labels can also be given directly as a ``PropertyBitmaps``, made from a
-property, from bitmaps, or both, and ``bisc`` accepts it too.
+Whatever the input, ``bisc`` and ``auto_bisc`` keep the permutations satisfying
+the property, and those that do not, as one bitmap per length, in a
+``PropertyBitmaps``: the permutations of length 10 take 454 KB as a bitmap, where
+they take 0.9 to 1.8 GB as lists of ``Perm`` objects, depending on the Python.
+A ``PropertyBitmaps`` can also be given directly, made from a property, from
+bitmaps, or both. The lengths ``bisc`` and ``auto_bisc`` label with its property
+are added to it, for a later run to reuse.
 
 .. code-block:: python
 
