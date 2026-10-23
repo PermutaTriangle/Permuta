@@ -43,6 +43,8 @@ To install Permuta on your system, run:
 
     pip install permuta
 
+Python 3.11 or newer is required.
+
 It is also possible to install Permuta in development mode to work on the
 source code, in which case you run the following after cloning the repository:
 
@@ -50,11 +52,19 @@ source code, in which case you run the following after cloning the repository:
 
     pip install -e .
 
-To run the unit tests:
+To run the unit tests with an installed Python version:
 
 .. code-block:: bash
 
-    tox
+    python -m pip install "tox>=4,<5"
+    python -m tox run -e py315
+
+The test environments cover CPython 3.11 through 3.15 and PyPy 3.11 and 3.12.
+Python 3.15 is used for linting, type checking, packaging, and the Linux,
+macOS, and Windows test jobs. Older supported CPython versions and both PyPy
+versions are tested on Linux. Black targets the minimum supported Python 3.11.
+Pass pytest arguments after ``--``, for example
+``python -m tox run -e py315 -- tests``.
 
 Using Permuta
 #############
