@@ -345,6 +345,27 @@ def _label(bitmap: bytes, index: int) -> int:
     return (bitmap[index // 8] >> (index % 8)) & 1
 
 
+# A view unranks the permutations it wants, rather than generating all of the
+# length's, when at most one in this many is wanted: unranking one costs about 5
+# (CPython 3.11) to 13 (PyPy 3.11) times as much as generating and testing one,
+# measured at lengths 8 to 12
+_SPARSE_FACTOR = 16
+
+
+def _wanted_indices(bitmap: bytes, length: int, wanted_bit: int) -> Iterator[int]:
+    """The indices, in increasing order, of the permutations of a length whose
+    label is wanted_bit. A byte with no such label is skipped whole."""
+    skipped_byte = 0xFF if wanted_bit == 0 else 0
+    permutation_count = factorial(length)
+    for byte_index, byte in enumerate(bitmap):
+        if byte != skipped_byte:
+            for index in range(
+                8 * byte_index, min(8 * byte_index + 8, permutation_count)
+            ):
+                if _label(bitmap, index) == wanted_bit:
+                    yield index
+
+
 class PropertyBitmaps:
     """A property's values on the permutations, one bitmap per length: which
     permutations of each length satisfy it (good) and which do not (bad).
@@ -448,10 +469,11 @@ class _LengthViews(Mapping[int, "_PermsOfLength"]):
 
 class _PermsOfLength(Collection[Perm]):
     """The good (or bad) permutations of one length, read from its bitmap: a
-    Collection. Iterating generates the length's permutations in
-    lexicographic order and yields those whose bit is the one wanted; len()
-    is the count kept with the bitmap; and a permutation is in it when its
-    bit is the one wanted."""
+    Collection. Iterating yields those whose bit is the one wanted, in
+    lexicographic order: when few are wanted it unranks them, and otherwise
+    it generates the length's permutations and tests each bit. len() is the
+    count kept with the bitmap, and a permutation is in it when its bit is
+    the one wanted."""
 
     def __init__(
         self, property_bitmaps: PropertyBitmaps, length: int, good: bool
@@ -470,9 +492,16 @@ class _PermsOfLength(Collection[Perm]):
     def __iter__(self) -> Iterator[Perm]:
         bitmap = self.property_bitmaps.bitmaps[self.length]
         wanted_bit = self.wanted_bit
-        for index, perm in enumerate(Perm.of_length(self.length)):
-            if _label(bitmap, index) == wanted_bit:
-                yield perm
+        wanted_count = len(self)
+        if wanted_count == 0:
+            return
+        if wanted_count * _SPARSE_FACTOR <= factorial(self.length):
+            for index in _wanted_indices(bitmap, self.length, wanted_bit):
+                yield Perm.unrank(index, self.length)
+        else:
+            for index, perm in enumerate(Perm.of_length(self.length)):
+                if _label(bitmap, index) == wanted_bit:
+                    yield perm
 
     def __len__(self) -> int:
         good_count = self.property_bitmaps.good_counts[self.length]

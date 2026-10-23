@@ -64,6 +64,26 @@ def test_views_are_a_mapping_of_collections():
     assert Perm((0, 1, 2, 3)) not in property_bitmaps.bad[3]
 
 
+def test_views_unrank_a_length_with_few_wanted():
+    # A length where at most one permutation in 16 is wanted is read by
+    # unranking those, in the order of Perm.of_length: the good permutations at
+    # length 8 here (1430 of 40320), and every bad one of a set of all but the
+    # identity; length 7 (429 good of 5040) is read by generating the length
+    property_bitmaps = property_bitmaps_up_to(Perm.stack_sortable, 8)
+    for length in (7, 8):
+        good = [perm for perm in Perm.of_length(length) if perm.stack_sortable()]
+        assert list(property_bitmaps.good[length]) == good
+    not_increasing = property_bitmaps_up_to(lambda perm: not perm.is_increasing(), 6)
+    for length in range(7):
+        assert list(not_increasing.bad[length]) == [Perm(range(length))]
+        assert list(not_increasing.good[length]) == list(Perm.of_length(length))[1:]
+    # The first eight permutations of length 6 bad, a byte of zeros
+    first_eight_bad = PropertyBitmaps(bitmaps={6: b"\x00" + b"\xff" * 89})
+    assert list(first_eight_bad.bad[6]) == list(Perm.of_length(6))[:8]
+    # No bad permutation of length 3: the spare bits of its byte are not read
+    assert list(PropertyBitmaps(bitmaps={3: b"\x3f"}).bad[3]) == []
+
+
 def test_bit_order_is_perm_unrank():
     # Bit i of a length's bitmap is the label of Perm.unrank(i, length), and the
     # permutation perm is at bit perm.rank() minus the number of shorter
