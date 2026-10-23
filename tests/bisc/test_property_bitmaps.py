@@ -62,6 +62,14 @@ def test_views_are_a_mapping_of_collections():
     # A permutation of another length is in neither view of a length
     assert Perm((0, 1)) not in property_bitmaps.good[3]
     assert Perm((0, 1, 2, 3)) not in property_bitmaps.bad[3]
+    # Any sequence that is a permutation of the length is read as one, and
+    # nothing else is in a view
+    assert (0, 1, 2) in property_bitmaps.good[3] and [1, 2, 0] in property_bitmaps.bad[
+        3
+    ]
+    for not_a_perm_of_3 in (Perm((1, 2, 3)), Perm((5, 5, 5)), (0, 0, 1), "012", 3):
+        assert not_a_perm_of_3 not in property_bitmaps.good[3]
+        assert not_a_perm_of_3 not in property_bitmaps.bad[3]
 
 
 def test_views_unrank_a_length_with_few_wanted():

@@ -1,7 +1,8 @@
+import functools
 import json
 import os
 import types
-from collections.abc import Collection, Mapping
+from collections.abc import Collection, Mapping, Sequence
 from math import factorial
 from typing import Callable, Dict, Iterable, Iterator, List, Optional, Tuple, Union
 
@@ -492,10 +493,17 @@ class _PermsOfLength(Collection[Perm]):
         self.wanted_bit = 1 if good else 0
 
     def __contains__(self, perm: object) -> bool:
-        if not isinstance(perm, Perm) or len(perm) != self.length:
+        # A permutation of this length: a Perm, or any other sequence of the
+        # numbers 0 to length - 1, each once
+        if not (
+            isinstance(perm, Sequence)
+            and len(perm) == self.length
+            and all(isinstance(value, int) for value in perm)
+            and set(perm) == set(range(self.length))
+        ):
             return False
         bitmap = self.property_bitmaps.bitmaps[self.length]
-        index = perm.rank() - _shorter_count(self.length)
+        index = Perm(perm).rank() - _shorter_count(self.length)
         return _label(bitmap, index) == self.wanted_bit
 
     def __iter__(self) -> Iterator[Perm]:
@@ -517,6 +525,7 @@ class _PermsOfLength(Collection[Perm]):
         return good_count if self.wanted_bit else factorial(self.length) - good_count
 
 
+@functools.lru_cache(maxsize=None)
 def _shorter_count(length: int) -> int:
     """The number of permutations shorter than length: a permutation's bit is
     its rank() less this."""
