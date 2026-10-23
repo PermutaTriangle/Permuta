@@ -1,11 +1,10 @@
-# type: ignore
-
 import json
 import os
 import types
 from collections import defaultdict
 from collections.abc import Collection, Mapping
 from math import factorial
+from typing import Callable, DefaultDict, Dict, Iterator, List, Optional, Tuple, Union
 
 from permuta.bisc.bisc_subfunctions import (
     forb,
@@ -20,7 +19,17 @@ from permuta.bisc.bisc_subfunctions import (
 from permuta.patterns.perm import Perm
 
 
-def bisc(A, m, n=None, report=False):
+def bisc(
+    A: Union[
+        List[Perm],
+        Callable[[Perm], bool],
+        Mapping[int, Collection[Perm]],
+        "PropertyBitmaps",
+    ],
+    m: int,
+    n: Optional[int] = None,
+    report: bool = False,
+):
     """
     Mine the forbidden patterns of length up to m from the permutations up to
     length n of a set A: a list of permutations, a property (a function), a
@@ -35,19 +44,25 @@ def bisc(A, m, n=None, report=False):
     {pattern: [shadings]}, where each shading is a set of boxes, and an empty
     one makes the pattern classical.
     """
+    # length -> the permutations of that length in the set: for a list or a
+    # property, the dictionary of lists perm_lists
+    D: Mapping[int, Collection[Perm]]
+    perm_lists: DefaultDict[int, List[Perm]]
     if isinstance(A, list):
-        D = defaultdict(list)
+        perm_lists = defaultdict(list)
         for perm in A:
-            D[len(perm)].append(perm)
+            perm_lists[len(perm)].append(perm)
+        D = perm_lists
     elif isinstance(A, types.FunctionType):
         if n is None:
             print("I will use permutations up to length 7")
             n = 7
-        D = defaultdict(list)
+        perm_lists = defaultdict(list)
         for i in range(n + 1):
             for perm in Perm.of_length(i):
                 if A(perm):
-                    D[i].append(perm)
+                    perm_lists[i].append(perm)
+        D = perm_lists
 
     elif isinstance(A, Mapping):
         D = A
@@ -92,7 +107,16 @@ def bisc(A, m, n=None, report=False):
     return SG
 
 
-def auto_bisc(prop, labels="lists"):
+def auto_bisc(
+    prop: Union[
+        Callable[[Perm], bool],
+        List[Perm],
+        Tuple[Dict[int, List[Perm]], Dict[int, List[Perm]]],
+        str,
+        "PropertyBitmaps",
+    ],
+    labels: str = "lists",
+):
     """
     Learn a basis of forbidden patterns for a set of permutations, growing
     the length of the patterns and of the permutations they are learned from
@@ -131,34 +155,46 @@ def auto_bisc(prop, labels="lists"):
     n = 4
     m = 2
 
+    # length -> the good (A) and the bad (B) permutations of that length: for
+    # a list or a property, the dictionaries of lists good_perm_lists and
+    # bad_perm_lists, to which a property's new lengths are added as L grows
+    A: Mapping[int, Collection[Perm]]
+    B: Mapping[int, Collection[Perm]]
+    good_perm_lists: DefaultDict[int, List[Perm]]
+    bad_perm_lists: DefaultDict[int, List[Perm]]
+
     if isinstance(prop, list):
         # If a list is passed in then we put it in a dictionary at the start
-        A = defaultdict(list)
+        good_perm_lists = defaultdict(list)
         # We will put the complement up to S8 into another dictionary
-        B = defaultdict(list)
+        bad_perm_lists = defaultdict(list)
         for perm in prop:
-            A[len(perm)].append(perm)
-        if L not in A.keys():
+            good_perm_lists[len(perm)].append(perm)
+        if L not in good_perm_lists.keys():
             print("You should have permutations up to length at least 8")
             return
-        for i in range(max(L + 1, max(A.keys()) + 1)):
+        for i in range(max(L + 1, max(good_perm_lists.keys()) + 1)):
             if i > 7:
                 print("Populating the dictionary of bad perms of length ", i)
-            B[i] = [perm for perm in Perm.of_length(i) if perm not in A[i]]
+            bad_perm_lists[i] = [
+                perm for perm in Perm.of_length(i) if perm not in good_perm_lists[i]
+            ]
+        A, B = good_perm_lists, bad_perm_lists
 
     elif isinstance(prop, types.FunctionType):
         # If a property is passed in then we use it to populate both
         # both dictionaries up to S8
-        A = defaultdict(list)
-        B = defaultdict(list)
+        good_perm_lists = defaultdict(list)
+        bad_perm_lists = defaultdict(list)
         for i in range(L + 1):
-            A[i] = []
-            B[i] = []
+            good_perm_lists[i] = []
+            bad_perm_lists[i] = []
             for perm in Perm.of_length(i):
                 if prop(perm):
-                    A[i].append(perm)
+                    good_perm_lists[i].append(perm)
                 else:
-                    B[i].append(perm)
+                    bad_perm_lists[i].append(perm)
+        A, B = good_perm_lists, bad_perm_lists
 
     elif isinstance(prop, PropertyBitmaps):
         # Labels kept as one bitmap per length: A and B are views of the good
@@ -311,9 +347,9 @@ def auto_bisc(prop, labels="lists"):
                     print("Adding perms of length {}".format(i))
                     for perm in Perm.of_length(i):
                         if prop(perm):
-                            A[i].append(perm)
+                            good_perm_lists[i].append(perm)
                         else:
-                            B[i].append(perm)
+                            bad_perm_lists[i].append(perm)
 
             elif isinstance(prop, PropertyBitmaps):
                 for i in range(oldL + 1, L + 1):
@@ -364,7 +400,7 @@ def auto_bisc(prop, labels="lists"):
                     return
 
 
-def _bitmap_size(length):
+def _bitmap_size(length: int) -> int:
     """The number of bytes in the bitmap of a length: a bit for each of its
     permutations."""
     return (factorial(length) + 7) // 8
@@ -395,10 +431,14 @@ class PropertyBitmaps:
     of Perm objects takes 0.9 GB on PyPy 3.11 and 1.3 to 1.8 GB on CPython.
     """
 
-    def __init__(self, prop=None, bitmaps=None):
+    def __init__(
+        self,
+        prop: Optional[Callable[[Perm], bool]] = None,
+        bitmaps: Optional[Mapping[int, Union[bytes, bytearray, memoryview]]] = None,
+    ) -> None:
         self.prop = prop
-        self.bitmaps = {}
-        self.good_counts = {}
+        self.bitmaps: Dict[int, bytes] = {}
+        self.good_counts: Dict[int, int] = {}
         if bitmaps is not None:
             for length, bitmap in bitmaps.items():
                 if not isinstance(bitmap, (bytes, bytearray, memoryview)):
@@ -428,10 +468,15 @@ class PropertyBitmaps:
         self.good = _LengthViews(self, True)
         self.bad = _LengthViews(self, False)
 
-    def add_length(self, length):
+    def add_length(self, length: int) -> None:
         """Label the permutations of a length with the property, and keep
         their labels as the length's bitmap. It needs a property, and replaces
         the length's bitmap if there is one."""
+        if self.prop is None:
+            raise ValueError(
+                "The PropertyBitmaps has no property to label length {} "
+                "with".format(length)
+            )
         bitmap = bytearray(_bitmap_size(length))
         good_count = 0
         for i, perm in enumerate(Perm.of_length(length)):
@@ -447,19 +492,19 @@ class _LengthViews(Mapping[int, "_PermsOfLength"]):
     the dictionaries of lists auto_bisc builds from the other inputs: a
     Mapping whose keys are the lengths with a bitmap."""
 
-    def __init__(self, property_bitmaps, good):
+    def __init__(self, property_bitmaps: PropertyBitmaps, good: bool) -> None:
         self.property_bitmaps = property_bitmaps
         self.is_good = good
 
-    def __getitem__(self, length):
+    def __getitem__(self, length: int) -> "_PermsOfLength":
         if length not in self.property_bitmaps.bitmaps:
             raise KeyError(length)
         return _PermsOfLength(self.property_bitmaps, length, self.is_good)
 
-    def __iter__(self):
+    def __iter__(self) -> Iterator[int]:
         return iter(self.property_bitmaps.bitmaps)
 
-    def __len__(self):
+    def __len__(self) -> int:
         return len(self.property_bitmaps.bitmaps)
 
 
@@ -471,12 +516,14 @@ class _PermsOfLength(Collection[Perm]):
     count kept with the bitmap; and a permutation is in it when its bit is
     the one wanted."""
 
-    def __init__(self, property_bitmaps, length, good):
+    def __init__(
+        self, property_bitmaps: PropertyBitmaps, length: int, good: bool
+    ) -> None:
         self.property_bitmaps = property_bitmaps
         self.length = length
         self.wanted_bit = 1 if good else 0
 
-    def __contains__(self, perm):
+    def __contains__(self, perm: object) -> bool:
         if not isinstance(perm, Perm) or len(perm) != self.length:
             return False
         shorter_count = sum(
@@ -486,14 +533,14 @@ class _PermsOfLength(Collection[Perm]):
         bitmap = self.property_bitmaps.bitmaps[self.length]
         return (bitmap[i >> 3] >> (i & 7)) & 1 == self.wanted_bit
 
-    def __iter__(self):
+    def __iter__(self) -> Iterator[Perm]:
         bitmap = self.property_bitmaps.bitmaps[self.length]
         wanted_bit = self.wanted_bit
         for i, perm in enumerate(Perm.of_length(self.length)):
             if (bitmap[i >> 3] >> (i & 7)) & 1 == wanted_bit:
                 yield perm
 
-    def __len__(self):
+    def __len__(self) -> int:
         good_count = self.property_bitmaps.good_counts[self.length]
         return good_count if self.wanted_bit else factorial(self.length) - good_count
 

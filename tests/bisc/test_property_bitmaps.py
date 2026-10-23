@@ -198,6 +198,13 @@ def test_bisc_needs_labels_or_a_property():
         bisc(PropertyBitmaps(), 3)
 
 
+def test_add_length_needs_a_property():
+    property_bitmaps = PropertyBitmaps(bitmaps={0: b"\x01"})
+    with pytest.raises(ValueError, match="no property to label length 3 with"):
+        property_bitmaps.add_length(3)
+    assert sorted(property_bitmaps.bitmaps) == [0]
+
+
 def test_bisc_without_n_uses_the_longest_labelled_length_with_no_property():
     bitmaps = {length: encode(Perm.stack_sortable, length) for length in range(6)}
     assert bisc(PropertyBitmaps(bitmaps=bitmaps), 3) == BASIS_231

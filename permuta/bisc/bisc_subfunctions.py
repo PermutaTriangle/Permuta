@@ -1,4 +1,4 @@
-# type: ignore
+# mypy: ignore-errors
 
 from itertools import chain
 from math import factorial
