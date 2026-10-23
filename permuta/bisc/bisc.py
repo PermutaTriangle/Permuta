@@ -38,8 +38,8 @@ def bisc(
     Without n, a property uses length 7, and the others their longest length.
     - A list sets the bits of the permutations it lists, and a length with
       none listed is empty.
-    - A property labels the lengths up to n; a length past n, when m > n, is
-      empty, as it was in the lists before.
+    - A property labels the lengths up to n, and a length past n, when m > n,
+      is read as empty.
     - A Mapping is read for each length up to max(m, n), and one it lacks is
       its KeyError.
     - A PropertyBitmaps labels the lengths up to max(m, n) it lacks with its
@@ -67,7 +67,7 @@ def bisc(
             print("I will use permutations up to length 7")
             n = 7
         # The property labels the lengths up to n. mine() reads those up to m
-        # too, and a length past n is empty, as it was in the lists before
+        # too, and a length past n is read as empty
         property_bitmaps = PropertyBitmaps(
             A,
             bitmaps={
@@ -143,13 +143,15 @@ def auto_bisc(
     permuta/resources/bisc, or a PropertyBitmaps. Each is turned into a
     PropertyBitmaps at the start, whose views give the good and the bad
     permutations of each length.
-    - A property labels each length when auto_bisc first needs it.
+    - A property labels the lengths up to 8 at the start, and each longer one
+      when auto_bisc first needs it.
     - A list sets the bits of the permutations it lists, and the others are
       bad.
-    - A tuple of dictionaries, or a stored set, must give each permutation of
-      each length up to the shorter dictionary's longest exactly once, as good
-      or as bad, or a ValueError is raised. A length one of them lacks is
-      empty in it.
+    - For a tuple of dictionaries, or a stored set, the good and the bad
+      permutations of each length up to the shorter dictionary's longest must
+      not overlap, and must together be all of that length's permutations, or
+      a ValueError is raised. A length one of them lacks is empty in it, and a
+      permutation given twice on one side counts once.
     - A PropertyBitmaps labels the lengths it lacks with its property, and
       they are added to it, so that a later run reuses them. Without a
       property, auto_bisc stops when it needs a length it lacks, as it does
@@ -167,6 +169,8 @@ def auto_bisc(
             print("You should have permutations up to length at least 8")
             return
         longest_length = max(listed_lengths)
+        # Printed as when the bad permutations were made into lists, so that
+        # what auto_bisc prints does not change; now they are the bitmaps' zeros
         for i in range(L, longest_length + 1):
             print("Populating the dictionary of bad perms of length ", i)
         perms_by_length: Dict[int, List[Perm]] = {
@@ -550,19 +554,25 @@ def _from_good_and_bad(
 ) -> PropertyBitmaps:
     """A PropertyBitmaps, with no property, from the good and the bad
     permutations of each length up to the shorter mapping's longest. A length
-    one of them lacks is empty in it. Each permutation of each length must be
-    given exactly once, as good or as bad, or a ValueError is raised."""
+    one of them lacks is empty in it, and a permutation given twice on one
+    side counts once. The good and the bad permutations of each length must
+    not overlap, and must together be all of its permutations, or a
+    ValueError is raised."""
     bitmaps = {}
     for length in range(min(max(good), max(bad)) + 1):
         good_bitmap = _bitmap_of(length, good.get(length, ()))
         bad_bitmap = _bitmap_of(length, bad.get(length, ()))
         good_bits = int.from_bytes(good_bitmap, "little")
         bad_bits = int.from_bytes(bad_bitmap, "little")
-        every_bit = (1 << factorial(length)) - 1
-        if good_bits & bad_bits or good_bits | bad_bits != every_bit:
+        in_both_count = (good_bits & bad_bits).bit_count()
+        in_neither_count = factorial(length) - (good_bits | bad_bits).bit_count()
+        if in_both_count or in_neither_count:
             raise ValueError(
-                "The good and the bad permutations of length {} must be all of "
-                "its {} permutations, each once".format(length, factorial(length))
+                "The good and the bad permutations of length {} must not overlap "
+                "and must together be all of its {} permutations (in both: {}, "
+                "in neither: {})".format(
+                    length, factorial(length), in_both_count, in_neither_count
+                )
             )
         bitmaps[length] = good_bitmap
     return PropertyBitmaps(bitmaps=bitmaps)

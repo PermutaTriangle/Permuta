@@ -20,8 +20,11 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
   depending on the Python.
 - A permutation listed twice in the input of `bisc` or `auto_bisc` counts once.
   Before, duplicates could make `bisc` take a length as complete when it was not.
-- `auto_bisc` raises a `ValueError` when a tuple of dictionaries, or a stored set,
-  does not give each permutation of a length exactly once, as good or as bad.
+- `auto_bisc` raises a `ValueError` when the good and the bad permutations of a
+  length, from a tuple of dictionaries or a stored set, overlap or are not
+  together all of that length's permutations.
+- `bisc` and `auto_bisc` raise a `ValueError` for a permutation given under the
+  key of another length.
 - `bisc` accepts any mapping of lengths to permutations, not only a `dict`.
 
 ### Fixed

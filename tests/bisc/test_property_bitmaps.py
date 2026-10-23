@@ -191,7 +191,7 @@ def test_bisc_turns_each_input_into_bitmaps(monkeypatch):
         property_bitmaps_up_to(Perm.stack_sortable, 5),
     ):
         assert mined_bitmaps(monkeypatch, A, 3, 5) == (BASIS_231, bitmaps)
-    # A Mapping must have each length up to max(m, n), as before
+    # A Mapping must have each length up to max(m, n)
     with pytest.raises(KeyError):
         bisc({length: good_lists[length] for length in (0, 1, 3)}, 3)
 
@@ -200,9 +200,8 @@ def test_a_list_sets_the_bits_of_the_permutations_it_lists(monkeypatch):
     # A length with none listed is empty
     _, mined = mined_bitmaps(monkeypatch, [Perm((0,)), Perm((0, 1, 2))], 2, 3)
     assert mined == {0: b"\x00", 1: b"\x01", 2: b"\x00", 3: b"\x01"}
-    # A permutation listed twice sets one bit. The lists counted (0, 1) twice,
-    # as if both permutations of length 2 were in the set, and found nothing;
-    # the increasing permutations avoid 10
+    # A permutation listed twice sets one bit, so (0, 1) is not taken for both
+    # permutations of length 2, and the increasing permutations avoid 10
     increasing = [Perm(()), Perm((0,)), Perm((0, 1)), Perm((0, 1)), Perm((0, 1, 2))]
     answer, mined = mined_bitmaps(monkeypatch, increasing, 2, 3)
     assert mined == {0: b"\x01", 1: b"\x01", 2: b"\x01", 3: b"\x01"}
@@ -211,7 +210,7 @@ def test_a_list_sets_the_bits_of_the_permutations_it_lists(monkeypatch):
 
 def test_a_property_leaves_the_lengths_past_n_empty(monkeypatch):
     # mine() reads the lengths up to m, and a property labels those up to n; the
-    # others are empty, as they were in the lists before
+    # others are read as empty
     answer, mined = mined_bitmaps(monkeypatch, Perm.stack_sortable, 4, 2)
     assert mined == {
         **{length: encode(Perm.stack_sortable, length) for length in range(3)},
@@ -263,14 +262,14 @@ def test_auto_bisc_labels_each_length_of_a_property(monkeypatch):
     assert added_lengths == list(range(9))
 
 
-def test_a_tuple_must_give_each_permutation_once():
+def test_the_good_and_bad_of_a_tuple_must_split_each_length():
     good, bad = create_bisc_input(8, Perm.stack_sortable)
     missing_one = {**bad, 5: bad[5][1:]}
-    with pytest.raises(ValueError, match="permutations of length 5 must be all"):
+    with pytest.raises(ValueError, match=r"length 5 .* \(in both: 0, in neither: 1\)"):
         auto_bisc((good, missing_one))
-    one_twice = {**bad, 4: bad[4] + good[4][:1]}
-    with pytest.raises(ValueError, match="permutations of length 4 must be all"):
-        auto_bisc((good, one_twice))
+    in_both = {**bad, 4: bad[4] + good[4][:1]}
+    with pytest.raises(ValueError, match=r"length 4 .* \(in both: 1, in neither: 0\)"):
+        auto_bisc((good, in_both))
 
 
 def test_the_stored_sets_give_each_permutation_once():
