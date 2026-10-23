@@ -208,6 +208,11 @@ def auto_bisc(
             print("You should have permutations up to length at least 8")
             return
         property_bitmaps = _from_good_and_bad(prop[0], prop[1])
+        if L - 1 not in property_bitmaps.bitmaps:
+            # The bad permutations stop short of the lengths up to L - 1, which
+            # auto_bisc learns from before its sanity checks reach L
+            print("You need to add longer permutations to the dictionaries")
+            return
 
     elif isinstance(prop, str):
         # If you pass in a string we assume it is pointing to a file in permsets

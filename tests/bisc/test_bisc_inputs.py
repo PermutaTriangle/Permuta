@@ -180,6 +180,13 @@ def test_auto_bisc_stops_when_a_list_or_a_tuple_is_too_short():
     result, printed = run(auto_bisc, (good, short_bad))
     assert result is None
     assert printed.endswith("You need to add longer permutations to the dictionaries\n")
+    # one that stops at length 6 stops it at once: auto_bisc learns from the
+    # permutations up to length 7 before its sanity checks reach length 8
+    shorter_bad = {length: perms for length, perms in bad.items() if length < 7}
+    assert run(auto_bisc, (good, shorter_bad)) == (
+        None,
+        "You need to add longer permutations to the dictionaries\n",
+    )
 
 
 @pytest.mark.parametrize("short", ["list", "tuple"])
