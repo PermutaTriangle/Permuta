@@ -420,10 +420,16 @@ def _new_indices(length: int, indices: Iterable[int] = ()) -> _Indices:
     return list(indices)
 
 
+def _most_indices(length: int) -> int:
+    """The most good permutations of a length that are kept as indices: fewer
+    than one in _SPARSE_WHEN_ONE_IN of its permutations."""
+    return (factorial(length) - 1) // _SPARSE_WHEN_ONE_IN
+
+
 def _is_sparse(good_count: int, length: int) -> bool:
     """Whether a length with good_count good permutations keeps their indices
     rather than its bitmap."""
-    return good_count * _SPARSE_WHEN_ONE_IN < factorial(length)
+    return good_count <= _most_indices(length)
 
 
 def _label_in(labels: _Labels, index: int) -> int:
@@ -558,30 +564,36 @@ class PropertyBitmaps:
     def add_length(self, length: int) -> None:
         """Label the permutations of a length with the property, and keep the
         length's labels, replacing any it has. The indices of the good
-        permutations are kept while they are few, and once they would take
-        as much space as the length's bitmap, they are set in it, which is
-        filled from then on. It needs a property."""
+        permutations are kept while they are few; once there are more than a
+        length keeps as indices, they are set in the length's bitmap, and the
+        rest of the length is labeled in it. It needs a property."""
         if self.prop is None:
             raise ValueError(
                 "The PropertyBitmaps has no property to label length {} "
                 "with".format(length)
             )
+        most_indices = _most_indices(length)
         good_indices = _new_indices(length)
-        bitmap: Optional[bytearray] = None
-        good_count = 0
-        for index, perm in enumerate(Perm.of_length(length)):
+        perms = enumerate(Perm.of_length(length))
+        for index, perm in perms:
             if self.prop(perm):
+                good_indices.append(index)
+                if len(good_indices) > most_indices:
+                    break
+        else:
+            self._keep(length, good_indices, len(good_indices))
+            return
+        # Too many for indices: they are set in the bitmap, and the loop goes
+        # on in it from the next permutation, with a bit to set for each good
+        # one and nothing more
+        bitmap = _bitmap_from_indices(length, good_indices)
+        good_count = len(good_indices)
+        del good_indices
+        for index, perm in perms:
+            if self.prop(perm):
+                _set_label(bitmap, index)
                 good_count += 1
-                if bitmap is not None:
-                    _set_label(bitmap, index)
-                else:
-                    good_indices.append(index)
-                    if not _is_sparse(good_count, length):
-                        # The indices take as much space as the bitmap: set
-                        # them in it, and go on in it
-                        bitmap = _bitmap_from_indices(length, good_indices)
-                        good_indices = _new_indices(length)
-        self._keep(length, good_indices if bitmap is None else bitmap, good_count)
+        self._keep(length, bitmap, good_count)
 
 
 class _Bitmaps(Mapping[int, bytes]):
