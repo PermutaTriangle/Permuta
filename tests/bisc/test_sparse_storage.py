@@ -652,11 +652,40 @@ def test_a_sparse_list_with_repeats_counts_each_permutation_once():
     assert list(property_bitmaps.good[8]) == [first, second]
 
 
-def test_a_sequence_that_is_not_a_permutation_is_refused():
-    """A Perm whose values are not 0 to n - 1 has an index outside the length's,
-    and is refused with a ValueError, in a list kept as indices and in one kept
-    as a bitmap."""
-    not_a_permutation = Perm(range(10, 18))
-    for perms in ([not_a_permutation], [not_a_permutation] + LENGTH_8[:1000]):
-        with pytest.raises(ValueError, match="not a permutation of 0 to 7"):
-            bisc_module._from_perms_by_length({8: perms})
+@pytest.mark.parametrize(
+    "not_a_permutation, ranked_as",
+    [
+        (Perm((0, 0, 0)), Perm((0, 1, 2))),
+        (Perm((0, 1, 1)), Perm((0, 1, 2))),
+        (Perm((1, 2, 3)), Perm((2, 0, 1))),  # written from 1
+        (Perm(range(1, 9)), Perm((1, 2, 3, 4, 5, 7, 0, 6))),  # written from 1
+        (Perm((2, 0)), None),  # one past the last of length 2
+        (Perm((3, 0, 0)), None),  # one past the last of length 3
+        (Perm(range(-1, 2)), None),  # before the first of length 3
+        (Perm(range(-1, 5)), None),  # before the first of length 6
+        (Perm(range(10, 18)), None),  # past the last of length 8
+    ],
+    ids=lambda value: str(value),
+)
+def test_a_sequence_that_is_not_a_permutation_is_refused(not_a_permutation, ranked_as):
+    """A Perm whose values are not 0 to n - 1 is refused with a ValueError, in a
+    list kept as indices and in one kept as a bitmap, given to bisc or made
+    into a PropertyBitmaps. Its rank() is another permutation's (ranked_as),
+    or outside its length's (None): in the first case it would be mined as
+    that permutation, and in the second its bit would be another's or past the
+    bitmap."""
+    length = len(not_a_permutation)
+    index = not_a_permutation.rank() - bisc_module._shorter_count(length)
+    if ranked_as is None:
+        assert index not in range(factorial(length))
+    else:
+        assert Perm.unrank(index, length) == ranked_as
+    message = "is not a permutation of 0 to {}".format(length - 1)
+    for perms in (
+        [not_a_permutation],
+        [not_a_permutation] + list(Perm.of_length(length)),
+    ):
+        with pytest.raises(ValueError, match=message):
+            bisc_module._from_perms_by_length({length: perms})
+        with pytest.raises(ValueError, match=message):
+            bisc(perms, 1, length)

@@ -748,25 +748,24 @@ def _shorter_count(length: int) -> int:
 
 def _indices_of(length: int, perms: Iterable[Perm]) -> Iterator[int]:
     """The indices (bits) of permutations given as ones of a length. One of
-    another length raises a ValueError, and so does one whose index is not
-    one of the length's, which only a sequence that is not a permutation can
-    have."""
+    another length raises a ValueError, and so does a sequence that is not a
+    permutation of 0 to length - 1, such as one written from 1: its rank()
+    would be another permutation's, or outside the length's."""
     shorter_count = _shorter_count(length)
-    permutation_count = factorial(length)
+    permutation_values = set(range(length))
     for perm in perms:
         if len(perm) != length:
             raise ValueError(
                 "The permutation {!r} of length {} is given as one of length "
                 "{}".format(perm, len(perm), length)
             )
-        if not isinstance(perm, Perm):
-            perm = Perm(perm)
-        index = perm.rank() - shorter_count
-        if not 0 <= index < permutation_count:
+        if set(perm) != permutation_values:
             raise ValueError(
                 "{!r} is not a permutation of 0 to {}".format(perm, length - 1)
             )
-        yield index
+        if not isinstance(perm, Perm):
+            perm = Perm(perm)
+        yield perm.rank() - shorter_count
 
 
 def _labels_of(length: int, perms: Collection[Perm]) -> Tuple[_Labels, int]:

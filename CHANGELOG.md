@@ -28,7 +28,7 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
   together all of that length's permutations.
 - `bisc` and `auto_bisc` raise a `ValueError` for a permutation given under the
   key of another length, and for a `Perm` given whose values are not those of a
-  permutation of its length.
+  permutation of its length, such as one written from 1.
 - `bisc` accepts any mapping of lengths to permutations, not only a `dict`.
 
 ### Fixed
