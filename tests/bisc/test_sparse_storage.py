@@ -56,7 +56,7 @@ def assert_views_match(property_bitmaps, length, good_set, bitmap=None):
     assert property_bitmaps.bitmaps[length] == bitmap
 
 
-def each_way_in(good_sets, bitmaps, randomness):
+def each_way_in(good_sets, bitmaps, seeded_random):
     """A PropertyBitmaps made from good_sets in each way that bisc and auto_bisc
     make one, with its name: a list or a mapping (whose good permutations come
     shuffled, with some twice), a tuple of the good and the bad, bitmaps, and a
@@ -65,7 +65,7 @@ def each_way_in(good_sets, bitmaps, randomness):
     good_lists, bad_lists = {}, {}
     for length in lengths:
         good_lists[length] = sorted(good_sets[length])
-        randomness.shuffle(good_lists[length])
+        seeded_random.shuffle(good_lists[length])
         bad_lists[length] = [
             perm for perm in Perm.of_length(length) if perm not in good_sets[length]
         ]
@@ -81,7 +81,7 @@ def each_way_in(good_sets, bitmaps, randomness):
     yield "property", by_property
 
 
-def first_dense_count(length, sparse_when_one_in):
+def fewest_kept_as_a_bitmap(length, sparse_when_one_in):
     """The fewest good permutations of a length that are kept as a bitmap."""
     return -(-factorial(length) // sparse_when_one_in)
 
@@ -96,35 +96,38 @@ SIZE_KINDS = (
 )
 
 
-def good_count_of(size_kind, length, sparse_when_one_in, randomness):
-    first_dense = min(first_dense_count(length, sparse_when_one_in), factorial(length))
+def good_count_of(size_kind, length, sparse_when_one_in, seeded_random):
+    fewest_in_a_bitmap = min(
+        fewest_kept_as_a_bitmap(length, sparse_when_one_in), factorial(length)
+    )
     return {
         "none": 0,
-        "just under the threshold": max(first_dense - 1, 0),
-        "at the threshold": first_dense,
+        "just under the threshold": max(fewest_in_a_bitmap - 1, 0),
+        "at the threshold": fewest_in_a_bitmap,
         "all": factorial(length),
-        "random under": randomness.randint(0, max(first_dense - 1, 0)),
-        "random over": randomness.randint(first_dense, factorial(length)),
+        "random under": seeded_random.randint(0, max(fewest_in_a_bitmap - 1, 0)),
+        "random over": seeded_random.randint(fewest_in_a_bitmap, factorial(length)),
     }[size_kind]
 
 
-# Both forms against brute force, for every view and every way in, at lengths 0
-# to 8. With one in 2, both forms occur at every length from 2 on; with one in
-# 64, the default, from 5 on. The bitmaps are read seven bytes at a time, so that
-# counting them takes several chunks
 @pytest.mark.parametrize("sparse_when_one_in", [2, 64])
 @pytest.mark.parametrize("size_kind", SIZE_KINDS)
 def test_both_forms_read_as_brute_force(monkeypatch, sparse_when_one_in, size_kind):
+    """Both forms against brute force, for every view and every way in, at
+    lengths 0 to 8. A set with a good permutation is kept as indices from length
+    3 on with one in 2, and from length 5 on with one in 64, the default. The
+    bitmaps are read seven bytes at a time, so that counting them takes several
+    chunks."""
     monkeypatch.setattr(bisc_module, "_SPARSE_WHEN_ONE_IN", sparse_when_one_in)
     monkeypatch.setattr(bisc_module, "_CHUNK_BYTES", 7)
-    randomness = random.Random(f"{sparse_when_one_in} {size_kind}")
+    seeded_random = random.Random(f"{sparse_when_one_in} {size_kind}")
     good_sets, bitmaps = {}, {}
     for length in range(MAX_LENGTH + 1):
-        good_count = good_count_of(size_kind, length, sparse_when_one_in, randomness)
+        good_count = good_count_of(size_kind, length, sparse_when_one_in, seeded_random)
         perms = list(Perm.of_length(length))
-        good_sets[length] = set(randomness.sample(perms, good_count))
+        good_sets[length] = set(seeded_random.sample(perms, good_count))
         bitmaps[length] = expected_bitmap(length, good_sets[length])
-    for way, property_bitmaps in each_way_in(good_sets, bitmaps, randomness):
+    for way, property_bitmaps in each_way_in(good_sets, bitmaps, seeded_random):
         for length in range(MAX_LENGTH + 1):
             good_count = len(good_sets[length])
             kept_as_indices = good_count * sparse_when_one_in < factorial(length)
@@ -137,9 +140,6 @@ def test_both_forms_read_as_brute_force(monkeypatch, sparse_when_one_in, size_ki
             )
 
 
-# add_length keeps the indices while they are few, and switches to a bitmap in
-# the middle of a length once they would take as much space. Length 7 has 5040
-# permutations, so its 79th good one makes them as many as one in 64
 @pytest.mark.parametrize(
     "good_indices",
     [
@@ -153,6 +153,10 @@ def test_both_forms_read_as_brute_force(monkeypatch, sparse_when_one_in, size_ki
     ],
 )
 def test_add_length_switches_to_a_bitmap_when_the_good_become_many(good_indices):
+    """add_length keeps the indices while they are few, and switches to a bitmap
+    in the middle of a length once there are more than a length keeps as
+    indices. Length 7 has 5040 permutations, so its 79th good one is one too
+    many."""
     length = 7
     perms = list(Perm.of_length(length))
     good_set = {perms[index] for index in good_indices}
@@ -163,28 +167,26 @@ def test_add_length_switches_to_a_bitmap_when_the_good_become_many(good_indices)
     assert_views_match(property_bitmaps, length, good_set)
 
 
-# A permutation listed many times counts once, for the form too
 def test_a_permutation_listed_many_times_is_kept_as_one_index():
-    # Five copies of one permutation of length 5 look like 5 of its 120, which a
-    # bitmap would keep at one in 64, but they are one good permutation
+    """A permutation listed many times counts once, for the form too: five
+    copies of one permutation of length 5 look like 5 of its 120, which a bitmap
+    would keep at one in 64, but they are one good permutation."""
     perm = Perm((1, 0, 2, 3, 4))
     property_bitmaps = bisc_module._from_perms_by_length({5: [perm] * 5})
     assert is_kept_as_indices(property_bitmaps, 5)
     assert_views_match(property_bitmaps, 5, {perm})
 
 
-def tuple_of(good_8, bad_8):
+def tuple_of(good_of_length_8, bad_of_length_8):
     """A tuple of the good and the bad permutations: every permutation shorter
     than 8 good, and those given at length 8."""
     good = {length: list(Perm.of_length(length)) for length in range(8)}
     bad = {length: [] for length in range(8)}
-    return {**good, 8: good_8}, {**bad, 8: bad_8}
+    return {**good, 8: good_of_length_8}, {**bad, 8: bad_of_length_8}
 
 
-# The good and the bad permutations of a tuple are checked in every pair of
-# forms: the good kept as indices or as a bitmap, and the bad as well
 @pytest.mark.parametrize(
-    "good_8, bad_8, in_both, in_neither",
+    "good_of_length_8, bad_of_length_8, in_both, in_neither",
     [
         (slice(0, 5), slice(3, None), 2, 0),  # indices, bitmap
         (slice(0, 40000), slice(39990, 40010), 10, 310),  # bitmap, indices
@@ -193,11 +195,13 @@ def tuple_of(good_8, bad_8):
     ],
 )
 def test_a_tuple_is_checked_in_every_pair_of_forms(
-    monkeypatch, good_8, bad_8, in_both, in_neither
+    monkeypatch, good_of_length_8, bad_of_length_8, in_both, in_neither
 ):
+    """The good and the bad permutations of a tuple are checked in every pair of
+    forms: the good kept as indices or as a bitmap, and the bad as well."""
     monkeypatch.setattr(bisc_module, "_CHUNK_BYTES", 7)
     perms = list(Perm.of_length(8))
-    good, bad = tuple_of(perms[good_8], perms[bad_8])
+    good, bad = tuple_of(perms[good_of_length_8], perms[bad_of_length_8])
     with pytest.raises(
         ValueError,
         match=r"length 8 .* \(in both: {}, in neither: {}\)".format(
@@ -207,9 +211,9 @@ def test_a_tuple_is_checked_in_every_pair_of_forms(
         bisc_module._from_good_and_bad(good, bad)
 
 
-# Asking whether a length is there, or reading its good permutations, does not
-# build the bitmap of a length kept as indices
 def test_a_length_kept_as_indices_builds_no_bitmap_unless_asked(monkeypatch):
+    """Asking whether a length is there, or reading its good permutations, does
+    not build the bitmap of a length kept as indices."""
     identity = Perm(range(10))
     property_bitmaps = bisc_module._from_perms_by_length({10: [identity]})
     built = []
@@ -276,10 +280,10 @@ def shadings_as_sets(answer):
     }
 
 
-# Three permutations of length 14 run in megabytes: each length up to 14 is kept
-# as indices, where the bitmap of length 14 alone would take 10.9 GB
 def test_three_permutations_of_length_14_take_little_memory():
-    # tracemalloc is CPython's
+    """Three permutations of length 14 run in megabytes: each length up to 14 is
+    kept as indices, where the bitmap of length 14 alone would take 10.9 GB.
+    tracemalloc is CPython's."""
     tracemalloc = pytest.importorskip("tracemalloc")
     tracemalloc.start()
     try:
@@ -642,3 +646,13 @@ def test_a_sparse_list_with_repeats_counts_each_permutation_once():
     assert len(property_bitmaps.good[8]) == 2
     assert len(property_bitmaps.bad[8]) == factorial(8) - 2
     assert list(property_bitmaps.good[8]) == [first, second]
+
+
+def test_a_sequence_that_is_not_a_permutation_is_refused():
+    """A Perm whose values are not 0 to n - 1 has an index outside the length's,
+    and is refused with a ValueError, in a list kept as indices and in one kept
+    as a bitmap."""
+    not_a_permutation = Perm(range(10, 18))
+    for perms in ([not_a_permutation], [not_a_permutation] + LENGTH_8[:1000]):
+        with pytest.raises(ValueError, match="not a permutation of 0 to 7"):
+            bisc_module._from_perms_by_length({8: perms})
