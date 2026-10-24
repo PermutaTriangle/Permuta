@@ -688,36 +688,55 @@ class _PermsOfLength(Collection[Perm]):
 
     def __iter__(self) -> Iterator[Perm]:
         labels = self.property_bitmaps._labels[self.length]
-        wanted_bit = self.wanted_bit
         wanted_count = len(self)
         if wanted_count == 0:
             # Nothing to yield, and no need to read the labels
-            return
+            return iter(())
         if isinstance(labels, (array, list)):
-            if wanted_bit:
-                for index in labels:
-                    yield Perm.unrank(index, self.length)
-            else:
-                # The good indices are in increasing order, as the
-                # permutations are generated
-                good_indices = iter(labels)
-                next_good_index = next(good_indices, None)
-                for index, perm in enumerate(Perm.of_length(self.length)):
-                    if index == next_good_index:
-                        next_good_index = next(good_indices, None)
-                    else:
-                        yield perm
-        elif wanted_count * _UNRANK_WHEN_ONE_IN <= factorial(self.length):
-            for index in _wanted_indices(labels, self.length, wanted_bit):
-                yield Perm.unrank(index, self.length)
-        else:
-            for index, perm in enumerate(Perm.of_length(self.length)):
-                if _label(labels, index) == wanted_bit:
-                    yield perm
+            if self.wanted_bit:
+                return _unranked(labels, self.length)
+            return _skipping(labels, self.length)
+        if wanted_count * _UNRANK_WHEN_ONE_IN <= factorial(self.length):
+            return _unranked(
+                _wanted_indices(labels, self.length, self.wanted_bit), self.length
+            )
+        return _generated(labels, self.length, self.wanted_bit)
 
     def __len__(self) -> int:
         good_count = self.property_bitmaps.good_counts[self.length]
         return good_count if self.wanted_bit else factorial(self.length) - good_count
+
+
+# Each way of iterating over a length is a generator of its own, with one small
+# loop, which PyPy's JIT compiles more steadily than one generator holding them
+# all
+
+
+def _unranked(indices: Iterable[int], length: int) -> Iterator[Perm]:
+    """The permutations of a length at the given indices, unranked."""
+    for index in indices:
+        yield Perm.unrank(index, length)
+
+
+def _skipping(good_indices: Iterable[int], length: int) -> Iterator[Perm]:
+    """The permutations of a length not at the given indices, which are in
+    increasing order: the length is generated, and the good indices skipped in
+    step."""
+    good_index_iterator = iter(good_indices)
+    next_good_index = next(good_index_iterator, None)
+    for index, perm in enumerate(Perm.of_length(length)):
+        if index == next_good_index:
+            next_good_index = next(good_index_iterator, None)
+        else:
+            yield perm
+
+
+def _generated(bitmap: bytes, length: int, wanted_bit: int) -> Iterator[Perm]:
+    """The permutations of a length whose label in the bitmap is wanted_bit:
+    the length is generated, and each bit tested."""
+    for index, perm in enumerate(Perm.of_length(length)):
+        if _label(bitmap, index) == wanted_bit:
+            yield perm
 
 
 @functools.lru_cache(maxsize=None)
