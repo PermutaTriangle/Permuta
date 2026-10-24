@@ -403,7 +403,7 @@ _Indices = Union["array[int]", List[int]]
 
 # A length's labels, as a PropertyBitmaps keeps them: its bitmap, or the sorted
 # indices of its good permutations
-_Labels = Union[bytes, bytearray, _Indices]
+_Labels = Union[bytes, _Indices]
 
 # A length keeps the sorted indices of its good permutations, _INDEX_BITS bits
 # each, rather than its bitmap, a bit for each of its permutations, when fewer
@@ -462,6 +462,18 @@ def _count_labels(bitmap: Union[bytes, bytearray]) -> int:
         int.from_bytes(view[start : start + _CHUNK_BYTES], "little").bit_count()
         for start in range(0, len(view), _CHUNK_BYTES)
     )
+
+
+def _labels_from_bitmap(
+    length: int, bitmap: Union[bytes, bytearray]
+) -> Tuple[_Labels, int]:
+    """A length's labels from its bitmap, in the form chosen by its number of
+    good permutations, and that number. A bitmap kept is bytes: a bytearray
+    is copied, so that changing it does not change the labels."""
+    good_count = _count_labels(bitmap)
+    if _is_sparse(good_count, length):
+        return _new_indices(length, _wanted_indices(bitmap, length, 1)), good_count
+    return bytes(bitmap), good_count
 
 
 class PropertyBitmaps:
@@ -539,18 +551,7 @@ class PropertyBitmaps:
                         "A bitmap of length {} has bits set past its {} "
                         "permutations".format(length, factorial(length))
                     )
-                good_count = _count_labels(bitmap)
-                if _is_sparse(good_count, length):
-                    good_indices = _new_indices(
-                        length, _wanted_indices(bitmap, length, 1)
-                    )
-                    self._keep(length, good_indices, good_count)
-                elif isinstance(bitmap, bytes):
-                    self._keep(length, bitmap, good_count)
-                else:
-                    # A copy, so that a change to the bytearray does not change
-                    # the labels
-                    self._keep(length, bytes(bitmap), good_count)
+                self._keep(length, *_labels_from_bitmap(length, bitmap))
         self.bitmaps: Mapping[int, bytes] = _Bitmaps(self)
         self.good = _LengthViews(self, wanted_bit=1)
         self.bad = _LengthViews(self, wanted_bit=0)
@@ -593,7 +594,7 @@ class PropertyBitmaps:
             if self.prop(perm):
                 _set_label(bitmap, index)
                 good_count += 1
-        self._keep(length, bitmap, good_count)
+        self._keep(length, bytes(bitmap), good_count)
 
 
 class _Bitmaps(Mapping[int, bytes]):
@@ -608,7 +609,7 @@ class _Bitmaps(Mapping[int, bytes]):
         labels = self.property_bitmaps._labels[length]
         if isinstance(labels, (array, list)):
             return bytes(_bitmap_from_indices(length, labels))
-        return bytes(labels)
+        return labels
 
     def __contains__(self, length: object) -> bool:
         # Mapping's would build the bitmap of a length kept as indices, to
@@ -738,12 +739,10 @@ def _labels_of(length: int, perms: Collection[Perm]) -> Tuple[_Labels, int]:
     if _is_sparse(len(perms), length):
         good_indices = _new_indices(length, sorted(set(_indices_of(length, perms))))
         return good_indices, len(good_indices)
+    # Permutations given more than once can make them look many: the count of
+    # the bitmap's bits chooses the form
     bitmap = _bitmap_from_indices(length, _indices_of(length, perms))
-    good_count = _count_labels(bitmap)
-    if _is_sparse(good_count, length):
-        # Permutations given more than once made them look many
-        return _new_indices(length, _wanted_indices(bitmap, length, 1)), good_count
-    return bitmap, good_count
+    return _labels_from_bitmap(length, bitmap)
 
 
 def _overlap_count(labels: _Labels, other_labels: _Labels) -> int:

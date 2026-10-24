@@ -331,3 +331,22 @@ def test_bisc_of_one_long_permutation_is_as_before(length):
     last = Perm(range(length - 1, -1, -1))
     answer = bisc([last], 2, length)
     assert shadings_as_sets(answer) == shadings_as_sets(DEVELOP_ANSWER_LONG)
+
+
+def test_a_dense_length_is_kept_as_bytes_and_read_without_a_copy():
+    """A length kept as a bitmap keeps bytes, however it came in, so that
+    bitmaps gives the same object on every read."""
+    length = 6
+    good_set = {
+        perm for index, perm in enumerate(Perm.of_length(length)) if index % 3 == 0
+    }
+    by_property = PropertyBitmaps(lambda perm: perm in good_set)
+    by_property.add_length(length)
+    from_list = bisc_module._from_perms_by_length({length: sorted(good_set)})
+    given = PropertyBitmaps(
+        bitmaps={length: bytearray(expected_bitmap(length, good_set))}
+    )
+    for property_bitmaps in (by_property, from_list, given):
+        assert type(property_bitmaps._labels[length]) is bytes
+        assert property_bitmaps.bitmaps[length] is property_bitmaps.bitmaps[length]
+        assert property_bitmaps.bitmaps[length] == expected_bitmap(length, good_set)
