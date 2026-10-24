@@ -20,7 +20,7 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
   the same results in far less memory at longer lengths: the permutations of
   length 10 take 454 KB as a bitmap, and 0.9 to 1.8 GB as lists of `Perm` objects,
   depending on the Python, and a length with few good permutations takes 8 bytes
-  for each of them.
+  for each of them, to length 20.
 - A permutation listed twice in the input of `bisc` or `auto_bisc` counts once.
   Before, duplicates could make `bisc` take a length as complete when it was not.
 - `auto_bisc` raises a `ValueError` when the good and the bad permutations of a

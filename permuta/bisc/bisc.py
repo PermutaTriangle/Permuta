@@ -16,6 +16,7 @@ from typing import (
     Optional,
     Set,
     Tuple,
+    TypeGuard,
     Union,
 )
 
@@ -396,7 +397,8 @@ def _wanted_indices(
 # The sorted indices of a length's good permutations are kept in an array of
 # this type code, unsigned integers of 8 bytes, while every index of the length
 # fits in one: to length 20, since 21! is above 2**64. Past that they are kept in
-# a list
+# a list. Final, so that mypy takes it as the literal "Q", and the array as one
+# of ints
 _INDEX_TYPECODE: Final = "Q"
 _INDEX_BITS = 8 * array(_INDEX_TYPECODE).itemsize
 _Indices = Union["array[int]", List[int]]
@@ -420,25 +422,36 @@ def _new_indices(length: int, indices: Iterable[int] = ()) -> _Indices:
     return list(indices)
 
 
-def _most_indices(length: int) -> int:
-    """The most good permutations of a length that are kept as indices: fewer
-    than one in _SPARSE_WHEN_ONE_IN of its permutations."""
+def _largest_sparse_good_count(length: int) -> int:
+    """The most good permutations a length can have and keep their indices:
+    fewer than one in _SPARSE_WHEN_ONE_IN of its n! permutations, so
+    good_count * _SPARSE_WHEN_ONE_IN < n!, which for ints is good_count <= (n!
+    - 1) // _SPARSE_WHEN_ONE_IN. n! // _SPARSE_WHEN_ONE_IN would also let
+    through exactly one in _SPARSE_WHEN_ONE_IN when it divides n!, as 64
+    divides n! from n = 8 on."""
     return (factorial(length) - 1) // _SPARSE_WHEN_ONE_IN
 
 
 def _is_sparse(good_count: int, length: int) -> bool:
     """Whether a length with good_count good permutations keeps their indices
     rather than its bitmap."""
-    return good_count <= _most_indices(length)
+    return good_count <= _largest_sparse_good_count(length)
+
+
+def _kept_as_bitmap(labels: _Labels) -> TypeGuard[bytes]:
+    """Whether a length's labels are kept as its bitmap, rather than as the
+    indices of its good permutations, in an array or a list: every reader of
+    the labels tells the forms apart here. The bitmap is always bytes."""
+    return isinstance(labels, bytes)
 
 
 def _label_in(labels: _Labels, index: int) -> int:
     """The label (0 or 1) of the permutation at index, from a length's labels
     in either form."""
-    if isinstance(labels, (array, list)):
-        position = bisect.bisect_left(labels, index)
-        return int(position < len(labels) and labels[position] == index)
-    return _label(labels, index)
+    if _kept_as_bitmap(labels):
+        return _label(labels, index)
+    position = bisect.bisect_left(labels, index)
+    return int(position < len(labels) and labels[position] == index)
 
 
 def _bitmap_from_indices(length: int, indices: Iterable[int]) -> bytearray:
@@ -531,9 +544,10 @@ class PropertyBitmaps:
     ) -> None:
         self.prop = prop
         # length -> its labels, in the form chosen by its number of good
-        # permutations (_is_sparse). The storage is the module's: bitmaps, the
-        # views and the functions that make a PropertyBitmaps read _labels,
-        # and keep a length's labels through _keep
+        # permutations (_is_sparse). The storage is the module's: bitmaps and
+        # the views read _labels, and the constructor, add_length, bisc and the
+        # functions that make a PropertyBitmaps keep a length's labels in it
+        # through _keep
         self._labels: Dict[int, _Labels] = {}
         self.good_counts: Dict[int, int] = {}
         if bitmaps is not None:
@@ -570,9 +584,9 @@ class PropertyBitmaps:
         self.bad = _LengthViews(self, wanted_bit=0)
 
     def _keep(self, length: int, labels: _Labels, good_count: int) -> None:
-        """Keep a length's labels as given, with its number of good
-        permutations. The caller chooses the form (_is_sparse), and is trusted
-        to; the views read the labels from here."""
+        """Keep a length's labels, in the form its caller chose by _is_sparse,
+        with its number of good permutations. Neither is checked here: the
+        callers make them right."""
         self._labels[length] = labels
         self.good_counts[length] = good_count
 
@@ -587,33 +601,38 @@ class PropertyBitmaps:
                 "The PropertyBitmaps has no property to label length {} "
                 "with".format(length)
             )
-        most_indices = _most_indices(length)
+        largest_sparse_good_count = _largest_sparse_good_count(length)
         good_indices = _new_indices(length)
-        perms = enumerate(Perm.of_length(length))
-        for index, perm in perms:
+        # One iterator for both loops: the second goes on where the first
+        # stopped
+        indexed_perms = enumerate(Perm.of_length(length))
+        for index, perm in indexed_perms:
             if self.prop(perm):
                 good_indices.append(index)
-                if len(good_indices) > most_indices:
+                if len(good_indices) > largest_sparse_good_count:
                     break
         else:
+            # No break: the good permutations stayed few
             self._keep(length, good_indices, len(good_indices))
             return
-        # Too many for indices: they are set in the bitmap, and the loop goes
-        # on in it from the next permutation, with a bit to set for each good
-        # one and nothing more
+        # Too many for indices: they are set in the bitmap, and the second loop
+        # goes on in it from the next permutation, with a bit to set for each
+        # good one and nothing more
         bitmap = _bitmap_from_indices(length, good_indices)
         good_count = len(good_indices)
+        # The indices now take about as much as the bitmap. Dropping them keeps
+        # the peak at two bitmaps, with the bytes made of it at the end
         del good_indices
-        for index, perm in perms:
+        for index, perm in indexed_perms:
             if self.prop(perm):
                 _set_label(bitmap, index)
                 good_count += 1
         self._keep(length, bytes(bitmap), good_count)
 
 
-class _Lengths:
-    """The lengths with labels in a PropertyBitmaps, which its Mappings,
-    bitmaps and the views, iterate over and count."""
+class _LengthKeys:
+    """The keys of a PropertyBitmaps' Mappings, bitmaps and the views: the
+    lengths it has labels for."""
 
     def __init__(self, property_bitmaps: PropertyBitmaps) -> None:
         self.property_bitmaps = property_bitmaps
@@ -625,16 +644,16 @@ class _Lengths:
         return len(self.property_bitmaps._labels)
 
 
-class _Bitmaps(_Lengths, Mapping[int, bytes]):
+class _Bitmaps(_LengthKeys, Mapping[int, bytes]):
     """length -> its bitmap, read-only: the bitmap kept, or, for a length kept
     as the indices of its good permutations, one built from them when
     asked."""
 
     def __getitem__(self, length: int) -> bytes:
         labels = self.property_bitmaps._labels[length]
-        if isinstance(labels, (array, list)):
-            return bytes(_bitmap_from_indices(length, labels))
-        return labels
+        if _kept_as_bitmap(labels):
+            return labels
+        return bytes(_bitmap_from_indices(length, labels))
 
     def __contains__(self, length: object) -> bool:
         # Mapping's would build the bitmap of a length kept as indices, to
@@ -642,7 +661,7 @@ class _Bitmaps(_Lengths, Mapping[int, bytes]):
         return length in self.property_bitmaps._labels
 
 
-class _LengthViews(_Lengths, Mapping[int, "_PermsOfLength"]):
+class _LengthViews(_LengthKeys, Mapping[int, "_PermsOfLength"]):
     """length -> the good (or bad) permutations of that length, read-only: a
     Mapping whose keys are the lengths with labels, through which bisc and
     auto_bisc read the permutations. wanted_bit is the label of the
@@ -695,15 +714,16 @@ class _PermsOfLength(Collection[Perm]):
         if wanted_count == 0:
             # Nothing to yield, and no need to read the labels
             return iter(())
-        if isinstance(labels, (array, list)):
-            if self.wanted_bit:
-                return _unranked(labels, self.length)
-            return _skipping(labels, self.length)
-        if wanted_count * _UNRANK_WHEN_ONE_IN <= factorial(self.length):
-            return _unranked(
-                _wanted_indices(labels, self.length, self.wanted_bit), self.length
-            )
-        return _generated(labels, self.length, self.wanted_bit)
+        if _kept_as_bitmap(labels):
+            if wanted_count * _UNRANK_WHEN_ONE_IN <= factorial(self.length):
+                return _unranked_perms(
+                    _wanted_indices(labels, self.length, self.wanted_bit),
+                    self.length,
+                )
+            return _perms_with_label(labels, self.length, self.wanted_bit)
+        if self.wanted_bit:
+            return _unranked_perms(labels, self.length)
+        return _perms_skipping(labels, self.length)
 
     def __len__(self) -> int:
         # len() raises OverflowError past sys.maxsize, as for the bad
@@ -720,17 +740,17 @@ class _PermsOfLength(Collection[Perm]):
 
 
 # Each way of iterating over a length is a generator of its own, with one small
-# loop, which PyPy's JIT compiles more steadily than one generator holding them
-# all
+# loop. With the three loops in one generator, PyPy 3.11 often took about a third
+# longer over auto_bisc("smooth")
 
 
-def _unranked(indices: Iterable[int], length: int) -> Iterator[Perm]:
+def _unranked_perms(indices: Iterable[int], length: int) -> Iterator[Perm]:
     """The permutations of a length at the given indices, unranked."""
     for index in indices:
         yield Perm.unrank(index, length)
 
 
-def _skipping(good_indices: Iterable[int], length: int) -> Iterator[Perm]:
+def _perms_skipping(good_indices: Iterable[int], length: int) -> Iterator[Perm]:
     """The permutations of a length not at the given indices, which are in
     increasing order: the length is generated, and the good indices skipped in
     step."""
@@ -743,7 +763,7 @@ def _skipping(good_indices: Iterable[int], length: int) -> Iterator[Perm]:
             yield perm
 
 
-def _generated(bitmap: bytes, length: int, wanted_bit: int) -> Iterator[Perm]:
+def _perms_with_label(bitmap: bytes, length: int, wanted_bit: int) -> Iterator[Perm]:
     """The permutations of a length whose label in the bitmap is wanted_bit:
     the length is generated, and each bit tested."""
     for index, perm in enumerate(Perm.of_length(length)):
@@ -795,9 +815,9 @@ def _labels_of(length: int, perms: Collection[Perm]) -> Tuple[_Labels, int]:
 
 def _overlap_count(labels: _Labels, other_labels: _Labels) -> int:
     """The number of permutations good in both of two labels of one length."""
-    if isinstance(labels, (array, list)):
+    if not _kept_as_bitmap(labels):
         return sum(_label_in(other_labels, index) for index in labels)
-    if isinstance(other_labels, (array, list)):
+    if not _kept_as_bitmap(other_labels):
         return sum(_label_in(labels, index) for index in other_labels)
     return sum(
         (chunk & other_chunk).bit_count()
