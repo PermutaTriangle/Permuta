@@ -4,6 +4,7 @@ _SPARSE_WHEN_ONE_IN is good. Each way in chooses the form by the number of good
 permutations, and every view reads both forms."""
 
 import importlib
+import itertools
 import random
 from array import array
 from math import factorial
@@ -311,6 +312,38 @@ def test_the_last_permutation_of_a_long_length_can_be_listed(length):
     assert property_bitmaps.good_counts[length] == 1
     kept_in = array if length <= 20 else list
     assert isinstance(property_bitmaps._labels[length], kept_in)
+
+
+@pytest.mark.parametrize("length", [21, 25])
+def test_a_length_kept_in_a_list_counts_contains_and_iterates(length):
+    """The first, a middle and the last permutation of a length past 20, good or
+    not: len() and bool() of the good view, in and not in for both views, and
+    the good permutations in order. The bad view is true, and iterates from the
+    first bad permutation; its count is past sys.maxsize, so len() of it
+    raises OverflowError, and __len__() gives it."""
+    first = Perm(range(length))
+    last = Perm(range(length - 1, -1, -1))
+    middle = Perm.unrank(factorial(length) // 3, length)
+    other = Perm.unrank(factorial(length) // 2, length)
+    property_bitmaps = bisc_module._from_perms_by_length(
+        {length: [last, middle, first]}
+    )
+    good, bad = property_bitmaps.good[length], property_bitmaps.bad[length]
+    assert is_kept_as_indices(property_bitmaps, length)
+    assert len(good) == 3 and bool(good)
+    assert bad.__len__() == factorial(length) - 3 and bool(bad)
+    with pytest.raises(OverflowError):
+        len(bad)
+    assert list(good) == [first, middle, last]
+    assert list(itertools.islice(bad, 2)) == [
+        Perm.unrank(1, length),
+        Perm.unrank(2, length),
+    ]
+    for perm in (first, middle, last):
+        assert perm in good and perm not in bad
+    assert other not in good and other in bad
+    assert Perm(range(length - 1)) not in good
+    assert Perm(range(length - 1)) not in bad
 
 
 def test_a_permutation_of_length_21_whose_index_needs_the_top_bit():

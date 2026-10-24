@@ -492,10 +492,13 @@ class PropertyBitmaps:
     permutations (lexicographic). The bitmap of length n is (n! + 7) // 8
     bytes. A length with fewer than one good permutation in 64 keeps instead
     the sorted indices of its good permutations (their bits), 8 bytes each,
-    which then take less space. So no length takes more than its bitmap:
-    three permutations of length 14 take 24 bytes, where its bitmap takes
-    10.9 GB. Past length 20, whose indices can exceed 8 bytes, they are kept
-    in a list, and there is no longest length.
+    which then take less space, but for the few percent an array allocates
+    ahead: three permutations of length 14 take 24 bytes, where its bitmap
+    takes 10.9 GB. Past length 20, whose indices can exceed 8 bytes, they are
+    kept in a list, and there is no longest length. There the bitmap of a
+    length cannot be built, and its bad permutations, more than sys.maxsize,
+    have no len(), though they can be iterated over and tested with in: their
+    number is the length's factorial less its good_counts.
 
     The labels can be given as bitmaps (bitmaps={length: bytes}), made from a
     property (add_length), or both: auto_bisc and bisc label the lengths they
@@ -688,7 +691,7 @@ class _PermsOfLength(Collection[Perm]):
 
     def __iter__(self) -> Iterator[Perm]:
         labels = self.property_bitmaps._labels[self.length]
-        wanted_count = len(self)
+        wanted_count = self._wanted_count()
         if wanted_count == 0:
             # Nothing to yield, and no need to read the labels
             return iter(())
@@ -703,6 +706,15 @@ class _PermsOfLength(Collection[Perm]):
         return _generated(labels, self.length, self.wanted_bit)
 
     def __len__(self) -> int:
+        # len() raises OverflowError past sys.maxsize, as for the bad
+        # permutations of a length past 20
+        return self._wanted_count()
+
+    def __bool__(self) -> bool:
+        return self._wanted_count() > 0
+
+    def _wanted_count(self) -> int:
+        """The number of permutations with the label wanted, of any size."""
         good_count = self.property_bitmaps.good_counts[self.length]
         return good_count if self.wanted_bit else factorial(self.length) - good_count
 
