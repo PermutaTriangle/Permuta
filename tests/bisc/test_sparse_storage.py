@@ -350,3 +350,295 @@ def test_a_dense_length_is_kept_as_bytes_and_read_without_a_copy():
         assert type(property_bitmaps._labels[length]) is bytes
         assert property_bitmaps.bitmaps[length] is property_bitmaps.bitmaps[length]
         assert property_bitmaps.bitmaps[length] == expected_bitmap(length, good_set)
+
+
+LENGTH_6 = list(Perm.of_length(6))  # 720 permutations: kept as indices below 12 good
+SPARSE_6 = {LENGTH_6[index] for index in (0, 5, 100, 719)}
+DENSE_6 = {perm for index, perm in enumerate(LENGTH_6) if index % 3 == 0}
+
+
+@pytest.mark.parametrize("good_set", [SPARSE_6, DENSE_6], ids=["sparse", "dense"])
+@pytest.mark.parametrize("wrap", [bytearray, lambda raw: memoryview(bytearray(raw))])
+def test_a_buffer_given_and_changed_afterwards_changes_nothing(good_set, wrap):
+    """A bitmap given is copied, whatever its form: changing the caller's
+    bytearray, or the one under a memoryview, afterwards changes nothing."""
+    buffer = wrap(expected_bitmap(6, good_set))
+    underlying = buffer.obj if isinstance(buffer, memoryview) else buffer
+    property_bitmaps = PropertyBitmaps(bitmaps={6: buffer})
+    assert is_kept_as_indices(property_bitmaps, 6) == (good_set is SPARSE_6)
+    underlying[:] = b"\xff" * len(underlying)  # every permutation good
+    assert_views_match(property_bitmaps, 6, good_set)
+    underlying[:] = bytes(len(underlying))  # none good
+    assert_views_match(property_bitmaps, 6, good_set)
+
+
+@pytest.mark.parametrize("good_set", [SPARSE_6, DENSE_6], ids=["sparse", "dense"])
+def test_a_memoryview_of_another_format_is_read_as_bytes(good_set):
+    """A memoryview of another format, shape or stride is read as its bytes."""
+    raw = expected_bitmap(6, good_set)  # 90 bytes
+    views = {
+        "2-byte items": memoryview(raw).cast("H"),  # 45 items of 2 bytes
+        "3 x 30": memoryview(raw).cast("B", shape=[3, 30]),
+        "every other byte": memoryview(b"".join(bytes((byte, 0)) for byte in raw))[::2],
+        "signed": memoryview(raw).cast("b"),
+    }
+    for name, view in views.items():
+        property_bitmaps = PropertyBitmaps(bitmaps={6: view})
+        assert is_kept_as_indices(property_bitmaps, 6) == (good_set is SPARSE_6), name
+        assert_views_match(property_bitmaps, 6, good_set)
+
+
+def test_bitmaps_give_bytes_that_are_equal_on_every_read():
+    """bitmaps gives a length's bitmap as bytes, whatever form the length is
+    kept in, and the same on every read."""
+    by_property = PropertyBitmaps(lambda perm: perm in DENSE_6 or perm in SPARSE_6)
+    by_property.add_length(6)
+    sparse_by_property = PropertyBitmaps(lambda perm: perm in SPARSE_6)
+    sparse_by_property.add_length(6)
+    from_list = bisc_module._from_perms_by_length({6: sorted(DENSE_6)})
+    from_sparse_list = bisc_module._from_perms_by_length({6: sorted(SPARSE_6)})
+    for property_bitmaps in (
+        by_property,
+        sparse_by_property,
+        from_list,
+        from_sparse_list,
+    ):
+        first = property_bitmaps.bitmaps[6]
+        assert type(first) is bytes
+        assert property_bitmaps.bitmaps[6] == first
+        assert len(first) == 90
+
+
+def extremes(length):
+    """The first and the last permutation of a length: one for lengths 0 and 1."""
+    return {Perm(range(length)), Perm(range(length - 1, -1, -1))}
+
+
+def test_bitmaps_round_trip_with_lengths_kept_as_indices():
+    """A PropertyBitmaps made from another's bitmaps keeps each length in the
+    same form, with the same labels."""
+    property_bitmaps = PropertyBitmaps(lambda perm: perm in extremes(len(perm)))
+    for length in range(9):
+        property_bitmaps.add_length(length)
+    assert [is_kept_as_indices(property_bitmaps, length) for length in range(9)] == [
+        False,
+        False,
+        False,
+        False,
+        False,
+        False,
+        True,
+        True,
+        True,
+    ]
+    round_trip = PropertyBitmaps(bitmaps=property_bitmaps.bitmaps)
+    for length in range(9):
+        assert is_kept_as_indices(round_trip, length) == is_kept_as_indices(
+            property_bitmaps, length
+        )
+        assert round_trip.good_counts[length] == property_bitmaps.good_counts[length]
+        assert round_trip.bitmaps[length] == property_bitmaps.bitmaps[length]
+        assert list(round_trip.good[length]) == list(property_bitmaps.good[length])
+        assert list(round_trip.bad[length]) == list(property_bitmaps.bad[length])
+
+
+LENGTH_8 = list(Perm.of_length(8))
+SPARSE_8 = {LENGTH_8[0], LENGTH_8[-1]}  # the first and the last permutation
+
+
+def test_the_first_and_the_last_permutation_of_a_sparse_length():
+    """The first and the last permutation of a length kept as indices, in
+    either view, good or bad; and, with the good ones in between, a bitmap."""
+    first, last = LENGTH_8[0], LENGTH_8[-1]
+    for good_set in (SPARSE_8, {first}, {last}):
+        property_bitmaps = bisc_module._from_perms_by_length({8: sorted(good_set)})
+        assert is_kept_as_indices(property_bitmaps, 8)
+        good, bad = property_bitmaps.good[8], property_bitmaps.bad[8]
+        for perm in (first, last):
+            assert (perm in good) == (perm in good_set)
+            assert (perm in bad) == (perm not in good_set)
+        assert list(good) == sorted(good_set)
+        bad_perms = list(bad)
+        assert len(bad_perms) == len(bad) == factorial(8) - len(good_set)
+        assert bad_perms == [perm for perm in LENGTH_8 if perm not in good_set]
+    in_between = set(LENGTH_8[1:-1])
+    property_bitmaps = bisc_module._from_perms_by_length({8: sorted(in_between)})
+    assert not is_kept_as_indices(property_bitmaps, 8)
+    assert list(property_bitmaps.bad[8]) == [first, last]
+
+
+class PropertyFailed(Exception):
+    pass
+
+
+@pytest.mark.parametrize("fail_after", [10, 1000, 5039])
+def test_a_property_that_raises_midway_through_add_length_keeps_nothing(fail_after):
+    """A property that raises in the middle of add_length, while the indices
+    are kept or after the switch to the bitmap, leaves nothing of that call,
+    and a length labeled before keeps its labels."""
+    perms = list(Perm.of_length(7))  # 5040; all good makes the switch at the 79th
+    calls = []
+
+    def all_good_but_fails_once_asked(perm):
+        calls.append(perm)
+        if len(calls) == fail_after + 1:
+            raise PropertyFailed
+        return True
+
+    property_bitmaps = PropertyBitmaps(all_good_but_fails_once_asked)
+    with pytest.raises(PropertyFailed):
+        property_bitmaps.add_length(7)
+    assert 7 not in property_bitmaps.bitmaps and 7 not in property_bitmaps.good_counts
+    assert 7 not in property_bitmaps.good and 7 not in property_bitmaps.bad
+    property_bitmaps.prop = lambda perm: perm == perms[3]
+    property_bitmaps.add_length(7)
+    property_bitmaps.prop = all_good_but_fails_once_asked
+    calls.clear()
+    with pytest.raises(PropertyFailed):
+        property_bitmaps.add_length(7)
+    assert_views_match(property_bitmaps, 7, {perms[3]})
+    # A call that succeeds replaces the labels
+    property_bitmaps.prop = lambda perm: True
+    property_bitmaps.add_length(7)
+    assert_views_match(property_bitmaps, 7, set(perms))
+    assert not is_kept_as_indices(property_bitmaps, 7)
+
+
+def test_add_length_replaces_labels_between_the_forms():
+    """add_length replaces a length's labels, from indices to a bitmap and
+    back."""
+    property_bitmaps = PropertyBitmaps(lambda perm: perm in SPARSE_6)
+    property_bitmaps.add_length(6)
+    assert is_kept_as_indices(property_bitmaps, 6)
+    property_bitmaps.prop = lambda perm: perm in DENSE_6
+    property_bitmaps.add_length(6)
+    assert not is_kept_as_indices(property_bitmaps, 6)
+    assert_views_match(property_bitmaps, 6, DENSE_6)
+    property_bitmaps.prop = lambda perm: perm in SPARSE_6
+    property_bitmaps.add_length(6)
+    assert is_kept_as_indices(property_bitmaps, 6)
+    assert_views_match(property_bitmaps, 6, SPARSE_6)
+
+
+def test_lengths_past_n_have_a_count_of_zero(monkeypatch):
+    """With m > n, the lengths past n are counted as empty, not only holding no
+    bits: mine() takes a length for complete when its count is the length's
+    factorial, and with a count of 1 it would take length 1 for complete."""
+    seen = []
+    real_mine = bisc_module.mine
+
+    def recording_mine(goodperms, M, N=None, report=False):
+        property_bitmaps = goodperms.property_bitmaps
+        seen.append(
+            {
+                length: (
+                    property_bitmaps.good_counts[length],
+                    len(goodperms[length]),
+                    list(goodperms[length]),
+                    len(property_bitmaps.bad[length]),
+                )
+                for length in goodperms
+            }
+        )
+        return real_mine(goodperms, M, N, report)
+
+    monkeypatch.setattr(bisc_module, "mine", recording_mine)
+    bisc(lambda perm: True, 3, 0)
+    assert seen[0] == {
+        0: (1, 1, [Perm(())], 0),
+        1: (0, 0, [], 1),
+        2: (0, 0, [], 2),
+        3: (0, 0, [], 6),
+    }
+
+
+def test_a_sparse_view_iterates_independently():
+    """The same view of a length kept as indices, iterated twice or in step
+    with itself, gives the same permutations."""
+    property_bitmaps = bisc_module._from_perms_by_length({6: sorted(SPARSE_6)})
+    for view in (property_bitmaps.good[6], property_bitmaps.bad[6]):
+        once = list(view)
+        assert list(view) == once
+        assert list(zip(view, view)) == [(perm, perm) for perm in once]
+
+
+def test_bisc_takes_the_view_of_a_sparse_length():
+    """bisc given the good view of a PropertyBitmaps, a Mapping, mines what it
+    mines from the list it was made from."""
+    perms = [Perm(range(length)) for length in range(7)] + [Perm(range(6, -1, -1))]
+    property_bitmaps = bisc_module._from_perms_by_length(
+        {length: [perm for perm in perms if len(perm) == length] for length in range(8)}
+    )
+    assert is_kept_as_indices(property_bitmaps, 7)
+    assert bisc(property_bitmaps.good, 2, 7) == bisc(perms, 2, 7)
+
+
+def test_a_sparse_length_14_never_sizes_a_bitmap(monkeypatch):
+    """No bitmap is sized for a length kept as indices: length 14's would take
+    10.9 GB. A check of the structure, so that it runs on PyPy too, which has no
+    tracemalloc."""
+    real_bitmap_size = bisc_module._bitmap_size
+
+    def guarded_bitmap_size(length):
+        assert length <= 10, "a bitmap of length {} was sized".format(length)
+        return real_bitmap_size(length)
+
+    monkeypatch.setattr(bisc_module, "_bitmap_size", guarded_bitmap_size)
+    by_length = {length: [] for length in range(15)}
+    by_length[14] = THREE_OF_LENGTH_14
+    by_length[13] = [Perm(range(13))]
+    by_length[12] = [Perm(range(12))]
+    by_length[11] = [Perm(range(11))]
+    property_bitmaps = bisc_module._from_perms_by_length(by_length)
+    for length in (11, 12, 13, 14):
+        labels = property_bitmaps._labels[length]
+        assert isinstance(labels, array) and len(labels) == len(by_length[length])
+    assert list(property_bitmaps.good[14]) == sorted(THREE_OF_LENGTH_14)
+    assert len(property_bitmaps.bad[14]) == factorial(14) - 3
+    for perm in THREE_OF_LENGTH_14:
+        assert perm in property_bitmaps.good[14]
+        assert perm not in property_bitmaps.bad[14]
+    assert Perm(range(14)) in property_bitmaps.bad[14]
+    assert 14 in property_bitmaps.bitmaps and len(property_bitmaps.bitmaps) == 15
+
+
+class MineStopped(Exception):
+    pass
+
+
+def test_lengths_past_n_are_kept_as_empty_indices_and_size_no_bitmap(monkeypatch):
+    """With m > n, a length past n is kept as no indices, not as a bitmap: m = 14
+    would size one of 10.9 GB. The lengths up to n are labeled."""
+    real_bitmap_size = bisc_module._bitmap_size
+    kept = {}
+
+    def guarded_bitmap_size(length):
+        assert length <= 10, "a bitmap of length {} was sized".format(length)
+        return real_bitmap_size(length)
+
+    def stopped_mine(goodperms, M, N=None, report=False):
+        property_bitmaps = goodperms.property_bitmaps
+        kept.update(property_bitmaps._labels)
+        raise MineStopped
+
+    monkeypatch.setattr(bisc_module, "_bitmap_size", guarded_bitmap_size)
+    monkeypatch.setattr(bisc_module, "mine", stopped_mine)
+    with pytest.raises(MineStopped):
+        bisc(lambda perm: perm.is_increasing(), 14, 2)
+    assert sorted(kept) == list(range(15))
+    for length in range(3, 15):
+        assert isinstance(kept[length], array) and len(kept[length]) == 0
+
+
+def test_a_sparse_list_with_repeats_counts_each_permutation_once():
+    """A list that looks sparse before it is counted, with a permutation
+    repeated, counts it once."""
+    first, second = LENGTH_8[7], LENGTH_8[100]
+    property_bitmaps = bisc_module._from_perms_by_length(
+        {8: [second, first, first, first]}
+    )
+    assert is_kept_as_indices(property_bitmaps, 8)
+    assert property_bitmaps.good_counts[8] == 2
+    assert len(property_bitmaps.good[8]) == 2
+    assert len(property_bitmaps.bad[8]) == factorial(8) - 2
+    assert list(property_bitmaps.good[8]) == [first, second]
