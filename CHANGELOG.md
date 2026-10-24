@@ -8,16 +8,18 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 
 ### Added
 - `PropertyBitmaps` in `permuta.bisc`: a property's values on the permutations,
-  kept as one bitmap per length (lexicographic order), made from a property, given
-  as bitmaps, or both. `auto_bisc` and `bisc` accept it as input, and label the
-  lengths it lacks with its property.
+  made from a property, given as bitmaps, or both. Each length is kept as a bitmap
+  (lexicographic order) or, when fewer than one permutation in 64 is good, as the
+  sorted indices of the good ones, whichever is smaller. `auto_bisc` and `bisc`
+  accept it as input, and label the lengths it lacks with its property.
 
 ### Changed
 - `bisc` and `auto_bisc` turn every input into a `PropertyBitmaps` and read the
   good and the bad permutations through its views, in lexicographic order, for
   the same results in far less memory at longer lengths: the permutations of
   length 10 take 454 KB as a bitmap, and 0.9 to 1.8 GB as lists of `Perm` objects,
-  depending on the Python.
+  depending on the Python, and a length with few good permutations takes 8 bytes
+  for each of them.
 - A permutation listed twice in the input of `bisc` or `auto_bisc` counts once.
   Before, duplicates could make `bisc` take a length as complete when it was not.
 - `auto_bisc` raises a `ValueError` when the good and the bad permutations of a

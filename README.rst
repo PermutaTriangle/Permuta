@@ -519,12 +519,15 @@ Both ``bisc`` and ``auto_bisc`` can accept input in the form of a property,
 a list of permutations (satisfying some property), or a ``PropertyBitmaps``.
 
 Whatever the input, ``bisc`` and ``auto_bisc`` keep the permutations satisfying
-the property, and those that do not, as one bitmap per length, in a
-``PropertyBitmaps``: the permutations of length 10 take 454 KB as a bitmap, where
-they take 0.9 to 1.8 GB as lists of ``Perm`` objects, depending on the Python.
-A ``PropertyBitmaps`` can also be given directly, made from a property, from
-bitmaps, or both. The lengths ``bisc`` and ``auto_bisc`` label with its property
-are added to it, for a later run to reuse.
+the property, and those that do not, length by length, in a
+``PropertyBitmaps``. A length is kept as a bitmap, a bit for each permutation:
+the permutations of length 10 take 454 KB as a bitmap, where they take 0.9 to
+1.8 GB as lists of ``Perm`` objects, depending on the Python. A length with fewer
+than one permutation in 64 satisfying the property keeps instead the indices of
+those, 8 bytes each, which then take less space: a short list of long
+permutations stays small. A ``PropertyBitmaps`` can also be given directly, made
+from a property, from bitmaps, or both. The lengths ``bisc`` and ``auto_bisc``
+label with its property are added to it, for a later run to reuse.
 
 .. code-block:: python
 
