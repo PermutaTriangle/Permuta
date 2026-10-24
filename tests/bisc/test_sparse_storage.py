@@ -6,6 +6,8 @@ permutations, and every view reads both forms."""
 import importlib
 import itertools
 import random
+import sys
+import weakref
 from array import array
 from math import factorial
 
@@ -59,6 +61,19 @@ def assert_views_match(property_bitmaps, length, good_set, bitmap=None):
     if bitmap is None:
         bitmap = expected_bitmap(length, good_set)
     assert property_bitmaps.bitmaps[length] == bitmap
+
+
+def guard_bitmap_sizes(monkeypatch):
+    """Make sizing the bitmap of a length past 10 fail the test at once, rather
+    than allocate it: length 14's would take 10.9 GB. A check of the code's
+    structure, so that it runs on PyPy too, which has no tracemalloc."""
+    real_bitmap_size = bisc_module._bitmap_size
+
+    def guarded_bitmap_size(length):
+        assert length <= 10, "a bitmap of length {} was sized".format(length)
+        return real_bitmap_size(length)
+
+    monkeypatch.setattr(bisc_module, "_bitmap_size", guarded_bitmap_size)
 
 
 def each_way_in(good_sets, bitmaps, seeded_random):
@@ -172,6 +187,57 @@ def test_add_length_switches_to_a_bitmap_when_the_good_become_many(good_indices)
     assert_views_match(property_bitmaps, length, good_set)
 
 
+@pytest.mark.skipif(
+    sys.implementation.name != "cpython", reason="frees at once by reference count"
+)
+def test_add_length_drops_its_indices_once_it_has_the_bitmap(monkeypatch):
+    """After add_length switches to a bitmap its indices are not kept, so that it
+    holds a bitmap and not a bitmap and the indices; and the bitmap is filled in
+    with the rest of the length. The indices are an array, which can be weakly
+    referenced."""
+    indices_given = []
+    real_bitmap_from_indices = bisc_module._bitmap_from_indices
+
+    def recording_bitmap_from_indices(length, indices):
+        indices_given.append(weakref.ref(indices))
+        return real_bitmap_from_indices(length, indices)
+
+    monkeypatch.setattr(
+        bisc_module, "_bitmap_from_indices", recording_bitmap_from_indices
+    )
+    still_held_while_labeling = []
+
+    def prop(perm):
+        if indices_given:
+            still_held_while_labeling.append(indices_given[0]() is not None)
+        return True
+
+    property_bitmaps = PropertyBitmaps(prop)
+    property_bitmaps.add_length(7)
+    assert len(indices_given) == 1
+    # All 5040 good: the switch at the 79th, and the rest labeled in the bitmap
+    assert still_held_while_labeling == [False] * (5040 - 79)
+
+
+@pytest.mark.parametrize("which", ["first", "last", "first and last"])
+def test_add_length_when_only_the_first_or_the_last_permutations_are_good(which):
+    """A property true only on the first permutation of a length, only on the
+    last, or on both, at lengths 0 to 8: the last permutation is where add_length
+    switches to a bitmap, or ends the loop, at the very end of a length."""
+    for length in range(9):
+        perms = list(Perm.of_length(length))
+        good_set = {
+            "first": {perms[0]},
+            "last": {perms[-1]},
+            "first and last": {perms[0], perms[-1]},
+        }[which]
+        property_bitmaps = PropertyBitmaps(lambda perm: perm in good_set)
+        property_bitmaps.add_length(length)
+        kept_as_indices = len(good_set) * 64 < factorial(length)
+        assert is_kept_as_indices(property_bitmaps, length) == kept_as_indices, length
+        assert_views_match(property_bitmaps, length, good_set)
+
+
 def test_a_permutation_listed_many_times_is_kept_as_one_index():
     """A permutation listed many times counts once, for the form too: five
     copies of one permutation of length 5 look like 5 of its 120, which a bitmap
@@ -214,6 +280,16 @@ def test_a_tuple_is_checked_in_every_pair_of_forms(
         ),
     ):
         bisc_module._from_good_and_bad(good, bad)
+
+
+def test_the_overlap_of_two_lists_of_indices():
+    """The overlap of labels kept as lists, which only a length past 20 has, and
+    that of a list and a bitmap, either way round."""
+    assert bisc_module._overlap_count([1, 5, 2**70], [5, 2**70, 2**71]) == 2
+    assert bisc_module._overlap_count([], [5, 2**70]) == 0
+    bitmap = bytes([0b00100010])  # the bits 1 and 5
+    assert bisc_module._overlap_count([1, 5, 6], bitmap) == 2
+    assert bisc_module._overlap_count(bitmap, [1, 5, 6]) == 2
 
 
 def test_a_length_kept_as_indices_builds_no_bitmap_unless_asked(monkeypatch):
@@ -285,11 +361,13 @@ def shadings_as_sets(answer):
     }
 
 
-def test_three_permutations_of_length_14_take_little_memory():
+def test_three_permutations_of_length_14_take_little_memory(monkeypatch):
     """Three permutations of length 14 run in megabytes: each length up to 14 is
     kept as indices, where the bitmap of length 14 alone would take 10.9 GB.
-    tracemalloc is CPython's."""
+    tracemalloc is CPython's. A fault that would size a bitmap past length 10
+    fails at once, rather than allocating it."""
     tracemalloc = pytest.importorskip("tracemalloc")
+    guard_bitmap_sizes(monkeypatch)
     tracemalloc.start()
     try:
         answer = bisc(THREE_OF_LENGTH_14, 2, 14)
@@ -346,14 +424,70 @@ def test_a_length_kept_in_a_list_counts_contains_and_iterates(length):
     assert Perm(range(length - 1)) not in bad
 
 
+@pytest.mark.parametrize("length", [21, 25])
+def test_the_bitmap_of_a_length_kept_in_a_list_cannot_be_built(length):
+    """Past length 20 a bitmap would take more than 6 * 10**18 bytes: asking for
+    it raises, and does not give the list of indices. Asking whether the length
+    is there builds nothing."""
+    last = Perm(range(length - 1, -1, -1))
+    property_bitmaps = bisc_module._from_perms_by_length({length: [last]})
+    assert length in property_bitmaps.bitmaps
+    with pytest.raises((MemoryError, OverflowError)):
+        property_bitmaps.bitmaps[length]
+
+
 def test_a_permutation_of_length_21_whose_index_needs_the_top_bit():
-    """An index from 2**63 to 2**64, which an unsigned 64-bit integer holds and
-    a signed one does not."""
+    """An index of 2**63 or more, which a signed 64-bit integer would not hold,
+    kept in the list of a length past 20."""
     perm = Perm.unrank(2**63 + 5, 21)
     assert perm.rank() - bisc_module._shorter_count(21) == 2**63 + 5
     property_bitmaps = bisc_module._from_perms_by_length({21: [perm]})
     assert list(property_bitmaps.good[21]) == [perm]
     assert perm in property_bitmaps.good[21]
+
+
+@pytest.mark.parametrize("length", [100, 200])
+def test_a_permutation_of_a_very_long_length_can_be_listed(length):
+    """The last permutation of length 100 or 200: n! / 64 is past what a float
+    holds from length 172 on, so the limit on the number of indices must be an
+    int."""
+    last = Perm(range(length - 1, -1, -1))
+    property_bitmaps = bisc_module._from_perms_by_length({length: [last]})
+    assert is_kept_as_indices(property_bitmaps, length)
+    assert list(property_bitmaps.good[length]) == [last]
+    assert last in property_bitmaps.good[length]
+    assert last not in property_bitmaps.bad[length]
+    assert property_bitmaps.bad[length].__len__() == factorial(length) - 1
+
+
+def test_an_empty_list_past_length_20_is_read_as_empty():
+    """No permutation of length 25 listed: the length is kept as no indices, and
+    both views, in, and bisc read it as empty. n = 25 reads the length too."""
+    property_bitmaps = bisc_module._from_perms_by_length({25: []})
+    assert property_bitmaps.good_counts[25] == 0
+    good = property_bitmaps.good[25]
+    assert list(good) == [] and len(good) == 0 and not good
+    assert Perm(range(25)) not in good
+    assert Perm(range(25)) in property_bitmaps.bad[25]
+    assert bisc([], 3, 25) == {0: {Perm(()): [set()]}, 1: {}, 2: {}, 3: {}}
+
+
+def test_the_bad_view_of_length_20_is_read_lazily():
+    """Length 20 is the longest kept in an array, and its bad view can be read
+    only a few permutations at a time: with the first and the third permutation
+    good, the first three bad ones are the second, fourth and fifth."""
+    first_five = list(itertools.islice(Perm.of_length(20), 5))
+    property_bitmaps = bisc_module._from_perms_by_length(
+        {20: [first_five[0], first_five[2]]}
+    )
+    assert is_kept_as_indices(property_bitmaps, 20)
+    bad = property_bitmaps.bad[20]
+    assert list(itertools.islice(bad, 3)) == [
+        first_five[1],
+        first_five[3],
+        first_five[4],
+    ]
+    assert len(bad) == factorial(20) - 2
 
 
 # bisc([the decreasing permutation of length 21], 2, 21) on develop, before
@@ -603,6 +737,22 @@ def test_a_sparse_view_iterates_independently():
         assert list(zip(view, view)) == [(perm, perm) for perm in once]
 
 
+def test_a_view_with_nothing_to_yield_reads_no_labels(monkeypatch):
+    """The bad view of a length with every permutation good yields nothing
+    without reading the bitmap."""
+    all_good = PropertyBitmaps(bitmaps={6: b"\xff" * 90})
+    reads = []
+    real_wanted_indices = bisc_module._wanted_indices
+
+    def recording_wanted_indices(bitmap, length, wanted_bit):
+        reads.append(length)
+        return real_wanted_indices(bitmap, length, wanted_bit)
+
+    monkeypatch.setattr(bisc_module, "_wanted_indices", recording_wanted_indices)
+    assert list(all_good.bad[6]) == []
+    assert reads == []
+
+
 def test_bisc_takes_the_view_of_a_sparse_length():
     """bisc given the good view of a PropertyBitmaps, a Mapping, mines what it
     mines from the list it was made from."""
@@ -616,15 +766,8 @@ def test_bisc_takes_the_view_of_a_sparse_length():
 
 def test_a_sparse_length_14_never_sizes_a_bitmap(monkeypatch):
     """No bitmap is sized for a length kept as indices: length 14's would take
-    10.9 GB. A check of the structure, so that it runs on PyPy too, which has no
-    tracemalloc."""
-    real_bitmap_size = bisc_module._bitmap_size
-
-    def guarded_bitmap_size(length):
-        assert length <= 10, "a bitmap of length {} was sized".format(length)
-        return real_bitmap_size(length)
-
-    monkeypatch.setattr(bisc_module, "_bitmap_size", guarded_bitmap_size)
+    10.9 GB."""
+    guard_bitmap_sizes(monkeypatch)
     by_length = {length: [] for length in range(15)}
     by_length[14] = THREE_OF_LENGTH_14
     by_length[13] = [Perm(range(13))]
@@ -650,25 +793,46 @@ class MineStopped(Exception):
 def test_lengths_past_n_are_kept_as_empty_indices_and_size_no_bitmap(monkeypatch):
     """With m > n, a length past n is kept as no indices, not as a bitmap: m = 14
     would size one of 10.9 GB. The lengths up to n are labeled."""
-    real_bitmap_size = bisc_module._bitmap_size
     kept = {}
-
-    def guarded_bitmap_size(length):
-        assert length <= 10, "a bitmap of length {} was sized".format(length)
-        return real_bitmap_size(length)
 
     def stopped_mine(goodperms, M, N=None, report=False):
         property_bitmaps = goodperms.property_bitmaps
         kept.update(property_bitmaps._labels)
         raise MineStopped
 
-    monkeypatch.setattr(bisc_module, "_bitmap_size", guarded_bitmap_size)
+    guard_bitmap_sizes(monkeypatch)
     monkeypatch.setattr(bisc_module, "mine", stopped_mine)
     with pytest.raises(MineStopped):
         bisc(lambda perm: perm.is_increasing(), 14, 2)
     assert sorted(kept) == list(range(15))
     for length in range(3, 15):
         assert isinstance(kept[length], array) and len(kept[length]) == 0
+
+
+def test_lengths_past_20_are_kept_as_empty_lists_when_m_is_past_n(monkeypatch):
+    """With m = 25 and n = 2, the lengths 3 to 20 past n are kept as no indices in
+    an array, and the lengths 21 to 25 as no indices in a list; none sizes a
+    bitmap, which 25! bits would not fit in memory; and the views read them as
+    empty."""
+    kept = {}
+    views = {}
+
+    def stopped_mine(goodperms, M, N=None, report=False):
+        kept.update(goodperms.property_bitmaps._labels)
+        views.update({length: goodperms[length] for length in goodperms})
+        raise MineStopped
+
+    guard_bitmap_sizes(monkeypatch)
+    monkeypatch.setattr(bisc_module, "mine", stopped_mine)
+    with pytest.raises(MineStopped):
+        bisc(lambda perm: perm.is_increasing(), 25, 2)
+    assert sorted(kept) == list(range(26))
+    for length in range(3, 21):
+        assert isinstance(kept[length], array) and len(kept[length]) == 0
+    for length in range(21, 26):
+        assert kept[length] == []
+        assert len(views[length]) == 0 and list(views[length]) == []
+        assert Perm(range(length)) not in views[length]
 
 
 def test_a_sparse_list_with_repeats_counts_each_permutation_once():
