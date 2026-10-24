@@ -31,7 +31,11 @@ def expected_bitmap(length, good_set):
 
 
 def is_kept_as_indices(property_bitmaps, length):
-    return isinstance(property_bitmaps._labels[length], (array, list))
+    """Whether a length's labels are its good permutations' indices, in the
+    container for its length: an array to length 20, and a list past it. A list
+    where the array is meant takes five times the memory."""
+    kept_in = array if factorial(length) <= 2**64 else list
+    return type(property_bitmaps._labels[length]) is kept_in
 
 
 def assert_views_match(property_bitmaps, length, good_set, bitmap=None):
