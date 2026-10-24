@@ -525,9 +525,11 @@ the permutations of length 10 take 454 KB as a bitmap, where they take 0.9 to
 1.8 GB as lists of ``Perm`` objects, depending on the Python. A length with fewer
 than one permutation in 64 satisfying the property keeps instead the indices of
 those, 8 bytes each, which then take less space: a short list of long
-permutations stays small. A ``PropertyBitmaps`` can also be given directly, made
-from a property, from bitmaps, or both. The lengths ``bisc`` and ``auto_bisc``
-label with its property are added to it, for a later run to reuse.
+permutations stays small. Past length 20, where an index can need more than 8
+bytes, they are kept in a list. A ``PropertyBitmaps`` can also be given
+directly, made from a property, from bitmaps, or both. The lengths ``bisc`` and
+``auto_bisc`` label with its property are added to it, for a later run to
+reuse.
 
 .. code-block:: python
 

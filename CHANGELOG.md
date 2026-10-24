@@ -10,7 +10,8 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 - `PropertyBitmaps` in `permuta.bisc`: a property's values on the permutations,
   made from a property, given as bitmaps, or both. Each length is kept as a bitmap
   (lexicographic order) or, when fewer than one permutation in 64 is good, as the
-  sorted indices of the good ones, whichever is smaller. `auto_bisc` and `bisc`
+  sorted indices of the good ones, whichever is smaller (in a list past length
+  20, where an index can need more than 8 bytes). `auto_bisc` and `bisc`
   accept it as input, and label the lengths it lacks with its property.
 
 ### Changed

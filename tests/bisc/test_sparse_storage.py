@@ -31,7 +31,7 @@ def expected_bitmap(length, good_set):
 
 
 def is_kept_as_indices(property_bitmaps, length):
-    return isinstance(property_bitmaps._labels[length], array)
+    return isinstance(property_bitmaps._labels[length], (array, list))
 
 
 def assert_views_match(property_bitmaps, length, good_set, bitmap=None):
@@ -289,3 +289,45 @@ def test_three_permutations_of_length_14_take_little_memory():
         tracemalloc.stop()
     assert peak_bytes < 2**20
     assert shadings_as_sets(answer) == shadings_as_sets(DEVELOP_ANSWER_14)
+
+
+@pytest.mark.parametrize("length", [20, 21, 25])
+def test_the_last_permutation_of_a_long_length_can_be_listed(length):
+    """The decreasing permutation of a length, whose index is its largest. 21! is
+    above 2**64, so past length 20 the indices are kept in a list."""
+    last = Perm(range(length - 1, -1, -1))
+    property_bitmaps = bisc_module._from_perms_by_length({length: [last]})
+    assert list(property_bitmaps.good[length]) == [last]
+    assert last in property_bitmaps.good[length]
+    assert last not in property_bitmaps.bad[length]
+    assert property_bitmaps.good_counts[length] == 1
+    kept_in = array if length <= 20 else list
+    assert isinstance(property_bitmaps._labels[length], kept_in)
+
+
+def test_a_permutation_of_length_21_whose_index_needs_the_top_bit():
+    """An index from 2**63 to 2**64, which an unsigned 64-bit integer holds and
+    a signed one does not."""
+    perm = Perm.unrank(2**63 + 5, 21)
+    assert perm.rank() - bisc_module._shorter_count(21) == 2**63 + 5
+    property_bitmaps = bisc_module._from_perms_by_length({21: [perm]})
+    assert list(property_bitmaps.good[21]) == [perm]
+    assert perm in property_bitmaps.good[21]
+
+
+# bisc([the decreasing permutation of length 21], 2, 21) on develop, before
+# PropertyBitmaps, and the same at length 25
+DEVELOP_ANSWER_LONG = {
+    0: {Perm(()): [{(0, 0)}]},
+    1: {Perm((0,)): [{(0, 1), (1, 0)}]},
+    2: {Perm((0, 1)): [set()], Perm((1, 0)): [{(0, 2), (1, 1), (2, 0)}]},
+}
+
+
+@pytest.mark.parametrize("length", [21, 25])
+def test_bisc_of_one_long_permutation_is_as_before(length):
+    """bisc mines one listed permutation of length 21 or more, as it did before
+    PropertyBitmaps."""
+    last = Perm(range(length - 1, -1, -1))
+    answer = bisc([last], 2, length)
+    assert shadings_as_sets(answer) == shadings_as_sets(DEVELOP_ANSWER_LONG)
