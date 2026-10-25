@@ -1,6 +1,5 @@
 from permuta import Perm
 from permuta.bisc.perm_properties import (
-    _perm_to_yt,
     av_231_and_mesh,
     baxter,
     dihedral,
@@ -151,26 +150,6 @@ def test_in_alternating_group():
     assert in_alternating_group(Perm((5, 1, 6, 4, 9, 8, 2, 0, 7, 3)))
     assert not in_alternating_group(Perm((7, 0, 2, 4, 8, 5, 1, 9, 6, 3, 10)))
     assert 2520 == sum(1 for p in Perm.of_length(7) if in_alternating_group(p))
-
-
-def test__perm_to_yt():
-    z = {i: set() for i in range(8)}
-    for i in range(8):
-        for p in Perm.of_length(i):
-            z[i].add(tuple(map(tuple, _perm_to_yt(p))))
-    expected = [1, 1, 2, 4, 10, 26, 76, 232]
-    for i in range(8):
-        assert len(z[i]) == expected[i]
-    assert _perm_to_yt(Perm((1, 0))) == [[0], [1]]
-    assert _perm_to_yt(Perm((1, 0, 3, 5, 2, 4))) == [[0, 2, 4], [1, 3, 5]]
-    assert _perm_to_yt(Perm((1, 0, 2, 3))) == [[0, 2, 3], [1]]
-    assert _perm_to_yt(Perm((3, 1, 4, 0, 2))) == [[0, 2], [1, 4], [3]]
-    assert _perm_to_yt(Perm((5, 4, 1, 0, 3, 2))) == [[0, 2], [1, 3], [4], [5]]
-    assert _perm_to_yt(Perm((0, 1))) == [[0, 1]]
-    assert _perm_to_yt(Perm((0,))) == [[0]]
-    assert _perm_to_yt(Perm((2, 3, 0, 1))) == [[0, 1], [2, 3]]
-    assert _perm_to_yt(Perm((1, 2, 3, 0))) == [[0, 2, 3], [1]]
-    assert _perm_to_yt(Perm((4, 0, 1, 2, 5, 3))) == [[0, 1, 2, 3], [4, 5]]
 
 
 def test_yt_perm_avoids_22():

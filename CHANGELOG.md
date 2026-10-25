@@ -6,6 +6,18 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 
 ## Unreleased
 
+### Added
+- `permuta.permutils.rsk`: the Robinson-Schensted correspondence on words of
+  distinct letters (`rsk`, `rsk_inverse`), Schützenberger's evacuation of
+  standard Young tableaux (`evacuation`), the word with the same insertion
+  tableau and the evacuated recording tableau (`evacuate_recording_tableau`),
+  and whether the avoiders of some patterns are closed under Knuth equivalence
+  (`is_knuth_closed`) or determined by their RSK shape (`is_shape_closed`).
+
+### Changed
+- The insertion tableau of the BiSC properties `yt_perm_avoids_22` and
+  `yt_perm_avoids_32` is `rsk`'s.
+
 ### Fixed
 - Fixed bug in `Perm.rtlmax_ltrmin_decomposition` and fixed associated tests.
 

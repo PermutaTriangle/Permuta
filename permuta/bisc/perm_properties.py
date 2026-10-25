@@ -1,9 +1,9 @@
-from itertools import islice
 from typing import List
 
 from permuta.patterns.meshpatt import MeshPatt
 from permuta.patterns.perm import Perm
 from permuta.permutils.groups import dihedral_group
+from permuta.permutils.rsk import rsk
 
 _SMOOTH_PATT = (Perm((0, 2, 1, 3)), Perm((1, 0, 3, 2)))
 
@@ -57,28 +57,6 @@ def in_alternating_group(perm: Perm) -> bool:
     return perm.count_inversions() % 2 == 0
 
 
-def _perm_to_yt(perm: Perm) -> List[List[int]]:
-    # transform perm to standard young table
-
-    def insert_in_row(i, k):
-        cur_row = res[i]
-        found = next(((ind, cur) for ind, cur in enumerate(cur_row) if cur > k), None)
-        if not found:
-            cur_row.append(k)
-        else:
-            ind, cur = found
-            cur_row[ind] = k
-            if len(res) <= i + 1:
-                res.append([cur])
-            else:
-                insert_in_row(i + 1, cur)
-
-    res: List[List[int]] = [[perm[0]]] if perm else []
-    for val in islice(perm, 1, None):
-        insert_in_row(0, val)
-    return res
-
-
 def _tableau_contains_shape(tab: List[List[int]], shape: List[int]) -> bool:
     #  Return True if the tableaux tab contains the shape
     return len(tab) >= len(shape) and all(s <= t for s, t in zip(shape, map(len, tab)))
@@ -86,12 +64,12 @@ def _tableau_contains_shape(tab: List[List[int]], shape: List[int]) -> bool:
 
 def yt_perm_avoids_22(perm: Perm) -> bool:
     """Returns true if perm's standard young table avoids shape [2,2]."""
-    return not _tableau_contains_shape(_perm_to_yt(perm), [2, 2])
+    return not _tableau_contains_shape(rsk(perm)[0], [2, 2])
 
 
 def yt_perm_avoids_32(perm: Perm) -> bool:
     """Returns true if perm's standard young table avoids shape [3,2]."""
-    return not _tableau_contains_shape(_perm_to_yt(perm), [3, 2])
+    return not _tableau_contains_shape(rsk(perm)[0], [3, 2])
 
 
 _AV_231_AND_MESH_PATT = (
