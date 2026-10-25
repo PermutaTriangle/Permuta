@@ -1,6 +1,11 @@
-# type: ignore
-
-from .bisc import auto_bisc, bisc, create_bisc_input, read_bisc_file, write_bisc_files
+from .bisc import (
+    PropertyBitmaps,
+    auto_bisc,
+    bisc,
+    create_bisc_input,
+    read_bisc_file,
+    write_bisc_files,
+)
 from .bisc_subfunctions import (
     patterns_suffice_for_bad,
     patterns_suffice_for_good,
@@ -10,6 +15,7 @@ from .bisc_subfunctions import (
 )
 
 __all__ = [
+    "PropertyBitmaps",
     "auto_bisc",
     "bisc",
     "create_bisc_input",

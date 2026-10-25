@@ -1,4 +1,7 @@
-# type: ignore
+# mypy: ignore-errors
+# Its errors are left for a pull request of its own, which will type this
+# module. Unlike a file-level type: ignore, this lets mypy read the functions
+# that bisc.py imports from it.
 
 from itertools import chain
 from math import factorial
