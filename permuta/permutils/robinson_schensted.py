@@ -175,7 +175,7 @@ def is_knuth_closed(basis: Iterable[Perm]) -> bool:
 
 
 # Tilings' Knuth slide asks about the patterns of many tilings in a search, so the
-# cache keeps more answers than Permuta's others.
+# cache keeps up to 65,536 sets of patterns.
 @lru_cache(maxsize=1 << 16)
 def _is_knuth_closed(patterns: FrozenSet[Perm]) -> bool:
     # a permutation one Knuth move from a pattern, or from one of its one-point
@@ -190,9 +190,11 @@ def _is_knuth_closed(patterns: FrozenSet[Perm]) -> bool:
 
 def is_shape_closed(basis: Iterable[Perm]) -> bool:
     """Return True if whether a permutation avoids all the patterns depends only on
-    its RSK shape. It does when the set of the patterns and the set of their
-    inverses are both Knuth closed (is_knuth_closed), as a set of monotone patterns
-    is. The basis is an iterable of patterns, such as a list, not a single Perm.
+    its RSK shape. It does exactly when the permutations avoiding the patterns, and
+    those avoiding their inverses, are both closed under Knuth equivalence
+    (is_knuth_closed of the patterns and of their inverses), as for monotone
+    patterns. The basis is an iterable of patterns, such as a list, not a single
+    Perm.
 
     Examples:
         >>> is_shape_closed([Perm((2, 1, 0))])

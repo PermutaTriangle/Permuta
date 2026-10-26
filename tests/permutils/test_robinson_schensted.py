@@ -414,5 +414,37 @@ def test_a_basis_with_redundant_patterns_is_closed_as_its_minimal_basis_is():
 def test_tableaux_of_different_shapes_have_no_word(
     insertion_tableau, recording_tableau
 ):
-    with pytest.raises(ValueError):
+    with pytest.raises(
+        ValueError,
+        match="^The insertion and recording tableaux have different shapes[.]$",
+    ):
+        rsk_inverse(insertion_tableau, recording_tableau)
+
+
+@pytest.mark.parametrize(
+    "insertion_tableau, recording_tableau",
+    [
+        # the same number of rows, a row longer in one and shorter in the other
+        ([[0, 1, 2]], [[1, 2]]),
+        ([[0, 1]], [[1, 2, 3]]),
+        ([[0, 2, 3], [1]], [[1, 2], [3]]),
+        ([[0, 2], [1]], [[1, 2, 3], [4]]),
+        # the same first row, a lower row longer or shorter
+        ([[0, 2], [1, 3]], [[1, 2], [3]]),
+        ([[0, 2], [1]], [[1, 2], [3, 4]]),
+        # the same size and number of rows, and different row lengths
+        ([[0, 2, 3], [1]], [[1, 2], [3, 4]]),
+        ([[0, 2], [1, 3]], [[1, 2, 4], [3]]),
+        # an empty tableau against a non-empty one, in both orders
+        ([], [[1]]),
+        ([[0]], []),
+    ],
+)
+def test_tableaux_of_other_different_shapes_have_no_word(
+    insertion_tableau, recording_tableau
+):
+    with pytest.raises(
+        ValueError,
+        match="^The insertion and recording tableaux have different shapes[.]$",
+    ):
         rsk_inverse(insertion_tableau, recording_tableau)
