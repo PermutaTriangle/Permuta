@@ -64,12 +64,14 @@ def _tableau_contains_shape(tab: List[List[int]], shape: List[int]) -> bool:
 
 def yt_perm_avoids_22(perm: Perm) -> bool:
     """Returns true if perm's standard young table avoids shape [2,2]."""
-    return not _tableau_contains_shape(rsk(perm)[0], [2, 2])
+    insertion_tableau, _ = rsk(perm)
+    return not _tableau_contains_shape(insertion_tableau, [2, 2])
 
 
 def yt_perm_avoids_32(perm: Perm) -> bool:
     """Returns true if perm's standard young table avoids shape [3,2]."""
-    return not _tableau_contains_shape(rsk(perm)[0], [3, 2])
+    insertion_tableau, _ = rsk(perm)
+    return not _tableau_contains_shape(insertion_tableau, [3, 2])
 
 
 _AV_231_AND_MESH_PATT = (

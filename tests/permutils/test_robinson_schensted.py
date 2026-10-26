@@ -131,7 +131,7 @@ def test_shape_closure():
         Perm(perm) for perm in permutations(range(4)) if shape(list(perm)) == (3, 1)
     )
     assert len(shape_31) == 9 and is_shape_closed(shape_31)
-    # Henning's stable Knuth class: Knuth-closed, but not determined by the shape
+    # the Knuth class of 1243: Knuth closed, but not determined by the shape
     stable_knuth_class = basis("1243", "1423", "4123")
     assert is_knuth_closed(stable_knuth_class) and not is_shape_closed(
         stable_knuth_class
@@ -405,3 +405,14 @@ def test_a_basis_with_redundant_patterns_is_closed_as_its_minimal_basis_is():
         for extended in (minimal + redundant, redundant[::-1] + minimal):
             assert is_knuth_closed(extended) == is_knuth_closed(minimal), extended
             assert is_shape_closed(extended) == is_shape_closed(minimal), extended
+
+
+@pytest.mark.parametrize(
+    "insertion_tableau, recording_tableau",
+    [([[0, 1]], [[1], [2]]), ([[0], [1]], [[1, 2]]), ([[0, 2], [1]], [[1, 2]])],
+)
+def test_tableaux_of_different_shapes_have_no_word(
+    insertion_tableau, recording_tableau
+):
+    with pytest.raises(ValueError):
+        rsk_inverse(insertion_tableau, recording_tableau)

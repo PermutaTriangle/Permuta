@@ -7,16 +7,20 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 ## Unreleased
 
 ### Added
-- `permuta.permutils.robinson_schensted`: the Robinson-Schensted correspondence on words of
-  distinct letters (`rsk`, `rsk_inverse`), Schützenberger's evacuation of
-  standard Young tableaux (`evacuation`), the word with the same insertion
-  tableau and the evacuated recording tableau (`evacuate_recording_tableau`),
-  and whether the avoiders of some patterns are closed under Knuth equivalence
-  (`is_knuth_closed`) or determined by their RSK shape (`is_shape_closed`).
+- `permuta.permutils.robinson_schensted`, whose functions `permuta.permutils`
+  exports:
+  - `rsk` and `rsk_inverse`, the Robinson-Schensted correspondence on words of
+    distinct letters;
+  - `evacuation`, Schützenberger's evacuation of standard Young tableaux, and
+    `evacuate_recording_tableau`, the word with the same insertion tableau and
+    the evacuated recording tableau;
+  - `is_knuth_closed` and `is_shape_closed`, whether the permutations avoiding
+    some patterns are closed under Knuth equivalence, or determined by their RSK
+    shape.
 
 ### Changed
-- The insertion tableau of the BiSC properties `yt_perm_avoids_22` and
-  `yt_perm_avoids_32` is `rsk`'s.
+- The BiSC properties `yt_perm_avoids_22` and `yt_perm_avoids_32` take their
+  insertion tableau from `rsk`. Their answers are unchanged, and they are faster.
 
 ### Fixed
 - Fixed bug in `Perm.rtlmax_ltrmin_decomposition` and fixed associated tests.
