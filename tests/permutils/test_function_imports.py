@@ -1,10 +1,16 @@
 from permuta import Perm
 from permuta.permutils import (
+    evacuate_recording_tableau,
+    evacuation,
     is_insertion_encodable,
     is_insertion_encodable_maximum,
     is_insertion_encodable_rightmost,
+    is_knuth_closed,
     is_non_polynomial,
     is_polynomial,
+    is_shape_closed,
+    rsk,
+    rsk_inverse,
 )
 
 
@@ -92,3 +98,13 @@ def test_functions_insertion_encodable():
             Perm((3, 1, 4, 2, 0)),
         ]
     )
+
+
+def test_functions_rsk():
+    word = (2, 0, 1)
+    insertion_tableau, recording_tableau = rsk(word)
+    assert rsk_inverse(insertion_tableau, recording_tableau) == list(word)
+    assert evacuation(evacuation(recording_tableau)) == recording_tableau
+    assert evacuate_recording_tableau(evacuate_recording_tableau(word)) == list(word)
+    assert is_knuth_closed([Perm((0, 2, 1)), Perm((2, 0, 1))])
+    assert not is_shape_closed([Perm((0, 2, 1)), Perm((2, 0, 1))])
