@@ -13,7 +13,7 @@ from permuta.bisc.perm_properties import (
     yt_perm_avoids_22,
     yt_perm_avoids_32,
 )
-from permuta.permutils.rsk import rsk
+from permuta.permutils.robinson_schensted import rsk
 
 
 def test_smooth():

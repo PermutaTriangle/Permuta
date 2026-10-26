@@ -2,7 +2,7 @@ from .finite import is_finite
 from .groups import dihedral_group
 from .insertion_encodable import InsertionEncodablePerms
 from .polynomial import PolyPerms
-from .rsk import (
+from .robinson_schensted import (
     evacuate_recording_tableau,
     evacuation,
     is_knuth_closed,

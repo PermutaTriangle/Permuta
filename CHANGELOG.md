@@ -7,7 +7,7 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 ## Unreleased
 
 ### Added
-- `permuta.permutils.rsk`: the Robinson-Schensted correspondence on words of
+- `permuta.permutils.robinson_schensted`: the Robinson-Schensted correspondence on words of
   distinct letters (`rsk`, `rsk_inverse`), Schützenberger's evacuation of
   standard Young tableaux (`evacuation`), the word with the same insertion
   tableau and the evacuated recording tableau (`evacuate_recording_tableau`),

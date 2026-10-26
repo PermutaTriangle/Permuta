@@ -5,7 +5,7 @@ from itertools import combinations, permutations
 import pytest
 
 from permuta import Perm
-from permuta.permutils.rsk import (
+from permuta.permutils.robinson_schensted import (
     evacuate_recording_tableau,
     evacuation,
     is_knuth_closed,
