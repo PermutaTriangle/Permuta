@@ -228,3 +228,180 @@ def test_the_insertion_tableaux():
     assert rsk(Perm((2, 3, 0, 1)))[0] == [[0, 1], [2, 3]]
     assert rsk(Perm((1, 2, 3, 0)))[0] == [[0, 2, 3], [1]]
     assert rsk(Perm((4, 0, 1, 2, 5, 3)))[0] == [[0, 1, 2, 3], [4, 5]]
+
+
+def test_the_empty_word_and_a_single_letter():
+    assert rsk([]) == ([], [])
+    assert rsk([5]) == ([[5]], [[1]])
+    assert rsk_inverse([], []) == []
+    assert rsk_inverse([[5]], [[1]]) == [5]
+    assert evacuation([]) == []
+    assert evacuation([[1]]) == [[1]]
+    assert evacuate_recording_tableau([]) == []
+    assert evacuate_recording_tableau([5]) == [5]
+
+
+@pytest.mark.parametrize("size", range(7))
+def test_only_the_order_of_the_letters_matters(size):
+    """A word of distinct letters that are not 0, 1, ...: relabeling the letters of a
+    permutation by an increasing map relabels its insertion tableau and the evacuated
+    word, and leaves the recording tableau alone."""
+
+    def relabel(letters):
+        return [3 * letter - 4 for letter in letters]
+
+    for perm in perms(size):
+        word = relabel(perm)
+        insertion_tableau, recording_tableau = rsk(word)
+        standard_insertion, standard_recording = rsk(perm)
+        assert insertion_tableau == [relabel(row) for row in standard_insertion]
+        assert recording_tableau == standard_recording
+        assert rsk_inverse(insertion_tableau, recording_tableau) == word
+        assert evacuate_recording_tableau(word) == relabel(
+            evacuate_recording_tableau(perm)
+        )
+
+
+def test_the_tableaux_given_are_not_changed_and_may_be_tuples():
+    for perm in perms(5):
+        insertion_tableau, recording_tableau = rsk(perm)
+        copies = (
+            [list(row) for row in insertion_tableau],
+            [list(row) for row in recording_tableau],
+        )
+        assert rsk_inverse(insertion_tableau, recording_tableau) == perm
+        evacuated = evacuation(recording_tableau)
+        assert (insertion_tableau, recording_tableau) == copies
+        insertion_tuples = tuple(map(tuple, insertion_tableau))
+        recording_tuples = tuple(map(tuple, recording_tableau))
+        assert rsk_inverse(insertion_tuples, recording_tuples) == perm
+        assert evacuation(recording_tuples) == evacuated
+
+
+@pytest.mark.parametrize(
+    "convert",
+    [
+        list,
+        tuple,
+        set,
+        frozenset,
+        iter,
+        lambda patterns: (pattern for pattern in patterns),
+    ],
+    ids=["list", "tuple", "set", "frozenset", "iterator", "generator"],
+)
+def test_the_closure_tests_take_any_iterable_of_patterns(convert):
+    def patterns(*perms_):
+        return convert([Perm(perm) for perm in perms_])
+
+    # Knuth closed, but not determined by the shape
+    assert is_knuth_closed(patterns((0, 2, 1), (2, 0, 1))) is True
+    assert is_shape_closed(patterns((0, 2, 1), (2, 0, 1))) is False
+    # neither
+    assert is_knuth_closed(patterns((0, 2, 1))) is False
+    assert is_shape_closed(patterns((0, 2, 1))) is False
+    # both
+    assert is_knuth_closed(patterns((2, 1, 0))) is True
+    assert is_shape_closed(patterns((2, 1, 0))) is True
+    # the empty basis: everything avoids it
+    assert is_knuth_closed(patterns()) is True
+    assert is_shape_closed(patterns()) is True
+
+
+def test_the_closure_tests_ignore_the_order_and_the_duplicates_of_the_patterns():
+    pair = [Perm((0, 2, 1)), Perm((2, 0, 1))]
+    for patterns in (
+        pair,
+        pair[::-1],
+        pair + pair,
+        [pair[0], pair[1], pair[0], pair[1], pair[0]],
+    ):
+        assert is_knuth_closed(patterns) is True
+        assert is_shape_closed(patterns) is False
+    assert is_knuth_closed([pair[0]] * 3) is False
+    assert is_shape_closed([pair[1]] * 3) is False
+
+
+def brute_force_shape_closed(patterns, length):
+    for size in range(length + 1):
+        classes = defaultdict(list)
+        for perm in permutations(range(size)):
+            classes[shape(perm)].append(Perm(perm))
+        for shape_class in classes.values():
+            if len({perm.avoids(*patterns) for perm in shape_class}) > 1:
+                return False
+    return True
+
+
+@pytest.mark.parametrize(
+    "basis",
+    [
+        [Perm()],
+        [Perm(), Perm((0, 2, 1))],
+        [Perm((0,))],
+        [Perm((0,)), Perm((0, 2, 1))],
+        [Perm((0, 1))],
+        [Perm((1, 0))],
+        [Perm((0, 1)), Perm((1, 0))],
+        [Perm((0, 1)), Perm((0, 2, 1))],
+        [Perm((1, 0)), Perm((1, 2, 0)), Perm((2, 0, 1, 3))],
+    ],
+)
+def test_a_pattern_of_length_at_most_2_closes_the_basis(basis):
+    """Its avoiders are decreasing, or increasing, or the empty permutation alone, and
+    Knuth moves and their duals leave these alone: every such basis is closed, and the
+    empty permutation as a pattern, which nothing avoids, is too."""
+    length = max(len(pattern) for pattern in basis) + 1
+    assert is_knuth_closed(basis) == brute_force_knuth_closed(basis, length)
+    assert is_shape_closed(basis) == brute_force_shape_closed(basis, length)
+
+
+def test_shape_closure_against_brute_force():
+    """Whether the avoiders are determined by the shape, to one entry beyond the
+    longest pattern, and so for every length."""
+    perms_of_length_3 = [Perm(perm) for perm in permutations(range(3))]
+    perms_of_length_4 = [Perm(perm) for perm in permutations(range(4))]
+    generator = random.Random(2028)
+    bases = [
+        list(chosen)
+        for size in range(1, 4)
+        for chosen in combinations(perms_of_length_3, size)
+    ]
+    bases += [
+        generator.sample(perms_of_length_4, generator.randint(1, 8)) for _ in range(30)
+    ]
+    bases += [
+        generator.sample(perms_of_length_3, 1)
+        + generator.sample(perms_of_length_4, generator.randint(1, 3))
+        for _ in range(15)
+    ]
+    closed = 0
+    for basis in bases:
+        length = max(len(pattern) for pattern in basis) + 1
+        expected = brute_force_shape_closed(basis, length)
+        assert is_shape_closed(basis) == expected, basis
+        closed += expected
+    assert closed >= 5
+
+
+def test_a_basis_with_redundant_patterns_is_closed_as_its_minimal_basis_is():
+    """The avoiders of a basis do not change when the patterns that contain another
+    pattern of it are added."""
+    perms_of_length_3 = [Perm(perm) for perm in permutations(range(3))]
+    perms_of_length_4 = [Perm(perm) for perm in permutations(range(4))]
+    bases = [
+        list(chosen)
+        for size in (1, 2)
+        for chosen in combinations(perms_of_length_3, size)
+    ]
+    bases += [[Perm((0, 1))], [Perm((1, 0))], [Perm((0,))]]
+    for minimal in bases:
+        redundant = [
+            perm
+            for perm in perms_of_length_3 + perms_of_length_4
+            if perm not in minimal and not perm.avoids(*minimal)
+        ]
+        assert redundant
+        for extended in (minimal + redundant, redundant[::-1] + minimal):
+            assert is_knuth_closed(extended) == is_knuth_closed(minimal), extended
+            assert is_shape_closed(extended) == is_shape_closed(minimal), extended

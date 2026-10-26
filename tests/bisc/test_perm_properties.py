@@ -1,3 +1,5 @@
+import pytest
+
 from permuta import Perm
 from permuta.bisc.perm_properties import (
     av_231_and_mesh,
@@ -11,6 +13,7 @@ from permuta.bisc.perm_properties import (
     yt_perm_avoids_22,
     yt_perm_avoids_32,
 )
+from permuta.permutils.rsk import rsk
 
 
 def test_smooth():
@@ -276,3 +279,32 @@ def test_hard_mesh():
     assert not hard_mesh(Perm((7, 0, 5, 4, 6, 3, 2, 9, 1, 8)))
     assert not hard_mesh(Perm((2, 6, 9, 1, 8, 0, 10, 5, 7, 3, 4)))
     assert 692 == sum(1 for p in Perm.of_length(7) if hard_mesh(p))
+
+
+def first_two_rows_by_greene(word):
+    """The first two rows of the RSK shape of a word of distinct letters, by Greene's
+    theorem and not by rsk: the first row is the length of the longest increasing
+    subsequence, and the first two together are the most letters in two increasing
+    subsequences."""
+    # the most letters of two increasing subsequences that end in the two letters
+    best = {(-1, -1): 0}
+    for letter in word:
+        for (first, second), count in list(best.items()):
+            if letter > first:
+                best[letter, second] = max(best.get((letter, second), 0), count + 1)
+            if letter > second:
+                best[first, letter] = max(best.get((first, letter), 0), count + 1)
+    longest_increasing = max(count for (_, second), count in best.items() if second < 0)
+    union_of_two = max(best.values())
+    return longest_increasing, union_of_two - longest_increasing
+
+
+@pytest.mark.parametrize("size", range(8))
+def test_the_bisc_properties_of_the_shape_against_greene(size):
+    for perm in Perm.of_length(size):
+        first_row, second_row = first_two_rows_by_greene(perm)
+        insertion_tableau, _ = rsk(perm)
+        rows = [len(row) for row in insertion_tableau] + [0, 0]
+        assert (first_row, second_row) == (rows[0], rows[1])
+        assert yt_perm_avoids_22(perm) == (second_row < 2)
+        assert yt_perm_avoids_32(perm) == (first_row < 3 or second_row < 2)
