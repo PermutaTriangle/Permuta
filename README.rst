@@ -43,6 +43,8 @@ To install Permuta on your system, run:
 
     pip install permuta
 
+Python 3.11 or newer is required.
+
 It is also possible to install Permuta in development mode to work on the
 source code, in which case you run the following after cloning the repository:
 
