@@ -526,6 +526,9 @@ class PropertyBitmaps:
         [Perm((0, 1, 2))]
         >>> len(pb.bad[3])
         5
+        >>> pb.add_length(8)
+        >>> pb.good_counts[8], len(pb.bitmaps[8])
+        (1, 5040)
     """
 
     def __init__(
