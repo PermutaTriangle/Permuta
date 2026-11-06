@@ -494,7 +494,9 @@ def test_a_copy_keeps_its_lengths_apart_from_the_original(copy_function):
     assert sorted(copied.good_counts) == list(range(7))
     assert sorted(original.good_counts) == [0, 1, 2, 3, 4, 5, 7]
     assert 6 in copied.good and 6 not in original.good
+    assert 6 in copied.bad and 6 not in original.bad
     assert 7 in original.bad and 7 not in copied.bitmaps
+    assert 7 not in copied.bad
     assert list(copied.good[6]) == [Perm(range(6))]
     # A length labeled again, with another property, changes only in the copy
     copied.prop = Perm.is_decreasing
