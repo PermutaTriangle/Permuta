@@ -493,48 +493,33 @@ def _labels_from_bitmap(
 
 
 class PropertyBitmaps:
-    """A property's values on the permutations, length by length: which
-    permutations of each length satisfy it (good) and which do not (bad).
-    bisc and auto_bisc turn each of their inputs into one, and read its good
-    and bad permutations through its views, good and bad.
+    """
+    Which permutations of each length satisfy a property (good) and which do
+    not (bad), stored compactly. `bisc` and `auto_bisc` build one from any of
+    their inputs; you can also build one yourself and pass it in to reuse the
+    labels between runs.
 
-    A length's labels are its bitmap: bit i is the label of Perm.unrank(i,
-    length), bit i % 8 of byte i // 8, from the low bit. So a permutation perm
-    is at bit perm.rank() - sum(factorial(k) for k in range(len(perm))), and
-    the bits are in the order in which Perm.of_length(length) yields the
-    permutations (lexicographic). The bitmap of length n is (n! + 7) // 8
-    bytes. A length with fewer than one good permutation in 64 keeps instead
-    the sorted indices of its good permutations (their bits), 8 bytes each,
-    which then take less space, but for the few percent an array allocates
-    ahead: three permutations of length 14 take 24 bytes, where its bitmap
-    takes 10.9 GB. Past length 20, whose indices can exceed 8 bytes, they are
-    kept in a list, and there is no longest length. There the bitmap of a
-    length cannot be built, and its bad permutations, more than sys.maxsize,
-    have no len(), though they can be iterated over and tested with in: their
-    number is the length's factorial less its good_counts.
+    Each length is kept as a bitmap, where bit i is the label of
+    `Perm.unrank(i, length)`, or, when very few permutations are good, as the
+    sorted indices of the good ones.
 
-    The labels can be given as bitmaps (bitmaps={length: bytes}), made from a
-    property (add_length), or both: auto_bisc and bisc label the lengths they
-    need and are not given with prop, adding them to this object. Without a
-    prop, auto_bisc stops, as for a tuple of dictionaries, and bisc raises a
-    ValueError. A bitmap given must be bytes-like (bytes, a bytearray or a
-    memoryview), or a TypeError is raised. It must be of its length's size,
-    with no bit set past the length's permutations, or a ValueError is
-    raised. Changing a bytearray after giving it does not change the labels.
+    Build it from a property, from bitmaps, or both. Lengths missing from the
+    bitmaps are labeled with the property when needed, or `add_length` labels
+    them directly.
 
-    The attributes bitmaps (length -> its bitmap, a read-only Mapping) and
-    good_counts (length -> the number of good permutations) are for reading.
-    bitmaps gives a length kept as a bitmap as it is kept, and builds the
-    bitmap of a length kept as indices each time it is asked for it: so
-    items(), values() and dict(bitmaps), or bitmaps given to another
-    PropertyBitmaps, build every such length's bitmap, 10.9 GB for length 14.
-    Asking whether a length is there, iterating over the lengths and len()
-    build none.
+    The attributes `good` and `bad` map each length to its good or bad
+    permutations, in lexicographic order. `good_counts` maps each length to its
+    number of good permutations, and `bitmaps` to its bitmap.
 
-    The views read the labels length by length: iterating over a length,
-    counting it, asking whether a length is there, or whether a permutation
-    is in a length. A bitmap of S_10 is 454 KB; S_10 as a list of Perm
-    objects takes 0.9 GB on PyPy 3.11 and 1.3 to 1.8 GB on CPython.
+    Examples:
+        >>> pb = PropertyBitmaps(Perm.is_increasing)
+        >>> pb.add_length(3)
+        >>> pb.good_counts[3]
+        1
+        >>> list(pb.good[3])
+        [Perm((0, 1, 2))]
+        >>> len(pb.bad[3])
+        5
     """
 
     def __init__(

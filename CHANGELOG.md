@@ -6,8 +6,26 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 
 ## Unreleased
 
-### Changed
+### Added
+- `PropertyBitmaps` in `permuta.bisc`: a property's values on the permutations,
+  made from a property, given as bitmaps, or both. Each length is kept as a bitmap
+  (lexicographic order) or, when fewer than one permutation in 64 is good, as the
+  sorted indices of the good ones, whichever is smaller (in a list past length
+  20, where an index can need more than 8 bytes). `auto_bisc` and `bisc`
+  accept it as input, and label the lengths it lacks with its property.
+- Required CI coverage for stable PyPy 3.12 alongside PyPy 3.11.
+- `permuta.permutils.robinson_schensted`, whose functions `permuta.permutils`
+  exports:
+  - `rsk` and `rsk_inverse`, the Robinson-Schensted correspondence on words of
+    distinct letters;
+  - `evacuation`, Schützenberger's evacuation of standard Young tableaux, and
+    `evacuate_recording_tableau`, the word with the same insertion tableau and
+    the evacuated recording tableau;
+  - `is_knuth_closed` and `is_shape_closed`, whether the permutations avoiding
+    some patterns are closed under Knuth equivalence, or determined by their RSK
+    shape.
 
+### Changed
 - Minimum Python version is now 3.11; CPython and PyPy 3.10 are no longer supported.
 - Python 3.15 is primary for linting, packaging, and cross-platform tests, with
   CPython 3.11 through 3.14 compatibility coverage.
@@ -29,26 +47,6 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 - `bisc` accepts any mapping of lengths to permutations, not only a `dict`.
 - The BiSC properties `yt_perm_avoids_22` and `yt_perm_avoids_32` take their
   insertion tableau from `rsk`. Their answers are unchanged, and they are faster.
-
-### Added
-
-- Required CI coverage for stable PyPy 3.12 alongside PyPy 3.11.
-- `PropertyBitmaps` in `permuta.bisc`: a property's values on the permutations,
-  made from a property, given as bitmaps, or both. Each length is kept as a bitmap
-  (lexicographic order) or, when fewer than one permutation in 64 is good, as the
-  sorted indices of the good ones, whichever is smaller (in a list past length
-  20, where an index can need more than 8 bytes). `auto_bisc` and `bisc`
-  accept it as input, and label the lengths it lacks with its property.
-- `permuta.permutils.robinson_schensted`, whose functions `permuta.permutils`
-  exports:
-  - `rsk` and `rsk_inverse`, the Robinson-Schensted correspondence on words of
-    distinct letters;
-  - `evacuation`, Schützenberger's evacuation of standard Young tableaux, and
-    `evacuate_recording_tableau`, the word with the same insertion tableau and
-    the evacuated recording tableau;
-  - `is_knuth_closed` and `is_shape_closed`, whether the permutations avoiding
-    some patterns are closed under Knuth equivalence, or determined by their RSK
-    shape.
 
 ### Fixed
 - Supply the dependencies of PyPy's bundled cffi and HPy packages in tox.
