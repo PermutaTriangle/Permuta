@@ -511,6 +511,12 @@ class PropertyBitmaps:
     permutations, in lexicographic order. `good_counts` maps each length to its
     number of good permutations, and `bitmaps` to its bitmap.
 
+    `bitmaps` builds the bitmap of a length kept as indices each time it is
+    asked for it, so `items()`, `values()` and `dict(bitmaps)`, or `bitmaps`
+    given to another `PropertyBitmaps`, build every such length's bitmap:
+    10.9 GB for length 14. Asking whether a length is there, iterating over
+    the lengths and `len()` build none.
+
     Examples:
         >>> pb = PropertyBitmaps(Perm.is_increasing)
         >>> pb.add_length(3)
