@@ -27,6 +27,8 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
   key of another length, and for a `Perm` given whose values are not those of a
   permutation of its length, such as one written from 1.
 - `bisc` accepts any mapping of lengths to permutations, not only a `dict`.
+- The BiSC properties `yt_perm_avoids_22` and `yt_perm_avoids_32` take their
+  insertion tableau from `rsk`. Their answers are unchanged, and they are faster.
 
 ### Added
 
@@ -37,6 +39,16 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
   sorted indices of the good ones, whichever is smaller (in a list past length
   20, where an index can need more than 8 bytes). `auto_bisc` and `bisc`
   accept it as input, and label the lengths it lacks with its property.
+- `permuta.permutils.robinson_schensted`, whose functions `permuta.permutils`
+  exports:
+  - `rsk` and `rsk_inverse`, the Robinson-Schensted correspondence on words of
+    distinct letters;
+  - `evacuation`, Schützenberger's evacuation of standard Young tableaux, and
+    `evacuate_recording_tableau`, the word with the same insertion tableau and
+    the evacuated recording tableau;
+  - `is_knuth_closed` and `is_shape_closed`, whether the permutations avoiding
+    some patterns are closed under Knuth equivalence, or determined by their RSK
+    shape.
 
 ### Fixed
 - Supply the dependencies of PyPy's bundled cffi and HPy packages in tox.

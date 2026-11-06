@@ -2,6 +2,14 @@ from .finite import is_finite
 from .groups import dihedral_group
 from .insertion_encodable import InsertionEncodablePerms
 from .polynomial import PolyPerms
+from .robinson_schensted import (
+    evacuate_recording_tableau,
+    evacuation,
+    is_knuth_closed,
+    is_shape_closed,
+    rsk,
+    rsk_inverse,
+)
 from .symmetry import (
     all_symmetry_sets,
     antidiagonal_set,
@@ -41,4 +49,10 @@ __all__ = [
     "rotate_90_clockwise_set",
     "rotate_180_clockwise_set",
     "rotate_270_clockwise_set",
+    "evacuate_recording_tableau",
+    "evacuation",
+    "is_knuth_closed",
+    "is_shape_closed",
+    "rsk",
+    "rsk_inverse",
 ]
