@@ -614,6 +614,32 @@ class PropertyBitmaps:
                 good_count += 1
         self._keep(length, bytes(bitmap), good_count)
 
+    def __copy__(self) -> "PropertyBitmaps":
+        """Return a copy of self whose dictionaries of lengths are its own.
+
+        copy.copy calls this. Adding a length to either, or labeling one again,
+        leaves the other as it was, and the views of the copy, good, bad and
+        bitmaps, read the copy. The copy is a PropertyBitmaps, whatever the
+        class of self.
+
+        Examples:
+            >>> import copy
+            >>> increasing = PropertyBitmaps(Perm.is_increasing)
+            >>> increasing.add_length(3)
+            >>> copied = copy.copy(increasing)
+            >>> copied.add_length(4)
+            >>> sorted(increasing.good_counts), sorted(copied.good_counts)
+            ([3], [3, 4])
+            >>> 4 in copied.good, 4 in increasing.good
+            (True, False)
+        """
+        copied = PropertyBitmaps(self.prop)
+        # A length's labels are replaced when it is labeled again, never
+        # changed, so the copy shares them: only the dictionaries are its own
+        copied._labels = dict(self._labels)
+        copied.good_counts = dict(self.good_counts)
+        return copied
+
 
 class _LengthKeys:
     """The keys of a PropertyBitmaps' Mappings, bitmaps and the views: the
