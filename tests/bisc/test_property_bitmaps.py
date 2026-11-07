@@ -1,4 +1,5 @@
 import contextlib
+import copy
 import importlib
 import io
 import os
@@ -474,3 +475,31 @@ def test_a_tuple_may_lack_a_length_in_one_dictionary(monkeypatch):
         auto_bisc((good, bad))
     assert given[0][0] == []
     assert given[0][3] == [perm for perm in Perm.of_length(3) if perm.stack_sortable()]
+
+
+@pytest.mark.parametrize("copy_function", [copy.copy, copy.deepcopy])
+def test_a_copy_keeps_its_lengths_apart_from_the_original(copy_function):
+    # Lengths 0 to 4 are kept as bitmaps, and 5 as the index of its one good
+    # permutation, as fewer than one in 64 are good from length 5 on
+    original = property_bitmaps_up_to(Perm.is_increasing, 5)
+    copied = copy_function(original)
+    assert copied.good_counts == original.good_counts
+    for length in range(6):
+        assert list(copied.good[length]) == list(original.good[length])
+        assert copied.bitmaps[length] == original.bitmaps[length]
+    # A length added to one is not added to the other, and the views of each
+    # read its own lengths
+    copied.add_length(6)
+    original.add_length(7)
+    assert sorted(copied.good_counts) == list(range(7))
+    assert sorted(original.good_counts) == [0, 1, 2, 3, 4, 5, 7]
+    assert 6 in copied.good and 6 not in original.good
+    assert 6 in copied.bad and 6 not in original.bad
+    assert 7 in original.bad and 7 not in copied.bitmaps
+    assert 7 not in copied.bad
+    assert list(copied.good[6]) == [Perm(range(6))]
+    # A length labeled again, with another property, changes only in the copy
+    copied.prop = Perm.is_decreasing
+    copied.add_length(3)
+    assert list(copied.good[3]) == [Perm((2, 1, 0))]
+    assert list(original.good[3]) == [Perm((0, 1, 2))]

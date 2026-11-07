@@ -3,6 +3,7 @@ or the sorted indices of its good permutations when fewer than one in
 _SPARSE_WHEN_ONE_IN is good. Each way in chooses the form by the number of good
 permutations, and every view reads both forms."""
 
+import copy
 import importlib
 import itertools
 import random
@@ -896,3 +897,58 @@ def test_a_sequence_that_is_not_a_permutation_is_refused(not_a_permutation, rank
             bisc_module._from_perms_by_length({length: perms})
         with pytest.raises(ValueError, match=message):
             bisc(perms, 1, length)
+
+
+@pytest.mark.parametrize("relabeled", ["copy", "original"])
+def test_relabeling_a_length_kept_as_indices_changes_only_one(relabeled):
+    """A copy shares each length's labels with the original, which holds while
+    a length's labels are replaced and never changed: labeling lengths kept as
+    indices again, in the copy or in the original, leaves the other as it
+    was."""
+    original = PropertyBitmaps(Perm.is_increasing)
+    for length in range(7):
+        original.add_length(length)
+    assert is_kept_as_indices(original, 5) and is_kept_as_indices(original, 6)
+    copied = copy.copy(original)
+    changed, kept = (copied, original) if relabeled == "copy" else (original, copied)
+    changed.prop = Perm.is_decreasing
+    for length in (5, 6):
+        changed.add_length(length)
+    for length in (5, 6):
+        assert list(changed.good[length]) == [Perm(range(length - 1, -1, -1))]
+        assert list(kept.good[length]) == [Perm(range(length))]
+        assert kept.good_counts[length] == 1
+        assert Perm(range(length)) in kept.good[length]
+        assert Perm(range(length)) in changed.bad[length]
+
+
+def test_a_copy_of_lengths_kept_as_indices_sizes_no_bitmap(monkeypatch):
+    """A copy of lengths kept as indices, in an array and in a list, of a
+    PropertyBitmaps with no property, sizes no bitmap, and is apart from the
+    original."""
+    guard_bitmap_sizes(monkeypatch)
+    last_of_21 = Perm.unrank(2**63 + 5, 21)
+    original = bisc_module._from_perms_by_length(
+        {
+            3: [Perm((0, 1, 2))],
+            12: [Perm(range(12))],
+            14: [Perm(range(14)), Perm(range(13, -1, -1))],
+            21: [last_of_21],
+            25: [],
+        }
+    )
+    copied = copy.copy(original)
+    assert copied.prop is None
+    assert copied.good_counts == {3: 1, 12: 1, 14: 2, 21: 1, 25: 0}
+    assert list(copied.good[3]) == [Perm((0, 1, 2))]
+    assert copied.bitmaps[3] == b"\x01"
+    assert list(copied.good[12]) == [Perm(range(12))]
+    assert list(copied.good[14]) == [Perm(range(14)), Perm(range(13, -1, -1))]
+    assert list(copied.good[21]) == [last_of_21]
+    assert list(copied.good[25]) == []
+    assert Perm(range(25)) in copied.bad[25]
+    # The copy has a property of its own to add a length with
+    copied.prop = Perm.is_increasing
+    copied.add_length(4)
+    assert 4 in copied.good and 4 not in original.good
+    assert sorted(original.good_counts) == [3, 12, 14, 21, 25]
