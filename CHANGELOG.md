@@ -32,9 +32,12 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
   length, from a tuple of dictionaries or a stored set, overlap or are not
   together all of that length's permutations.
 - `bisc` and `auto_bisc` raise a `ValueError` for a permutation given under the
-  key of another length, and for a `Perm` given whose values are not those of a
-  permutation of its length, such as one written from 1.
+  key of another length, and for one whose values are not the ints 0 to its
+  length - 1, such as one written from 1 or one of floats.
 - `bisc` accepts any mapping of lengths to permutations, not only a `dict`.
+- `auto_bisc` finds a stored set whose name holds underscores, such as
+  `stack_sortable`. Before, it found none of the eight such sets of the thirteen
+  stored.
 
 ### Fixed
 - Supply the dependencies of PyPy's bundled cffi and HPy packages in tox.

@@ -14,13 +14,13 @@ from typing import (
     Iterator,
     List,
     Optional,
-    Set,
     Tuple,
     TypeGuard,
     Union,
 )
 
 from permuta.bisc.bisc_subfunctions import (
+    _Patterns,
     forb,
     mine,
     patterns_suffice_for_bad,
@@ -31,11 +31,6 @@ from permuta.bisc.bisc_subfunctions import (
     to_sg_format,
 )
 from permuta.patterns.perm import Perm
-
-# The forbidden patterns bisc and auto_bisc return: length -> {pattern:
-# [shadings]}, each shading a set of boxes, and an empty one making the pattern
-# classical
-_Patterns = Dict[int, Dict[Perm, List[Set[Tuple[int, int]]]]]
 
 
 def bisc(
@@ -49,46 +44,46 @@ def bisc(
     n: Optional[int] = None,
     report: bool = False,
 ) -> _Patterns:
-    """
-    Mine the forbidden patterns of length up to m from the permutations up to
-    length n of a set A: a list of permutations, a property (a function), a
-    dictionary or another Mapping (length -> the permutations of that length
-    in the set), or a PropertyBitmaps. Each is turned into a PropertyBitmaps,
-    whose good permutations of each length up to max(m, n) mine() reads.
-    Without n, a property uses length 7, and the others their longest length.
+    """Return the forbidden patterns of length up to m of a set of permutations.
+
+    They are learned from the set's permutations up to length n. A is the set:
+    a list of its permutations, a property (a function), a Mapping from each
+    length to the set's permutations of that length, or a PropertyBitmaps. Each
+    is turned into a PropertyBitmaps, whose good permutations of each length up
+    to max(m, n) the patterns are read from.
     - A list's permutations are the good ones, and a length with none listed
-      is empty.
+      is empty. Without n, n is the list's longest length.
     - A property labels the lengths up to n, and a length past n, when m > n,
-      is read as empty.
+      is read as empty. Without n, n is 7, and bisc says so.
     - A Mapping is read for each length up to max(m, n), and one it lacks is
-      its KeyError.
+      its KeyError. Without n, n is its longest length.
     - A PropertyBitmaps labels the lengths up to max(m, n) it lacks with its
-      property, and they are added to it; without a property, a ValueError
-      names the first.
+      property, and keeps them; without a property, a ValueError names the
+      first. When m > n, it reads the lengths past n as its property labels
+      them, where a bare property reads them as empty, so the two can answer
+      differently. Without n, n is its longest labeled length, however short,
+      and with none, 7 if it has a property.
     report prints the progress of the search.
 
-    Returns the forbidden patterns found: a dictionary from length to
-    {pattern: [shadings]}, where each shading is a set of boxes, and an empty
-    one makes the pattern classical.
+    The patterns are returned as a dictionary from length to {pattern:
+    [shadings]}, where each shading is a set of boxes, and an empty one makes
+    the pattern classical.
+
+    Examples:
+        >>> bisc(Perm.stack_sortable, 3, 5)
+        {3: {Perm((1, 2, 0)): [set()]}}
     """
     if isinstance(A, list):
         if n is None:
             n = max(len(perm) for perm in A)
-        perms_by_length: Dict[int, List[Perm]] = {
-            length: [] for length in range(max(m, n) + 1)
-        }
-        for perm in A:
-            if len(perm) in perms_by_length:
-                perms_by_length[len(perm)].append(perm)
-        property_bitmaps = _from_perms_by_length(perms_by_length)
+        property_bitmaps = _from_perms_by_length(_perms_by_length(A, max(m, n)))
 
     elif isinstance(A, types.FunctionType):
         if n is None:
             print("I will use permutations up to length 7")
             n = 7
         property_bitmaps = PropertyBitmaps(A)
-        for length in range(n + 1):
-            property_bitmaps.add_length(length)
+        property_bitmaps._label_missing(range(n + 1))
         # mine() reads the lengths up to m too, and a length past n is read as
         # empty: none of its permutations is good
         for length in range(n + 1, m + 1):
@@ -111,16 +106,15 @@ def bisc(
                 n = 7
             else:
                 raise ValueError("The PropertyBitmaps has no bitmaps and no property")
-        for length in range(max(m, n) + 1):
-            if length not in A.bitmaps:
-                if A.prop is None:
-                    raise ValueError(
-                        "bisc needs bitmaps up to length {}, and the PropertyBitmaps "
-                        "has none of length {} and no property".format(
-                            max(m, n), length
-                        )
-                    )
-                A.add_length(length)
+        longest_length = max(m, n)
+        missing_length = A._label_missing(range(longest_length + 1))
+        if missing_length is not None:
+            raise ValueError(
+                "bisc needs bitmaps up to length {}, and the PropertyBitmaps "
+                "has none of length {} and no property".format(
+                    longest_length, missing_length
+                )
+            )
 
     else:
         print(
@@ -190,30 +184,21 @@ def auto_bisc(
         # labels of the good ones
         for i in range(L, longest_length + 1):
             print("Populating the dictionary of bad perms of length ", i)
-        perms_by_length: Dict[int, List[Perm]] = {
-            length: [] for length in range(longest_length + 1)
-        }
-        for perm in prop:
-            perms_by_length[len(perm)].append(perm)
-        property_bitmaps = _from_perms_by_length(perms_by_length)
+        property_bitmaps = _from_perms_by_length(_perms_by_length(prop, longest_length))
 
     elif isinstance(prop, types.FunctionType):
         # If a property is passed in then it labels the lengths up to S8 now,
         # and the longer ones as they are needed
         property_bitmaps = PropertyBitmaps(prop)
-        for i in range(L + 1):
-            property_bitmaps.add_length(i)
+        property_bitmaps._label_missing(range(L + 1))
 
     elif isinstance(prop, PropertyBitmaps):
         # The lengths the PropertyBitmaps lacks are labeled with its
         # property, if it has one
         property_bitmaps = prop
-        for i in range(L + 1):
-            if i not in property_bitmaps.bitmaps:
-                if property_bitmaps.prop is None:
-                    print("You should have bitmaps up to length at least 8")
-                    return None
-                property_bitmaps.add_length(i)
+        if property_bitmaps._label_missing(range(L + 1)) is not None:
+            print("You should have bitmaps up to length at least 8")
+            return None
 
     elif (
         isinstance(prop, tuple)
@@ -330,14 +315,13 @@ def auto_bisc(
                 return None
 
             elif isinstance(prop, (types.FunctionType, PropertyBitmaps)):
-                # The property labels the new lengths
-                for i in range(oldL + 1, L + 1):
-                    if i not in property_bitmaps.bitmaps:
-                        if property_bitmaps.prop is None:
-                            print("You need to add bitmaps of longer permutations")
-                            return None
-                        print("Adding perms of length {}".format(i))
-                        property_bitmaps.add_length(i)
+                # The property labels the new lengths, and each is printed
+                missing_length = property_bitmaps._label_missing(
+                    range(oldL + 1, L + 1), report=True
+                )
+                if missing_length is not None:
+                    print("You need to add bitmaps of longer permutations")
+                    return None
 
             elif isinstance(prop, tuple) and L > max(A.keys()):
                 print("You need to add longer permutations to the dictionaries")
@@ -493,11 +477,11 @@ def _labels_from_bitmap(
 
 
 class PropertyBitmaps:
-    """
-    Which permutations of each length satisfy a property (good) and which do
-    not (bad), stored compactly. `bisc` and `auto_bisc` build one from any of
-    their inputs; you can also build one yourself and pass it in to reuse the
-    labels between runs.
+    """Which permutations of each length satisfy a property, kept compactly.
+
+    The ones that do are good, and the others bad. `bisc` and `auto_bisc`
+    build one from any of their inputs; you can also build one yourself and
+    pass it in to reuse the labels between runs.
 
     Each length is kept as a bitmap, where bit i is the label of
     `Perm.unrank(i, length)`, or, when very few permutations are good, as the
@@ -505,7 +489,9 @@ class PropertyBitmaps:
 
     Build it from a property, from bitmaps, or both. Lengths missing from the
     bitmaps are labeled with the property when needed, or `add_length` labels
-    them directly.
+    them directly. A bitmap given is bytes, a bytearray or a memoryview, with a
+    bit for each permutation of its length, rounded up to whole bytes, and no
+    bit set past them; otherwise a TypeError or a ValueError says what is wrong.
 
     The attributes `good` and `bad` map each length to its good or bad
     permutations, in lexicographic order. `good_counts` maps each length to its
@@ -569,11 +555,48 @@ class PropertyBitmaps:
         self.bad = _LengthViews(self, wanted_bit=0)
 
     def _keep(self, length: int, labels: _Labels, good_count: int) -> None:
-        """Keep a length's labels, in the form its caller chose by _is_sparse,
-        with its number of good permutations. Neither is checked here: the
-        callers make them right."""
+        """Keep a length's labels and its number of good permutations.
+
+        The callers choose the labels' form by _is_sparse and make the count
+        right. The form itself is asserted, bytes for a bitmap and an array or
+        a list for indices, since every reader of the labels tells the forms
+        apart by it.
+
+        Examples:
+            >>> property_bitmaps = PropertyBitmaps()
+            >>> property_bitmaps._keep(2, b"\\x01", 1)
+            >>> list(property_bitmaps.good[2])
+            [Perm((0, 1))]
+        """
+        assert isinstance(labels, (bytes, array, list)), type(labels).__name__
         self._labels[length] = labels
         self.good_counts[length] = good_count
+
+    def _label_missing(
+        self, lengths: Iterable[int], report: bool = False
+    ) -> Optional[int]:
+        """Label the lengths given that the PropertyBitmaps lacks, with its property.
+
+        They are labeled in order. Without a property, it stops at the first one
+        it lacks and returns it; otherwise it returns None. report prints each
+        length as it is labeled.
+
+        Examples:
+            >>> property_bitmaps = PropertyBitmaps(Perm.is_increasing)
+            >>> property_bitmaps._label_missing(range(3))
+            >>> sorted(property_bitmaps.bitmaps)
+            [0, 1, 2]
+            >>> PropertyBitmaps(bitmaps={0: b"\\x01"})._label_missing(range(3))
+            1
+        """
+        for length in lengths:
+            if length not in self._labels:
+                if self.prop is None:
+                    return length
+                if report:
+                    print("Adding perms of length {}".format(length))
+                self.add_length(length)
+        return None
 
     def add_length(self, length: int) -> None:
         """Label the permutations of a length with the property, and keep the
@@ -764,24 +787,34 @@ def _shorter_count(length: int) -> int:
 
 
 def _indices_of(length: int, perms: Iterable[Perm]) -> Iterator[int]:
-    """The indices (bits) of permutations given as ones of a length. One of
-    another length raises a ValueError, and so does a sequence that is not a
-    permutation of 0 to length - 1, such as one written from 1: its rank()
-    would be another permutation's, or outside the length's."""
+    """The indices (bits) of permutations given as ones of a length.
+
+    Each is read once, into a Perm unless it is one, so that any sequence will
+    do. One of another length raises a ValueError, and so does one that is not
+    a permutation of 0 to length - 1, such as one written from 1 or one of
+    floats: its rank() would be another permutation's, outside the length's,
+    or not an int.
+
+    Examples:
+        >>> list(_indices_of(2, [Perm((1, 0)), (0, 1)]))
+        [1, 0]
+    """
     shorter_count = _shorter_count(length)
     permutation_values = set(range(length))
-    for perm in perms:
+    for given in perms:
+        perm = given if isinstance(given, Perm) else Perm(given)
         if len(perm) != length:
             raise ValueError(
                 "The permutation {!r} of length {} is given as one of length "
-                "{}".format(perm, len(perm), length)
+                "{}".format(given, len(perm), length)
             )
-        if set(perm) != permutation_values:
+        if (
+            not all(isinstance(value, int) for value in perm)
+            or set(perm) != permutation_values
+        ):
             raise ValueError(
-                "{!r} is not a permutation of 0 to {}".format(perm, length - 1)
+                "{!r} is not a permutation of 0 to {}".format(given, length - 1)
             )
-        if not isinstance(perm, Perm):
-            perm = Perm(perm)
         yield perm.rank() - shorter_count
 
 
@@ -808,6 +841,26 @@ def _overlap_count(labels: _Labels, other_labels: _Labels) -> int:
         (chunk & other_chunk).bit_count()
         for chunk, other_chunk in zip(_chunks(labels), _chunks(other_labels))
     )
+
+
+def _perms_by_length(
+    perms: Iterable[Perm], longest_length: int
+) -> Dict[int, List[Perm]]:
+    """The permutations given, by length, for each length up to longest_length.
+
+    A longer permutation is left out, and a length with none given is empty.
+
+    Examples:
+        >>> _perms_by_length([Perm((0, 1, 2)), Perm((1, 0)), Perm((0,))], 2)
+        {0: [], 1: [Perm((0,))], 2: [Perm((1, 0))]}
+    """
+    perms_by_length: Dict[int, List[Perm]] = {
+        length: [] for length in range(longest_length + 1)
+    }
+    for perm in perms:
+        if len(perm) <= longest_length:
+            perms_by_length[len(perm)].append(perm)
+    return perms_by_length
 
 
 def _from_perms_by_length(
@@ -851,9 +904,17 @@ def _from_good_and_bad(
 def _read_stored_set(
     name: str, min_length: int
 ) -> Optional[Tuple[Dict[int, List[Perm]], Dict[int, List[Perm]]]]:
-    """The good and the bad permutations of the set stored under name in
-    permuta/resources/bisc, from the first of its files of each kind that go
-    up to min_length or further, or None if there are none."""
+    """The good and the bad permutations of a set stored in permuta/resources/bisc.
+
+    Its files are named <name>_<good or bad>_len<length>.json, and the name may
+    hold underscores itself. The first file of each kind that goes up to
+    min_length or further is read, and None is returned without one.
+
+    Examples:
+        >>> good, bad = _read_stored_set("stack_sortable", 8)
+        >>> len(good[8]), len(bad[8])
+        (1430, 38890)
+    """
     good_entry = None
     bad_entry = None
     bisc_dir = os.path.join(os.path.dirname(__file__), "..", "resources", "bisc")
@@ -861,21 +922,19 @@ def _read_stored_set(
 
     with os.scandir(bisc_dir) as entries:
         for entry in entries:
-            entry_name = entry.name[:-5]
-            name_parts = entry_name.split("_")
-            if name_parts[0] == name:
-                if (
-                    good_entry is None
-                    and name_parts[1] == "good"
-                    and int(name_parts[2].split("len")[1]) >= min_length
-                ):
-                    good_entry = entry_name
-                if (
-                    bad_entry is None
-                    and name_parts[1] == "bad"
-                    and int(name_parts[2].split("len")[1]) >= min_length
-                ):
-                    bad_entry = entry_name
+            entry_name, extension = os.path.splitext(entry.name)
+            # Split from the right, as the set's name may hold underscores
+            name_parts = entry_name.rsplit("_", 2)
+            if extension != ".json" or len(name_parts) != 3:
+                continue
+            set_name, kind, length_part = name_parts
+            if set_name != name or not length_part.startswith("len"):
+                continue
+            goes_far_enough = int(length_part.removeprefix("len")) >= min_length
+            if good_entry is None and kind == "good" and goes_far_enough:
+                good_entry = entry_name
+            if bad_entry is None and kind == "bad" and goes_far_enough:
+                bad_entry = entry_name
             if good_entry is not None and bad_entry is not None:
                 break
     if good_entry is not None and bad_entry is not None:

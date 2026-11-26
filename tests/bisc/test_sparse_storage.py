@@ -9,6 +9,9 @@ import random
 import sys
 import weakref
 from array import array
+from collections.abc import Sequence
+from decimal import Decimal
+from fractions import Fraction
 from math import factorial
 
 import pytest
@@ -857,6 +860,67 @@ def test_a_sparse_list_with_repeats_counts_each_permutation_once():
     assert len(property_bitmaps.good[8]) == 2
     assert len(property_bitmaps.bad[8]) == factorial(8) - 2
     assert list(property_bitmaps.good[8]) == [first, second]
+
+
+@pytest.mark.parametrize(
+    "number", [float, Fraction, Decimal], ids=lambda number: number.__name__
+)
+@pytest.mark.parametrize("length", [3, 21])
+def test_a_permutation_of_numbers_that_are_not_ints_is_refused(number, length):
+    """A sequence of floats, Fractions or Decimals equal to 0 to n - 1 is
+    refused, as a view refuses it: its set is the length's values, but its
+    rank() is no index. Past length 20 it was kept, and failed later."""
+    not_ints = tuple(number(value) for value in range(length))
+    message = "is not a permutation of 0 to {}".format(length - 1)
+    with pytest.raises(ValueError, match=message):
+        bisc_module._from_perms_by_length({length: [not_ints]})
+
+
+def test_a_view_refuses_a_permutation_of_floats():
+    """A view's `in` takes any sequence of the ints 0 to n - 1, and no other,
+    though (0.0, 1.0, 2.0) == (0, 1, 2)."""
+    property_bitmaps = PropertyBitmaps(Perm.is_increasing)
+    property_bitmaps.add_length(3)
+    assert (0, 1, 2) in property_bitmaps.good[3]
+    assert (0.0, 1.0, 2.0) not in property_bitmaps.good[3]
+    assert (0.0, 1.0, 2.0) not in property_bitmaps.bad[3]
+
+
+class ReadOnce(Sequence):
+    """A sequence that can be iterated over only once. No standard type is
+    like it, but a sequence given as a permutation is read once."""
+
+    def __init__(self, values):
+        self.values = values
+        self.iterated = False
+
+    def __getitem__(self, index):
+        return self.values[index]
+
+    def __len__(self):
+        return len(self.values)
+
+    def __iter__(self):
+        if self.iterated:
+            return iter(())
+        self.iterated = True
+        return iter(self.values)
+
+
+def test_a_sequence_given_as_a_permutation_is_read_once():
+    property_bitmaps = bisc_module._from_perms_by_length({3: [ReadOnce((1, 0, 2))]})
+    assert list(property_bitmaps.good[3]) == [Perm((1, 0, 2))]
+
+
+def test_keep_asserts_the_form_of_the_labels():
+    """The readers tell a bitmap, bytes, from indices by its type, so _keep
+    takes bytes, an array or a list, and asserts it: a bytearray would be read
+    as indices."""
+    property_bitmaps = PropertyBitmaps()
+    with pytest.raises(AssertionError):
+        property_bitmaps._keep(3, bytearray(1), 0)
+    property_bitmaps._keep(3, bytes(1), 0)
+    assert len(property_bitmaps.good[3]) == 0 and len(property_bitmaps.bad[3]) == 6
 
 
 @pytest.mark.parametrize(

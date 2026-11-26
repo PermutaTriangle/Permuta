@@ -1,16 +1,30 @@
-# mypy: ignore-errors
-# Its errors are left for a pull request of its own, which will type this
-# module. Unlike a file-level type: ignore, this lets mypy read the functions
-# that bisc.py imports from it.
-
+from collections.abc import Collection, Iterable, Mapping
 from itertools import chain
 from math import factorial
+from typing import Dict, List, Optional, Set, Tuple
 
 from permuta.patterns.meshpatt import MeshPatt
 from permuta.patterns.perm import Perm
 
+# The forbidden patterns mine, forb and the clean-up deal in: length ->
+# {pattern: [shadings]}, each shading a set of boxes, and an empty one making
+# the pattern classical
+_Patterns = Dict[int, Dict[Perm, List[Set[Tuple[int, int]]]]]
 
-def mine(goodperms, M, N=None, report=False):
+# A mesh pattern of the clean-up, by its numbers: (length, the number of its
+# classical pattern, the number of its shading)
+_PatternNumber = Tuple[int, int, int]
+
+# The clean-up's numbers, each to its classical pattern and shading
+_PatternsByNumber = Dict[_PatternNumber, Tuple[Perm, Set[Tuple[int, int]]]]
+
+
+def mine(
+    goodperms: Mapping[int, Collection[Perm]],
+    M: int,
+    N: Optional[int] = None,
+    report: bool = False,
+) -> Tuple[List[int], _Patterns]:
     """
     goodperms the set of permutations you are investigating
     M longest mesh patterns you want to consider
@@ -18,7 +32,7 @@ def mine(goodperms, M, N=None, report=False):
     report
     """
 
-    goodpatts = dict()
+    goodpatts: _Patterns = {}
 
     if N is None:
         N = max(goodperms.keys())
@@ -179,10 +193,12 @@ def mine(goodperms, M, N=None, report=False):
     return check_interval, goodpatts
 
 
-def forb(check_interval, goodpatts, M, report=False):
+def forb(
+    check_interval: List[int], goodpatts: _Patterns, M: int, report: bool = False
+) -> _Patterns:
 
-    badpatts = {}
-    outpatts = {}
+    badpatts: _Patterns = {}
+    outpatts: _Patterns = {}
 
     def rec_w_reduce_pattern_pos(C, forb, lst, perm, pattern_positions, check_interval):
 
@@ -402,7 +418,7 @@ def perm_contains_cl_patts_many_shadings(perm, patts_w_shadings):
     return False
 
 
-def show_me(SG, more=True):
+def show_me(SG: _Patterns, more: bool = True) -> None:
     """
     To get info on the output do
 
@@ -467,7 +483,12 @@ def display_forb_output(patts_w_shadings_dict):
     return res
 
 
-def patterns_suffice_for_good(SG, L, A, stop_on_failure=False):
+def patterns_suffice_for_good(
+    SG: _Patterns,
+    L: int,
+    A: Mapping[int, Collection[Perm]],
+    stop_on_failure: bool = False,
+) -> Tuple[bool, List[Perm]]:
     print("Starting sanity check with good perms")
     for n in range(L + 1):
 
@@ -500,7 +521,12 @@ def patterns_suffice_for_good(SG, L, A, stop_on_failure=False):
     return True, []
 
 
-def patterns_suffice_for_bad(SG, L, B, stop_on_failure=False):
+def patterns_suffice_for_bad(
+    SG: _Patterns,
+    L: int,
+    B: Mapping[int, Collection[Perm]],
+    stop_on_failure: bool = False,
+) -> Tuple[bool, List[Perm]]:
     print("Starting sanity check with bad perms")
     for n in range(L + 1):
 
@@ -535,8 +561,14 @@ def patterns_suffice_for_bad(SG, L, B, stop_on_failure=False):
 
 
 def run_clean_up(
-    SG, B, bm=None, M=None, limit_monitors=0, report=False, detailed_report=False
-):
+    SG: _Patterns,
+    B: Mapping[int, Collection[Perm]],
+    bm: Optional[int] = None,
+    M: Optional[int] = None,
+    limit_monitors: int = 0,
+    report: bool = False,
+    detailed_report: bool = False,
+) -> Tuple[List[List[_PatternNumber]], _PatternsByNumber]:
 
     if M is None:
         M = max(k for k in SG.keys() if SG[k] != {})
@@ -603,7 +635,7 @@ def clean_up(
     SG_keys = SG.keys()
 
     # A dictionary that "looks" like SG, but has only numbers
-    sg = dict()
+    sg: Dict[int, Dict[int, range]] = {}
 
     # Putting values in the three dictionaries
     for k in SG_keys:
@@ -808,7 +840,9 @@ def clean_up(
     return [sorted(m) for m in monitor], dict_numbs_to_patts
 
 
-def show_me_basis(b, dict_numbs_to_patts):
+def show_me_basis(
+    b: Iterable[_PatternNumber], dict_numbs_to_patts: _PatternsByNumber
+) -> None:
     """
     To see the patterns in a basis b
 
@@ -823,8 +857,10 @@ def show_me_basis(b, dict_numbs_to_patts):
         print()
 
 
-def to_sg_format(basis, dict_numbs_to_patts):
-    sg = {}
+def to_sg_format(
+    basis: Iterable[_PatternNumber], dict_numbs_to_patts: _PatternsByNumber
+) -> _Patterns:
+    sg: _Patterns = {}
     for ind in basis:
         length = ind[0]
         if length not in sg:

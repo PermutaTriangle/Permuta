@@ -383,14 +383,22 @@ def test_bisc_labels_only_the_missing_lengths():
 
 
 def test_bisc_labels_up_to_the_pattern_length():
-    # mine() reads the lengths up to m, so bisc labels up to m when n < m
+    # mine() reads the lengths up to m, so bisc labels up to m when n < m, and
+    # answers from the property's labels there, where a bare property reads the
+    # lengths past n as empty
     property_bitmaps = PropertyBitmaps(Perm.stack_sortable)
-    bisc(property_bitmaps, 3, 0)
+    assert bisc(property_bitmaps, 3, 0) == BASIS_231
     assert sorted(property_bitmaps.bitmaps) == [0, 1, 2, 3]
+    assert bisc(Perm.stack_sortable, 3, 0) == {1: {Perm((0,)): [set()]}, 2: {}, 3: {}}
+    # one short bitmap sets n, here to 0
     property_bitmaps = PropertyBitmaps(Perm.stack_sortable, bitmaps={0: b"\x01"})
-    bisc(property_bitmaps, 3)
+    assert bisc(property_bitmaps, 3) == BASIS_231
     assert sorted(property_bitmaps.bitmaps) == [0, 1, 2, 3]
-    with pytest.raises(ValueError, match="none of length 1 and no property"):
+    message = (
+        "bisc needs bitmaps up to length 3, and the PropertyBitmaps has none of "
+        "length 1 and no property"
+    )
+    with pytest.raises(ValueError, match=message):
         bisc(PropertyBitmaps(bitmaps={0: b"\x01"}), 3)
 
 

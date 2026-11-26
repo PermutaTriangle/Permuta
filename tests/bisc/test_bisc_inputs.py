@@ -1,15 +1,16 @@
 """Tests of how bisc and auto_bisc take each kind of input: the default n of a
 list, a mapping, a PropertyBitmaps and a property; m > n for a list and a
 mapping; a list with permutations longer than max(m, n); where auto_bisc stops
-on a short list or tuple and on a stored set it cannot find; report=True; the
-printed output of each input kind; growth that would label a length it was
-given; and where a view starts to unrank. The expected values are the answers
-bisc and auto_bisc gave before they kept their input as bitmaps, or follow from
-the mathematics."""
+on a short list or tuple and on a stored set it cannot find; a stored set whose
+name holds underscores; report=True; the printed output of each input kind;
+growth that would label a length it was given; and where a view starts to
+unrank. The expected values are the answers bisc and auto_bisc gave before they
+kept their input as bitmaps, or follow from the mathematics."""
 
 import contextlib
 import importlib
 import io
+import os
 
 import pytest
 
@@ -80,6 +81,32 @@ def test_bisc_of_a_property_without_n_labels_up_to_7_and_says_so():
     assert answer == BASIS_231
     assert seen == set(range(8))
     assert printed == "I will use permutations up to length 7\n"
+
+
+def test_bisc_chooses_n_by_the_input_kind(monkeypatch):
+    """Without n, bisc learns from the permutations up to the longest length of
+    a list, a mapping or a PropertyBitmaps, however short, and up to length 7
+    for a property, or a PropertyBitmaps with no labels."""
+    chosen = []
+
+    def recording_mine(goodperms, M, N=None, report=False):
+        chosen.append(N)
+        return [], {}
+
+    monkeypatch.setattr(bisc_module, "mine", recording_mine)
+    good = good_by_length(Perm.stack_sortable, 5)
+    for A in (
+        listed(good),
+        good,
+        PropertyBitmaps(bitmaps=bitmaps_of(good)),
+        PropertyBitmaps(Perm.stack_sortable, bitmaps={0: b"\x01", 1: b"\x01"}),
+        Perm.stack_sortable,
+        PropertyBitmaps(Perm.stack_sortable),
+    ):
+        assert run(bisc, A, 2)[0] == {}
+    assert chosen == [5, 5, 5, 1, 7, 7]
+    run(bisc, listed(good), 2, 3)
+    assert chosen[-1] == 3
 
 
 # m > n for a list and a mapping
@@ -220,6 +247,37 @@ def test_auto_bisc_of_a_stored_set_that_does_not_exist_or_runs_out():
         "Attempting to read perms from permsets\nThe required files do not exist\n"
     )
     assert printed.count("Attempting to read perms from permsets") == 2
+
+
+def test_auto_bisc_finds_a_stored_set_whose_name_holds_underscores(monkeypatch):
+    # The files are <name>_<good or bad>_len<length>.json, and eight of the
+    # thirteen stored sets have underscores in their names, as stack_sortable has
+    answer, printed = run(auto_bisc, "stack_sortable")
+    assert answer == BASIS_231
+    assert printed.startswith("Attempting to read perms from permsets\n")
+    read_files = []
+
+    def recording_read(path):
+        read_files.append(os.path.basename(path))
+        return {}
+
+    monkeypatch.setattr(bisc_module, "read_bisc_file", recording_read)
+    for name, min_length, lengths in (
+        ("stack_sortable", 8, {"len8"}),
+        ("West_2_stack_sortable", 8, {"len8"}),
+        ("av_231_and_mesh", 8, {"len8", "len9"}),
+        ("av_231_and_mesh", 9, {"len9"}),
+        ("smooth", 8, {"len8"}),
+    ):
+        read_files.clear()
+        assert bisc_module._read_stored_set(name, min_length) == ({}, {})
+        good_file, bad_file = read_files
+        assert good_file.rsplit("_", 2)[:2] == [name, "good"]
+        assert bad_file.rsplit("_", 2)[:2] == [name, "bad"]
+        assert {good_file.rsplit("_", 1)[1], bad_file.rsplit("_", 1)[1]} <= lengths
+    # a part of a name is no name
+    for part in ("stack", "sortable", "West_2", "av_231_and"):
+        assert bisc_module._read_stored_set(part, 8) is None
 
 
 def test_auto_bisc_reads_a_stored_set_again_for_a_longer_length(monkeypatch):
