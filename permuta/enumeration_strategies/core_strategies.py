@@ -24,13 +24,25 @@ class CoreStrategy(EnumerationStrategyWithSymmetry):
         """Determine if the pattern satisfies the condition for strategy to apply."""
 
     def _applies_to_symmetry(self, basis: FrozenSet[Perm]):
-        """Check if the core strategy applies to the basis or any of its symmetry."""
+        """Return True if the class of basis has the form the corollary enumerates.
+
+        The class must avoid each pattern in patterns_needed, and each other pattern
+        of its minimal basis must be a valid extension. So a pattern of basis that
+        contains another of its patterns changes nothing.
+
+        Examples:
+            >>> ru, cu = Perm((1, 2, 0, 3)), Perm((2, 0, 1, 3))
+            >>> basis = frozenset([ru, cu, Perm((1, 2, 0, 3, 4))])
+            >>> RuCuCoreStrategy(basis)._applies_to_symmetry(basis)
+            True
+        """
         assert isinstance(basis, frozenset)
         perm_class: Av = Av.from_iterable(basis)
         patterns_are_contained = all(p not in perm_class for p in self.patterns_needed)
         extensions_are_valid = all(
             self.is_valid_extension(patt)
-            for patt in basis.difference(self.patterns_needed)
+            for patt in perm_class.basis
+            if patt not in self.patterns_needed
         )
         return patterns_are_contained and extensions_are_valid
 

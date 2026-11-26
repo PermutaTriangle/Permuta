@@ -1,3 +1,5 @@
+import pytest
+
 from permuta import Perm
 from permuta.enumeration_strategies.core_strategies import (
     Rd2134CoreStrategy,
@@ -9,6 +11,7 @@ from permuta.enumeration_strategies.core_strategies import (
     RuCuCoreStrategy,
     RuCuRdCdCoreStrategy,
     bstrip,
+    core_strategies,
     fstrip,
     last_skew_component,
     last_sum_component,
@@ -49,6 +52,24 @@ class TestRuCu:
         assert not RuCuCoreStrategy(b2)._applies_to_symmetry(b2)
         b3 = frozenset([ru, cu])
         assert RuCuCoreStrategy(b3)._applies_to_symmetry(b3)
+
+    def test_a_redundant_pattern_is_ignored(self):
+        # 23145 contains 2314, so the class is Av(2314, 3124)
+        redundant = Perm((1, 2, 0, 3, 4))
+        assert RuCuCoreStrategy([ru, cu, redundant]).applies()
+        b = frozenset([ru, cu, redundant])
+        assert RuCuCoreStrategy(b)._applies_to_symmetry(b)
+        assert not RuCuCoreStrategy(
+            [ru, cu, Perm((1, 4, 0, 2, 3)), redundant]
+        ).applies()
+
+    def test_a_pattern_redundant_through_an_extra_pattern_is_ignored(self):
+        # 21345 contains 1234 but neither 2314 nor 3124, so the class is
+        # Av(1234, 2314, 3124), which Corollary 4.3 enumerates, though 21345
+        # does not start with 1
+        extra, redundant = Perm((0, 1, 2, 3)), Perm((1, 0, 2, 3, 4))
+        assert RuCuCoreStrategy([ru, cu, extra]).applies()
+        assert RuCuCoreStrategy([ru, cu, extra, redundant]).applies()
 
     def test_reference(self):
         print(RuCuCoreStrategy.reference())
@@ -220,6 +241,16 @@ class TestRu2143:
         assert Ru2143CoreStrategy.is_valid_extension(Perm((0, 2, 4, 1, 3)))
         assert not Ru2143CoreStrategy.is_valid_extension(Perm((0, 2, 1, 3, 4)))
         assert not Ru2143CoreStrategy.is_valid_extension(Perm((0, 4, 3, 1, 2)))
+
+
+@pytest.mark.parametrize("strategy", core_strategies, ids=lambda s: s.__name__)
+def test_a_redundant_pattern_changes_no_core_strategy(strategy):
+    needed = sorted(strategy.patterns_needed)
+    assert strategy(needed).applies()
+    for patt in needed:
+        # patt after a new maximum: it contains patt but does not start with 1
+        redundant = Perm((len(patt),) + tuple(patt))
+        assert strategy(needed + [redundant]).applies()
 
 
 # Test for tools functions

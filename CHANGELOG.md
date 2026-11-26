@@ -37,6 +37,9 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 - `bisc` accepts any mapping of lengths to permutations, not only a `dict`.
 
 ### Fixed
+- The core strategies read a class's minimal basis, so a redundant pattern in the
+  basis given, such as 23145 in Av(2314, 3124, 23145), no longer stops one from
+  applying.
 - Supply the dependencies of PyPy's bundled cffi and HPy packages in tox.
 - Fixed bug in `Perm.rtlmax_ltrmin_decomposition` and fixed associated tests.
 
