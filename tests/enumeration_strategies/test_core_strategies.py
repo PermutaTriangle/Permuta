@@ -1,3 +1,5 @@
+import pytest
+
 from permuta import Perm
 from permuta.enumeration_strategies.core_strategies import (
     Rd2134CoreStrategy,
@@ -60,6 +62,14 @@ class TestRuCu:
         assert not RuCuCoreStrategy(
             [ru, cu, Perm((1, 4, 0, 2, 3)), redundant]
         ).applies()
+
+    def test_a_pattern_redundant_through_an_extra_pattern_is_ignored(self):
+        # 21345 contains 1234 but neither 2314 nor 3124, so the class is
+        # Av(1234, 2314, 3124), which Corollary 4.3 enumerates, though 21345
+        # does not start with 1
+        extra, redundant = Perm((0, 1, 2, 3)), Perm((1, 0, 2, 3, 4))
+        assert RuCuCoreStrategy([ru, cu, extra]).applies()
+        assert RuCuCoreStrategy([ru, cu, extra, redundant]).applies()
 
     def test_reference(self):
         print(RuCuCoreStrategy.reference())
@@ -233,14 +243,14 @@ class TestRu2143:
         assert not Ru2143CoreStrategy.is_valid_extension(Perm((0, 4, 3, 1, 2)))
 
 
-def test_a_redundant_pattern_changes_no_core_strategy():
-    for strategy in core_strategies:
-        needed = sorted(strategy.patterns_needed)
-        assert strategy(needed).applies()
-        for patt in needed:
-            # patt after a new maximum: it contains patt but does not start with 1
-            redundant = Perm((len(patt),) + tuple(patt))
-            assert strategy(needed + [redundant]).applies()
+@pytest.mark.parametrize("strategy", core_strategies, ids=lambda s: s.__name__)
+def test_a_redundant_pattern_changes_no_core_strategy(strategy):
+    needed = sorted(strategy.patterns_needed)
+    assert strategy(needed).applies()
+    for patt in needed:
+        # patt after a new maximum: it contains patt but does not start with 1
+        redundant = Perm((len(patt),) + tuple(patt))
+        assert strategy(needed + [redundant]).applies()
 
 
 # Test for tools functions
