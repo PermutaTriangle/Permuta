@@ -37,6 +37,17 @@ def test_no_core_strategy_applies_to_av_1(strategy):
     assert not strategy(sorted(strategy.patterns_needed) + [one_point]).applies()
 
 
+@pytest.mark.parametrize("strategy", core_strategies, ids=lambda s: s.__name__)
+def test_a_two_point_pattern_is_judged_as_before(strategy):
+    # only the pattern 1 is refused: 12 = 1 + 1 stays an extra pattern wherever
+    # the corollary allows P = {1}, and Av(12) and Av(21) with it
+    allows_12 = strategy is not Ru2143CoreStrategy
+    assert strategy.is_valid_extension(Perm((0, 1))) == allows_12
+    assert not strategy.is_valid_extension(Perm((1, 0)))
+    assert strategy([Perm((0, 1))]).applies() == allows_12
+    assert strategy([Perm((1, 0))]).applies() == allows_12
+
+
 class TestRuCu:
     def test_applies(self):
         assert RuCuCoreStrategy([ru, cu])
