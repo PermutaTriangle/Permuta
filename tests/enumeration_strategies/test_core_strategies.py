@@ -206,6 +206,12 @@ class TestRu2143:
         assert Ru2143CoreStrategy([ru, p2143, Perm((0, 2, 4, 1, 3))]).applies()
         assert Ru2143CoreStrategy([ru, p2143, Perm((0, 1, 2, 4, 3))]).applies()
 
+    def test_applies_only_if_each_extra_pattern_starts_with_1(self):
+        assert not Ru2143CoreStrategy([ru, p2143, Perm((2, 1, 0, 3))]).applies()
+        assert Ru2143CoreStrategy([ru, p2143, Perm((0, 2, 1, 3))]).applies()
+        # 213 lies in 2314 and in 2143, so Av(213) avoids both, but 213 is not 1 + p
+        assert not Ru2143CoreStrategy([Perm((1, 0, 2))]).applies()
+
     def test_applies_to_a_symmetry(self):
         assert Ru2143CoreStrategy([cu, p2143]).applies()
         assert Ru2143CoreStrategy(
@@ -220,6 +226,8 @@ class TestRu2143:
         assert Ru2143CoreStrategy.is_valid_extension(Perm((0, 2, 4, 1, 3)))
         assert not Ru2143CoreStrategy.is_valid_extension(Perm((0, 2, 1, 3, 4)))
         assert not Ru2143CoreStrategy.is_valid_extension(Perm((0, 4, 3, 1, 2)))
+        assert not Ru2143CoreStrategy.is_valid_extension(Perm((2, 1, 0, 3)))
+        assert Ru2143CoreStrategy.is_valid_extension(Perm((0, 2, 1, 3)))
 
 
 # Test for tools functions

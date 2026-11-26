@@ -39,6 +39,9 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 ### Fixed
 - Supply the dependencies of PyPy's bundled cffi and HPy packages in tox.
 - Fixed bug in `Perm.rtlmax_ltrmin_decomposition` and fixed associated tests.
+- `Ru2143CoreStrategy` applied to classes with an extra basis pattern that does not
+  start with 1, such as Av(213) and Av(2143, 2314, 3214), which its corollary does
+  not cover. Each extra pattern must now start with 1, as in `Rd2134CoreStrategy`.
 
 ## 2.3.1 - 2025-06-13 
 ### Changed
