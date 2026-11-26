@@ -27,8 +27,8 @@ p2143 = Perm((1, 0, 3, 2))
 
 class TestRuCu:
     def test_applies(self):
-        assert RuCuCoreStrategy([ru, cu])
-        assert RuCuCoreStrategy([ru, cu, Perm((0, 1, 2, 3))])
+        assert RuCuCoreStrategy([ru, cu]).applies()
+        assert RuCuCoreStrategy([ru, cu, Perm((0, 1, 2, 3))]).applies()
         assert not RuCuCoreStrategy([ru, Perm((0, 1, 2, 3))]).applies()
         assert not RuCuCoreStrategy([ru, cu, Perm((1, 4, 0, 2, 3))]).applies()
         assert RuCuCoreStrategy([ru, cu, Perm((0, 1, 2, 3, 4))]).applies()
@@ -259,6 +259,6 @@ def test_last_sum_component():
 
 
 def test_last_skew_component():
-    last_skew_component(Perm((2, 4, 3, 0, 1))) == Perm((0, 1))
-    last_skew_component(Perm((0, 1, 2, 3))) == Perm((0, 1, 2, 3))
-    last_skew_component(Perm((3, 2, 1, 0))) == Perm((0,))
+    assert last_skew_component(Perm((2, 4, 3, 0, 1))) == Perm((0, 1))
+    assert last_skew_component(Perm((0, 1, 2, 3))) == Perm((0, 1, 2, 3))
+    assert last_skew_component(Perm((3, 2, 1, 0))) == Perm((0,))
