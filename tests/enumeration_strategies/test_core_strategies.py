@@ -262,3 +262,5 @@ def test_last_skew_component():
     assert last_skew_component(Perm((2, 4, 3, 0, 1))) == Perm((0, 1))
     assert last_skew_component(Perm((0, 1, 2, 3))) == Perm((0, 1, 2, 3))
     assert last_skew_component(Perm((3, 2, 1, 0))) == Perm((0,))
+    # one point, as Ru2143CoreStrategy gives it for the extension 12 = 1 + 1
+    assert last_skew_component(Perm((0,))) == Perm((0,))
