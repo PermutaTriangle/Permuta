@@ -2,6 +2,7 @@ import bisect
 import functools
 import json
 import os
+import re
 import types
 from array import array
 from collections.abc import Collection, Mapping, Sequence
@@ -57,12 +58,13 @@ def bisc(
       is read as empty. Without n, n is 7, and bisc says so.
     - A Mapping is read for each length up to max(m, n), and one it lacks is
       its KeyError. Without n, n is its longest length.
-    - A PropertyBitmaps labels the lengths up to max(m, n) it lacks with its
-      property, and keeps them; without a property, a ValueError names the
-      first. When m > n, it reads the lengths past n as its property labels
-      them, where a bare property reads them as empty, so the two can answer
-      differently. Without n, n is its longest labeled length, however short,
-      and with none, 7 if it has a property.
+    - A PropertyBitmaps keeps the labels it has, and labels with its property
+      each length up to max(m, n) that has none, keeping those too; with no
+      property, a ValueError names the first such length. So when m > n, its
+      lengths past n hold the property's labels, where a bare property's are
+      read as empty, and the two can answer differently. Without n, n is its
+      longest labeled length, however short, and 7 if it has no labels but a
+      property.
     report prints the progress of the search.
 
     The patterns are returned as a dictionary from length to {pattern:
@@ -558,9 +560,8 @@ class PropertyBitmaps:
         """Keep a length's labels and its number of good permutations.
 
         The callers choose the labels' form by _is_sparse and make the count
-        right. The form itself is asserted, bytes for a bitmap and an array or
-        a list for indices, since every reader of the labels tells the forms
-        apart by it.
+        right. Every reader of the labels tells a bitmap, which is bytes, from
+        indices, in an array or a list, by their type, so the form is asserted.
 
         Examples:
             >>> property_bitmaps = PropertyBitmaps()
@@ -575,11 +576,11 @@ class PropertyBitmaps:
     def _label_missing(
         self, lengths: Iterable[int], report: bool = False
     ) -> Optional[int]:
-        """Label the lengths given that the PropertyBitmaps lacks, with its property.
+        """Label with the property each of the given lengths that has no labels.
 
-        They are labeled in order. Without a property, it stops at the first one
-        it lacks and returns it; otherwise it returns None. report prints each
-        length as it is labeled.
+        The lengths are taken in order. With no property, it stops at the first
+        that has no labels and returns it; otherwise it returns None once each
+        has labels. report prints each length as it is labeled.
 
         Examples:
             >>> property_bitmaps = PropertyBitmaps(Perm.is_increasing)
@@ -791,9 +792,9 @@ def _indices_of(length: int, perms: Iterable[Perm]) -> Iterator[int]:
 
     Each is read once, into a Perm unless it is one, so that any sequence will
     do. One of another length raises a ValueError, and so does one that is not
-    a permutation of 0 to length - 1, such as one written from 1 or one of
-    floats: its rank() would be another permutation's, outside the length's,
-    or not an int.
+    a permutation of the ints 0 to length - 1, such as one written from 1, or
+    one of floats, Fractions, Decimals or NumPy's integers: its rank() would be
+    another permutation's, outside the length's, or not an int.
 
     Examples:
         >>> list(_indices_of(2, [Perm((1, 0)), (0, 1)]))
@@ -808,14 +809,16 @@ def _indices_of(length: int, perms: Iterable[Perm]) -> Iterator[int]:
                 "The permutation {!r} of length {} is given as one of length "
                 "{}".format(given, len(perm), length)
             )
-        if (
-            not all(isinstance(value, int) for value in perm)
-            or set(perm) != permutation_values
-        ):
+        index = None
+        if set(perm) == permutation_values:
+            index = perm.rank() - shorter_count
+        # rank() computes with the values, so one that is not an int makes the
+        # index another type: a check of it does for a check of each value
+        if not isinstance(index, int):
             raise ValueError(
                 "{!r} is not a permutation of 0 to {}".format(given, length - 1)
             )
-        yield perm.rank() - shorter_count
+        yield index
 
 
 def _labels_of(length: int, perms: Collection[Perm]) -> Tuple[_Labels, int]:
@@ -901,6 +904,12 @@ def _from_good_and_bad(
     return property_bitmaps
 
 
+# The name of a stored set's file, whose set name may hold underscores itself
+_STORED_SET_FILE = re.compile(
+    r"(?P<name>.+)_(?P<kind>good|bad)_len(?P<length>[0-9]+)\.json"
+)
+
+
 def _read_stored_set(
     name: str, min_length: int
 ) -> Optional[Tuple[Dict[int, List[Perm]], Dict[int, List[Perm]]]]:
@@ -908,7 +917,8 @@ def _read_stored_set(
 
     Its files are named <name>_<good or bad>_len<length>.json, and the name may
     hold underscores itself. The first file of each kind that goes up to
-    min_length or further is read, and None is returned without one.
+    min_length or further is read, and None is returned without one. A file
+    named otherwise is passed over.
 
     Examples:
         >>> good, bad = _read_stored_set("stack_sortable", 8)
@@ -922,15 +932,12 @@ def _read_stored_set(
 
     with os.scandir(bisc_dir) as entries:
         for entry in entries:
-            entry_name, extension = os.path.splitext(entry.name)
-            # Split from the right, as the set's name may hold underscores
-            name_parts = entry_name.rsplit("_", 2)
-            if extension != ".json" or len(name_parts) != 3:
+            stored_set_file = _STORED_SET_FILE.fullmatch(entry.name)
+            if stored_set_file is None or stored_set_file["name"] != name:
                 continue
-            set_name, kind, length_part = name_parts
-            if set_name != name or not length_part.startswith("len"):
-                continue
-            goes_far_enough = int(length_part.removeprefix("len")) >= min_length
+            entry_name = entry.name.removesuffix(".json")
+            kind = stored_set_file["kind"]
+            goes_far_enough = int(stored_set_file["length"]) >= min_length
             if good_entry is None and kind == "good" and goes_far_enough:
                 good_entry = entry_name
             if bad_entry is None and kind == "bad" and goes_far_enough:

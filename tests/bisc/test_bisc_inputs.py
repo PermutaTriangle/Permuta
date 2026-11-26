@@ -109,6 +109,34 @@ def test_bisc_chooses_n_by_the_input_kind(monkeypatch):
     assert chosen[-1] == 3
 
 
+def test_a_property_bitmaps_without_a_property_names_the_first_length_it_lacks():
+    # length 0 is a length too: the callers test the length returned for None
+    lacking_0 = PropertyBitmaps(bitmaps={1: b"\x01", 2: b"\x03"})
+    assert lacking_0._label_missing(range(3)) == 0
+    with pytest.raises(ValueError, match="none of length 0 and no property"):
+        bisc(lacking_0, 2)
+    # the length is max(m, n), here n
+    message = (
+        "bisc needs bitmaps up to length 3, and the PropertyBitmaps has none of "
+        "length 1 and no property"
+    )
+    with pytest.raises(ValueError, match=message):
+        bisc(PropertyBitmaps(bitmaps={0: b"\x01"}), 1, 3)
+    should_have = "You should have bitmaps up to length at least 8\n"
+    assert run(auto_bisc, PropertyBitmaps(bitmaps={1: b"\x01"})) == (None, should_have)
+    short = PropertyBitmaps(bitmaps=bitmaps_of(good_by_length(Perm.stack_sortable, 5)))
+    assert run(auto_bisc, short) == (None, should_have)
+
+
+def test_label_missing_reports_each_length_it_labels():
+    property_bitmaps = PropertyBitmaps(Perm.stack_sortable, bitmaps={1: b"\x01"})
+    assert run(property_bitmaps._label_missing, range(3), True) == (
+        None,
+        "Adding perms of length 0\nAdding perms of length 2\n",
+    )
+    assert sorted(property_bitmaps.bitmaps) == [0, 1, 2]
+
+
 # m > n for a list and a mapping
 def test_bisc_reads_the_lengths_up_to_m_of_a_list_or_a_mapping_past_n():
     good = good_by_length(Perm.stack_sortable, 6)
@@ -278,6 +306,43 @@ def test_auto_bisc_finds_a_stored_set_whose_name_holds_underscores(monkeypatch):
     # a part of a name is no name
     for part in ("stack", "sortable", "West_2", "av_231_and"):
         assert bisc_module._read_stored_set(part, 8) is None
+
+
+class StandInFolder:
+    """Stands in for os.scandir's result: the entries of a folder, by name."""
+
+    def __init__(self, names):
+        self.entries = [type("Entry", (), {"name": name}) for name in names]
+
+    def __enter__(self):
+        return iter(self.entries)
+
+    def __exit__(self, *exception):
+        return False
+
+
+def test_a_file_that_is_not_a_stored_sets_is_passed_over(monkeypatch):
+    # the folder holds only sets' files, so the others are stood in for
+    names = [
+        "README",
+        "stack_good_lenX.json",
+        "stack_good_len8.txt",
+        "stack_bad.json",
+        "good_len8.json",
+        "stack_good_len8.json",
+        "stack_bad_len8.json",
+    ]
+    monkeypatch.setattr(os, "scandir", lambda path: StandInFolder(names))
+    read_files = []
+
+    def recording_read(path):
+        read_files.append(os.path.basename(path))
+        return {}
+
+    monkeypatch.setattr(bisc_module, "read_bisc_file", recording_read)
+    assert bisc_module._read_stored_set("stack", 8) == ({}, {})
+    assert read_files == ["stack_good_len8", "stack_bad_len8"]
+    assert bisc_module._read_stored_set("stack", 9) is None
 
 
 def test_auto_bisc_reads_a_stored_set_again_for_a_longer_length(monkeypatch):

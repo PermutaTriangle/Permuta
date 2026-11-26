@@ -923,6 +923,17 @@ def test_keep_asserts_the_form_of_the_labels():
     assert len(property_bitmaps.good[3]) == 0 and len(property_bitmaps.bad[3]) == 6
 
 
+def test_the_messages_show_the_sequence_as_given():
+    with pytest.raises(ValueError) as length_error:
+        bisc_module._from_perms_by_length({3: [(0, 1)]})
+    assert str(length_error.value) == (
+        "The permutation (0, 1) of length 2 is given as one of length 3"
+    )
+    with pytest.raises(ValueError) as values_error:
+        bisc_module._from_perms_by_length({3: [(1, 2, 3)]})
+    assert str(values_error.value) == "(1, 2, 3) is not a permutation of 0 to 2"
+
+
 @pytest.mark.parametrize(
     "not_a_permutation, ranked_as",
     [
