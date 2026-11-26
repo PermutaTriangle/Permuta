@@ -177,8 +177,8 @@ def test_sub_mesh_pattern():
     assert mpatt.sub_mesh_pattern([1]) == MeshPatt((0,))
 
     mpatt = MeshPatt((0, 1, 2), [(0, 1), (1, 1), (1, 2), (2, 1), (2, 2), (3, 1)])
-    mpatt.sub_mesh_pattern([0, 1]) == MeshPatt((0, 1), [(0, 1), (1, 1), (2, 1)])
-    mpatt.sub_mesh_pattern([0, 2]) == MeshPatt((0, 1), [])
+    assert mpatt.sub_mesh_pattern([0, 1]) == MeshPatt((0, 1), [(0, 1), (1, 1), (2, 1)])
+    assert mpatt.sub_mesh_pattern([0, 2]) == MeshPatt((0, 1), [])
 
 
 def test_flip_diagonal():
