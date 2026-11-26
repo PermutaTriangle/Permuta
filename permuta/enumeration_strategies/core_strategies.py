@@ -21,7 +21,19 @@ class CoreStrategy(EnumerationStrategyWithSymmetry):
     @staticmethod
     @abstractmethod
     def is_valid_extension(patt: Perm) -> bool:
-        """Determine if the pattern satisfies the condition for strategy to apply."""
+        """Return True if patt is an extra basis pattern the corollary allows.
+
+        The corollary's class is Av(N, 1 + P), for the needed patterns N and a set P
+        with its conditions, and the paper never puts the empty permutation in P
+        (Section 3). So the one-point pattern 1 is never an extra pattern, and no core
+        strategy applies to Av(1).
+
+        Examples:
+            >>> RuCuCoreStrategy.is_valid_extension(Perm((0, 1, 3, 2)))
+            True
+            >>> RuCuCoreStrategy.is_valid_extension(Perm((0,)))
+            False
+        """
 
     def _applies_to_symmetry(self, basis: FrozenSet[Perm]):
         """Check if the core strategy applies to the basis or any of its symmetry."""
@@ -124,7 +136,7 @@ class RuCuCoreStrategy(CoreStrategy):
 
     @staticmethod
     def is_valid_extension(patt: Perm) -> bool:
-        return zero_plus_skewind(patt)
+        return len(patt) > 1 and zero_plus_skewind(patt)
 
 
 class RdCdCoreStrategy(CoreStrategy):
@@ -137,7 +149,7 @@ class RdCdCoreStrategy(CoreStrategy):
 
     @staticmethod
     def is_valid_extension(patt: Perm) -> bool:
-        return zero_plus_sumind(patt)
+        return len(patt) > 1 and zero_plus_sumind(patt)
 
 
 class RuCuRdCdCoreStrategy(CoreStrategy):
@@ -148,7 +160,7 @@ class RuCuRdCdCoreStrategy(CoreStrategy):
 
     @staticmethod
     def is_valid_extension(patt: Perm) -> bool:
-        return zero_plus_perm(patt)
+        return len(patt) > 1 and zero_plus_perm(patt)
 
 
 class RuCuCdCoreStrategy(CoreStrategy):
@@ -159,7 +171,7 @@ class RuCuCdCoreStrategy(CoreStrategy):
 
     @staticmethod
     def is_valid_extension(patt: Perm) -> bool:
-        return zero_plus_skewind(patt)
+        return len(patt) > 1 and zero_plus_skewind(patt)
 
 
 class RdCdCuCoreStrategy(CoreStrategy):
@@ -170,7 +182,7 @@ class RdCdCuCoreStrategy(CoreStrategy):
 
     @staticmethod
     def is_valid_extension(patt):
-        return zero_plus_sumind(bstrip(patt))
+        return len(patt) > 1 and zero_plus_sumind(bstrip(patt))
 
 
 class RdCuCoreStrategy(CoreStrategy):
@@ -181,7 +193,9 @@ class RdCuCoreStrategy(CoreStrategy):
 
     @staticmethod
     def is_valid_extension(patt):
-        return zero_plus_skewind(patt) and zero_plus_sumind(bstrip(patt))
+        return (
+            len(patt) > 1 and zero_plus_skewind(patt) and zero_plus_sumind(bstrip(patt))
+        )
 
 
 class Rd2134CoreStrategy(CoreStrategy):
@@ -197,6 +211,8 @@ class Rd2134CoreStrategy(CoreStrategy):
 
     @staticmethod
     def is_valid_extension(patt: Perm) -> bool:
+        if len(patt) < 2:
+            return False
         last_comp = last_sum_component(fstrip(patt))
         return (
             patt[0] == 0
@@ -220,7 +236,8 @@ class Ru2143CoreStrategy(CoreStrategy):
     def is_valid_extension(patt: Perm) -> bool:
         patt = fstrip(patt)
         return (
-            patt.avoids(Ru2143CoreStrategy._M_PATT)
+            len(patt) > 0
+            and patt.avoids(Ru2143CoreStrategy._M_PATT)
             and last_skew_component(patt) not in Ru2143CoreStrategy._NON_DEC
         )
 

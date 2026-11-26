@@ -1,3 +1,5 @@
+import pytest
+
 from permuta import Perm
 from permuta.enumeration_strategies.core_strategies import (
     Rd2134CoreStrategy,
@@ -9,6 +11,7 @@ from permuta.enumeration_strategies.core_strategies import (
     RuCuCoreStrategy,
     RuCuRdCdCoreStrategy,
     bstrip,
+    core_strategies,
     fstrip,
     last_skew_component,
     last_sum_component,
@@ -23,6 +26,26 @@ rd = Perm((1, 3, 0, 2))
 cd = Perm((2, 0, 3, 1))
 p2134 = Perm((1, 0, 2, 3))
 p2143 = Perm((1, 0, 3, 2))
+
+
+@pytest.mark.parametrize("strategy", core_strategies, ids=lambda s: s.__name__)
+def test_no_core_strategy_applies_to_av_1(strategy):
+    # each corollary adds patterns 1 + p with p non-empty, so its classes contain 1
+    one_point = Perm((0,))
+    assert not strategy.is_valid_extension(one_point)
+    assert not strategy([one_point]).applies()
+    assert not strategy(sorted(strategy.patterns_needed) + [one_point]).applies()
+
+
+@pytest.mark.parametrize("strategy", core_strategies, ids=lambda s: s.__name__)
+def test_a_two_point_pattern_is_judged_as_before(strategy):
+    # only the pattern 1 is refused: 12 = 1 + 1 stays an extra pattern wherever
+    # the corollary allows P = {1}, and Av(12) and Av(21) with it
+    allows_12 = strategy is not Ru2143CoreStrategy
+    assert strategy.is_valid_extension(Perm((0, 1))) == allows_12
+    assert not strategy.is_valid_extension(Perm((1, 0)))
+    assert strategy([Perm((0, 1))]).applies() == allows_12
+    assert strategy([Perm((1, 0))]).applies() == allows_12
 
 
 class TestRuCu:
