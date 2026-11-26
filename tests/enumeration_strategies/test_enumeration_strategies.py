@@ -71,3 +71,12 @@ def test_find_strategies():
     assert len(find_strategies(b3, long_runnning=True)) == 2
     assert any(isinstance(s, InsertionEncodingStrategy) for s in find_strategies(b2))
     assert any(isinstance(s, RuCuCoreStrategy) for s in find_strategies([ru, cu]))
+
+
+def test_find_strategies_for_av_1():
+    # Av(1) is finite, and the corollaries of the core strategies do not cover it
+    strategies = find_strategies([Perm((0,))])
+    assert [type(s) for s in strategies] == [
+        InsertionEncodingStrategy,
+        FinitelyManySimplesStrategy,
+    ]

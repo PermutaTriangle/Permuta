@@ -38,6 +38,9 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 
 ### Fixed
 - Supply the dependencies of PyPy's bundled cffi and HPy packages in tox.
+- On a basis holding the pattern 1, four core strategies raised an `AssertionError`,
+  and so did `find_strategies`, while the other four applied, though no corollary
+  covers Av(1). Now none of them applies.
 - Fixed bug in `Perm.rtlmax_ltrmin_decomposition` and fixed associated tests.
 
 ## 2.3.1 - 2025-06-13 
