@@ -9,6 +9,7 @@ from permuta.enumeration_strategies.core_strategies import (
     RuCuCoreStrategy,
     RuCuRdCdCoreStrategy,
     bstrip,
+    core_strategies,
     fstrip,
     last_skew_component,
     last_sum_component,
@@ -49,6 +50,16 @@ class TestRuCu:
         assert not RuCuCoreStrategy(b2)._applies_to_symmetry(b2)
         b3 = frozenset([ru, cu])
         assert RuCuCoreStrategy(b3)._applies_to_symmetry(b3)
+
+    def test_a_redundant_pattern_is_ignored(self):
+        # 23145 contains 2314, so the class is Av(2314, 3124)
+        redundant = Perm((1, 2, 0, 3, 4))
+        assert RuCuCoreStrategy([ru, cu, redundant]).applies()
+        b = frozenset([ru, cu, redundant])
+        assert RuCuCoreStrategy(b)._applies_to_symmetry(b)
+        assert not RuCuCoreStrategy(
+            [ru, cu, Perm((1, 4, 0, 2, 3)), redundant]
+        ).applies()
 
     def test_reference(self):
         print(RuCuCoreStrategy.reference())
@@ -220,6 +231,16 @@ class TestRu2143:
         assert Ru2143CoreStrategy.is_valid_extension(Perm((0, 2, 4, 1, 3)))
         assert not Ru2143CoreStrategy.is_valid_extension(Perm((0, 2, 1, 3, 4)))
         assert not Ru2143CoreStrategy.is_valid_extension(Perm((0, 4, 3, 1, 2)))
+
+
+def test_a_redundant_pattern_changes_no_core_strategy():
+    for strategy in core_strategies:
+        needed = sorted(strategy.patterns_needed)
+        assert strategy(needed).applies()
+        for patt in needed:
+            # patt after a new maximum: it contains patt but does not start with 1
+            redundant = Perm((len(patt),) + tuple(patt))
+            assert strategy(needed + [redundant]).applies()
 
 
 # Test for tools functions
