@@ -218,6 +218,20 @@ class Ru2143CoreStrategy(CoreStrategy):
 
     @staticmethod
     def is_valid_extension(patt: Perm) -> bool:
+        """Return True if patt is 1 + p for a p that Section 10 of the paper allows.
+
+        Section 10 enumerates Av(2314, 2143, 1 + P), so patt must start with its
+        minimum, and p must avoid the mesh pattern _M_PATT and must not end in an
+        increasing skew component.
+
+        Examples:
+            >>> Ru2143CoreStrategy.is_valid_extension(Perm((0, 2, 1, 3)))
+            True
+            >>> Ru2143CoreStrategy.is_valid_extension(Perm((2, 1, 0, 3)))
+            False
+        """
+        if not zero_plus_perm(patt):
+            return False
         patt = fstrip(patt)
         return (
             patt.avoids(Ru2143CoreStrategy._M_PATT)
