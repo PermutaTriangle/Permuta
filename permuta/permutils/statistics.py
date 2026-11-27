@@ -33,11 +33,11 @@ def _longest_increasing_subsequence(values: Iterable[int]) -> int:
     """
     tails: List[int] = []
     for value in values:
-        place = bisect_left(tails, value)
-        if place == len(tails):
+        if not tails or tails[-1] < value:
+            # It extends the longest, with no search
             tails.append(value)
         else:
-            tails[place] = value
+            tails[bisect_left(tails, value)] = value
     return len(tails)
 
 
