@@ -319,8 +319,6 @@ of jointly distributed stats with ``jointly_transformed_equally_distributed``.
     Number of valleys
     Number of left-to-right minimas
     Number of right-to-left maximas
-    Longest increasing subsequence
-    Longest decreasing subsequence
     Number of pinnacles
 
 The BiSC algorithm

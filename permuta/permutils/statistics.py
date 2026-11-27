@@ -1,6 +1,7 @@
+from bisect import bisect_left
 from collections import defaultdict
 from itertools import combinations, permutations, product
-from typing import Callable, Counter, Dict, Iterator, List, Optional, Tuple
+from typing import Callable, Counter, Dict, Iterable, Iterator, List, Optional, Tuple
 
 from permuta import Av, Perm
 
@@ -14,6 +15,43 @@ def _count_descents(perm: Perm) -> int:
 
 def _count_ascents(perm: Perm) -> int:
     return perm.count_ascents()
+
+
+def _longest_increasing_subsequence(values: Iterable[int]) -> int:
+    """Return the length of the longest increasing subsequence of the values.
+
+    It is found by patience sorting: tails[k] is the least value that ends an
+    increasing subsequence of length k + 1 among the values read so far.
+
+    Examples:
+        >>> _longest_increasing_subsequence(Perm((0, 2, 1, 3)))
+        3
+        >>> _longest_increasing_subsequence(Perm((2, 1, 0)))
+        1
+        >>> _longest_increasing_subsequence(Perm(()))
+        0
+    """
+    tails: List[int] = []
+    for value in values:
+        place = bisect_left(tails, value)
+        if place == len(tails):
+            tails.append(value)
+        else:
+            tails[place] = value
+    return len(tails)
+
+
+def _longest_decreasing_subsequence(perm: Perm) -> int:
+    """Return the length of the longest decreasing subsequence of the permutation.
+
+    Examples:
+        >>> _longest_decreasing_subsequence(Perm((3, 1, 2, 0)))
+        3
+        >>> _longest_decreasing_subsequence(Perm((0, 1, 2)))
+        1
+    """
+    # Read backwards, a decreasing subsequence is an increasing one
+    return _longest_increasing_subsequence(reversed(perm))
 
 
 class PermutationStatistic:
@@ -38,8 +76,8 @@ class PermutationStatistic:
         ("Number of right-to-left maximas", Perm.count_rtlmax),
         ("Number of fixed points", Perm.count_fixed_points),
         ("Order", Perm.order),
-        ("Longest increasing subsequence", Perm.length_of_longestrun_ascending),
-        ("Longest decreasing subsequence", Perm.length_of_longestrun_descending),
+        ("Longest increasing subsequence", _longest_increasing_subsequence),
+        ("Longest decreasing subsequence", _longest_decreasing_subsequence),
         ("Depth", Perm.depth),
         ("Number of bounces", Perm.count_bounces),
         ("Maximum drop size", Perm.max_drop_size),
