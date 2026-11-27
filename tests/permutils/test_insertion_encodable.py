@@ -1031,3 +1031,12 @@ def test_is_insertion_encodable():
             Perm((2, 3, 0, 6, 1, 5, 4)),
         ]
     )
+
+
+def test_is_insertion_encodable_reads_a_one_shot_basis_once():
+    """An iterator gets the answer its list gets, from either kind of encoding."""
+    # Encodable by the maximum, not by the rightmost, which is checked first
+    basis = [Perm((1, 2, 0)), Perm((0, 3, 1, 2))]
+    assert not InsertionEncodablePerms.is_insertion_encodable_rightmost(basis)
+    assert InsertionEncodablePerms.is_insertion_encodable(basis)
+    assert InsertionEncodablePerms.is_insertion_encodable(iter(basis))

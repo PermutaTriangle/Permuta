@@ -1,6 +1,17 @@
 import multiprocessing
 from itertools import combinations, islice
-from typing import ClassVar, Dict, Iterable, Iterator, List, NamedTuple, Optional, Union
+from typing import (
+    ClassVar,
+    Dict,
+    Iterable,
+    Iterator,
+    List,
+    NamedTuple,
+    Optional,
+    Tuple,
+    Union,
+    cast,
+)
 
 from ..patterns import MeshPatt, Perm
 from ..permutils import is_finite, is_insertion_encodable, is_polynomial
@@ -65,9 +76,12 @@ class Av(AvBase):
         """
         Create a permutation class from a basis defined by an iterable of patterns.
         """
-        if MeshBasis.is_mesh_basis(basis):
-            return cls(MeshBasis(*basis))
-        return cls(Basis(*basis))
+        # Read once: is_mesh_basis would use up a one-shot iterable
+        patterns = tuple(basis)
+        if MeshBasis.is_mesh_basis(patterns):
+            return cls(MeshBasis(*patterns))
+        # None is a mesh pattern, so each is a Perm
+        return cls(Basis(*cast(Tuple[Perm, ...], patterns)))
 
     def is_finite(self) -> bool:
         """Check if the perm class is finite."""
