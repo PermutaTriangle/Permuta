@@ -2735,6 +2735,13 @@ def test_bkv_sortable():
     assert Perm(()).bkv_sortable((Perm((2, 1, 0)), Perm((0, 2, 1))))
 
 
+def test_bkv_sortable_prints_nothing(capsys):
+    """bkv_sortable answers without printing its working."""
+    assert Perm((1, 0)).bkv_sortable()
+    assert not Perm((4, 1, 3, 2, 0)).bkv_sortable(())
+    assert capsys.readouterr().out == ""
+
+
 def test_west_2_stack_sortable():
     eq_patt_avoidance = (Perm((1, 2, 3, 0)), MeshPatt(Perm((2, 1, 3, 0)), {(1, 4)}))
     for _ in range(100):

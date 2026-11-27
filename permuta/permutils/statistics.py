@@ -149,13 +149,29 @@ class PermutationStatistic:
     def jointly_transformed_equally_distributed(
         class1: Av, class2: Av, n: int = 6, dim: int = 2
     ) -> Iterator[Tuple[Tuple[str, ...], Tuple[str, ...]]]:
-        """Check if a combination of statistics in one class is equally distributed
-        to any combination of statistics in the other class, up to a max length.
+        """Yield pairs of combinations of statistics equally distributed on two classes.
+
+        Each pair holds the names of dim statistics on class1, in the order of the
+        table, and of dim statistics on class2, the first matched with the first and
+        so on, such that the two have the same joint distribution at each length up
+        to n. A statistic can be matched with itself.
+
+        Examples:
+            >>> av_231, av_312 = Av.from_string("231"), Av.from_string("312")
+            >>> matches = PermutationStatistic.jointly_transformed_equally_distributed(
+            ...     av_231, av_312, n=5, dim=1
+            ... )
+            >>> pairs = set(matches)
+            >>> (("Number of ascents",), ("Number of descents",)) in pairs
+            True
+            >>> (("Number of inversions",), ("Number of inversions",)) in pairs
+            True
         """
         return (
             (tuple(stat[0] for stat in stats1), tuple(stat[0] for stat in stats2))
-            for stats1, stats2 in combinations(
-                permutations(PermutationStatistic._STATISTICS, dim), 2
+            for stats1, stats2 in product(
+                combinations(PermutationStatistic._STATISTICS, dim),
+                permutations(PermutationStatistic._STATISTICS, dim),
             )
             if all(
                 Counter(
@@ -185,7 +201,7 @@ class PermutationStatistic:
     def check_all_transformed(cls, bijection: BijectionType) -> Dict[str, List[str]]:
         """Given a bijection, check what statistics transform into others."""
         transf = defaultdict(list)
-        all_stats = cls._get_all()
+        all_stats = list(cls._get_all())
         for stat1, stat2 in product(all_stats, all_stats):
             if all(stat1.func(k) == stat2.func(v) for k, v in bijection.items()):
                 transf[stat1.name].append(stat2.name)

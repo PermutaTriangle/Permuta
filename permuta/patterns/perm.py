@@ -2842,12 +2842,7 @@ class Perm(Tuple[int], Patt):
         right_stack: Deque[int] = collections.deque([])
         left_stack: Deque[int] = collections.deque([])
         expected = 0
-        print(self)
         while expected < n:
-            print("inp", inp)
-            print("left_stack", left_stack)
-            print("right_stack", right_stack)
-            print("------------------------------")
             if inp:
                 right_stack.appendleft(inp[0])
                 if Perm.to_standard(right_stack).avoids(*patterns):

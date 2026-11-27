@@ -1819,3 +1819,18 @@ def test_contained_in():
     )
     assert VincularPatt(Perm((0, 1)), [0]).contained_in(Perm((5, 0, 2, 3, 4, 6, 1)))
     assert VincularPatt(Perm((0, 1)), [0]).contained_in(Perm((0, 1)))
+
+
+def test_a_bivincular_pattern_hashes_as_the_equal_mesh_pattern():
+    """Equal patterns hash alike, so a set or a dictionary finds either."""
+    vincular = VincularPatt(Perm((0, 1)), (1,))
+    mesh = MeshPatt(vincular.pattern, vincular.shading)
+    assert vincular == mesh and mesh == vincular
+    assert hash(vincular) == hash(mesh)
+    assert len({vincular, mesh}) == 1
+    assert mesh in {vincular} and vincular in {mesh}
+    assert hash(vincular) == hash(VincularPatt(Perm((0, 1)), (1,)))
+    bivincular = BivincularPatt(Perm((0, 2, 1)), (1,), (2,))
+    assert {bivincular: 1}[BivincularPatt(Perm((0, 2, 1)), (1,), (2,))] == 1
+    covincular = CovincularPatt(Perm((1, 0)), (0,))
+    assert hash(covincular) == hash(MeshPatt(covincular.pattern, covincular.shading))

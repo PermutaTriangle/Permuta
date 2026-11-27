@@ -1,4 +1,4 @@
-from permuta import Av
+from permuta import Av, Perm
 from permuta.permutils.statistics import PermutationStatistic
 
 
@@ -174,3 +174,84 @@ def test_distribution_av():
         2036,
         1,
     ]
+
+
+def test_check_all_transformed_compares_every_pair_of_statistics():
+    """Each statistic is compared with every statistic, itself among them."""
+    identity = {perm: perm for perm in Perm.of_length(3)}
+    transformed = PermutationStatistic.check_all_transformed(identity)
+    for name, _ in PermutationStatistic._STATISTICS:
+        assert name in transformed[name]
+    reverse = {perm: perm.reverse() for perm in Perm.up_to_length(5)}
+    transformed = PermutationStatistic.check_all_transformed(reverse)
+    assert transformed["Number of inversions"] == ["Number of non-inversions"]
+    assert transformed["Number of descents"] == ["Number of ascents"]
+    assert transformed["Number of ascents"] == ["Number of descents"]
+    assert transformed["Number of left-to-right maximas"] == [
+        "Number of right-to-left maximas"
+    ]
+
+
+def test_jointly_transformed_pairs_take_either_order_and_a_statistic_itself():
+    """A statistic is matched with any other, before or after it, or with itself."""
+    av_231, av_312 = Av.from_string("231"), Av.from_string("312")
+    pairs = set(
+        PermutationStatistic.jointly_transformed_equally_distributed(
+            av_231, av_312, n=5, dim=1
+        )
+    )
+    assert (("Number of descents",), ("Number of ascents",)) in pairs
+    assert (("Number of ascents",), ("Number of descents",)) in pairs
+    assert (("Number of inversions",), ("Number of inversions",)) in pairs
+    same_class = set(
+        PermutationStatistic.jointly_transformed_equally_distributed(
+            av_231, av_231, n=5, dim=1
+        )
+    )
+    for name, _ in PermutationStatistic._STATISTICS:
+        assert ((name,), (name,)) in same_class
+
+
+def test_jointly_transformed_pairs_match_combinations_in_order(monkeypatch):
+    """Each combination on the first class is in table order, matched in order."""
+    monkeypatch.setattr(
+        PermutationStatistic,
+        "_STATISTICS",
+        (
+            ("Number of left-to-right maximas", Perm.count_ltrmax),
+            ("Number of right-to-left minimas", Perm.count_rtlmin),
+            ("Number of right-to-left maximas", Perm.count_rtlmax),
+        ),
+    )
+    # The inverse takes Av(231) to Av(312), left-to-right maxima to right-to-left
+    # minima and back, and right-to-left maxima to themselves
+    av_231, av_312 = Av.from_string("231"), Av.from_string("312")
+    pairs = set(
+        PermutationStatistic.jointly_transformed_equally_distributed(
+            av_231, av_312, n=5, dim=2
+        )
+    )
+    assert (
+        ("Number of right-to-left minimas", "Number of right-to-left maximas"),
+        ("Number of left-to-right maximas", "Number of right-to-left maximas"),
+    ) in pairs
+    assert (
+        ("Number of left-to-right maximas", "Number of right-to-left maximas"),
+        ("Number of right-to-left minimas", "Number of right-to-left maximas"),
+    ) in pairs
+    assert (
+        ("Number of left-to-right maximas", "Number of right-to-left minimas"),
+        ("Number of right-to-left minimas", "Number of left-to-right maximas"),
+    ) in pairs
+    names = [name for name, _ in PermutationStatistic._STATISTICS]
+    for first, _ in pairs:
+        assert names.index(first[0]) < names.index(first[1])
+    same_class = set(
+        PermutationStatistic.jointly_transformed_equally_distributed(
+            av_231, av_231, n=5, dim=2
+        )
+    )
+    assert (
+        ("Number of left-to-right maximas", "Number of right-to-left minimas"),
+        ("Number of left-to-right maximas", "Number of right-to-left minimas"),
+    ) in same_class
