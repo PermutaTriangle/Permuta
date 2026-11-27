@@ -98,8 +98,21 @@ class Av(AvBase):
         )
 
     def first(self, count: int) -> Iterable[Perm]:
-        """Generate the first `count` permutation in this permutation class given
-        that it has that many, if not all are generated.
+        """Generate the first count permutations of the class, the shortest first.
+
+        A class with fewer gives them all, unless only shaded patterns keep it
+        finite: then the search for more does not end. A mesh class can have no
+        permutation of one length and some of a longer one, so the search goes on
+        past an empty length. It stops at one where the basis's patterns with no
+        shaded box leave none, as no longer length has any then. In the second
+        example, the pattern 1 with every box shaded is in the permutation 1 alone.
+
+        Examples:
+            >>> list(Av([Perm((0, 1)), Perm((1, 0))]).first(5))
+            [Perm(()), Perm((0,))]
+            >>> lonely_point = MeshPatt(Perm((0,)), [(0, 0), (0, 1), (1, 0), (1, 1)])
+            >>> list(Av([lonely_point]).first(3))
+            [Perm(()), Perm((0, 1)), Perm((1, 0))]
         """
         yield from islice(self._all(), count)
 
@@ -193,14 +206,36 @@ class Av(AvBase):
 
     def _all(self) -> Iterable[Perm]:
         length = 0
-        while True:
-            gen = (p for p in self.of_length(length))
-            first: Optional[Perm] = next(gen, None)
-            if first is None:
-                break
-            yield first
-            yield from gen
+        while not self._is_empty_from(length):
+            yield from self.of_length(length)
             length += 1
+
+    def _is_empty_from(self, length: int) -> bool:
+        """Return True if the class has no permutation of this length or longer.
+
+        For a classical basis it is enough that the class has none of this length.
+        A mesh class can have none of one length and some of a longer one, so for a
+        mesh basis it takes too that the basis's unshaded patterns leave none of
+        this length, as they then leave none of any longer one.
+
+        Examples:
+            >>> lonely_point = MeshPatt(Perm((0,)), [(0, 0), (0, 1), (1, 0), (1, 1)])
+            >>> Av([lonely_point])._is_empty_from(1)
+            False
+            >>> Av([lonely_point, Perm((0, 1)), Perm((1, 0))])._is_empty_from(2)
+            True
+        """
+        if self.count(length) > 0:
+            return False
+        if isinstance(self.basis, Basis):
+            return True
+        unshaded = [patt.pattern for patt in self.basis if not patt.shading]
+        if not unshaded:
+            return False
+        if min(len(patt) for patt in unshaded) == 0:
+            # The empty pattern is in every permutation of length 1 or more
+            return True
+        return Av(Basis(*unshaded)).count(length) == 0
 
     def right_juxtaposition(self, other: "Av") -> "Av":
         """Compute the basis of the juxtaposition of two permutation classes.
