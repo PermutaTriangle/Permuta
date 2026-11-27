@@ -792,26 +792,39 @@ def _indices_of(length: int, perms: Iterable[Perm]) -> Iterator[int]:
 
     Each is read once, into a Perm unless it is one, so that any sequence will
     do. One of another length raises a ValueError, and so does one that is not
-    a permutation of the ints 0 to length - 1, such as one written from 1, or
-    one of floats, Fractions, Decimals or NumPy's integers: its rank() would be
-    another permutation's, outside the length's, or not an int.
+    a permutation of the ints 0 to length - 1: one written from 1, whose rank()
+    is another permutation's or outside the length's, or one of floats,
+    Fractions, Decimals or NumPy's integers, whose rank() is not an int, or
+    overflows.
 
     Examples:
         >>> list(_indices_of(2, [Perm((1, 0)), (0, 1)]))
         [1, 0]
+        >>> list(_indices_of(3, [(0.0, 1.0, 2.0)]))
+        Traceback (most recent call last):
+        ...
+        ValueError: (0.0, 1.0, 2.0) is not a permutation of 0 to 2
     """
     shorter_count = _shorter_count(length)
     permutation_values = set(range(length))
     for given in perms:
-        perm = given if isinstance(given, Perm) else Perm(given)
-        if len(perm) != length:
+        # The length first, by the sequence's own len(): a tuple's is quicker
+        # than a Perm's, whose __len__ is written in Python
+        if len(given) != length:
             raise ValueError(
                 "The permutation {!r} of length {} is given as one of length "
-                "{}".format(given, len(perm), length)
+                "{}".format(given, len(given), length)
             )
+        perm = given if isinstance(given, Perm) else Perm(given)
         index = None
         if set(perm) == permutation_values:
-            index = perm.rank() - shorter_count
+            try:
+                index = perm.rank() - shorter_count
+            except OverflowError:
+                # An int does not overflow; a float can, from length 172, and so
+                # can NumPy's integers past their width, in rank() or in the
+                # subtraction
+                pass
         # rank() computes with the values, so one that is not an int makes the
         # index another type: a check of it does for a check of each value
         if not isinstance(index, int):
@@ -905,7 +918,7 @@ def _from_good_and_bad(
 
 
 # The name of a stored set's file, whose set name may hold underscores itself
-_STORED_SET_FILE = re.compile(
+_STORED_SET_FILE_NAME: Final = re.compile(
     r"(?P<name>.+)_(?P<kind>good|bad)_len(?P<length>[0-9]+)\.json"
 )
 
@@ -932,12 +945,12 @@ def _read_stored_set(
 
     with os.scandir(bisc_dir) as entries:
         for entry in entries:
-            stored_set_file = _STORED_SET_FILE.fullmatch(entry.name)
-            if stored_set_file is None or stored_set_file["name"] != name:
+            name_parts = _STORED_SET_FILE_NAME.fullmatch(entry.name)
+            if name_parts is None or name_parts["name"] != name:
                 continue
             entry_name = entry.name.removesuffix(".json")
-            kind = stored_set_file["kind"]
-            goes_far_enough = int(stored_set_file["length"]) >= min_length
+            kind = name_parts["kind"]
+            goes_far_enough = int(name_parts["length"]) >= min_length
             if good_entry is None and kind == "good" and goes_far_enough:
                 good_entry = entry_name
             if bad_entry is None and kind == "bad" and goes_far_enough:

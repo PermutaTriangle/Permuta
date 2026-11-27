@@ -321,17 +321,9 @@ class StandInFolder:
         return False
 
 
-def test_a_file_that_is_not_a_stored_sets_is_passed_over(monkeypatch):
-    # the folder holds only sets' files, so the others are stood in for
-    names = [
-        "README",
-        "stack_good_lenX.json",
-        "stack_good_len8.txt",
-        "stack_bad.json",
-        "good_len8.json",
-        "stack_good_len8.json",
-        "stack_bad_len8.json",
-    ]
+def stand_in_stored_sets(monkeypatch, names):
+    """Stands in a folder of files with these names for the stored sets', and
+    returns the list of the files that reading a set then reads."""
     monkeypatch.setattr(os, "scandir", lambda path: StandInFolder(names))
     read_files = []
 
@@ -340,9 +332,42 @@ def test_a_file_that_is_not_a_stored_sets_is_passed_over(monkeypatch):
         return {}
 
     monkeypatch.setattr(bisc_module, "read_bisc_file", recording_read)
+    return read_files
+
+
+def test_a_file_that_is_not_a_stored_sets_is_passed_over(monkeypatch):
+    # the folder holds only sets' files, so the others are stood in for. The
+    # first two come before the set's own: the first would be read as its good
+    # one if a name were matched only from its start, and the second would
+    # raise if a length could be no digits
+    read_files = stand_in_stored_sets(
+        monkeypatch,
+        [
+            "stack_good_len8.json.bak",
+            "stack_good_len.json",
+            "README",
+            "stack_good_lenX.json",
+            "stack_good_len8.txt",
+            "stack_bad.json",
+            "good_len8.json",
+            "stack_good_len8.json",
+            "stack_bad_len8.json",
+        ],
+    )
     assert bisc_module._read_stored_set("stack", 8) == ({}, {})
     assert read_files == ["stack_good_len8", "stack_bad_len8"]
     assert bisc_module._read_stored_set("stack", 9) is None
+
+
+def test_a_set_is_read_only_if_both_kinds_go_far_enough(monkeypatch):
+    # its good permutations go to length 9, and its bad ones to 8
+    read_files = stand_in_stored_sets(
+        monkeypatch, ["stack_good_len9.json", "stack_bad_len8.json"]
+    )
+    assert bisc_module._read_stored_set("stack", 9) is None
+    assert read_files == []
+    assert bisc_module._read_stored_set("stack", 8) == ({}, {})
+    assert read_files == ["stack_good_len9", "stack_bad_len8"]
 
 
 def test_auto_bisc_reads_a_stored_set_again_for_a_longer_length(monkeypatch):
