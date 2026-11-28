@@ -19,6 +19,12 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 - Minimum Python version is now 3.11; CPython and PyPy 3.10 are no longer supported.
 - Python 3.15 is primary for linting, packaging, and cross-platform tests, with
   CPython 3.11 through 3.14 compatibility coverage.
+- `Av.is_subclass` gives the right answer when the other class has a basis of
+  mesh patterns, and raises a `NotImplementedError` when the class it is called
+  on has one, as such a class can hold a permutation without its patterns.
+  Before, it answered True whenever the other class had a basis of mesh
+  patterns, and could answer True for a class of mesh patterns that held a
+  permutation outside the other class.
 - Modernized GitHub Actions, dependency caching, and Black configuration.
 - `bisc` and `auto_bisc` turn every input into a `PropertyBitmaps` and read the
   good and the bad permutations through its views, in lexicographic order, for

@@ -1,3 +1,4 @@
+import random
 from math import factorial
 
 import pytest
@@ -135,6 +136,62 @@ def test_is_subclass():
     assert av123.is_subclass(av1324_1423_12345)
     assert not av1324_1234.is_subclass(av1324_1423_12345)
     assert av1234_132.is_subclass(av1324_1423_12345)
+
+
+def test_is_subclass_of_a_mesh_class():
+    av12 = Av.from_iterable((Perm((0, 1)),))
+    # Av(12) holds 21, which contains the mesh pattern 21 with no box shaded
+    assert not av12.is_subclass(Av(MeshBasis(Perm((1, 0)))))
+    assert av12.is_subclass(Av(MeshBasis(Perm((0, 1)))))
+    shaded_132 = MeshPatt(Perm((0, 2, 1)), [(0, 0)])
+    assert Av.from_iterable((Perm((0, 2, 1)),)).is_subclass(Av([shaded_132]))
+    # 132 avoids 123, and contains each mesh pattern made from it
+    assert not Av.from_iterable((Perm((0, 1, 2)),)).is_subclass(Av([shaded_132]))
+    lonely_point = MeshPatt(Perm((0,)), [(0, 0), (0, 1), (1, 0), (1, 1)])
+    assert Av.from_iterable((Perm((0,)),)).is_subclass(Av([lonely_point]))
+    assert not Av.from_iterable((Perm((0, 1)),)).is_subclass(Av([lonely_point]))
+    # The empty permutation is in every classical class, and contains the empty
+    # pattern, shaded or not
+    for empty_pattern in (MeshPatt(), MeshPatt(Perm(()), [(0, 0)])):
+        assert not av12.is_subclass(Av([empty_pattern]))
+
+
+def test_is_subclass_of_a_mesh_class_against_brute_force():
+    seeded_random = random.Random(10)
+    classical = [perm for length in range(1, 5) for perm in Perm.of_length(length)]
+    short = [perm for length in range(1, 4) for perm in Perm.of_length(length)]
+    answers = []
+    for _ in range(300):
+        basis = seeded_random.sample(classical, seeded_random.randint(1, 2))
+        mesh_basis = []
+        for _ in range(seeded_random.randint(1, 2)):
+            pattern = seeded_random.choice(short)
+            shading = [
+                (x, y)
+                for x in range(len(pattern) + 1)
+                for y in range(len(pattern) + 1)
+                if seeded_random.random() < 0.4
+            ]
+            mesh_basis.append(MeshPatt(pattern, shading))
+        av_classical = Av(basis)
+        expected = all(
+            perm.avoids(*mesh_basis) for perm in av_classical.up_to_length(6)
+        )
+        assert av_classical.is_subclass(Av(mesh_basis)) == expected
+        answers.append(expected)
+    assert any(answers) and not all(answers)
+
+
+def test_is_subclass_raises_for_a_mesh_class():
+    lonely_point = MeshPatt(Perm((0,)), [(0, 0), (0, 1), (1, 0), (1, 1)])
+    av_lonely_point = Av([lonely_point])
+    # The class holds 12 but not its pattern 1, the basis of Av(1), so it is not
+    # a subclass of Av(1), though no pattern of that basis is in it
+    assert Perm((0, 1)) in av_lonely_point
+    assert Perm((0,)) not in av_lonely_point
+    for other in (Av.from_iterable((Perm((0,)),)), av_lonely_point):
+        with pytest.raises(NotImplementedError):
+            av_lonely_point.is_subclass(other)
 
 
 def test_av_of_length():

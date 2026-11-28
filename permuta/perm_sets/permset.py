@@ -130,9 +130,31 @@ class Av(AvBase):
             return other in self._get_level(len(other))
         return False
 
-    def is_subclass(self, other: "Av"):
-        """Check if a sublcass of another permutation class."""
-        return all(p1 not in self for p1 in other.basis)
+    def is_subclass(self, other: "Av") -> bool:
+        """Check if every permutation of this class is in the other class.
+
+        That holds exactly when no pattern of the other class's basis is in this
+        class, with each mesh pattern taken as its permutation: a permutation that
+        contains a mesh pattern contains the pattern's permutation, which contains
+        the pattern, whatever its shading. A class of mesh patterns can hold a
+        permutation without its patterns, so this class cannot be one.
+
+        Raises NotImplementedError: If this class's basis is a MeshBasis.
+
+        Examples:
+            >>> Av([Perm((0, 1, 2))]).is_subclass(Av([Perm((0, 1, 2, 3))]))
+            True
+            >>> shaded_132 = MeshPatt(Perm((0, 2, 1)), [(0, 0)])
+            >>> Av([Perm((0, 2, 1))]).is_subclass(Av([shaded_132]))
+            True
+            >>> Av([Perm((0, 1, 2))]).is_subclass(Av([shaded_132]))
+            False
+        """
+        if isinstance(self.basis, MeshBasis):
+            raise NotImplementedError(Av._BASIS_ONLY_MSG)
+        if isinstance(other.basis, MeshBasis):
+            return all(patt.pattern not in self for patt in other.basis)
+        return all(patt not in self for patt in other.basis)
 
     def _ensure_level(self, level_number: int) -> None:
         start = max(0, len(self.cache) - 2)
