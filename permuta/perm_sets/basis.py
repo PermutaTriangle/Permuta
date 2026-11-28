@@ -82,7 +82,9 @@ class MeshBasis(tuple):
 
     @classmethod
     def _pruner(cls, patts: List[MeshPatt]) -> "MeshBasis":
-        if len(patts[0]) == 0:
+        if len(patts[0]) == 0 and not patts[0].shading:
+            # Every permutation contains the unshaded empty pattern, which sorts
+            # first. The shaded one is in the empty permutation alone.
             return tuple.__new__(cls, (patts[0],))
         new_basis: List[MeshPatt] = []
         for patt in patts:

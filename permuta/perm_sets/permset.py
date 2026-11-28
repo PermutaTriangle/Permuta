@@ -41,7 +41,13 @@ class Av(AvBase):
             raise ValueError(Av._VALUE_ERROR_MSG)
         instance = Av._CLASS_CACHE.get(basis)
         if instance is None:
-            new_instance: "Av" = AvBase.__new__(cls, basis, [{Perm(): [0]}])
+            # The empty permutation contains each empty pattern, shaded or not,
+            # and no other, so a basis that holds one leaves it out. A basis is
+            # sorted, so an empty pattern in it comes first.
+            level_0: Dict[Perm, Optional[List[int]]] = (
+                {} if len(basis[0]) == 0 else {Perm(): [0]}
+            )
+            new_instance: "Av" = AvBase.__new__(cls, basis, [level_0])
             Av._CLASS_CACHE[basis] = new_instance
             return new_instance
         return instance
