@@ -20,6 +20,12 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 - Python 3.15 is primary for linting, packaging, and cross-platform tests, with
   CPython 3.11 through 3.14 compatibility coverage.
 - Modernized GitHub Actions, dependency caching, and Black configuration.
+- `Av.first` goes on past a length where a class of mesh patterns has no
+  permutation, as a longer length can have some, and stops at one where the
+  basis's patterns with no shaded box leave none. Before, it stopped at the first
+  empty length: for the pattern 1 with every box shaded, it gave the empty
+  permutation alone. For a mesh class that only shaded patterns keep finite,
+  asking for more permutations than it has now searches without end.
 - `bisc` and `auto_bisc` turn every input into a `PropertyBitmaps` and read the
   good and the bad permutations through its views, in lexicographic order, for
   the same results in far less memory at longer lengths: the permutations of

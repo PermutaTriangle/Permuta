@@ -210,6 +210,7 @@ def test_enumeration():
     )
 
 
+@pytest.mark.timeout(20, method="thread")
 def test_generators():
     assert list(Av(Basis(Perm((0, 1)), Perm((1, 0)))).first(500)) == [
         Perm(),
@@ -221,6 +222,50 @@ def test_generators():
     assert sorted(
         Av(Basis(Perm((0, 2, 1)), Perm((1, 2, 0)))).up_to_length(3)
     ) == sorted(set(Perm.up_to_length(3)) - {Perm((0, 2, 1)), Perm((1, 2, 0))})
+
+
+LONELY_POINT = MeshPatt(Perm((0,)), [(0, 0), (0, 1), (1, 0), (1, 1)])
+
+
+def test_first_goes_on_past_an_empty_length_of_a_mesh_class():
+    """The pattern 1 with every box shaded is in the permutation 1 alone."""
+    perm_class = Av([LONELY_POINT])
+    assert [perm_class.count(length) for length in range(4)] == [1, 0, 2, 6]
+    assert list(perm_class.first(9)) == [
+        Perm(()),
+        *Perm.of_length(2),
+        *Perm.of_length(3),
+    ]
+
+
+def test_first_stops_where_the_unshaded_patterns_leave_no_permutation():
+    """It gives all of a mesh class that unshaded patterns keep finite."""
+    # Av(123, 321) has none of length 5; the lonely point takes out 1 alone
+    perm_class = Av([LONELY_POINT, Perm((0, 1, 2)), Perm((2, 1, 0))])
+    assert [perm_class.count(length) for length in range(6)] == [1, 0, 2, 4, 4, 0]
+    assert list(perm_class.first(100)) == [
+        perm for length in range(5) for perm in perm_class.of_length(length)
+    ]
+    assert list(Av([LONELY_POINT, Perm((0, 1)), Perm((1, 0))]).first(5)) == [Perm(())]
+    # Every permutation contains the unshaded empty pattern, so the class ends
+    # at once, without building Av(Basis(Perm())), which would raise
+    assert Av(MeshBasis(MeshPatt()))._is_empty_from(1)
+
+
+@pytest.mark.timeout(20, method="thread")
+def test_first_stops_at_the_end_of_a_finite_classical_class():
+    """A classical class with no permutation of one length has none longer."""
+    perm_class = Av([Perm((0, 1, 2)), Perm((2, 1, 0))])
+    perms = list(perm_class.first(10**6))
+    assert len(perms) == 12
+    assert perms == list(perm_class.up_to_length(4))
+
+
+def test_is_empty_from_is_false_at_a_length_with_a_permutation():
+    """_all asks _is_empty_from only at a length with no permutation, so its first
+    check is tested here: Av(12, 21) has the permutation 1 of length 1."""
+    assert not Av([Perm((0, 1)), Perm((1, 0))])._is_empty_from(1)
+    assert not Av([LONELY_POINT])._is_empty_from(2)
 
 
 def test_instance_variable_cache():
