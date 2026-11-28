@@ -196,6 +196,15 @@ def test_is_subclass_raises_for_a_mesh_class():
             av_lonely_point.is_subclass(other)
 
 
+def test_is_subclass_raises_with_its_message_for_any_mesh_basis():
+    lonely_point = MeshPatt(Perm((0,)), [(0, 0), (0, 1), (1, 0), (1, 1)])
+    # A MeshBasis with no box shaded is refused too, though its class is classical
+    for mesh_class in (Av([lonely_point]), Av(MeshBasis(Perm((0, 1))))):
+        for other in (Av.from_iterable((Perm((0, 1, 2)),)), mesh_class):
+            with pytest.raises(NotImplementedError, match="Only supported for Basis!"):
+                mesh_class.is_subclass(other)
+
+
 def test_av_of_length():
     assert [
         sum(1 for _ in Av(Basis(Perm((0, 2, 1)))).of_length(i)) for i in range(8)

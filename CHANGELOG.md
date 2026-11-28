@@ -21,10 +21,12 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
   CPython 3.11 through 3.14 compatibility coverage.
 - `Av.is_subclass` gives the right answer when the other class has a basis of
   mesh patterns, and raises a `NotImplementedError` when the class it is called
-  on has one, as such a class can hold a permutation without its patterns.
-  Before, it answered True whenever the other class had a basis of mesh
-  patterns, and could answer True for a class of mesh patterns that held a
-  permutation outside the other class.
+  on has one, as such a class can hold a permutation without its patterns. It
+  raises for a basis of mesh patterns with no box shaded too, as `is_finite`
+  does, though such a class is a classical one. Before, it answered True
+  whenever the other class had a basis of mesh patterns, and could answer True
+  for a class of mesh patterns that held a permutation outside the other class,
+  but was right for one with no box shaded against a classical class.
 - Modernized GitHub Actions, dependency caching, and Black configuration.
 - `bisc` and `auto_bisc` turn every input into a `PropertyBitmaps` and read the
   good and the bad permutations through its views, in lexicographic order, for
