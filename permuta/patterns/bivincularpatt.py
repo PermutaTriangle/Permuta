@@ -106,7 +106,7 @@ class BivincularPatt(MeshPatt):
         return False
 
     def __hash__(self) -> int:
-        return hash(super())
+        return super().__hash__()
 
 
 class VincularPatt(BivincularPatt):  # pylint: disable=abstract-method

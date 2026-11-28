@@ -37,6 +37,15 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 - `bisc` accepts any mapping of lengths to permutations, not only a `dict`.
 
 ### Fixed
+- `PermutationStatistic.check_all_transformed` always returned an empty dictionary,
+  and `jointly_transformed_equally_distributed` missed matches: a statistic with
+  itself, and one with a statistic earlier in the table, such as the ascents on
+  Av(231) with the descents on Av(312). It now gives each match once, with the
+  first class's statistics in the table's order.
+- A `BivincularPatt`, `VincularPatt` or `CovincularPatt` hashed unlike the equal
+  `MeshPatt`, and on PyPy unlike itself from one call to the next, so a set or a
+  dictionary could miss it.
+- `Perm.bkv_sortable` printed its working.
 - Supply the dependencies of PyPy's bundled cffi and HPy packages in tox.
 - Fixed bug in `Perm.rtlmax_ltrmin_decomposition` and fixed associated tests.
 
