@@ -255,3 +255,42 @@ def test_jointly_transformed_pairs_match_combinations_in_order(monkeypatch):
         ("Number of left-to-right maximas", "Number of right-to-left minimas"),
         ("Number of left-to-right maximas", "Number of right-to-left minimas"),
     ) in same_class
+
+
+def test_jointly_transformed_checks_each_length_up_to_n():
+    """Every length up to n is compared, and no more: 41 matches to 4, 40 to 5."""
+    av_231, av_312 = Av.from_string("231"), Av.from_string("312")
+    for n, count in ((4, 41), (5, 40)):
+        matches = list(
+            PermutationStatistic.jointly_transformed_equally_distributed(
+                av_231, av_312, n=n, dim=1
+            )
+        )
+        assert len(matches) == len(set(matches)) == count
+
+
+def test_jointly_transformed_pairs_two_statistics_by_default():
+    """dim is 2 by default; the first match of a class with itself comes at once."""
+    av_231 = Av.from_string("231")
+    stats1, stats2 = next(
+        PermutationStatistic.jointly_transformed_equally_distributed(av_231, av_231)
+    )
+    assert len(stats1) == len(stats2) == 2
+    assert stats1 == stats2
+
+
+def test_check_all_transformed_reads_the_keys_with_the_first_statistic():
+    """stat1 is taken on the keys and stat2 on the values; with no pairs at all,
+    every statistic goes to every one, in the table's order."""
+    bijection = {Perm((0, 1, 2)): Perm((0, 2, 1)), Perm((1, 0, 2)): Perm((0, 1, 2))}
+    expected = {}
+    for name1, func1 in PermutationStatistic._STATISTICS:
+        for name2, func2 in PermutationStatistic._STATISTICS:
+            if all(func1(key) == func2(value) for key, value in bijection.items()):
+                expected.setdefault(name1, []).append(name2)
+    assert expected
+    assert PermutationStatistic.check_all_transformed(bijection) == expected
+    names = [name for name, _ in PermutationStatistic._STATISTICS]
+    assert PermutationStatistic.check_all_transformed({}) == {
+        name: names for name in names
+    }

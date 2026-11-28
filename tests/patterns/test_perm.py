@@ -2742,6 +2742,20 @@ def test_bkv_sortable_prints_nothing(capsys):
     assert capsys.readouterr().out == ""
 
 
+def test_bkv_sortable_prints_nothing_to_either_stream(capfd):
+    for perm in (Perm(()), Perm((0,)), Perm((2, 0, 1)), Perm((3, 1, 2, 0))):
+        for patterns in (
+            (),
+            (Perm((2, 1, 0)),),
+            (Perm((0, 2, 1)), Perm((1, 0))),
+            (MeshPatt(Perm((1, 0)), {(0, 0)}),),
+        ):
+            perm.bkv_sortable(patterns)
+    captured = capfd.readouterr()
+    assert captured.out == ""
+    assert captured.err == ""
+
+
 def test_west_2_stack_sortable():
     eq_patt_avoidance = (Perm((1, 2, 3, 0)), MeshPatt(Perm((2, 1, 3, 0)), {(1, 4)}))
     for _ in range(100):
