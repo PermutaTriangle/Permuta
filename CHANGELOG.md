@@ -16,6 +16,11 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 - Required CI coverage for stable PyPy 3.12 alongside PyPy 3.11.
 
 ### Changed
+- A basis of mesh patterns that holds the empty pattern gives the right class.
+  With its box shaded, the empty pattern made `MeshBasis` drop the basis's other
+  patterns, though only the empty permutation contains it. And `Av` put the
+  empty permutation in every class, though it contains the empty pattern, shaded
+  or not.
 - Minimum Python version is now 3.11; CPython and PyPy 3.10 are no longer supported.
 - Python 3.15 is primary for linting, packaging, and cross-platform tests, with
   CPython 3.11 through 3.14 compatibility coverage.

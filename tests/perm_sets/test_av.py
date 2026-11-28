@@ -163,6 +163,28 @@ def test_av_meshpatt():
         assert len(gen) == cnt
 
 
+def test_a_mesh_class_whose_basis_holds_an_empty_pattern():
+    """The empty permutation contains each empty pattern, shaded or not, and the
+    shaded one is in no other permutation."""
+    shaded_empty = MeshPatt(Perm(()), [(0, 0)])
+    assert Av([shaded_empty]).enumeration(4) == [0, 1, 2, 6, 24]
+    assert Av([shaded_empty, Perm((0, 1))]).enumeration(4) == [0, 1, 1, 1, 1]
+    assert Av(MeshBasis(MeshPatt())).enumeration(4) == [0, 0, 0, 0, 0]
+    assert Perm(()) not in Av([shaded_empty])
+    assert Perm(()) in Av([Perm((0, 1))])
+    lonely_point = MeshPatt(Perm((0,)), [(0, 0), (0, 1), (1, 0), (1, 1)])
+    for basis in (
+        [shaded_empty, lonely_point],
+        [shaded_empty, MeshPatt(Perm((0, 1)), [(1, 1)]), Perm((2, 1, 0))],
+        [MeshPatt(), Perm((0, 1))],
+    ):
+        perm_class = Av(basis)
+        for length in range(6):
+            assert list(perm_class.of_length(length)) == [
+                perm for perm in Perm.of_length(length) if perm.avoids(*basis)
+            ]
+
+
 def test_enumeration():
     assert (
         Av.from_string("132").enumeration(8)

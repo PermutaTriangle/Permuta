@@ -105,6 +105,22 @@ def test_meshbasis():
     ) == MeshBasis(*(Perm((2, 0, 1)),))
 
 
+def test_a_mesh_basis_keeps_its_patterns_beside_the_shaded_empty_pattern():
+    """The empty pattern with its box shaded is in the empty permutation alone, so
+    it makes no other pattern redundant. The unshaded one is in every permutation,
+    so it is the basis alone."""
+    shaded_empty = MeshPatt(Perm(()), [(0, 0)])
+    increasing = MeshPatt(Perm((0, 1)), [])
+    assert tuple(MeshBasis(shaded_empty, Perm((0, 1)))) == (shaded_empty, increasing)
+    # the other patterns are pruned among themselves as before
+    assert tuple(MeshBasis(shaded_empty, Perm((0, 1)), Perm((0, 1, 2)))) == (
+        shaded_empty,
+        increasing,
+    )
+    assert MeshBasis(shaded_empty, MeshPatt()) == MeshBasis(MeshPatt())
+    assert MeshBasis(MeshPatt(), Perm((0, 1))) == MeshBasis(MeshPatt())
+
+
 def test_basis():
     assert Basis(*[Perm(), Perm((0,))]) == Basis(Perm())
     assert Basis(*[Perm((0, 2, 1)), Perm((0, 3, 2, 1))]) == Basis(Perm((0, 2, 1)))
