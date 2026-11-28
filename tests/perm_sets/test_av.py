@@ -210,7 +210,7 @@ def test_enumeration():
     )
 
 
-@pytest.mark.timeout(20)
+@pytest.mark.timeout(20, method="thread")
 def test_generators():
     assert list(Av(Basis(Perm((0, 1)), Perm((1, 0)))).first(500)) == [
         Perm(),
@@ -252,7 +252,7 @@ def test_first_stops_where_the_unshaded_patterns_leave_no_permutation():
     assert Av(MeshBasis(MeshPatt()))._is_empty_from(1)
 
 
-@pytest.mark.timeout(20)
+@pytest.mark.timeout(20, method="thread")
 def test_first_stops_at_the_end_of_a_finite_classical_class():
     """A classical class with no permutation of one length has none longer."""
     perm_class = Av([Perm((0, 1, 2)), Perm((2, 1, 0))])
