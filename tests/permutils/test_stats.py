@@ -1,4 +1,4 @@
-from permuta import Av
+from permuta import Av, Perm
 from permuta.permutils.statistics import PermutationStatistic
 
 
@@ -100,6 +100,33 @@ def test_distribution_all_perms():
         7,
         1,
     ]
+
+
+def test_longest_increasing_and_decreasing_subsequences():
+    """The two statistics are the longest monotone subsequences, not runs."""
+    statistics = dict(PermutationStatistic._STATISTICS)
+    increasing = statistics["Longest increasing subsequence"]
+    decreasing = statistics["Longest decreasing subsequence"]
+    assert increasing(Perm((0, 2, 1, 3))) == 3
+    assert decreasing(Perm((3, 1, 2, 0))) == 3
+    assert increasing(Perm(())) == decreasing(Perm(())) == 0
+    for length in range(7):
+        for perm in Perm.of_length(length):
+            # The longest increasing subsequence ending at each point, found the
+            # slow way, from those ending at the smaller points before it
+            ending_at = []
+            for index, value in enumerate(perm):
+                ending_before = [ending_at[i] for i in range(index) if perm[i] < value]
+                ending_at.append(1 + max(ending_before, default=0))
+            longest = max(ending_at, default=0)
+            assert increasing(perm) == longest
+            assert decreasing(perm.reverse()) == longest
+    # The permutations of length 6 by their longest increasing subsequence's
+    # length, from 0: OEIS A047874
+    by_length = [0, 1, 131, 381, 181, 25, 1]
+    for name in ("Longest increasing subsequence", "Longest decreasing subsequence"):
+        statistic = PermutationStatistic(name, statistics[name])
+        assert statistic.distribution_for_length(6) == by_length
 
 
 def test_distribution_av():

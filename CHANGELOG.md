@@ -39,6 +39,10 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 ### Fixed
 - Supply the dependencies of PyPy's bundled cffi and HPy packages in tox.
 - Fixed bug in `Perm.rtlmax_ltrmin_decomposition` and fixed associated tests.
+- The statistics "Longest increasing subsequence" and "Longest decreasing
+  subsequence" of `PermutationStatistic` were the longest increasing and
+  decreasing runs of adjacent entries, such as 2 for 1324, where they are 3. They
+  were wrong for 376 of the 874 permutations of length up to 6.
 
 ## 2.3.1 - 2025-06-13 
 ### Changed
