@@ -33,8 +33,10 @@ def find_strategies(
     else:
         strategies = fast_enumeration_strategies
     working_strategies: List[EnumerationStrategy] = []
+    # Read once, as each strategy reads it
+    patterns = tuple(basis)
     for strategy in strategies:
-        strategy_object = strategy(basis)
+        strategy_object = strategy(patterns)
         if strategy_object.applies():
             working_strategies.append(strategy_object)
     return working_strategies

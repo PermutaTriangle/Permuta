@@ -46,6 +46,15 @@ def test_finite_simples():
     assert strat.applies()
 
 
+def test_find_strategies_reads_a_one_shot_basis_once():
+    """Each strategy is tried on all of a basis given as an iterator."""
+    basis = [rd, cd]
+    from_list = [type(strategy) for strategy in find_strategies(basis)]
+    from_iterator = [type(strategy) for strategy in find_strategies(iter(basis))]
+    assert from_list == [RdCdCoreStrategy, FinitelyManySimplesStrategy]
+    assert from_iterator == from_list
+
+
 def test_RuCu():
     assert not RuCuCoreStrategy([ru, cu, Perm((1, 4, 0, 2, 3))]).applies()
     assert not RuCuCoreStrategy([ru, Perm((0, 1, 2, 3))]).applies()

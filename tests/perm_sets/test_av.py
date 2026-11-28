@@ -448,3 +448,12 @@ def test_above_juxtaposition_mesh_basis_raises():
         av_classical.above_juxtaposition(av_mesh)
     with pytest.raises(NotImplementedError):
         av_mesh.above_juxtaposition(av_classical)
+
+
+def test_a_basis_given_as_a_one_shot_iterable_is_read_once():
+    """Av takes an iterator or a generator of patterns as it takes a list."""
+    patterns = [MeshPatt(Perm((0, 1)), [(1, 1)]), Perm((0, 1, 2))]
+    assert Av(iter(patterns)).basis == Av(patterns).basis
+    assert Av.from_iterable(iter(patterns)).basis == Av(patterns).basis
+    classical = [Perm((0, 2, 1)), Perm((1, 0))]
+    assert Av(perm for perm in classical).basis == Av(classical).basis

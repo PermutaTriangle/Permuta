@@ -38,6 +38,10 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 
 ### Fixed
 - Supply the dependencies of PyPy's bundled cffi and HPy packages in tox.
+- A basis given as an iterator or a generator is read once. `Av` lost its patterns
+  up to and including the first mesh pattern, or raised a `ValueError` when none
+  was a mesh pattern; `is_insertion_encodable` could answer False for an encodable
+  basis; and `find_strategies` raised a `ValueError`.
 - Fixed bug in `Perm.rtlmax_ltrmin_decomposition` and fixed associated tests.
 
 ## 2.3.1 - 2025-06-13 

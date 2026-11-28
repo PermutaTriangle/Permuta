@@ -87,6 +87,8 @@ class InsertionEncodablePerms:
     @staticmethod
     def is_insertion_encodable(basis: Iterable[Perm]) -> bool:
         """Check if basis is insertion encodable."""
+        # Read once, as both checks read it
+        patterns = tuple(basis)
         return InsertionEncodablePerms.is_insertion_encodable_rightmost(
-            basis
-        ) or InsertionEncodablePerms.is_insertion_encodable_maximum(basis)
+            patterns
+        ) or InsertionEncodablePerms.is_insertion_encodable_maximum(patterns)
