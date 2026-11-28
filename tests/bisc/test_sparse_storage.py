@@ -943,6 +943,14 @@ def test_a_sequence_given_as_a_permutation_is_read_once():
     assert list(property_bitmaps.good[3]) == [Perm((1, 0, 2))]
 
 
+def test_a_generator_given_as_a_permutation_is_refused():
+    """A generator is no sequence: it has no len(), so it raises a TypeError."""
+    with pytest.raises(TypeError, match="has no len"):
+        bisc_module._from_perms_by_length({3: [(value for value in (1, 0, 2))]})
+    with pytest.raises(TypeError, match="has no len"):
+        bisc([(value for value in (1, 0, 2))], 1, 3)
+
+
 def test_keep_asserts_the_form_of_the_labels():
     """The readers tell a bitmap, bytes, from indices by its type, so _keep
     takes bytes, an array or a list, and asserts it: a bytearray would be read
