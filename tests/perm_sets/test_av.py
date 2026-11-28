@@ -143,6 +143,8 @@ def test_is_subclass_of_a_mesh_class():
     # Av(12) holds 21, which contains the mesh pattern 21 with no box shaded
     assert not av12.is_subclass(Av(MeshBasis(Perm((1, 0)))))
     assert av12.is_subclass(Av(MeshBasis(Perm((0, 1)))))
+    # Of these two, 21 is in Av(12), though 12 is not
+    assert not av12.is_subclass(Av(MeshBasis(Perm((0, 1)), Perm((1, 0)))))
     shaded_132 = MeshPatt(Perm((0, 2, 1)), [(0, 0)])
     assert Av.from_iterable((Perm((0, 2, 1)),)).is_subclass(Av([shaded_132]))
     # 132 avoids 123, and contains each mesh pattern made from it
