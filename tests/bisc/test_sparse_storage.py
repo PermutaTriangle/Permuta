@@ -9,6 +9,9 @@ import random
 import sys
 import weakref
 from array import array
+from collections.abc import Sequence
+from decimal import Decimal
+from fractions import Fraction
 from math import factorial
 
 import pytest
@@ -857,6 +860,117 @@ def test_a_sparse_list_with_repeats_counts_each_permutation_once():
     assert len(property_bitmaps.good[8]) == 2
     assert len(property_bitmaps.bad[8]) == factorial(8) - 2
     assert list(property_bitmaps.good[8]) == [first, second]
+
+
+@pytest.mark.parametrize(
+    "number", [float, Fraction, Decimal], ids=lambda number: number.__name__
+)
+@pytest.mark.parametrize("length", [1, 3, 21])
+def test_a_permutation_of_numbers_that_are_not_ints_is_refused(number, length):
+    """A sequence of floats, Fractions or Decimals equal to 0 to n - 1 is
+    refused, as a view refuses it: its set is the length's values, but its
+    rank() is no index. Past length 20 it was kept, and failed later."""
+    not_ints = tuple(number(value) for value in range(length))
+    message = "is not a permutation of 0 to {}".format(length - 1)
+    with pytest.raises(ValueError, match=message):
+        bisc_module._from_perms_by_length({length: [not_ints]})
+
+
+@pytest.mark.parametrize(
+    "number", [float, Fraction, Decimal], ids=lambda number: number.__name__
+)
+@pytest.mark.parametrize("position", [0, 1, 2])
+def test_one_value_that_is_not_an_int_is_enough_to_refuse(number, position):
+    """One float, Fraction or Decimal among ints is refused: rank() adds a part
+    for each value, and one of another type makes the sum that type."""
+    given = [0, 1, 2]
+    given[position] = number(position)
+    with pytest.raises(ValueError, match="is not a permutation of 0 to 2"):
+        bisc_module._from_perms_by_length({3: [tuple(given)]})
+
+
+def test_values_whose_rank_overflows_are_refused_with_a_value_error():
+    """From length 172 a factorial is too large for a float, and rank() of
+    floats overflows, as it does for NumPy's integers past their width. They
+    are refused with the ValueError of other values that are not ints."""
+    given = tuple(float(value) for value in range(171, -1, -1))
+    with pytest.raises(ValueError, match="is not a permutation of 0 to 171"):
+        bisc_module._from_perms_by_length({172: [given]})
+
+
+def test_an_overflow_in_the_subtraction_is_refused_too(monkeypatch):
+    """NumPy's narrower integers can overflow past rank(), where the count of
+    the shorter permutations is subtracted: at length 6 that count is 154,
+    past int8's largest, 127. A count too large for a float stands in."""
+    monkeypatch.setattr(bisc_module, "_shorter_count", lambda length: 10**400)
+    with pytest.raises(ValueError, match="is not a permutation of 0 to 2"):
+        bisc_module._from_perms_by_length({3: [(0.0, 1.0, 2.0)]})
+
+
+def test_a_view_refuses_a_permutation_of_floats():
+    """A view's `in` takes any sequence of the ints 0 to n - 1, and no other,
+    though (0.0, 1.0, 2.0) == (0, 1, 2)."""
+    property_bitmaps = PropertyBitmaps(Perm.is_increasing)
+    property_bitmaps.add_length(3)
+    assert (0, 1, 2) in property_bitmaps.good[3]
+    assert (0.0, 1.0, 2.0) not in property_bitmaps.good[3]
+    assert (0.0, 1.0, 2.0) not in property_bitmaps.bad[3]
+
+
+class ReadOnce(Sequence):
+    """A sequence that can be iterated over only once. No standard type is
+    like it, but a sequence given as a permutation is read once."""
+
+    def __init__(self, values):
+        self.values = values
+        self.iterated = False
+
+    def __getitem__(self, index):
+        return self.values[index]
+
+    def __len__(self):
+        return len(self.values)
+
+    def __iter__(self):
+        if self.iterated:
+            return iter(())
+        self.iterated = True
+        return iter(self.values)
+
+
+def test_a_sequence_given_as_a_permutation_is_read_once():
+    property_bitmaps = bisc_module._from_perms_by_length({3: [ReadOnce((1, 0, 2))]})
+    assert list(property_bitmaps.good[3]) == [Perm((1, 0, 2))]
+
+
+def test_a_generator_given_as_a_permutation_is_refused():
+    """A generator is no sequence: it has no len(), so it raises a TypeError."""
+    with pytest.raises(TypeError, match="has no len"):
+        bisc_module._from_perms_by_length({3: [(value for value in (1, 0, 2))]})
+    with pytest.raises(TypeError, match="has no len"):
+        bisc([(value for value in (1, 0, 2))], 1, 3)
+
+
+def test_keep_asserts_the_form_of_the_labels():
+    """The readers tell a bitmap, bytes, from indices by its type, so _keep
+    takes bytes, an array or a list, and asserts it: a bytearray would be read
+    as indices."""
+    property_bitmaps = PropertyBitmaps()
+    with pytest.raises(AssertionError):
+        property_bitmaps._keep(3, bytearray(1), 0)
+    property_bitmaps._keep(3, bytes(1), 0)
+    assert len(property_bitmaps.good[3]) == 0 and len(property_bitmaps.bad[3]) == 6
+
+
+def test_the_messages_show_the_sequence_as_given():
+    with pytest.raises(ValueError) as length_error:
+        bisc_module._from_perms_by_length({3: [(0, 1)]})
+    assert str(length_error.value) == (
+        "The permutation (0, 1) of length 2 is given as one of length 3"
+    )
+    with pytest.raises(ValueError) as values_error:
+        bisc_module._from_perms_by_length({3: [(1, 2, 3)]})
+    assert str(values_error.value) == "(1, 2, 3) is not a permutation of 0 to 2"
 
 
 @pytest.mark.parametrize(
