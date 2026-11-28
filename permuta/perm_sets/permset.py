@@ -80,7 +80,7 @@ class Av(AvBase):
         patterns = tuple(basis)
         if MeshBasis.is_mesh_basis(patterns):
             return cls(MeshBasis(*patterns))
-        # None is a mesh pattern, so each is a Perm
+        # No pattern is a mesh pattern
         return cls(Basis(*cast(Tuple[Perm, ...], patterns)))
 
     def is_finite(self) -> bool:
