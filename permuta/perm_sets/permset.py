@@ -206,8 +206,12 @@ class Av(AvBase):
 
     def _all(self) -> Iterable[Perm]:
         length = 0
-        while not self._is_empty_from(length):
-            yield from self.of_length(length)
+        while True:
+            level = self._get_level(length)
+            # A level with a permutation needs no further check
+            if not level and self._is_empty_from(length):
+                return
+            yield from level
             length += 1
 
     def _is_empty_from(self, length: int) -> bool:
@@ -233,7 +237,7 @@ class Av(AvBase):
         if not unshaded:
             return False
         if min(len(patt) for patt in unshaded) == 0:
-            # The empty pattern is in every permutation of length 1 or more
+            # Every permutation contains the empty pattern, and Av refuses it
             return True
         return Av(Basis(*unshaded)).count(length) == 0
 

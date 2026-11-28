@@ -246,8 +246,18 @@ def test_first_stops_where_the_unshaded_patterns_leave_no_permutation():
         perm for length in range(5) for perm in perm_class.of_length(length)
     ]
     assert list(Av([LONELY_POINT, Perm((0, 1)), Perm((1, 0))]).first(5)) == [Perm(())]
-    # The empty pattern, unshaded, is in every permutation but the empty one
-    assert list(Av(MeshBasis(MeshPatt())).first(3)) == [Perm(())]
+    # Every permutation contains the unshaded empty pattern, so the class ends
+    # at once, without building Av(Basis(Perm())), which would raise
+    assert Av(MeshBasis(MeshPatt()))._is_empty_from(1)
+
+
+@pytest.mark.timeout(20)
+def test_first_stops_at_the_end_of_a_finite_classical_class():
+    """A classical class with no permutation of one length has none longer."""
+    perm_class = Av([Perm((0, 1, 2)), Perm((2, 1, 0))])
+    perms = list(perm_class.first(10**6))
+    assert len(perms) == 12
+    assert perms == list(perm_class.up_to_length(4))
 
 
 def test_instance_variable_cache():
